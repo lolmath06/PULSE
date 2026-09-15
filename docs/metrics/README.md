@@ -1,10 +1,10 @@
 # PULSE Metrics Engine
 
-> **Phase 1 — the engine exists and is tested. It collects nothing yet.**
+> **Phase 2 — the engine collects real data.**
 >
-> The model, the provider contract, the engine and the frontend API are
-> implemented. No system collector is registered, so the catalog is empty by
-> design rather than by accident.
+> The model, the provider contract, the engine and the frontend API were built
+> in Phase 1. Phase 2 added the first native collectors: CPU usage and physical
+> memory, on both Fedora and Windows. Five metrics, two providers per platform.
 
 ## Documents
 
@@ -42,6 +42,10 @@ nothing but documentation examples, and the whole module cross-compiles for
 A metric is sampled once per request regardless of how many widgets show it.
 Ten CPU widgets cost one `/proc/stat` read. The engine deduplicates references
 and calls each provider at most once per request.
+
+The memory provider goes further: all four `memory.*` metrics come from a
+**single** read, so they are always mutually consistent — there is no torn read
+where `used` and `available` come from different moments and fail to add up.
 
 ### 2. Sample only what is asked for
 
@@ -94,12 +98,15 @@ reason.
 
 Called through `src/services/metrics.ts`. Types in `src/types/metrics.ts`.
 
-## Deliberately not in Phase 1
+## Deliberately still absent
 
 No scheduler, no polling loop, no history, no ring buffer, no SQLite, no
-adaptive sampling, no subscriptions, no events. The interaction model is
-`request → sample → response`, which is all the widget engine needs to be built
-against.
+adaptive sampling, no subscriptions, no events. The interaction model remains
+`request → sample → response`, and the UI refreshes on demand.
+
+This is why a first CPU sample may report `temporarilyUnavailable`: usage is a
+rate, and without a sampler there may be no usable delta yet. PULSE says so
+rather than reporting `0%`.
 
 Planned for later phases:
 

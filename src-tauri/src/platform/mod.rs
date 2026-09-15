@@ -10,14 +10,31 @@
 //! 3. exposing it through a service and a command.
 //!
 //! Only this file and its submodules may use `cfg(target_os)` for OS
-//! selection, so no Linux-only code is ever compiled into a Windows build and
-//! vice versa.
+//! selection. Nothing above this layer — not `services`, not `commands`, and
+//! certainly not `metrics` — contains a single one.
+//!
+//! Within the layer, the gating is deliberately narrow: both `linux` and
+//! `windows` are compiled on every host, and only the parts that actually touch
+//! the operating system (FFI calls, the `HostPlatform` implementations, tests
+//! that read the real `/proc`) are gated. The pure logic — `/proc` parsing,
+//! FILETIME arithmetic, the memory convention — compiles and is unit-tested
+//! everywhere, so a Fedora test run catches a broken Windows formula and a
+//! Windows run catches a broken `/proc` parser. No OS-specific *dependency* is
+//! ever pulled into the other platform's build: those are declared under
+//! `[target.'cfg(target_os = "...")'.dependencies]` in `Cargo.toml`.
+
+use std::sync::Arc;
 
 use serde::{Deserialize, Serialize};
 
-#[cfg(target_os = "linux")]
+use crate::metrics::providers::MetricProvider;
+
+// Both platform modules are compiled on every host. Their OS-specific parts
+// (FFI calls, `HostPlatform` implementations) are gated internally, while the
+// pure logic — `/proc` parsing, FILETIME arithmetic, the memory convention —
+// compiles and is tested everywhere. That is what lets Fedora CI catch a
+// broken Windows formula and vice versa.
 pub mod linux;
-#[cfg(target_os = "windows")]
 pub mod windows;
 
 /// Platform families PULSE ships a backend implementation for.
@@ -82,6 +99,18 @@ pub trait HostPlatform: Send + Sync {
     /// elsewhere.
     fn display_server(&self) -> Option<String> {
         None
+    }
+
+    /// The metric providers available on this platform.
+    ///
+    /// **This is where PULSE decides which data sources exist**, and it is the
+    /// reason `MetricsEngine` needs no `cfg(target_os)` of its own: the engine
+    /// is handed a list of providers and never asks where they came from.
+    ///
+    /// Returning an empty list is valid — it yields an engine with an empty
+    /// catalog rather than a failure.
+    fn metric_providers(&self) -> Vec<Arc<dyn MetricProvider>> {
+        Vec::new()
     }
 }
 

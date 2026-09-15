@@ -7,7 +7,8 @@
 
 use std::sync::Arc;
 
-use crate::metrics::{build_engine, MetricsEngine};
+use crate::metrics::MetricsEngine;
+use crate::services::metrics::build_engine;
 
 /// Root state object managed by Tauri.
 #[derive(Debug)]
@@ -69,8 +70,15 @@ mod tests {
     }
 
     #[test]
-    fn the_engine_starts_empty() {
+    fn the_engine_is_populated_from_the_host_platform() {
         let state = AppState::new();
-        assert_eq!(state.metrics().status().provider_count, 0);
+        let status = state.metrics().status();
+
+        if crate::platform::PlatformKind::current().is_supported() {
+            assert_eq!(status.provider_count, 2);
+            assert_eq!(status.metric_count, 5);
+        } else {
+            assert_eq!(status.provider_count, 0);
+        }
     }
 }

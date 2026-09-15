@@ -1,7 +1,8 @@
 # Metric Providers
 
-> Phase 1 defines the provider contract and the engine that hosts it. **No real
-> provider is implemented yet.**
+> Phase 1 defined the provider contract and the engine that hosts it. Phase 2
+> added the first real providers — CPU and memory, natively on both platforms —
+> and the engine did not have to change to accommodate them.
 
 ## What a provider is
 
@@ -126,16 +127,24 @@ the first providers touch genuinely flaky hardware interfaces.
 ## Testing a provider
 
 Parsing and interpretation must be **pure functions taking their input as
-arguments**, exactly as in Phase 0 (`detect_display_server`,
-`parse_pretty_name`, `format_os_version`). That is what lets `/proc/stat`
-parsing be tested on Windows and PDH counter interpretation be reasoned about
-from Fedora.
+arguments** — `parse_proc_stat`, `parse_meminfo`, `counters_from_system_times`,
+`filetime_to_u64` — so they can be exercised with fixtures instead of against a
+live kernel.
+
+Both platform modules are compiled on **every** host; only the FFI calls and the
+`HostPlatform` implementations are gated behind `cfg(target_os)`. A Fedora test
+run therefore exercises the Windows arithmetic, and a Windows run exercises the
+`/proc` parsers. There is no reason for Windows maths to be untestable from a
+Linux machine.
+
+Host-specific tests — those reading the real `/proc` or calling the real API —
+are gated to their platform and assert **invariants only**: never a particular
+amount of RAM or a particular load, which would make CI depend on the runner's
+hardware.
 
 The engine itself is tested with `MockProvider`
 (`src-tauri/src/metrics/providers/mock.rs`), which is `#[cfg(test)]` and
-therefore **never compiled into the shipped binary**. PULSE cannot display a
-fabricated temperature, because no code capable of producing one exists outside
-the test build.
+therefore never compiled into the shipped binary.
 
 ## Cross-platform rule
 
@@ -148,17 +157,54 @@ the other, either be implemented or be **declared with an explicit
 `unsupported` availability and a reason**. Silence is not an acceptable
 cross-platform answer.
 
-## Planned providers
+## Providers
 
-| Provider                    | Platform         | Phase |
-| --------------------------- | ---------------- | ----- |
-| `linux.cpu`                 | Fedora           | 2     |
-| `windows.pdh`               | Windows          | 2     |
-| `linux.hwmon`               | Fedora           | 2–3   |
-| `nvidia.nvml`               | both             | 3     |
-| `linux.drm` (AMD/Intel GPU) | Fedora           | 3     |
-| `storage.smart`             | both, privileged | later |
+| Provider         | Platform         | Data source            | Status          |
+| ---------------- | ---------------- | ---------------------- | --------------- |
+| `linux.cpu`      | Fedora           | `/proc/stat`           | **Implemented** |
+| `linux.memory`   | Fedora           | `/proc/meminfo`        | **Implemented** |
+| `windows.cpu`    | Windows          | `GetSystemTimes`       | **Implemented** |
+| `windows.memory` | Windows          | `GlobalMemoryStatusEx` | **Implemented** |
+| `linux.hwmon`    | Fedora           | `/sys/class/hwmon`     | Planned         |
+| `windows.pdh`    | Windows          | Performance counters   | Planned         |
+| `nvidia.nvml`    | both             | NVML                   | Planned         |
+| `linux.drm`      | Fedora           | `/sys/class/drm`       | Planned         |
+| `storage.smart`  | both, privileged | SMART                  | Later           |
 
-See [`../platforms/fedora.md`](../platforms/fedora.md) and
+See [`cpu-memory.md`](cpu-memory.md) for how the implemented ones work, and
+[`../platforms/fedora.md`](../platforms/fedora.md) /
 [`../platforms/windows.md`](../platforms/windows.md) for the data sources and
 their constraints.
+
+## How providers reach the engine
+
+The platform layer decides which providers exist; the engine only hosts them.
+
+```text
+HostPlatform::metric_providers()     platform/linux/mod.rs, platform/windows/mod.rs
+        │  Vec<Arc<dyn MetricProvider>>
+services::metrics::build_engine()    the composition point
+        │
+metrics::build_engine(providers)     registers each; logs and skips failures
+        │
+MetricsEngine                        no cfg(target_os) anywhere inside
+```
+
+`services` sits above both `metrics` and `platform`, so neither depends on the
+other and the engine never learns that Linux or Windows exist. Adding a provider
+means implementing the trait and returning it from `metric_providers()` — no
+change to the engine, and no new `cfg` outside the platform layer.
+
+A provider that fails to register is **logged and skipped**, never propagated:
+one unavailable data source must not stop PULSE from starting.
+
+## Sharing declarations between platforms
+
+`metrics/wellknown/` owns each shipped metric's key, source, unit, category,
+kind and user-facing text, plus the arithmetic that turns raw counters into the
+published value. Platform providers supply **only the raw numbers** — they never
+choose a key, a unit or a formula.
+
+That is what makes `memory.used@memory:system` mean exactly the same thing on
+both operating systems, and a contract test asserts that the Linux and Windows
+declarations differ in `providerId` and in nothing else.

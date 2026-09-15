@@ -98,6 +98,18 @@ network:enp5s0
 battery:bat0
 ```
 
+## Logical sources
+
+Not every source is a device. `cpu:system` and `memory:system` — the sources
+PULSE ships today — are **logical** identifiers meaning "this machine's CPU as a
+whole" and "this machine's physical memory as a whole".
+
+They are stable by construction: nothing about them can shift with detection
+order, driver updates or hardware changes, and they are identical on Fedora and
+Windows. Per-core, per-package and per-DIMM sources will arrive later with their
+own hardware-derived identifiers; until then, a logical source is the honest way
+to say "the aggregate".
+
 ## The instance must be stable — and must not be the product name
 
 > **The human-readable device name must never be the technical identifier.**
@@ -111,23 +123,45 @@ the product name:
 - a localised or user-edited name breaks the configuration;
 - two machines with the same hardware cannot have different dashboards.
 
-So the instance is derived from something the OS considers stable:
-
-| Class       | Fedora / Linux                                    | Windows                  |
-| ----------- | ------------------------------------------------- | ------------------------ |
-| GPU         | PCI address from `/sys/class/drm/card*/device`    | PCI location path / LUID |
-| Storage     | kernel device name or `/dev/disk/by-id`           | disk number plus serial  |
-| Network     | interface name (`enp5s0`), predictable by systemd | interface GUID           |
-| CPU package | package index                                     | package index            |
-
 The product name lives in `MetricDefinition.sourceLabel`, which is presentation
 only and may change freely between runs.
 
-Where a source identifier is derived from something _not_ guaranteed stable
-(hwmon numbering, for instance, can shift between reboots), the provider must
-map it to something that is — the `name` attribute plus a label, never
-`hwmon2`. This is called out in
-[`../platforms/fedora.md`](../platforms/fedora.md).
+### Kernel enumeration names are not identities either
+
+This deserves stating plainly, because it is the trap that will bite the GPU and
+storage phases:
+
+> **`nvme0n1`, `card0`, `eth0` and `hwmon2` are enumeration artefacts, not
+> identities.** They depend on probe order, and can change between boots, after
+> a kernel or firmware update, or when a device is added or removed.
+
+Preferred sources of a stable instance, in rough order:
+
+```text
+PCI BDF address          e.g. 0000:01:00.0
+hardware serial number
+UUID / WWN
+/dev/disk/by-id entry
+Windows device instance ID
+Windows interface GUID
+```
+
+Applied per class:
+
+| Class       | Fedora / Linux                             | Windows                        |
+| ----------- | ------------------------------------------ | ------------------------------ |
+| GPU         | PCI BDF from `/sys/class/drm/card*/device` | PCI location path / LUID       |
+| Storage     | `/dev/disk/by-id`, serial or WWN           | device instance ID plus serial |
+| Network     | MAC, or a systemd-predictable name         | interface GUID                 |
+| CPU package | package index                              | package index                  |
+
+A provider that can only obtain an enumeration name must map it to something
+stable before publishing it — hwmon, for instance, must be keyed on the `name`
+attribute plus a label, never on `hwmon2`. Where nothing stable exists, that
+limitation belongs in the platform documentation, not hidden inside an
+identifier that will silently break a user's dashboard.
+
+This is expanded in [`../platforms/fedora.md`](../platforms/fedora.md).
 
 ## ProviderId
 

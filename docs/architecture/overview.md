@@ -112,9 +112,10 @@ Two conventions matter already:
 
 ## 4. The Metrics Engine
 
-**Implemented in Phase 1** — the model, the provider contract and the engine.
-**No system collectors yet**: `build_engine()` registers nothing, so PULSE
-reports an empty catalog rather than inventing numbers.
+**Implemented.** Phase 1 built the model, the provider contract and the engine;
+Phase 2 added the first native collectors — CPU usage and physical memory, on
+both Fedora and Windows. The engine did not change to accommodate them, which
+was the point of building it first.
 
 The engine is the second boundary in PULSE, after the platform layer, and it
 exists to make one sentence true:
@@ -143,9 +144,34 @@ The engine owns the catalog and routes references to providers via a `HashMap`
 index, samples only what is requested, and isolates provider failures: a GPU
 provider going down does not blank out CPU and network readings.
 
+### Where providers come from
+
+The engine hosts providers; it never discovers them.
+
+```text
+HostPlatform::metric_providers()     the platform layer decides what exists
+        │  Vec<Arc<dyn MetricProvider>>
+services::metrics::build_engine()    the composition point
+        │
+metrics::build_engine(providers)     registers each, logs and skips failures
+        │
+MetricsEngine                        contains no cfg(target_os) at all
+```
+
+`services` sits above both `metrics` and `platform`, so neither depends on the
+other. This is what keeps OS branching out of the engine entirely: `grep
+cfg(target_os)` over `src-tauri/src/metrics/` matches nothing but documentation
+examples.
+
+Shared metric declarations live in `metrics/wellknown/`, which owns each
+metric's key, unit, kind, user-facing text and arithmetic. Platform providers
+supply only raw counters. A contract test asserts that the Linux and Windows
+declarations differ in `providerId` and nothing else — that is the mechanism
+behind "a dashboard configured on Fedora still works on Windows".
+
 **Deliberately deferred**: the scheduler, subscriptions, streaming events,
-history and its ring buffer. The Phase 1 interaction model is
-`request → sample → response`.
+history and its ring buffer. The interaction model is still
+`request → sample → response`, with the UI refreshing on demand.
 
 See [`../metrics/README.md`](../metrics/README.md),
 [`../metrics/model.md`](../metrics/model.md),

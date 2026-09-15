@@ -58,6 +58,32 @@ describe('MetricsEngineCard', () => {
     expect(card).not.toHaveTextContent('No providers registered yet');
   });
 
+  it('reports the two real providers and five metrics of Phase 2', async () => {
+    // What Fedora and Windows both look like once the CPU and memory
+    // providers are registered.
+    vi.spyOn(metricsService, 'getMetricsEngineStatus').mockResolvedValue(
+      status({
+        state: 'ready',
+        providerCount: 2,
+        metricCount: 5,
+        availableMetricCount: 5,
+        providers: [
+          { id: 'linux.cpu', metricCount: 1, availableMetricCount: 1 },
+          { id: 'linux.memory', metricCount: 4, availableMetricCount: 4 },
+        ],
+      }),
+    );
+
+    render(<MetricsEngineCard />);
+
+    const card = await screen.findByLabelText('Metrics engine');
+    expect(card).toHaveTextContent('Ready');
+    expect(card).toHaveTextContent('v1');
+    expect(card).toHaveTextContent('2');
+    expect(card).toHaveTextContent('5 (5 available)');
+    expect(card).not.toHaveTextContent('No providers registered yet');
+  });
+
   it('never fabricates hardware readings', async () => {
     vi.spyOn(metricsService, 'getMetricsEngineStatus').mockResolvedValue(status());
 

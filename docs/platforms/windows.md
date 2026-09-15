@@ -5,6 +5,47 @@
 
 Windows is a **first-class PULSE platform**, on equal footing with Fedora Linux.
 
+## What PULSE reads on Windows today
+
+**Implemented (Phase 2).** No administrator rights required.
+
+| Metric                 | API                    | Notes                     |
+| ---------------------- | ---------------------- | ------------------------- |
+| `cpu.usage.total`      | `GetSystemTimes`       | Delta between two samples |
+| `memory.total`         | `GlobalMemoryStatusEx` | `ullTotalPhys`            |
+| `memory.available`     | `GlobalMemoryStatusEx` | `ullAvailPhys`            |
+| `memory.used`          | derived                | `total - available`       |
+| `memory.usage.percent` | derived                | `used / total * 100`      |
+
+Two Windows-specific details worth knowing:
+
+- **`GetSystemTimes` counts idle time inside `KernelTime`.** So
+  `total = kernel + user` and `busy = total - idle`. Applying the Linux formula
+  here would report a completely idle machine as heavily busy. This is the one
+  genuine trap in the phase, and it has a test named after it.
+- **`dwMemoryLoad` is deliberately ignored.** Windows offers a ready-made
+  percentage, but it is rounded to a whole number and would disagree with the
+  `used` and `total` figures shown beside it — and with how Fedora reports the
+  same thing. PULSE computes from the byte counts on both platforms.
+
+A `FILETIME` is a 64-bit value split across two 32-bit fields, and Microsoft's
+documentation is explicit that it must not be cast directly to a 64-bit
+integer; PULSE recombines the halves explicitly.
+
+Full formulas and edge cases: [`../metrics/cpu-memory.md`](../metrics/cpu-memory.md).
+
+### Dependencies and `unsafe`
+
+The only Windows crate used for metrics is `windows-sys` — raw FFI bindings,
+no wrapper layer, no runtime — declared under
+`[target.'cfg(target_os = "windows")'.dependencies]` with exactly the three
+features that declare the two calls PULSE makes.
+
+There are precisely **two `unsafe` blocks**, one per API call, each a handful of
+lines with a `# Safety` comment explaining why it is sound. Everything
+else — FILETIME recombination, the CPU counter semantics, the memory
+convention — is safe, pure Rust that compiles and is unit-tested on Fedora too.
+
 ## What Phase 0 already does on Windows
 
 - Reports the OS version via the `windows-version` crate, distinguishing
@@ -45,14 +86,16 @@ monitoring app cost more CPU than the things it measures.
 
 ### CPU
 
-- `GetSystemTimes` / `NtQuerySystemInformation` for utilisation, as deltas.
+- `GetSystemTimes` for aggregate utilisation, as deltas — **implemented**.
+- `NtQuerySystemInformation` for per-processor detail, a later phase.
 - PDH `\Processor Information(*)\% Processor Utility` for per-core detail.
 - Frequency is awkward: `\Processor Information(*)\% Processor Performance`
   scaled by the nominal frequency is the usual approach.
 
 ### Memory
 
-- `GlobalMemoryStatusEx` for totals, `GetPerformanceInfo` for detail.
+- `GlobalMemoryStatusEx` for physical totals — **implemented**.
+- `GetPerformanceInfo` for commit charge and page-file detail, a later phase.
 
 ### Storage and network
 

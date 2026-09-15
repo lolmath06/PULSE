@@ -5,6 +5,34 @@
 
 Fedora Linux is a **first-class PULSE platform**, on equal footing with Windows.
 
+## What PULSE reads on Fedora today
+
+**Implemented (Phase 2).** No elevated privileges required.
+
+| Metric                 | File            | Notes                                           |
+| ---------------------- | --------------- | ----------------------------------------------- |
+| `cpu.usage.total`      | `/proc/stat`    | Aggregate `cpu` line; delta between two samples |
+| `memory.total`         | `/proc/meminfo` | `MemTotal`, kB → bytes                          |
+| `memory.available`     | `/proc/meminfo` | `MemAvailable`, kB → bytes                      |
+| `memory.used`          | derived         | `total - available`                             |
+| `memory.usage.percent` | derived         | `used / total * 100`                            |
+
+Three details that the implementation gets right and that are easy to get wrong:
+
+- **`iowait` counts as idle** in the CPU calculation — the CPU really is
+  executing nothing while a task waits for I/O.
+- **`guest` and `guest_nice` are not added to the CPU total.** The kernel
+  already includes them inside `user` and `nice`; counting them twice inflates
+  the total and makes a busy host look idle.
+- **`MemAvailable`, never `MemFree`.** Free memory excludes reclaimable page
+  cache, so a healthy machine with a warm cache would look nearly out of memory.
+
+Values in `/proc/meminfo` are converted from kB to bytes inside the platform
+layer, so nothing above it ever handles a non-canonical unit. An unexpected unit
+suffix is rejected rather than guessed — a wrong guess is off by a factor of 1024.
+
+Full formulas and edge cases: [`../metrics/cpu-memory.md`](../metrics/cpu-memory.md).
+
 ## What Phase 0 already does on Fedora
 
 - Reads `PRETTY_NAME` from `/etc/os-release` (falling back to
@@ -35,8 +63,8 @@ None of this is implemented yet; it is the map for later phases.
 
 ### CPU
 
-- `/proc/stat` — per-core jiffies; utilisation is a **delta between two
-  samples**, never a single read.
+- `/proc/stat` — per-core jiffies. The aggregate line is already implemented;
+  per-core utilisation is the same file and the same delta arithmetic.
 - `/proc/cpuinfo` — model, core count, and `cpu MHz` (per-core, instantaneous).
 - `/sys/devices/system/cpu/cpu*/cpufreq/scaling_cur_freq` — more reliable
   current frequency than `/proc/cpuinfo`.
@@ -44,9 +72,10 @@ None of this is implemented yet; it is the map for later phases.
 
 ### Memory
 
-- `/proc/meminfo` — the authoritative source. Note that "used" is
+- `/proc/meminfo` — the authoritative source, **implemented**. "Used" is
   `MemTotal - MemAvailable`, **not** `MemTotal - MemFree`; the naïve formula is
   a classic and very visible bug.
+- Swap (`SwapTotal`, `SwapFree`) is a later phase.
 
 ### Storage
 

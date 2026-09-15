@@ -11,18 +11,20 @@
 
 ## Status
 
-**Phase 1 — Metrics Engine Foundation.** Version `0.1.0-dev`.
+**Phase 2 — Real CPU & Memory Metrics.** Version `0.1.0-dev`.
 
-PULSE does not monitor anything yet. What exists is the foundation: the project
-structure, the platform abstraction that keeps Windows and Fedora code apart,
-and — since Phase 1 — the universal metrics contract: how a metric is
-identified, what unit it carries, whether it is available on this machine, and
-how providers declare and sample it.
+PULSE now measures something real. On top of the Phase 0 foundation and the
+Phase 1 metrics contract, it reads **CPU usage and physical memory natively on
+both Fedora and Windows** — `/proc/stat` and `/proc/meminfo` on one side,
+`GetSystemTimes` and `GlobalMemoryStatusEx` on the other, with no third-party
+monitoring crate in between.
 
-The engine registers no system collectors, so the catalog is empty. That is
-deliberate: PULSE shows an empty engine rather than a fabricated temperature.
+Five metrics, deliberately. They share one set of references across both
+operating systems, so a widget bound to `memory.used@memory:system` will move
+from Fedora to Windows unchanged. Everything that follows is meant to be added
+behind the same contract.
 
-The architecture is the product at this stage.
+There is still no scheduler and no history: the UI samples on demand.
 
 ## Vision
 
@@ -203,7 +205,8 @@ Start at [`docs/README.md`](docs/README.md).
 - [Testing](docs/development/testing.md)
 - [Fedora Linux](docs/platforms/fedora.md) · [Windows](docs/platforms/windows.md)
 - [Metrics engine](docs/metrics/README.md) — [model](docs/metrics/model.md),
-  [identifiers](docs/metrics/identifiers.md), [providers](docs/metrics/providers.md)
+  [identifiers](docs/metrics/identifiers.md), [providers](docs/metrics/providers.md),
+  [CPU & memory](docs/metrics/cpu-memory.md)
 - [Widgets](docs/widgets/README.md)
 
 ## Roadmap

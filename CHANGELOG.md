@@ -7,6 +7,78 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added — Phase 2: Real CPU & Memory Metrics
+
+PULSE's first real system metrics, implemented natively on both Fedora Linux
+and Windows. Five metrics, sharing one set of references across both operating
+systems.
+
+- **`cpu.usage.total`** (`cpu:system`, percent) — `/proc/stat` on Fedora,
+  `GetSystemTimes` on Windows.
+- **`memory.total`, `memory.used`, `memory.available`** (`memory:system`,
+  bytes) and **`memory.usage.percent`** — `/proc/meminfo` on Fedora,
+  `GlobalMemoryStatusEx` on Windows.
+- **Providers** `linux.cpu` / `linux.memory` and `windows.cpu` /
+  `windows.memory`, registered automatically at startup by the platform layer.
+- **One PULSE memory convention on both platforms** — `used = total -
+  available`, `usage_percent = used / total * 100`, so `used + available` always
+  equals `total` exactly. `MemAvailable` is used rather than `MemFree`, which
+  would make a machine with a warm page cache look nearly full. Windows'
+  rounded `dwMemoryLoad` is ignored in favour of computing from the byte counts,
+  so the percentage agrees with the figures shown beside it.
+- **Shared metric declarations** in `metrics/wellknown/` — key, source, unit,
+  kind and user-facing text live in one place, and platform providers supply
+  only raw counters. A contract test asserts the Linux and Windows declarations
+  differ in `providerId` and nothing else, which is what lets a dashboard move
+  between operating systems.
+- **CPU baseline without blocking** — usage is a rate, so each provider captures
+  a baseline at construction and each request compares against the previous
+  reading. No `sleep` inside a command. When no usable delta exists the sample
+  is `temporarilyUnavailable` with a reason, never `0%`, and the baseline is
+  reset so the next request succeeds.
+- **`HostPlatform::metric_providers()`** — the platform layer decides which
+  providers exist; `services::metrics::build_engine()` composes them. The engine
+  still contains no `cfg(target_os)` at all.
+- **Live system sample card** on Overview, with a Refresh button and the sample
+  timestamp. It shows real values only; an unavailable metric is explained
+  rather than shown as zero.
+- **Display formatting helpers** (`src/utils/units.ts`) — bytes to GiB/MiB,
+  percentages, sample times. Presentation only: the contract still carries
+  bytes, percent and Unix epoch milliseconds.
+- **Tests** — 216 Rust (was 122) and 44 frontend (was 22), including
+  `/proc/stat` and `/proc/meminfo` fixtures for malformed, truncated and
+  unusual input, the Windows counter arithmetic, and host tests that assert
+  invariants rather than a particular amount of RAM.
+- **Documentation** — new `docs/metrics/cpu-memory.md`; metrics README,
+  providers, identifiers, both platform guides, architecture overview and README
+  updated.
+
+### Changed
+
+- Both platform modules now compile on **every** host, with only the FFI calls
+  and `HostPlatform` implementations gated behind `cfg(target_os)`. A Fedora
+  test run therefore exercises the Windows arithmetic and vice versa — there was
+  no good reason for Windows maths to be untestable from a Linux machine.
+- `metrics::build_engine` takes providers as an argument instead of building an
+  empty engine, keeping the metrics layer free of platform knowledge.
+
+### Notes
+
+- **No scheduler and no polling.** The model is still
+  `request → sample → response`; the UI refreshes on demand. A hidden interval
+  in the frontend would be a scheduler in disguise, and a test asserts the card
+  does not poll.
+- **No elevated privileges.** All five metrics work as an ordinary user on both
+  platforms.
+- `guest` and `guest_nice` are excluded from the `/proc/stat` total — the kernel
+  already counts them inside `user` and `nice`, and adding them again is the
+  classic bug that makes a busy host look idle.
+- Windows counts idle time inside `KernelTime`; applying the Linux formula there
+  would report an idle machine as heavily busy.
+- Dependencies: only `windows-sys` (raw FFI, Windows-only) was added. No
+  cross-platform monitoring crate — validating PULSE's own native architecture
+  is part of what this phase is for.
+
 ### Added — Phase 1: Metrics Engine Foundation
 
 The universal metrics contract. **No hardware data is collected yet**: the

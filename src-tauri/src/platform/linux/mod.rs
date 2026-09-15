@@ -3,9 +3,14 @@
 //! Compiled only on Linux. Future phases read `/proc`, `/sys` and `hwmon` from
 //! here; nothing outside this module may do so.
 
+pub mod cpu;
+pub mod memory;
 mod os_release;
 
+use std::sync::Arc;
+
 use super::{HostPlatform, PlatformKind};
+use crate::metrics::providers::MetricProvider;
 
 /// Linux implementation of [`HostPlatform`].
 #[derive(Debug, Default)]
@@ -31,6 +36,13 @@ impl HostPlatform for LinuxPlatform {
     /// This matters well beyond cosmetics: the future Mini overlay has very
     /// different positioning capabilities on each (see
     /// `docs/architecture/mini-overlay.md`).
+    /// CPU from `/proc/stat` and memory from `/proc/meminfo`.
+    ///
+    /// Both are world-readable, so neither needs root.
+    fn metric_providers(&self) -> Vec<Arc<dyn MetricProvider>> {
+        vec![cpu::provider(), memory::provider()]
+    }
+
     fn display_server(&self) -> Option<String> {
         detect_display_server(
             std::env::var("XDG_SESSION_TYPE").ok().as_deref(),
