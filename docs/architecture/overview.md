@@ -25,7 +25,7 @@ by CI and explicitly flagged as awaiting a physical test.
 │ React UI                                    │  src/
 │ pages, layouts, widgets, stores             │
 └───────────────────┬─────────────────────────┘
-                    │ invoke() — the only channel
+                    │ src/services/ — the only callers of invoke()
 ┌───────────────────▼─────────────────────────┐
 │ Tauri command surface                       │  src-tauri/src/commands/
 │ thin, serialisable, no platform branching   │
@@ -33,7 +33,12 @@ by CI and explicitly flagged as awaiting a physical test.
 ┌───────────────────▼─────────────────────────┐
 │ Application core (cross-platform)           │  src-tauri/src/services/
 │ services, metrics engine, state             │  src-tauri/src/metrics/
-└───────────────────┬─────────────────────────┘  src-tauri/src/state/
+│                                             │  src-tauri/src/state/
+│   MetricsEngine                             │
+│     ├── Provider A ──┐                      │
+│     ├── Provider B ──┼── the only code that │
+│     └── Provider C ──┘   touches hardware   │
+└───────────────────┬─────────────────────────┘
 ┌───────────────────▼─────────────────────────┐
 │ Platform abstraction                        │  src-tauri/src/platform/
 │   ├── linux/    /proc, /sys, hwmon, Wayland │
@@ -105,33 +110,56 @@ Two conventions matter already:
   with `#[serde(rename_all = "camelCase")]` so the two read identically. A Rust
   test asserts the casing so the mirror cannot silently drift.
 
-## 4. The Metrics Engine (future)
+## 4. The Metrics Engine
 
-Not implemented in Phase 0. The intended design:
+**Implemented in Phase 1** — the model, the provider contract and the engine.
+**No system collectors yet**: `build_engine()` registers nothing, so PULSE
+reports an empty catalog rather than inventing numbers.
 
-- **Collectors** live behind the platform layer, one per metric family (CPU,
-  GPU, memory, storage, network, sensors). Each declares the sampling cost it
-  incurs, so the engine can schedule cheap and expensive metrics differently.
-- **The engine** owns sampling cadence, not the UI. Widgets _subscribe_ to a
-  metric; they never poll. A metric nobody subscribes to is not sampled — this
-  is what keeps Gaming mode cheap.
-- **Availability is first-class.** A metric is `Available`, `Unavailable(reason)`
-  or `RequiresPermission`. Fedora without `lm_sensors` configured and Windows
-  without an elevated helper are normal states, not errors, and the UI renders
-  them as such.
-- **Transport** is Tauri events for streaming samples, commands for one-shot
-  queries.
-- **History** is a bounded ring buffer in Rust, not in the webview, so the UI
-  can be closed (Mini mode) without losing data.
+The engine is the second boundary in PULSE, after the platform layer, and it
+exists to make one sentence true:
 
-See [`../metrics/README.md`](../metrics/README.md).
+> All future PULSE metrics can be added behind a single contract without the
+> interface needing to know whether they come from Fedora, Windows, NVIDIA,
+> `/proc`, WMI or SMART.
+
+Four separations carry that weight:
+
+- **Identity vs presentation.** `MetricKey` ("GPU core temperature") and
+  `SourceId` ("the GPU at PCI 01:00.0") are stable identifiers stored in
+  dashboards; `displayName` and `sourceLabel` are free to change. A device's
+  product name is never an identifier.
+- **Definition vs sample.** What PULSE knows about a metric — unit, category,
+  kind, availability — is separate from what it read a moment ago.
+- **Canonical vs display units.** The backend reports hertz, bytes and Celsius;
+  the frontend renders GHz, GB and °F. Stored history and alert thresholds stay
+  comparable.
+- **Availability as a first-class state.** Seven distinct states keep "no such
+  sensor on this machine" apart from "needs elevation", "the driver hiccupped"
+  and "not implemented on this platform". Collapsing them — or showing `0` — is
+  the most common failure of system monitors, and the contract refuses to.
+
+The engine owns the catalog and routes references to providers via a `HashMap`
+index, samples only what is requested, and isolates provider failures: a GPU
+provider going down does not blank out CPU and network readings.
+
+**Deliberately deferred**: the scheduler, subscriptions, streaming events,
+history and its ring buffer. The Phase 1 interaction model is
+`request → sample → response`.
+
+See [`../metrics/README.md`](../metrics/README.md),
+[`../metrics/model.md`](../metrics/model.md),
+[`../metrics/identifiers.md`](../metrics/identifiers.md) and
+[`../metrics/providers.md`](../metrics/providers.md).
 
 ## 5. Widgets (future)
 
 A widget is a pure rendering of one or more metric subscriptions plus a
-serialisable configuration. It knows nothing about the OS. This is what makes
-a widget portable across Windows and Fedora for free — the platform differences
-were already resolved below it.
+serialisable configuration. It knows nothing about the OS, and — since Phase 1 —
+nothing about where its numbers come from either: it holds a `MetricRef` and
+reads `MetricDefinition` and `MetricSample`. This is what makes a widget
+portable across Windows and Fedora for free; the platform differences were
+already resolved two layers below it.
 
 See [`../widgets/README.md`](../widgets/README.md).
 

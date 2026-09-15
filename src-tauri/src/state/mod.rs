@@ -1,15 +1,76 @@
 //! Application state shared across Tauri commands.
 //!
-//! Phase 0 keeps this deliberately empty: it exists so that later phases
-//! (metrics engine, history buffers, dashboard configuration) have an obvious,
-//! already-wired place to live instead of introducing globals.
+//! Held by Tauri as managed state and handed to commands as
+//! `State<'_, AppState>`. Everything in here must be `Send + Sync`: commands
+//! run on Tauri's thread pool, and later phases will read the same state from
+//! background samplers and from the Mini overlay window.
+
+use std::sync::Arc;
+
+use crate::metrics::{build_engine, MetricsEngine};
 
 /// Root state object managed by Tauri.
-#[derive(Debug, Default)]
-pub struct AppState {}
+#[derive(Debug)]
+pub struct AppState {
+    /// The metrics engine, built once at startup.
+    ///
+    /// `Arc` rather than a bare value so that future background tasks and
+    /// additional windows can hold their own handle without rebuilding the
+    /// catalog. Sampling takes `&self`, so no lock is needed on the read path.
+    metrics: Arc<MetricsEngine>,
+}
 
 impl AppState {
     pub fn new() -> Self {
-        Self::default()
+        Self {
+            metrics: Arc::new(build_engine()),
+        }
+    }
+
+    /// The shared metrics engine.
+    pub fn metrics(&self) -> &MetricsEngine {
+        &self.metrics
+    }
+
+    /// A cloneable handle to the engine, for background work and other windows.
+    pub fn metrics_handle(&self) -> Arc<MetricsEngine> {
+        Arc::clone(&self.metrics)
+    }
+}
+
+impl Default for AppState {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn the_engine_is_built_once_and_shared() {
+        let state = AppState::new();
+
+        let first = state.metrics_handle();
+        let second = state.metrics_handle();
+
+        assert!(
+            Arc::ptr_eq(&first, &second),
+            "handles must point at the same engine, not rebuild it"
+        );
+        assert_eq!(Arc::strong_count(&first), 3, "state plus two handles");
+    }
+
+    #[test]
+    fn state_is_shareable_across_threads() {
+        fn assert_send_sync<T: Send + Sync>() {}
+        assert_send_sync::<AppState>();
+    }
+
+    #[test]
+    fn the_engine_starts_empty() {
+        let state = AppState::new();
+        assert_eq!(state.metrics().status().provider_count, 0);
     }
 }

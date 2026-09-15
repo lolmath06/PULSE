@@ -11,14 +11,18 @@
 
 ## Status
 
-**Phase 0 — Foundation.** Version `0.1.0-dev`.
+**Phase 1 — Metrics Engine Foundation.** Version `0.1.0-dev`.
 
 PULSE does not monitor anything yet. What exists is the foundation: the project
 structure, the platform abstraction that keeps Windows and Fedora code apart,
-one real React ↔ Rust command proving the full round trip, the navigation
-shell, the documentation and CI.
+and — since Phase 1 — the universal metrics contract: how a metric is
+identified, what unit it carries, whether it is available on this machine, and
+how providers declare and sample it.
 
-This is deliberate. The architecture is the product at this stage.
+The engine registers no system collectors, so the catalog is empty. That is
+deliberate: PULSE shows an empty engine rather than a fabricated temperature.
+
+The architecture is the product at this stage.
 
 ## Vision
 
@@ -198,7 +202,9 @@ Start at [`docs/README.md`](docs/README.md).
 - [Getting started](docs/development/getting-started.md)
 - [Testing](docs/development/testing.md)
 - [Fedora Linux](docs/platforms/fedora.md) · [Windows](docs/platforms/windows.md)
-- [Metrics engine](docs/metrics/README.md) · [Widgets](docs/widgets/README.md)
+- [Metrics engine](docs/metrics/README.md) — [model](docs/metrics/model.md),
+  [identifiers](docs/metrics/identifiers.md), [providers](docs/metrics/providers.md)
+- [Widgets](docs/widgets/README.md)
 
 ## Roadmap
 

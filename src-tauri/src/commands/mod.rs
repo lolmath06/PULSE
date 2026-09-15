@@ -4,4 +4,5 @@
 //! validate input, delegate to `services`, and return serialisable payloads.
 //! Platform branching never happens here.
 
+pub mod metrics;
 pub mod platform;

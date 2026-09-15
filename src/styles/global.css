@@ -186,6 +186,21 @@ code,
   color: var(--pulse-text-muted);
 }
 
+.card__note {
+  margin: 12px 0 0;
+  color: var(--pulse-text-faint);
+  font-size: 12.5px;
+}
+
+.card__warning {
+  margin: 12px 0 0;
+  padding: 8px 10px;
+  border-radius: var(--pulse-radius-sm);
+  background: var(--pulse-warning-bg);
+  color: var(--pulse-warning-text);
+  font-size: 12.5px;
+}
+
 .kv {
   margin: 0;
   display: flex;

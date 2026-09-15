@@ -9,6 +9,8 @@
 //!    |
 //! services/   -- cross-platform application logic
 //!    |
+//! metrics/    -- the metrics engine: model, catalog, providers
+//!    |
 //! platform/   -- the single place where OS differences live
 //!    +-- linux/    (/proc, /sys, hwmon, Wayland/X11)
 //!    +-- windows/  (WMI, PDH, vendor SDKs)
@@ -28,7 +30,10 @@ pub fn run() {
     tauri::Builder::default()
         .manage(state::AppState::new())
         .invoke_handler(tauri::generate_handler![
-            commands::platform::get_platform_info
+            commands::platform::get_platform_info,
+            commands::metrics::get_metrics_engine_status,
+            commands::metrics::get_metric_catalog,
+            commands::metrics::sample_metrics,
         ])
         .run(tauri::generate_context!())
         .expect("error while running PULSE");

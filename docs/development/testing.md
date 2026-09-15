@@ -20,6 +20,28 @@ Phase 0 covers:
 - `/etc/os-release` parsing, including quoted, unquoted, empty and absent values;
 - Windows version formatting, including the Windows 10 / 11 build-number split.
 
+Phase 1 adds the metrics engine:
+
+- identifier validation — valid and invalid `MetricKey`, `SourceId` and
+  `ProviderId`, including digit-led device instances and rejected uppercase;
+- **contract tests** pinning the wire format of `MetricDefinition`,
+  `MetricSample`, `Availability`, `MetricError`, `MetricValue`, `MetricUnit` and
+  `EngineStatus` — camelCase field names, enum discriminants, and the _exact_
+  field set, so adding a Rust field without updating `src/types/metrics.ts`
+  fails the build;
+- provider registration, multi-provider catalog aggregation, and deterministic
+  catalog ordering independent of registration order;
+- collision detection between providers and within one provider, and the
+  atomicity of a rejected registration;
+- sampling: known, unknown, repeated, empty and multi-provider requests;
+- failure isolation — one provider erroring while the others still return data;
+- missing-sample accounting and the non-finite-float guard;
+- `Send + Sync` and multi-threaded sampling, which the Tauri state relies on.
+
+The engine is exercised through `MockProvider`, which is `#[cfg(test)]` and
+never compiled into the shipped binary — PULSE has no code capable of producing
+a fabricated temperature outside the test build.
+
 Parsing and detection logic is written as **pure functions taking their inputs
 as arguments** (see `detect_display_server`, `parse_pretty_name`,
 `format_os_version`) precisely so it can be tested without the host it describes.
@@ -33,6 +55,11 @@ Vitest with Testing Library, jsdom environment.
 Phase 0 covers the navigation shell (every mode is reachable, routes render the
 right page), display formatting helpers, and — importantly — that the UI
 degrades gracefully when the Tauri backend is unreachable.
+
+Phase 1 adds the metrics contract: schema-version compatibility, the
+availability display helpers (which must keep the seven states
+distinguishable), and the Metrics Engine card — including that it reports an
+empty engine honestly and never renders a fabricated reading.
 
 ### Static checks
 
@@ -68,7 +95,7 @@ Required for anything system-facing, on **both** platforms:
 > Windows and Fedora Linux has been designed and, whenever materially testable,
 > validated.
 
-### Phase 0 checklist
+### Checklist
 
 On each platform:
 
@@ -78,8 +105,10 @@ On each platform:
 4. Navigation does not reload the app (no white flash, no re-mount).
 5. The OS, architecture and version reported by the backend are correct.
 6. On Fedora: the display server is reported correctly (`Wayland` or `X11`).
-7. The application closes normally and restarts cleanly.
-8. The terminal shows no errors or warnings.
+7. The Metrics Engine card on Overview reports a schema version and coherent
+   counts, and shows **no fabricated CPU load or temperature**.
+8. The application closes normally and restarts cleanly.
+9. The terminal shows no errors or warnings.
 
 When a platform cannot be tested physically, say so explicitly. CI is a
 provisional signal, never a claim of validation.
