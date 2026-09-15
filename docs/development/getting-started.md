@@ -43,6 +43,21 @@ pnpm dev         # UI only, in a browser — no backend, for fast styling work
 the status bar will say _"Backend unavailable — UI-only mode"_. That is expected,
 not a failure.
 
+### Development ports
+
+PULSE serves its dev frontend on **`http://localhost:1421`**, with the HMR
+websocket on **1422**.
+
+These are deliberately not Tauri's default `1420`. That default is shared by
+every Tauri project, so two of them cannot run at the same time — and PULSE must
+never require another project to be shut down before it can start. With a
+dedicated port, PULSE runs alongside your other Tauri/Vite work.
+
+The port is fixed (`strictPort`) because Tauri's `devUrl` is a fixed address: a
+silent fallback to another port would leave the webview loading nothing. To
+change it, edit `DEV_SERVER_PORT` in `vite.config.ts` **and** `build.devUrl` in
+`src-tauri/tauri.conf.json` together — they must always agree.
+
 ## Commands
 
 | Command                             | What it does                                   |
