@@ -1,0 +1,100 @@
+PULSE — Proprietary Software License
+====================================
+
+Copyright © 2026 Matheo Dolmen. All rights reserved.
+
+PULSE is proprietary software. It is not open source, and it is not
+distributed under any open source license.
+
+
+1. Source availability
+----------------------
+
+The source code of PULSE is published publicly so that anyone can read it,
+audit it, and verify the claims the software makes.
+
+Publication grants visibility. It does not grant a license.
+
+
+2. What you may do
+------------------
+
+You may:
+
+  (a) view, read and study the source code;
+  (b) download the repository and build it locally for the sole purpose of
+      evaluating the software or verifying its behaviour;
+  (c) quote short excerpts of the source code for the purpose of discussion,
+      review, education or reporting a defect;
+  (d) install and use official PULSE builds distributed by the copyright
+      holder, as an end user, under the terms accompanying those builds.
+
+
+3. What you may not do without prior written permission
+-------------------------------------------------------
+
+Without prior written authorization from the copyright holder, you may not:
+
+  (a) copy substantial portions of the source code;
+  (b) redistribute the software, in source or binary form;
+  (c) publish modified versions;
+  (d) create or distribute derivative works;
+  (e) sell, rent, sublicense, or otherwise commercially exploit PULSE or
+      anything derived from it;
+  (f) remove or alter any copyright, trademark or attribution notice.
+
+To request permission, contact the copyright holder.
+
+
+4. Contributions
+----------------
+
+Contributions submitted to this repository do not change the license of
+PULSE. By submitting a contribution, you grant the copyright holder the
+right to use, modify and distribute it as part of PULSE under this license.
+
+
+5. Third-party components
+-------------------------
+
+PULSE uses, and in some cases distributes, third-party components. Those
+components remain under their own licenses, which this license does not and
+cannot override. Nothing here converts third-party code into proprietary code.
+
+The project's dependency manifests and lockfiles identify the dependency set;
+all applicable third-party license terms remain in force.
+
+
+6. Trademarks
+-------------
+
+The name "PULSE" and the PULSE logo are not licensed by this document.
+
+
+7. No warranty
+--------------
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+---
+
+Note en français
+----------------
+
+PULSE est un logiciel propriétaire. Le code source est publié pour être lu
+et vérifié, non pour être réutilisé : sa publication n'emporte aucune licence
+d'exploitation.
+
+Vous pouvez le consulter, le construire localement pour l'évaluer, en citer de
+courts extraits, et utiliser les versions officielles distribuées. Toute copie
+substantielle, redistribution, modification publiée, œuvre dérivée ou
+exploitation commerciale requiert l'autorisation écrite préalable du titulaire
+des droits.
+
+Les composants tiers restent soumis à leurs propres licences.

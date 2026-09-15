@@ -1,0 +1,38 @@
+[package]
+name = "pulse"
+version = "0.1.0-dev"
+description = "A modular, cross-platform system monitoring dashboard for Windows and Fedora Linux."
+authors = ["PULSE contributors"]
+license-file = "../LICENSE"
+repository = "https://github.com/pulse-monitor/pulse"
+edition = "2021"
+rust-version = "1.77.2"
+
+# The library is where all application logic lives; `main.rs` is a thin shim.
+# This keeps the crate unit-testable with plain `cargo test` and is also what
+# Tauri's mobile targets expect.
+[lib]
+name = "pulse_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# --- platform-specific dependencies ---------------------------------------
+# Each OS pulls only what it needs; neither list is compiled on the other
+# platform, so a Windows-only crate can never break a Fedora build.
+
+[target.'cfg(target_os = "windows")'.dependencies]
+windows-version = "0.100"
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+panic = "abort"
+strip = true

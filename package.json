@@ -1,0 +1,58 @@
+{
+  "name": "pulse",
+  "productName": "PULSE",
+  "version": "0.1.0-dev",
+  "description": "A modular, cross-platform system monitoring dashboard for Windows and Fedora Linux.",
+  "license": "SEE LICENSE IN LICENSE",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.22.0",
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "tauri": "tauri",
+    "app:dev": "tauri dev",
+    "app:build": "tauri build",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "rust:fmt": "cargo fmt --manifest-path src-tauri/Cargo.toml --check",
+    "rust:lint": "cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets -- -D warnings",
+    "rust:test": "cargo test --manifest-path src-tauri/Cargo.toml",
+    "check:all": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm rust:fmt && pnpm rust:lint && pnpm rust:test"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.11.1",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "react-router-dom": "^7.18.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@tauri-apps/cli": "^2.11.4",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.0",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^5.1.0",
+    "eslint": "^10.10.0",
+    "eslint-plugin-react-hooks": "^7.1.0",
+    "eslint-plugin-react-refresh": "^0.4.24",
+    "globals": "^16.5.0",
+    "jsdom": "^28.0.0",
+    "prettier": "^3.9.6",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.0",
+    "vite": "^7.1.14",
+    "vitest": "^3.2.4"
+  }
+}

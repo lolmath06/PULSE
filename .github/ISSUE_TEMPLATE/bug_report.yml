@@ -1,0 +1,105 @@
+name: Bug report
+description: Something in PULSE does not work as expected.
+labels: ['type: bug', 'status: needs triage']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug.
+
+        PULSE is in Phase 0 (foundation) — most features do not exist yet.
+        Please check the [roadmap](https://github.com/pulse-monitor/pulse#roadmap)
+        before reporting a missing feature as a bug.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened
+      description: A clear description of the problem.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected instead
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Run `pnpm app:dev`
+        2. Navigate to …
+        3. …
+    validations:
+      required: true
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      options:
+        - Fedora Linux
+        - Other Linux distribution
+        - Windows 11
+        - Windows 10
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: os-version
+    attributes:
+      label: OS version
+      description: As shown in PULSE's status bar, or from `cat /etc/os-release` / `winver`.
+      placeholder: Fedora Linux 39 (Workstation Edition)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: display-server
+    attributes:
+      label: Display server (Linux only)
+      description: PULSE reports this in the status bar; or run `echo $XDG_SESSION_TYPE`.
+      options:
+        - Wayland
+        - X11
+        - Not applicable (Windows)
+    validations:
+      required: false
+
+  - type: input
+    id: version
+    attributes:
+      label: PULSE version
+      placeholder: 0.1.0-dev
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Toolchain (if running from source)
+      description: Output of `node -v`, `pnpm -v` and `rustc -V`.
+      render: shell
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Terminal output or errors
+      render: shell
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: other-platform
+    attributes:
+      label: Cross-platform check
+      options:
+        - label: I checked whether this also happens on the other platform (Windows / Fedora), or I do not have access to it.
+          required: false

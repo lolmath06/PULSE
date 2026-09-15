@@ -1,0 +1,73 @@
+name: Feature request
+description: Suggest an idea for PULSE.
+labels: ['type: feature', 'status: needs triage']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        PULSE is developed in phases, and staying inside the current phase is
+        deliberate. An accepted idea may still wait for its phase — that is not
+        a rejection.
+
+        See the [roadmap](https://github.com/pulse-monitor/pulse#roadmap).
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What are you trying to do that PULSE makes hard or impossible today?
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Metrics (CPU, GPU, memory, storage, network, sensors)
+        - Widgets and dashboards
+        - Mini overlay
+        - Modes (Gaming, Development, Personal)
+        - Themes and appearance
+        - Alerts and history
+        - Packaging and distribution
+        - Documentation
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: platforms
+    attributes:
+      label: Platforms concerned
+      multiple: true
+      options:
+        - Fedora Linux
+        - Windows
+    validations:
+      required: true
+
+  - type: textarea
+    id: platform-notes
+    attributes:
+      label: Cross-platform considerations
+      description: |
+        If this touches the system, how would it work on the *other* platform?
+        Different data source? Unavailable? Requires elevation?
+        An honest "I don't know how this works on Windows" is useful information.
+    validations:
+      required: false
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+    validations:
+      required: false

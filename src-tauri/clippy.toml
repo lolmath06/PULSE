@@ -1,0 +1,2 @@
+# Keep the bar reasonable for a young codebase; CI runs clippy with -D warnings.
+too-many-arguments-threshold = 8

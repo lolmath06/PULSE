@@ -1,0 +1,5 @@
+# pnpm 11 reads build-script approvals from here.
+# Only esbuild (Vite's bundler, which unpacks its platform binary) may run an
+# install script; everything else is installed without executing code.
+allowBuilds:
+  esbuild: true

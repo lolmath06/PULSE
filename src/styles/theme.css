@@ -1,0 +1,33 @@
+/*
+ * PULSE base theme tokens.
+ *
+ * Phase 0 ships a single, clean dark theme. The full theming system (user
+ * themes, presets, per-widget colours) arrives in a later phase; until then
+ * every colour in the app must come from a token defined here so that the
+ * later system can swap them without touching components.
+ */
+:root {
+  --pulse-bg: #0d1013;
+  --pulse-bg-elevated: #14181d;
+  --pulse-bg-sunken: #0a0c0f;
+  --pulse-border: #232a32;
+  --pulse-border-strong: #313a45;
+
+  --pulse-text: #e6ebf1;
+  --pulse-text-muted: #8b98a8;
+  --pulse-text-faint: #5d6976;
+
+  --pulse-accent: #38d6c4;
+  --pulse-accent-dim: #1f7c73;
+
+  --pulse-radius: 10px;
+  --pulse-radius-sm: 6px;
+
+  --pulse-font: 'Inter', 'Cantarell', 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif;
+  --pulse-font-mono: 'JetBrains Mono', 'Cascadia Mono', 'DejaVu Sans Mono', ui-monospace, monospace;
+
+  --pulse-sidebar-width: 208px;
+  --pulse-status-height: 30px;
+
+  color-scheme: dark;
+}

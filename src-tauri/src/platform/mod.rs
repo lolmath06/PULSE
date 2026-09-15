@@ -1,0 +1,178 @@
+//! Platform abstraction layer.
+//!
+//! This module is the single boundary where Windows and Linux differ. Higher
+//! layers (`services`, `commands`) depend only on the [`HostPlatform`] trait and
+//! never on `#[cfg(target_os = ...)]`.
+//!
+//! Adding a capability means:
+//! 1. adding a method to [`HostPlatform`] (with a safe default when sensible),
+//! 2. implementing it in `linux/` and `windows/`,
+//! 3. exposing it through a service and a command.
+//!
+//! Only this file and its submodules may use `cfg(target_os)` for OS
+//! selection, so no Linux-only code is ever compiled into a Windows build and
+//! vice versa.
+
+use serde::{Deserialize, Serialize};
+
+#[cfg(target_os = "linux")]
+pub mod linux;
+#[cfg(target_os = "windows")]
+pub mod windows;
+
+/// Platform families PULSE ships a backend implementation for.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum PlatformKind {
+    Windows,
+    Linux,
+    /// Compiles and runs, but no system integration is available.
+    Unsupported,
+}
+
+impl PlatformKind {
+    /// The platform this binary was compiled for.
+    pub const fn current() -> Self {
+        #[cfg(target_os = "windows")]
+        {
+            PlatformKind::Windows
+        }
+        #[cfg(target_os = "linux")]
+        {
+            PlatformKind::Linux
+        }
+        #[cfg(not(any(target_os = "windows", target_os = "linux")))]
+        {
+            PlatformKind::Unsupported
+        }
+    }
+
+    /// Whether PULSE has a real system integration for this platform.
+    pub const fn is_supported(self) -> bool {
+        !matches!(self, PlatformKind::Unsupported)
+    }
+}
+
+/// Structured description of the host, sent to the frontend.
+///
+/// Mirrored by `src/types/platform.ts`; the two must stay in sync.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PlatformInfo {
+    pub platform: PlatformKind,
+    pub os: String,
+    pub arch: String,
+    pub os_version: Option<String>,
+    pub display_server: Option<String>,
+    pub app_version: String,
+}
+
+/// Capabilities every supported platform must provide.
+///
+/// Phase 0 defines the seam with a minimal surface; metrics, sensors and the
+/// Mini overlay's window handling will extend this trait in later phases.
+pub trait HostPlatform: Send + Sync {
+    /// Which platform family this implementation serves.
+    fn kind(&self) -> PlatformKind;
+
+    /// Human readable OS/distribution name, when detectable.
+    fn os_version(&self) -> Option<String>;
+
+    /// Display server in use. Meaningful on Linux (`wayland` / `x11`); `None`
+    /// elsewhere.
+    fn display_server(&self) -> Option<String> {
+        None
+    }
+}
+
+/// Fallback used when PULSE is built for a platform it has no integration for.
+///
+/// It keeps the crate compiling and testable everywhere instead of failing the
+/// build, while [`PlatformKind::is_supported`] lets callers react.
+#[derive(Debug, Default)]
+pub struct UnsupportedPlatform;
+
+impl HostPlatform for UnsupportedPlatform {
+    fn kind(&self) -> PlatformKind {
+        PlatformKind::Unsupported
+    }
+
+    fn os_version(&self) -> Option<String> {
+        None
+    }
+}
+
+/// Returns the platform implementation for the current host.
+///
+/// This is the only function that selects an implementation; everything above
+/// it is platform-agnostic.
+pub fn host() -> Box<dyn HostPlatform> {
+    #[cfg(target_os = "linux")]
+    {
+        Box::new(linux::LinuxPlatform::new())
+    }
+    #[cfg(target_os = "windows")]
+    {
+        Box::new(windows::WindowsPlatform::new())
+    }
+    #[cfg(not(any(target_os = "linux", target_os = "windows")))]
+    {
+        Box::new(UnsupportedPlatform)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn current_kind_matches_the_compilation_target() {
+        let expected = match std::env::consts::OS {
+            "linux" => PlatformKind::Linux,
+            "windows" => PlatformKind::Windows,
+            _ => PlatformKind::Unsupported,
+        };
+
+        assert_eq!(PlatformKind::current(), expected);
+    }
+
+    #[test]
+    fn host_implementation_agrees_with_current_kind() {
+        assert_eq!(host().kind(), PlatformKind::current());
+    }
+
+    #[test]
+    fn platform_kind_serialises_as_lowercase() {
+        let json = serde_json::to_string(&PlatformKind::Linux).expect("serialise");
+        assert_eq!(json, "\"linux\"");
+    }
+
+    #[test]
+    fn platform_info_uses_camel_case_for_the_frontend() {
+        let info = PlatformInfo {
+            platform: PlatformKind::Windows,
+            os: "windows".into(),
+            arch: "x86_64".into(),
+            os_version: Some("Windows 11".into()),
+            display_server: None,
+            app_version: "0.1.0-dev".into(),
+        };
+
+        let json = serde_json::to_value(&info).expect("serialise");
+
+        assert!(json.get("osVersion").is_some());
+        assert!(json.get("appVersion").is_some());
+        assert!(json.get("displayServer").is_some());
+        assert!(json.get("os_version").is_none());
+    }
+
+    #[test]
+    fn unsupported_platform_is_flagged_as_such() {
+        assert!(!PlatformKind::Unsupported.is_supported());
+        assert!(PlatformKind::Linux.is_supported());
+        assert!(PlatformKind::Windows.is_supported());
+        assert_eq!(UnsupportedPlatform.kind(), PlatformKind::Unsupported);
+        assert!(UnsupportedPlatform.os_version().is_none());
+        assert!(UnsupportedPlatform.display_server().is_none());
+    }
+}
