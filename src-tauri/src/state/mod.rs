@@ -76,7 +76,18 @@ mod tests {
 
         if crate::platform::PlatformKind::current().is_supported() {
             assert_eq!(status.provider_count, 2);
-            assert_eq!(status.metric_count, 5);
+            // The catalog is sized by the machine: 8 fixed metrics plus three
+            // per logical processor. Nothing here may assume a number.
+            let logical = state
+                .metrics()
+                .catalog()
+                .iter()
+                .filter(|definition| {
+                    definition.metric.key.as_str() == crate::metrics::wellknown::cpu::USAGE_LOGICAL
+                })
+                .count();
+            assert!(logical > 0);
+            assert_eq!(status.metric_count, 8 + 3 * logical);
         } else {
             assert_eq!(status.provider_count, 0);
         }

@@ -3,6 +3,7 @@ import {
   binaryUnitFor,
   formatBytes,
   formatBytesScaledTo,
+  formatHertz,
   formatPercent,
   formatSampleTime,
 } from '@/utils/units';
@@ -82,5 +83,49 @@ describe('formatSampleTime', () => {
   it('returns a placeholder for a missing timestamp', () => {
     expect(formatSampleTime(0)).toBe('—');
     expect(formatSampleTime(Number.NaN)).toBe('—');
+  });
+});
+
+describe('formatHertz', () => {
+  it('formats the examples the contract documents', () => {
+    expect(formatHertz(800_000_000)).toBe('800 MHz');
+    expect(formatHertz(3_200_000_000)).toBe('3.20 GHz');
+    expect(formatHertz(5_400_000_000)).toBe('5.40 GHz');
+  });
+
+  it('switches to gigahertz exactly at one gigahertz', () => {
+    expect(formatHertz(999_999_999)).toBe('1000 MHz');
+    expect(formatHertz(1_000_000_000)).toBe('1.00 GHz');
+    expect(formatHertz(1_000_000_001)).toBe('1.00 GHz');
+  });
+
+  it('renders real readings from a hybrid CPU', () => {
+    // P-core boosting, E-core at its maximum, a core parked at idle.
+    expect(formatHertz(5_600_000_000)).toBe('5.60 GHz');
+    expect(formatHertz(4_100_000_000)).toBe('4.10 GHz');
+    expect(formatHertz(987_199_000)).toBe('987 MHz');
+  });
+
+  it('keeps two decimals so close clock speeds stay distinguishable', () => {
+    expect(formatHertz(4_620_000_000)).toBe('4.62 GHz');
+    expect(formatHertz(4_580_000_000)).toBe('4.58 GHz');
+    expect(formatHertz(3_950_000_000)).toBe('3.95 GHz');
+  });
+
+  it('never renders an unknown frequency as zero', () => {
+    // "0 GHz" would read as a claim that the core has stopped.
+    expect(formatHertz(0)).toBe('—');
+    expect(formatHertz(-1)).toBe('—');
+    expect(formatHertz(Number.NaN)).toBe('—');
+    expect(formatHertz(Number.POSITIVE_INFINITY)).toBe('—');
+  });
+
+  it('is presentation only and leaves the hertz contract untouched', () => {
+    // A sanity check on the unit boundary: the numbers here are the exact
+    // values the backend sends, never pre-scaled.
+    expect(formatHertz(2_400_000_000)).toBe('2.40 GHz');
+    // A value already scaled to MHz by mistake would be nonsense as hertz;
+    // showing "0 MHz" would hide the bug, so it gets the placeholder.
+    expect(formatHertz(2_400)).toBe('—');
   });
 });

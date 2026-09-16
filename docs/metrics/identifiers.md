@@ -100,15 +100,54 @@ battery:bat0
 
 ## Logical sources
 
-Not every source is a device. `cpu:system` and `memory:system` — the sources
-PULSE ships today — are **logical** identifiers meaning "this machine's CPU as a
-whole" and "this machine's physical memory as a whole".
+Not every source is a device. `cpu:system` and `memory:system` are **logical**
+identifiers meaning "this machine's CPU as a whole" and "this machine's physical
+memory as a whole".
 
 They are stable by construction: nothing about them can shift with detection
 order, driver updates or hardware changes, and they are identical on Fedora and
-Windows. Per-core, per-package and per-DIMM sources will arrive later with their
-own hardware-derived identifiers; until then, a logical source is the honest way
-to say "the aggregate".
+Windows. A logical source is the honest way to say "the aggregate".
+
+### `cpu:logical-N` — a slot, not a serial number
+
+Phase 3 added one source per logical processor:
+
+```text
+cpu:logical-0
+cpu:logical-7
+cpu:logical-31
+```
+
+These sit in a third category, between a logical aggregate and a
+hardware-derived device identity. They identify **a logical slot of this
+system**, and the guarantees are correspondingly narrower:
+
+| Guarantee                                 | Holds?                                                               |
+| ----------------------------------------- | -------------------------------------------------------------------- |
+| Stable across reboots on the same machine | Yes, for as long as the CPU configuration is                         |
+| Stable across a PULSE restart             | Yes — the mapping is derived deterministically, not from probe order |
+| Meaningful on a **different** machine     | **No**                                                               |
+| A claim about the silicon behind it       | **No** — ordinal 7 may be an E-core here and an SMT sibling there    |
+
+Unlike `storage:nvme0n1` or `gpu:pci-0000-01-00-0`, which are derived from
+device identity, a logical processor ordinal is derived from _position_. A
+dashboard built on a 32-thread laptop and opened on a 4-thread virtual machine
+will find `cpu:logical-7` simply absent.
+
+On Linux the ordinal is the kernel's own CPU number (`cpu7` → `cpu:logical-7`),
+so it matches `htop` and `taskset`. On Windows it is assigned by sorting
+`(processor group, index in group)` — a machine over 64 logical processors has
+no flat native number to borrow. Both are documented in
+[`cpu-advanced.md`](cpu-advanced.md).
+
+**The dashboard implication.** A saved dashboard must eventually be able to
+express _"every `cpu.usage.logical`"_ as one selection rather than as
+thirty-two individual references — otherwise it breaks on any machine with a
+different processor count, and misses processors added by hotplug. The
+identifier scheme was chosen to make that possible: every per-processor metric
+shares one key and differs only in source, which is exactly the shape a
+key-wide selector needs. That selector is a later phase; only the identifiers
+are settled here.
 
 ## The instance must be stable — and must not be the product name
 
@@ -148,12 +187,13 @@ Windows interface GUID
 
 Applied per class:
 
-| Class       | Fedora / Linux                             | Windows                        |
-| ----------- | ------------------------------------------ | ------------------------------ |
-| GPU         | PCI BDF from `/sys/class/drm/card*/device` | PCI location path / LUID       |
-| Storage     | `/dev/disk/by-id`, serial or WWN           | device instance ID plus serial |
-| Network     | MAC, or a systemd-predictable name         | interface GUID                 |
-| CPU package | package index                              | package index                  |
+| Class       | Fedora / Linux                             | Windows                         |
+| ----------- | ------------------------------------------ | ------------------------------- |
+| GPU         | PCI BDF from `/sys/class/drm/card*/device` | PCI location path / LUID        |
+| Storage     | `/dev/disk/by-id`, serial or WWN           | device instance ID plus serial  |
+| Network     | MAC, or a systemd-predictable name         | interface GUID                  |
+| CPU package | package index                              | package index                   |
+| Logical CPU | kernel CPU number                          | sorted `(group, index)` ordinal |
 
 A provider that can only obtain an enumeration name must map it to something
 stable before publishing it — hwmon, for instance, must be keyed on the `name`

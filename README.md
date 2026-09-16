@@ -11,18 +11,31 @@
 
 ## Status
 
-**Phase 2 — Real CPU & Memory Metrics.** Version `0.1.0-dev`.
+**Phase 3 — Advanced CPU Metrics.** Version `0.1.0-dev`.
 
-PULSE now measures something real. On top of the Phase 0 foundation and the
-Phase 1 metrics contract, it reads **CPU usage and physical memory natively on
-both Fedora and Windows** — `/proc/stat` and `/proc/meminfo` on one side,
-`GetSystemTimes` and `GlobalMemoryStatusEx` on the other, with no third-party
-monitoring crate in between.
+PULSE can now answer, on Fedora and Windows behind exactly the same contract:
 
-Five metrics, deliberately. They share one set of references across both
-operating systems, so a widget bound to `memory.used@memory:system` will move
-from Fedora to Windows unchanged. Everything that follows is meant to be added
-behind the same contract.
+> How many physical cores and logical processors does my CPU have, what is each
+> logical processor doing right now, and at what frequency does the OS report it
+> running?
+
+On top of the Phase 0 foundation, the Phase 1 metrics contract and the Phase 2
+collectors, it reads **per-logical-processor usage, per-logical-processor
+frequency and CPU topology natively on both platforms** — `/proc/stat` and
+`/sys/devices/system/cpu` on one side; `GetSystemTimes`,
+`NtQuerySystemInformationEx`, `CallNtPowerInformation` and
+`GetLogicalProcessorInformationEx` on the other. No third-party monitoring
+crate, no subprocess, no elevated privileges.
+
+The catalog is now **sized by the machine**: `8 + 3N` metrics for `N` logical
+processors — 104 on a 32-thread laptop, 20 on a four-thread virtual machine.
+Nothing anywhere hardcodes that number. References stay identical across
+operating systems, so a widget bound to `cpu.usage.logical@cpu:logical-3` moves
+from Fedora to Windows unchanged.
+
+PULSE is careful about the difference between a **physical core** and a
+**logical processor** — with simultaneous multithreading they are not the same
+thing, and on a hybrid CPU their ratio is not even constant.
 
 There is still no scheduler and no history: the UI samples on demand.
 
@@ -176,7 +189,7 @@ PULSE/
 ├── src-tauri/           # Rust backend
 │   └── src/
 │       ├── commands/    # Tauri command surface
-│       ├── metrics/     # metrics engine (future)
+│       ├── metrics/     # metrics engine, model, well-known declarations
 │       ├── platform/    # the platform seam
 │       │   ├── linux/   # /proc, /sys, hwmon, Wayland/X11
 │       │   └── windows/ # WMI, PDH, vendor SDKs
@@ -206,19 +219,23 @@ Start at [`docs/README.md`](docs/README.md).
 - [Fedora Linux](docs/platforms/fedora.md) · [Windows](docs/platforms/windows.md)
 - [Metrics engine](docs/metrics/README.md) — [model](docs/metrics/model.md),
   [identifiers](docs/metrics/identifiers.md), [providers](docs/metrics/providers.md),
-  [CPU & memory](docs/metrics/cpu-memory.md)
+  [CPU & memory](docs/metrics/cpu-memory.md),
+  [advanced CPU](docs/metrics/cpu-advanced.md)
 - [Widgets](docs/widgets/README.md)
 
 ## Roadmap
 
-| Phase | Scope                                                        | Status      |
-| ----- | ------------------------------------------------------------ | ----------- |
-| 0     | Foundation: structure, platform abstraction, shell, docs, CI | **Current** |
-| 1+    | Metrics engine, real monitoring, graphs, history             | Planned     |
-| 1+    | Widget engine, configurable dashboards                       | Planned     |
-| 1+    | Mini overlay, Gaming and Development modes                   | Planned     |
-| 1+    | Themes, presets, alerts, tray, autostart                     | Planned     |
-| 1+    | Packaged installers and releases                             | Planned     |
+| Phase | Scope                                                          | Status      |
+| ----- | -------------------------------------------------------------- | ----------- |
+| 0     | Foundation: structure, platform abstraction, shell, docs, CI   | Done        |
+| 1     | Metrics engine: model, contract, catalog, frontend API         | Done        |
+| 2     | First real collectors: aggregate CPU usage, physical memory    | Done        |
+| 3     | Advanced CPU: per-logical-processor usage, frequency, topology | **Current** |
+| 4+    | Temperatures, GPU, storage, network, history, graphs           | Planned     |
+| 1+    | Widget engine, configurable dashboards                         | Planned     |
+| 1+    | Mini overlay, Gaming and Development modes                     | Planned     |
+| 1+    | Themes, presets, alerts, tray, autostart                       | Planned     |
+| 1+    | Packaged installers and releases                               | Planned     |
 
 ## Contributing
 

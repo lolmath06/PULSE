@@ -7,6 +7,111 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added — Phase 3: Advanced CPU Metrics
+
+Real per-processor CPU detail on both Fedora Linux and Windows, behind one
+contract. PULSE can now say how many physical cores and logical processors a
+machine has, what each logical processor is doing, and at what frequency the OS
+reports it running.
+
+- **`cpu.usage.logical`** (`cpu:logical-N`, percent) — per logical processor.
+  `/proc/stat`'s `cpuN` lines on Fedora; `NtQuerySystemInformationEx` with
+  `SystemProcessorPerformanceInformation` on Windows. The formula is identical
+  to `cpu.usage.total`'s, so the two reconcile instead of being two definitions
+  of "busy" that share a name.
+- **`cpu.frequency.current`** and **`cpu.frequency.max`** (`cpu:logical-N`,
+  hertz) — `cpufreq/scaling_cur_freq` and `cpufreq/cpuinfo_max_freq` on Fedora;
+  `CallNtPowerInformation(ProcessorInformation)` on Windows.
+- **`cpu.count.logical`, `cpu.count.physical`, `cpu.count.package`**
+  (`cpu:system`, count) — `/sys/devices/system/cpu/` topology on Fedora;
+  `GetLogicalProcessorInformationEx` on Windows. Declared as `state` rather than
+  `gauge`, because averaging a core count over time is meaningless and
+  `MetricKind::State` refuses it by construction.
+- **A catalog sized by the machine** — `8 + 3N` metrics for `N` logical
+  processors: 104 on a 32-thread laptop, 20 on a four-thread virtual machine.
+  No count is hardcoded anywhere, in Rust or in React; `wellknown::cpu` exposes
+  a generator over a discovered topology rather than a constant list. The
+  provider count stays at **2** per platform — one CPU provider owns every CPU
+  metric on the machine, not one provider per processor.
+- **Logical processor, physical core and package kept rigorously distinct.**
+  With simultaneous multithreading two logical processors share one physical
+  core; on a hybrid CPU the ratio is not even constant (8 P-cores × 2 threads
+  plus 16 E-cores = 24 cores, 32 logical processors). Physical cores are counted
+  as distinct `(package_id, core_id)` pairs on Linux and as
+  `RelationProcessorCore` **records** on Windows — never as set affinity bits,
+  which would count threads.
+- **`cpu:logical-N` identifiers**, documented as *logical slots of this system*
+  rather than hardware serial numbers: stable across reboots and restarts on one
+  machine, meaningless on another. On Linux the ordinal is the kernel's own CPU
+  number, so it matches `htop` and `taskset`.
+- **Windows processor groups handled properly** — the implementation is not
+  capped at 64 logical processors. PULSE assigns ordinals by sorting
+  `(group, index in group)`, so `group 1 bit 0` becomes `cpu:logical-64` and
+  never collides with `cpu:logical-0`. The mapping is deterministic, so it
+  cannot shift between runs and silently re-point saved references. Tests cover
+  128- and 256-processor layouts across two and four groups, from Fedora.
+- **Hertz everywhere on the wire.** Linux CPUFreq reports kHz and the Windows
+  power API reports MHz; both are converted in the platform layer, with overflow
+  checks. A zero reading means "not reported" on both platforms and is published
+  as unavailable — never as `0 Hz`, which renders as `0 GHz` and reads as a
+  claim that the core has stopped.
+- **A multi-processor CPU baseline** behind a single mutex holding the aggregate
+  and every logical processor. A processor that appears, disappears, reports
+  counters that rewind, or reports no elapsed time is answered with
+  `temporarilyUnavailable` and a reason — never `0%` — and its baseline is
+  re-primed so the next request succeeds. A departed processor's stale baseline
+  is dropped, so one that comes back does not difference against pre-offline
+  counters.
+- **Failure granularity per metric, per processor.** A missing
+  `cpu17/cpufreq` costs `cpu17`'s frequency and nothing else; `cpu.usage.total`,
+  every `cpu.usage.logical` and the topology counts keep working. On Windows the
+  aggregate deliberately stays on the documented `GetSystemTimes`, so it
+  survives the per-processor counter call being unavailable. A count the
+  platform genuinely cannot determine is `notDetected` with a reason, never
+  guessed by halving the logical count.
+- **CPU details card** on Overview — physical cores, logical processors and
+  packages, then a compact auto-filling grid of every logical processor with its
+  usage, a meter and its current frequency, with the maximum in the tooltip. It
+  has its own Refresh button and stays usable from 4 to 128+ processors. An
+  unknown frequency shows `—` with the reason in its tooltip, never `0 GHz`.
+- **The frontend discovers processors from the catalog** rather than holding any
+  list of CPUs, and **sorts them numerically**: the backend's `(key, sourceId)`
+  string ordering yields `logical-1, logical-10, logical-11, logical-2`, which
+  would scramble the table. A processor appears as soon as any one of its
+  metrics does, so a missing frequency never costs it a row.
+- **`formatHertz`** (`src/utils/units.ts`) — Hz to `800 MHz` / `3.20 GHz` at the
+  display edge only. The contract stays in hertz; no GHz exists in Rust.
+- **Still no scheduler.** One sample on mount, one per Refresh click, and a test
+  that advances timers by sixty seconds and asserts no further request is made.
+
+### Changed
+
+- `MetricsEngineCard` and the engine-status tests no longer assume five metrics;
+  the count is read from the engine and is now machine-dependent.
+- `CpuUsageTracker` takes a whole-machine `CpuSnapshot` rather than a single
+  pair of counters, and reports self-contradictory counters as a transient
+  unavailability with a re-primed baseline rather than as a hard error — the
+  same treatment as every other unmeasurable case.
+- `metrics::wellknown::cpu` became a module directory (`topology`, `usage`,
+  `frequency`), and `cpu::definitions` now takes the discovered topology.
+- `windows-sys` gained the `Win32_System_Power`,
+  `Win32_System_WindowsProgramming` and `Wdk_System_SystemInformation` features.
+
+### Documentation
+
+- New [`docs/metrics/cpu-advanced.md`](docs/metrics/cpu-advanced.md) — the
+  logical/physical/package vocabulary, the dynamic catalog, `cpu:logical-N`
+  stability and its implication for future dashboard selectors, both platforms'
+  data sources, the Windows per-processor API comparison and why
+  `NtQuerySystemInformationEx` was chosen, processor groups, hybrid CPUs, the
+  hertz contract, what `cpu.frequency.current` does and does not claim, the
+  tracker, and the per-refresh cost on each platform.
+- Updated `docs/metrics/README.md`, `docs/metrics/providers.md`,
+  `docs/metrics/identifiers.md`, `docs/platforms/fedora.md`,
+  `docs/platforms/windows.md`, `docs/architecture/overview.md` and `README.md`.
+
+## [Phase 2]
+
 ### Added — Phase 2: Real CPU & Memory Metrics
 
 PULSE's first real system metrics, implemented natively on both Fedora Linux

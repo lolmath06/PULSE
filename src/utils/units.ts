@@ -100,3 +100,37 @@ export function formatSampleTime(timestampMs: number): string {
     second: '2-digit',
   });
 }
+
+const HZ_PER_MHZ = 1_000_000;
+const HZ_PER_GHZ = 1_000_000_000;
+
+/**
+ * Formats a frequency given in hertz, e.g. `3.20 GHz` or `800 MHz`.
+ *
+ * **The backend always sends hertz** (see `docs/metrics/cpu-advanced.md`);
+ * kHz, MHz and GHz exist only here, at the edge. That is what keeps a saved
+ * threshold comparable between a 800 MHz idle core and a 5.4 GHz boosting one.
+ *
+ * Below 1 GHz the value is shown in megahertz with no decimals, because a CPU
+ * idling at `800 MHz` reads better than `0.80 GHz`; at or above 1 GHz it is
+ * shown in gigahertz with two decimals, which is the precision people quote
+ * clock speeds to.
+ *
+ * Non-finite, negative and zero inputs return the placeholder. **Zero is not a
+ * frequency**: the backend reports an unknown clock as unavailable rather than
+ * as `0`, so a zero arriving here is a fault, and `—` is more honest than
+ * `0 GHz` — which the user would read as a claim that the core has stopped.
+ */
+export function formatHertz(hertz: number): string {
+  if (!Number.isFinite(hertz) || hertz <= 0) return '—';
+
+  if (hertz < HZ_PER_GHZ) {
+    const megahertz = Math.round(hertz / HZ_PER_MHZ);
+    // A reading that would round to "0 MHz" is below anything a CPU runs at,
+    // so it is a fault rather than a slow clock, and gets the placeholder for
+    // the same reason a literal zero does.
+    return megahertz > 0 ? `${megahertz} MHz` : '—';
+  }
+
+  return `${(hertz / HZ_PER_GHZ).toFixed(2)} GHz`;
+}

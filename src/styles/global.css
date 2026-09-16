@@ -271,6 +271,73 @@ code,
   user-select: text;
 }
 
+/* ---------- CPU grid ----------
+ *
+ * A compact, auto-filling grid rather than one card per processor: the list is
+ * sized by the machine, so it must stay readable at 4 logical processors and
+ * at 128. Columns wrap to fit the width available, and the card grows in
+ * columns rather than in height.
+ */
+
+.cpu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 2px 18px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+  /* Beyond roughly forty rows per column the card would run off the page; the
+   * grid scrolls inside itself instead of pushing everything else away. */
+  max-height: 340px;
+  overflow-y: auto;
+}
+
+.cpu-grid__row {
+  display: grid;
+  grid-template-columns: 3.4rem 1fr 3.6rem 4.6rem;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 0;
+  font-family: var(--pulse-font-mono);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.cpu-grid__name {
+  color: var(--pulse-text-muted);
+}
+
+.cpu-grid__meter {
+  height: 5px;
+  min-width: 24px;
+  border-radius: 3px;
+  background: var(--pulse-bg-sunken);
+  overflow: hidden;
+}
+
+.cpu-grid__meter-fill {
+  display: block;
+  height: 100%;
+  background: var(--pulse-accent-dim);
+  transition: width 140ms ease;
+}
+
+.cpu-grid__usage,
+.cpu-grid__frequency {
+  text-align: right;
+  user-select: text;
+}
+
+.cpu-grid__frequency {
+  color: var(--pulse-text-muted);
+}
+
+@media (max-width: 560px) {
+  .cpu-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ---------- status bar ---------- */
 
 .status-bar {

@@ -1,18 +1,23 @@
 # PULSE Metrics Engine
 
-> **Phase 2 — the engine collects real data.**
+> **Phase 3 — detailed CPU metrics.**
 >
 > The model, the provider contract, the engine and the frontend API were built
 > in Phase 1. Phase 2 added the first native collectors: CPU usage and physical
-> memory, on both Fedora and Windows. Five metrics, two providers per platform.
+> memory, on both Fedora and Windows. Phase 3 made the CPU support real —
+> per-logical-processor usage and frequency, plus topology — so the catalog is
+> now **sized by the machine** (`8 + 3N` for `N` logical processors) rather than
+> being a fixed list of five. Still two providers per platform.
 
 ## Documents
 
-| Document                           | Contents                                                                                |
-| ---------------------------------- | --------------------------------------------------------------------------------------- |
-| [`model.md`](model.md)             | Definition, sample, value, unit, kind, category, availability, errors, contract version |
-| [`identifiers.md`](identifiers.md) | `MetricKey`, `SourceId`, stability rules, why labels are not identifiers                |
-| [`providers.md`](providers.md)     | The provider contract, registration, collisions, isolation                              |
+| Document                             | Contents                                                                                |
+| ------------------------------------ | --------------------------------------------------------------------------------------- |
+| [`model.md`](model.md)               | Definition, sample, value, unit, kind, category, availability, errors, contract version |
+| [`identifiers.md`](identifiers.md)   | `MetricKey`, `SourceId`, stability rules, why labels are not identifiers                |
+| [`providers.md`](providers.md)       | The provider contract, registration, collisions, isolation                              |
+| [`cpu-memory.md`](cpu-memory.md)     | Phase 2: aggregate CPU usage and physical memory                                        |
+| [`cpu-advanced.md`](cpu-advanced.md) | Phase 3: per-logical-processor usage and frequency, CPU topology, processor groups      |
 
 ## Position in the architecture
 
@@ -46,6 +51,12 @@ and calls each provider at most once per request.
 The memory provider goes further: all four `memory.*` metrics come from a
 **single** read, so they are always mutually consistent — there is no torn read
 where `used` and `available` come from different moments and fail to add up.
+
+The CPU provider does the same at a larger scale: **one `/proc/stat` read feeds
+`cpu.usage.total` and every `cpu.usage.logical`**, so the per-processor figures
+reconcile with the aggregate instead of being sampled at slightly different
+instants. On Windows, one call per processor group covers every logical
+processor, and one `CallNtPowerInformation` returns the whole frequency array.
 
 ### 2. Sample only what is asked for
 
@@ -117,18 +128,19 @@ Planned for later phases:
 
 ## Planned metric families
 
-| Family        | Fedora source              | Windows source                | Notes                  |
-| ------------- | -------------------------- | ----------------------------- | ---------------------- |
-| CPU load      | `/proc/stat`               | `GetSystemTimes`, PDH         | Delta-based            |
-| CPU frequency | `cpufreq/scaling_cur_freq` | PDH `% Processor Performance` | Per-core               |
-| Memory        | `/proc/meminfo`            | `GlobalMemoryStatusEx`        | Use `MemAvailable`     |
-| Storage usage | `statvfs`                  | `GetDiskFreeSpaceEx`          |                        |
-| Storage I/O   | `/proc/diskstats`          | PDH `\LogicalDisk`            | Delta-based            |
-| Network       | `/proc/net/dev`            | PDH `\Network Interface`      | Delta-based            |
-| Temperatures  | `hwmon`                    | **open decision**             | See platform docs      |
-| Fans          | `hwmon` `fanN_input`       | needs ring-0 driver           | Often unavailable      |
-| GPU           | `/sys/class/drm`, NVML     | NVML / ADLX / DXGI            | Vendor-dependent       |
-| Processes     | `/proc/[pid]`              | `NtQuerySystemInformation`    | Expensive; low cadence |
+| Family        | Fedora source              | Windows source                                 | Notes                           |
+| ------------- | -------------------------- | ---------------------------------------------- | ------------------------------- |
+| CPU load      | `/proc/stat`               | `GetSystemTimes`, `NtQuerySystemInformationEx` | Delta-based; **done**           |
+| CPU frequency | `cpufreq/scaling_cur_freq` | `CallNtPowerInformation`                       | Per logical processor; **done** |
+| CPU topology  | `cpuN/topology/`           | `GetLogicalProcessorInformationEx`             | **done**                        |
+| Memory        | `/proc/meminfo`            | `GlobalMemoryStatusEx`                         | Use `MemAvailable`              |
+| Storage usage | `statvfs`                  | `GetDiskFreeSpaceEx`                           |                                 |
+| Storage I/O   | `/proc/diskstats`          | PDH `\LogicalDisk`                             | Delta-based                     |
+| Network       | `/proc/net/dev`            | PDH `\Network Interface`                       | Delta-based                     |
+| Temperatures  | `hwmon`                    | **open decision**                              | See platform docs               |
+| Fans          | `hwmon` `fanN_input`       | needs ring-0 driver                            | Often unavailable               |
+| GPU           | `/sys/class/drm`, NVML     | NVML / ADLX / DXGI                             | Vendor-dependent                |
+| Processes     | `/proc/[pid]`              | `NtQuerySystemInformation`                     | Expensive; low cadence          |
 
 The Windows temperature story and the GPU vendor matrix remain the two genuinely
 hard problems; both are documented in

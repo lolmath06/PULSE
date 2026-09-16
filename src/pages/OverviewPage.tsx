@@ -3,6 +3,7 @@ import { formatDisplayServer, formatPlatformLabel } from '@/utils/format';
 import { APP_TAGLINE, APP_VERSION } from '@/app/constants';
 import { MetricsEngineCard } from '@/components/MetricsEngineCard/MetricsEngineCard';
 import { LiveSampleCard } from '@/components/LiveSampleCard/LiveSampleCard';
+import { CpuDetailsCard } from '@/components/CpuDetailsCard/CpuDetailsCard';
 
 export function OverviewPage() {
   const state = usePlatformInfo();
@@ -54,6 +55,7 @@ export function OverviewPage() {
 
       <MetricsEngineCard />
       <LiveSampleCard />
+      <CpuDetailsCard />
     </section>
   );
 }

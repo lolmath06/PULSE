@@ -114,8 +114,11 @@ Two conventions matter already:
 
 **Implemented.** Phase 1 built the model, the provider contract and the engine;
 Phase 2 added the first native collectors — CPU usage and physical memory, on
-both Fedora and Windows. The engine did not change to accommodate them, which
-was the point of building it first.
+both Fedora and Windows; Phase 3 grew the CPU support to per-logical-processor
+usage and frequency plus topology. The engine did not change to accommodate
+either, which was the point of building it first — including when the catalog
+stopped being a fixed list and became `8 + 3N` entries sized by the host's
+processor count.
 
 The engine is the second boundary in PULSE, after the platform layer, and it
 exists to make one sentence true:
@@ -165,9 +168,16 @@ examples.
 
 Shared metric declarations live in `metrics/wellknown/`, which owns each
 metric's key, unit, kind, user-facing text and arithmetic. Platform providers
-supply only raw counters. A contract test asserts that the Linux and Windows
-declarations differ in `providerId` and nothing else — that is the mechanism
-behind "a dashboard configured on Fedora still works on Windows".
+supply only raw counters and the topology they discovered. For metric families
+whose size depends on the machine, `wellknown` exposes a **generator** —
+`cpu::definitions(provider, topology)` — rather than a constant list, so neither
+platform invents its own per-processor keys or labels.
+
+Contract tests assert that the Linux and Windows declarations, generated for the
+same synthetic topology, differ in `providerId` and nothing else — that is the
+mechanism behind "a dashboard configured on Fedora still works on Windows".
+Availability is the one field each platform decides for itself, because the same
+machine may genuinely expose a frequency on one OS and not the other.
 
 **Deliberately deferred**: the scheduler, subscriptions, streaming events,
 history and its ring buffer. The interaction model is still

@@ -1,7 +1,8 @@
 # PULSE on Windows
 
-> Status: Phase 0. This documents what PULSE _will_ rely on and the constraints
-> that come with it. No metric integration is implemented yet.
+> Status: Phase 3. CPU (aggregate, per logical processor, frequency, topology)
+> and physical memory are implemented natively. Everything below the
+> "Planned data sources" heading is still design work.
 
 Windows is a **first-class PULSE platform**, on equal footing with Fedora Linux.
 
@@ -9,20 +10,72 @@ Windows is a **first-class PULSE platform**, on equal footing with Fedora Linux.
 
 **Implemented (Phase 2).** No administrator rights required.
 
-| Metric                 | API                    | Notes                     |
-| ---------------------- | ---------------------- | ------------------------- |
-| `cpu.usage.total`      | `GetSystemTimes`       | Delta between two samples |
-| `memory.total`         | `GlobalMemoryStatusEx` | `ullTotalPhys`            |
-| `memory.available`     | `GlobalMemoryStatusEx` | `ullAvailPhys`            |
-| `memory.used`          | derived                | `total - available`       |
-| `memory.usage.percent` | derived                | `used / total * 100`      |
+| Metric                  | API                                                                    | Notes                                  |
+| ----------------------- | ---------------------------------------------------------------------- | -------------------------------------- |
+| `cpu.usage.total`       | `GetSystemTimes`                                                       | Delta between two samples              |
+| `cpu.usage.logical`     | `NtQuerySystemInformationEx` / `SystemProcessorPerformanceInformation` | One call per processor group           |
+| `cpu.frequency.current` | `CallNtPowerInformation(ProcessorInformation)`                         | `CurrentMhz`, MHz → Hz                 |
+| `cpu.frequency.max`     | `CallNtPowerInformation(ProcessorInformation)`                         | `MaxMhz`, typically the **base** clock |
+| `cpu.count.logical`     | `GetLogicalProcessorInformationEx`                                     | Set bits across core records           |
+| `cpu.count.physical`    | `GetLogicalProcessorInformationEx`                                     | `RelationProcessorCore` **records**    |
+| `cpu.count.package`     | `GetLogicalProcessorInformationEx`                                     | `RelationProcessorPackage` records     |
+| `memory.total`          | `GlobalMemoryStatusEx`                                                 | `ullTotalPhys`                         |
+| `memory.available`      | `GlobalMemoryStatusEx`                                                 | `ullAvailPhys`                         |
+| `memory.used`           | derived                                                                | `total - available`                    |
+| `memory.usage.percent`  | derived                                                                | `used / total * 100`                   |
+
+### Why `NtQuerySystemInformationEx` for per-processor usage
+
+PDH's `\Processor Information(*)\% Processor Time` is the obvious candidate and
+was rejected: its counter paths are **localised** (`Processeur` on a French
+install), it needs a registry-backed name lookup to avoid that, it carries a
+query/counter handle lifecycle, and instance names must be string-parsed to be
+attributed to a processor. WMI needs a service and costs tens of milliseconds.
+`Get-Counter` and `typeperf` are subprocesses. `QueryIdleProcessorCycleTime`
+returns cycles, which on a hybrid CPU are not comparable between P- and E-cores.
+
+`SystemProcessorPerformanceInformation` returns a flat array of the exact
+`IdleTime`/`KernelTime`/`UserTime` totals the shared delta model already
+consumes, with no strings anywhere, in one call per processor group. Its cost is
+that `ntdll` is documented as subject to change; PULSE contains that by
+isolating the call, degrading to "unavailable" rather than panicking, and
+keeping `cpu.usage.total` on the fully documented `GetSystemTimes`. The full
+comparison is in [`../metrics/cpu-advanced.md`](../metrics/cpu-advanced.md).
+
+### Processor groups
+
+Windows addresses logical processors as `(group, index in group)`, at most 64
+per group. **The implementation is not capped at 64 processors**: the plain
+`NtQuerySystemInformation` form would silently report only the calling thread's
+group, so PULSE uses the `Ex` form once per group.
+
+Since there is no system-wide flat processor number, PULSE assigns its own
+ordinal by sorting every `(group, index)` pair — group first, then index — and
+numbering from zero, giving `cpu:logical-0`…`cpu:logical-N`. On a single-group
+machine this is the identity mapping, so `cpu:logical-5` is Task Manager's
+_CPU 5_. The sort makes the mapping independent of the order Windows returned
+records in, so it cannot shift between runs and re-point saved references.
+
+### `MaxMhz` is usually the base clock
+
+On most Windows systems `MaxMhz` reports the processor's **base** frequency
+rather than its maximum turbo frequency — the same figure the System control
+panel shows, and typically lower than Linux's `cpuinfo_max_freq` on the same
+chip. It is a hardware figure rather than a power-policy ceiling (that is
+`MhzLimit`, which PULSE does not publish), so it is published as
+`cpu.frequency.max` with that meaning documented rather than quietly equated to
+the Linux number.
 
 Two Windows-specific details worth knowing:
 
 - **`GetSystemTimes` counts idle time inside `KernelTime`.** So
   `total = kernel + user` and `busy = total - idle`. Applying the Linux formula
   here would report a completely idle machine as heavily busy. This is the one
-  genuine trap in the phase, and it has a test named after it.
+  genuine trap in the phase, and it has a test named after it. The same applies
+  to the per-processor counters, and a test asserts the two conversions agree.
+- **Physical cores are `RelationProcessorCore` records, not set bits.**
+  Counting the bits in the affinity masks counts hardware threads and would
+  report an 8-core SMT machine as having 16 cores.
 - **`dwMemoryLoad` is deliberately ignored.** Windows offers a ready-made
   percentage, but it is rounded to a whole number and would disagree with the
   `used` and `total` figures shown beside it — and with how Fedora reports the
@@ -38,13 +91,21 @@ Full formulas and edge cases: [`../metrics/cpu-memory.md`](../metrics/cpu-memory
 
 The only Windows crate used for metrics is `windows-sys` — raw FFI bindings,
 no wrapper layer, no runtime — declared under
-`[target.'cfg(target_os = "windows")'.dependencies]` with exactly the three
-features that declare the two calls PULSE makes.
+`[target.'cfg(target_os = "windows")'.dependencies]` with exactly the features
+that declare the calls PULSE makes. `NtQuerySystemInformationEx` and
+`PROCESSOR_POWER_INFORMATION` are not shipped by `windows-sys` and are declared
+directly, next to the code that uses them.
 
-There are precisely **two `unsafe` blocks**, one per API call, each a handful of
-lines with a `# Safety` comment explaining why it is sound. Everything
-else — FILETIME recombination, the CPU counter semantics, the memory
-convention — is safe, pure Rust that compiles and is unit-tested on Fedora too.
+Every `unsafe` block is a handful of lines wrapping one API call, each with a
+`# Safety` comment explaining why it is sound, and each converting the packed
+Windows buffer into plain Rust structs immediately. Everything after that —
+FILETIME recombination, the CPU counter semantics, the memory convention, the
+processor-group ordinal mapping, core and package counting, MHz→Hz conversion —
+is safe, pure Rust that compiles and is **unit-tested on Fedora**. That is why
+128- and 256-processor multi-group layouts are covered by tests written on a
+laptop that has neither.
+
+No administrator rights are required by any of it.
 
 ## What Phase 0 already does on Windows
 

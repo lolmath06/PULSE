@@ -1,7 +1,8 @@
 # PULSE on Fedora Linux
 
-> Status: Phase 0. This documents what PULSE _will_ rely on and the constraints
-> that come with it. No metric integration is implemented yet.
+> Status: Phase 3. CPU (aggregate, per logical processor, frequency, topology)
+> and physical memory are implemented natively. Everything below the
+> "Planned data sources" heading is still design work.
 
 Fedora Linux is a **first-class PULSE platform**, on equal footing with Windows.
 
@@ -9,13 +10,22 @@ Fedora Linux is a **first-class PULSE platform**, on equal footing with Windows.
 
 **Implemented (Phase 2).** No elevated privileges required.
 
-| Metric                 | File            | Notes                                           |
-| ---------------------- | --------------- | ----------------------------------------------- |
-| `cpu.usage.total`      | `/proc/stat`    | Aggregate `cpu` line; delta between two samples |
-| `memory.total`         | `/proc/meminfo` | `MemTotal`, kB → bytes                          |
-| `memory.available`     | `/proc/meminfo` | `MemAvailable`, kB → bytes                      |
-| `memory.used`          | derived         | `total - available`                             |
-| `memory.usage.percent` | derived         | `used / total * 100`                            |
+| Metric                  | Source                              | Notes                                           |
+| ----------------------- | ----------------------------------- | ----------------------------------------------- |
+| `cpu.usage.total`       | `/proc/stat`                        | Aggregate `cpu` line; delta between two samples |
+| `cpu.usage.logical`     | `/proc/stat`                        | `cpuN` lines; same formula as the aggregate     |
+| `cpu.frequency.current` | `cpufreq/scaling_cur_freq`          | kHz → Hz in the platform layer                  |
+| `cpu.frequency.max`     | `cpufreq/cpuinfo_max_freq`          | Hardware maximum, **not** `scaling_max_freq`    |
+| `cpu.count.logical`     | `/sys/devices/system/cpu/online`    | Hardware threads                                |
+| `cpu.count.physical`    | `cpuN/topology/`                    | Distinct `(package_id, core_id)` pairs          |
+| `cpu.count.package`     | `cpuN/topology/physical_package_id` | Distinct packages                               |
+| `memory.total`          | `/proc/meminfo`                     | `MemTotal`, kB → bytes                          |
+| `memory.available`      | `/proc/meminfo`                     | `MemAvailable`, kB → bytes                      |
+| `memory.used`           | derived                             | `total - available`                             |
+| `memory.usage.percent`  | derived                             | `used / total * 100`                            |
+
+The frequency and per-processor metrics exist **once per logical processor**, so
+the catalog holds `8 + 3N` metrics for `N` of them — 104 on a 32-thread machine.
 
 Three details that the implementation gets right and that are easy to get wrong:
 
@@ -30,8 +40,34 @@ Three details that the implementation gets right and that are easy to get wrong:
 Values in `/proc/meminfo` are converted from kB to bytes inside the platform
 layer, so nothing above it ever handles a non-canonical unit. An unexpected unit
 suffix is rejected rather than guessed — a wrong guess is off by a factor of 1024.
+CPUFreq's kHz figures are converted to hertz in the same place, for the same
+reason.
 
-Full formulas and edge cases: [`../metrics/cpu-memory.md`](../metrics/cpu-memory.md).
+Four more details the Phase 3 implementation gets right:
+
+- **One `/proc/stat` read feeds every usage metric.** The file carries the
+  aggregate line and every `cpuN` line, so reading it per metric would be 33
+  reads instead of 1 — and would sample processors at different instants, so
+  they would not reconcile with the aggregate.
+- **`cpuinfo_max_freq`, never `scaling_max_freq`.** The latter is the current
+  power-policy ceiling: a laptop in a power-saving profile reports a scaling
+  maximum far below what the chip can do. When the hardware figure is absent,
+  PULSE reports the metric `unsupported` rather than substituting the policy value.
+- **Gaps in the CPU list are normal.** `/sys/devices/system/cpu/online` can read
+  `0-3,8-11` after a CPU is offlined or hot-unplugged. The parser handles ranges,
+  gaps and a missing file (falling back to `/proc/stat`'s `cpuN` lines).
+- **Physical cores are counted as `(package_id, core_id)` pairs.** `core_id` is
+  only unique within a package, so counting it bare would report a dual-socket
+  32-core server as having 32 cores.
+
+**No subprocess is ever spawned.** No `lscpu`, no `cat`, no `grep`, no
+`cpupower` — everything is read with `std::fs`. Spawning a process per metric
+would be slower, would depend on tools that may not be installed, would parse
+output that changes with locale, and would give PULSE a shell-injection surface.
+
+Full formulas and edge cases:
+[`../metrics/cpu-memory.md`](../metrics/cpu-memory.md) and
+[`../metrics/cpu-advanced.md`](../metrics/cpu-advanced.md).
 
 ## What Phase 0 already does on Fedora
 

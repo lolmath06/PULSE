@@ -1,13 +1,23 @@
 # Metric Providers
 
 > Phase 1 defined the provider contract and the engine that hosts it. Phase 2
-> added the first real providers — CPU and memory, natively on both platforms —
-> and the engine did not have to change to accommodate them.
+> added the first real providers — CPU and memory, natively on both platforms.
+> Phase 3 grew the CPU providers to cover every logical processor, and the
+> contract did not have to change to accommodate a catalog whose size is
+> decided at runtime.
 
 ## What a provider is
 
 A provider is the unit of ownership in the metrics engine: it declares a set of
 metrics and knows how to read them. One provider maps onto one data source.
+
+**A provider owns a family of metrics, not a single device.** `linux.cpu` owns
+every CPU metric on the machine — the aggregate, the topology counts, and three
+metrics for each of the 32 logical processors. There is deliberately **no
+provider per processor**: thirty-two providers would each re-read `/proc/stat`,
+each appear in the engine status, and share nothing. So `Providers = 2` holds on
+both platforms whatever the CPU; it is the **metric count** that scales with the
+machine.
 
 ```text
 linux.cpu      /proc/stat, /sys/devices/system/cpu
@@ -159,19 +169,20 @@ cross-platform answer.
 
 ## Providers
 
-| Provider         | Platform         | Data source            | Status          |
-| ---------------- | ---------------- | ---------------------- | --------------- |
-| `linux.cpu`      | Fedora           | `/proc/stat`           | **Implemented** |
-| `linux.memory`   | Fedora           | `/proc/meminfo`        | **Implemented** |
-| `windows.cpu`    | Windows          | `GetSystemTimes`       | **Implemented** |
-| `windows.memory` | Windows          | `GlobalMemoryStatusEx` | **Implemented** |
-| `linux.hwmon`    | Fedora           | `/sys/class/hwmon`     | Planned         |
-| `windows.pdh`    | Windows          | Performance counters   | Planned         |
-| `nvidia.nvml`    | both             | NVML                   | Planned         |
-| `linux.drm`      | Fedora           | `/sys/class/drm`       | Planned         |
-| `storage.smart`  | both, privileged | SMART                  | Later           |
+| Provider         | Platform         | Data source                                                                                                  | Status          |
+| ---------------- | ---------------- | ------------------------------------------------------------------------------------------------------------ | --------------- |
+| `linux.cpu`      | Fedora           | `/proc/stat`, `/sys/devices/system/cpu`                                                                      | **Implemented** |
+| `linux.memory`   | Fedora           | `/proc/meminfo`                                                                                              | **Implemented** |
+| `windows.cpu`    | Windows          | `GetSystemTimes`, `NtQuerySystemInformationEx`, `CallNtPowerInformation`, `GetLogicalProcessorInformationEx` | **Implemented** |
+| `windows.memory` | Windows          | `GlobalMemoryStatusEx`                                                                                       | **Implemented** |
+| `linux.hwmon`    | Fedora           | `/sys/class/hwmon`                                                                                           | Planned         |
+| `windows.pdh`    | Windows          | Performance counters                                                                                         | Planned         |
+| `nvidia.nvml`    | both             | NVML                                                                                                         | Planned         |
+| `linux.drm`      | Fedora           | `/sys/class/drm`                                                                                             | Planned         |
+| `storage.smart`  | both, privileged | SMART                                                                                                        | Later           |
 
-See [`cpu-memory.md`](cpu-memory.md) for how the implemented ones work, and
+See [`cpu-memory.md`](cpu-memory.md) and [`cpu-advanced.md`](cpu-advanced.md)
+for how the implemented ones work, and
 [`../platforms/fedora.md`](../platforms/fedora.md) /
 [`../platforms/windows.md`](../platforms/windows.md) for the data sources and
 their constraints.

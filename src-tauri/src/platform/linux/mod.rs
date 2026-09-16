@@ -4,6 +4,8 @@
 //! here; nothing outside this module may do so.
 
 pub mod cpu;
+pub mod cpu_list;
+pub mod cpu_sysfs;
 pub mod memory;
 mod os_release;
 
@@ -36,9 +38,10 @@ impl HostPlatform for LinuxPlatform {
     /// This matters well beyond cosmetics: the future Mini overlay has very
     /// different positioning capabilities on each (see
     /// `docs/architecture/mini-overlay.md`).
-    /// CPU from `/proc/stat` and memory from `/proc/meminfo`.
+    /// CPU from `/proc/stat` and `/sys/devices/system/cpu/`, memory from
+    /// `/proc/meminfo`.
     ///
-    /// Both are world-readable, so neither needs root.
+    /// All are world-readable, so none needs root.
     fn metric_providers(&self) -> Vec<Arc<dyn MetricProvider>> {
         vec![cpu::provider(), memory::provider()]
     }

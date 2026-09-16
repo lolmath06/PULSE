@@ -19,6 +19,9 @@ use super::{HostPlatform, PlatformKind};
 use crate::metrics::providers::MetricProvider;
 
 pub mod cpu;
+pub mod cpu_freq;
+pub mod cpu_perf;
+pub mod cpu_topology;
 pub mod memory;
 
 /// Windows implementation of [`HostPlatform`].
@@ -48,10 +51,11 @@ impl HostPlatform for WindowsPlatform {
         ))
     }
 
-    /// CPU from `GetSystemTimes` and memory from `GlobalMemoryStatusEx`.
+    /// CPU from `GetSystemTimes`, `NtQuerySystemInformationEx`,
+    /// `CallNtPowerInformation` and `GetLogicalProcessorInformationEx`; memory
+    /// from `GlobalMemoryStatusEx`.
     ///
-    /// Both are available to any process, so neither needs administrator
-    /// rights.
+    /// All are available to any process, so none needs administrator rights.
     fn metric_providers(&self) -> Vec<Arc<dyn MetricProvider>> {
         vec![cpu::provider(), memory::provider()]
     }

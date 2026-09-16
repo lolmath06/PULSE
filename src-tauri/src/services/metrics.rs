@@ -18,8 +18,13 @@ use crate::platform;
 /// the engine entirely.
 ///
 /// On Fedora this yields `linux.cpu` and `linux.memory`; on Windows,
-/// `windows.cpu` and `windows.memory`. Both publish the same five metric
-/// references.
+/// `windows.cpu` and `windows.memory`. Both publish the same metric
+/// references for a given machine.
+///
+/// **The catalog size is a property of the host, not a constant.** The four
+/// memory metrics and the four machine-wide CPU metrics are always there; the
+/// rest is three metrics per logical processor, so the same code yields 20
+/// metrics on a four-thread virtual machine and 104 on a 32-thread laptop.
 pub fn build_engine() -> MetricsEngine {
     metrics::build_engine(platform::host().metric_providers())
 }
@@ -48,15 +53,27 @@ mod tests {
     use super::*;
     use crate::metrics::wellknown::{cpu, memory};
 
-    /// Every metric reference PULSE ships in Phase 2, in catalog order.
-    fn expected_references() -> Vec<MetricRef> {
+    /// The metric references PULSE ships on **every** machine, whatever its
+    /// CPU. The per-processor references are added to these at runtime.
+    fn machine_independent_references() -> Vec<MetricRef> {
         vec![
+            cpu::count_logical_ref(),
+            cpu::count_package_ref(),
+            cpu::count_physical_ref(),
             cpu::usage_total_ref(),
             memory::available_ref(),
             memory::total_ref(),
             memory::usage_percent_ref(),
             memory::used_ref(),
         ]
+    }
+
+    /// How many logical processors this host reports, via the catalog itself.
+    fn logical_processor_count(engine: &MetricsEngine) -> usize {
+        catalog(engine)
+            .iter()
+            .filter(|definition| definition.metric.key.as_str() == cpu::USAGE_LOGICAL)
+            .count()
     }
 
     #[test]
@@ -70,9 +87,17 @@ mod tests {
             return;
         }
 
+        // Two providers, whatever the machine: the CPU provider owns every
+        // CPU metric rather than there being one provider per processor.
         assert_eq!(status.provider_count, 2, "one CPU and one memory provider");
-        assert_eq!(status.metric_count, 5);
         assert_eq!(status.state, crate::metrics::EngineState::Ready);
+
+        // 8 fixed metrics plus three per logical processor — discovered, never
+        // hardcoded.
+        let logical = logical_processor_count(&engine);
+        assert!(logical > 0, "a running machine has logical processors");
+        assert_eq!(status.metric_count, 8 + 3 * logical);
+        assert!(status.available_metric_count <= status.metric_count);
     }
 
     #[test]
@@ -87,7 +112,37 @@ mod tests {
             .map(|definition| definition.metric)
             .collect();
 
-        assert_eq!(references, expected_references());
+        // Every machine-independent reference is present exactly once.
+        for expected in machine_independent_references() {
+            assert_eq!(
+                references.iter().filter(|r| **r == expected).count(),
+                1,
+                "{expected} must appear exactly once"
+            );
+        }
+
+        // And every logical processor contributes its three.
+        let logical = logical_processor_count(&engine);
+        for key in [
+            cpu::USAGE_LOGICAL,
+            cpu::FREQUENCY_CURRENT,
+            cpu::FREQUENCY_MAX,
+        ] {
+            assert_eq!(
+                references
+                    .iter()
+                    .filter(|reference| reference.key.as_str() == key)
+                    .count(),
+                logical,
+                "{key} must be declared once per logical processor"
+            );
+        }
+
+        // The order is deterministic, which is what a saved dashboard and the
+        // UI's discovery both rely on.
+        let mut sorted = references.clone();
+        sorted.sort();
+        assert_eq!(references, sorted);
     }
 
     #[test]
