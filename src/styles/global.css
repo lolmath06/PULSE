@@ -338,6 +338,66 @@ code,
   }
 }
 
+/* ---------- GPU list ----------
+ *
+ * One compact block per adapter, laid out in an auto-filling grid so a machine
+ * with four cards grows in columns rather than in height.
+ */
+
+.gpu-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 18px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.gpu-list__item {
+  padding: 12px 14px;
+  background: var(--pulse-bg-sunken);
+  border: 1px solid var(--pulse-border);
+  border-radius: var(--pulse-radius-sm);
+  min-width: 0;
+}
+
+.gpu-list__name {
+  margin: 0 0 10px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--pulse-text);
+  overflow-wrap: anywhere;
+}
+
+.gpu-list__note {
+  margin: 10px 0 0;
+  color: var(--pulse-text-faint);
+  font-size: 11.5px;
+}
+
+/* A denser variant of the shared key/value list, for inside a GPU block. */
+.kv--compact {
+  gap: 5px;
+}
+
+.kv--compact .kv__row {
+  grid-template-columns: 96px 1fr;
+  gap: 8px;
+}
+
+.kv--compact dt,
+.kv--compact dd {
+  font-size: 12px;
+}
+
+@media (max-width: 560px) {
+  .gpu-list {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ---------- status bar ---------- */
 
 .status-bar {

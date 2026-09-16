@@ -4,6 +4,7 @@ import { APP_TAGLINE, APP_VERSION } from '@/app/constants';
 import { MetricsEngineCard } from '@/components/MetricsEngineCard/MetricsEngineCard';
 import { LiveSampleCard } from '@/components/LiveSampleCard/LiveSampleCard';
 import { CpuDetailsCard } from '@/components/CpuDetailsCard/CpuDetailsCard';
+import { GpuDetailsCard } from '@/components/GpuDetailsCard/GpuDetailsCard';
 
 export function OverviewPage() {
   const state = usePlatformInfo();
@@ -56,6 +57,7 @@ export function OverviewPage() {
       <MetricsEngineCard />
       <LiveSampleCard />
       <CpuDetailsCard />
+      <GpuDetailsCard />
     </section>
   );
 }

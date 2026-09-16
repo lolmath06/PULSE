@@ -18,7 +18,29 @@
 
 use crate::metrics::model::{Availability, MetricDefinition, ProviderId};
 use crate::metrics::wellknown::cpu::{self, CpuTopology, LogicalId, LogicalProcessor};
+use crate::metrics::wellknown::gpu::{
+    self, GpuCapabilities, GpuDescriptor, GpuIdentity, GpuVendor, PciAddress,
+};
 use crate::metrics::wellknown::memory;
+
+/// The NVIDIA card both platforms are asked to describe.
+///
+/// Identified by its NVML UUID, which is the whole point: the *same* physical
+/// card yields the *same* `SourceId` on Fedora and on Windows, so a dashboard
+/// widget bound to it survives moving between them.
+const SYNTHETIC_UUID: &str = "GPU-11111111-2222-3333-4444-555555555555";
+
+fn synthetic_gpus() -> Vec<GpuDescriptor> {
+    vec![GpuDescriptor {
+        source_id: gpu::nvml_source_id(SYNTHETIC_UUID).expect("valid"),
+        display_name: "NVIDIA GeForce RTX 4070".to_string(),
+        vendor: GpuVendor::Nvidia,
+        identity: GpuIdentity::NvmlUuid(SYNTHETIC_UUID.to_string()),
+        pci: Some(PciAddress::new(0, 1, 0, 0)),
+        backend: "nvml",
+        capabilities: GpuCapabilities::all_available(),
+    }]
+}
 
 /// The topology both platforms are asked to describe: four logical processors
 /// on two physical cores in one package — a plain SMT dual-core.
@@ -75,6 +97,211 @@ fn declarations(cpu_provider: &str, memory_provider: &str) -> Vec<MetricDefiniti
     definitions.sort_by(|left, right| left.metric.cmp(&right.metric));
 
     definitions
+}
+
+/// The GPU declarations a platform's GPU provider produces for one synthetic
+/// NVIDIA card, sorted like the catalog.
+fn gpu_declarations(gpu_provider: &str) -> Vec<MetricDefinition> {
+    let id = ProviderId::new(gpu_provider).expect("valid provider id");
+    let mut definitions = gpu::definitions(&id, &synthetic_gpus());
+    definitions.sort_by(|left, right| left.metric.cmp(&right.metric));
+
+    definitions
+}
+
+fn linux_gpu_declarations() -> Vec<MetricDefinition> {
+    gpu_declarations(crate::platform::linux::gpu::PROVIDER_ID)
+}
+
+fn windows_gpu_declarations() -> Vec<MetricDefinition> {
+    gpu_declarations(crate::platform::windows::gpu::PROVIDER_ID)
+}
+
+// --- GPU contract ---------------------------------------------------------
+
+#[test]
+fn both_platforms_declare_the_same_gpu_references_for_one_card() {
+    let references = |definitions: Vec<MetricDefinition>| -> Vec<String> {
+        definitions
+            .iter()
+            .map(|definition| definition.metric.to_string())
+            .collect()
+    };
+
+    let expected = vec![
+        "gpu.count@gpu:system".to_string(),
+        "gpu.frequency.core@gpu:nvidia-11111111-2222-3333-4444-555555555555".to_string(),
+        "gpu.frequency.memory@gpu:nvidia-11111111-2222-3333-4444-555555555555".to_string(),
+        "gpu.memory.free@gpu:nvidia-11111111-2222-3333-4444-555555555555".to_string(),
+        "gpu.memory.total@gpu:nvidia-11111111-2222-3333-4444-555555555555".to_string(),
+        "gpu.memory.usage.percent@gpu:nvidia-11111111-2222-3333-4444-555555555555".to_string(),
+        "gpu.memory.used@gpu:nvidia-11111111-2222-3333-4444-555555555555".to_string(),
+        "gpu.usage.core@gpu:nvidia-11111111-2222-3333-4444-555555555555".to_string(),
+    ];
+
+    assert_eq!(references(linux_gpu_declarations()), expected);
+    assert_eq!(references(windows_gpu_declarations()), expected);
+}
+
+#[test]
+fn an_nvidia_card_keeps_one_identity_across_operating_systems() {
+    // The portability promise for GPUs: a hardware UUID is a hardware UUID,
+    // so a widget bound to this card works on either OS unchanged.
+    let source = |definitions: Vec<MetricDefinition>| -> String {
+        definitions
+            .iter()
+            .find(|definition| definition.metric.key.as_str() == gpu::USAGE_CORE)
+            .expect("declared")
+            .metric
+            .source_id
+            .as_str()
+            .to_string()
+    };
+
+    assert_eq!(
+        source(linux_gpu_declarations()),
+        source(windows_gpu_declarations())
+    );
+}
+
+#[test]
+fn only_the_provider_id_differs_between_the_platforms_for_gpus() {
+    for (linux, windows) in linux_gpu_declarations()
+        .iter()
+        .zip(windows_gpu_declarations().iter())
+    {
+        let reference = &linux.metric;
+
+        assert_eq!(linux.metric, windows.metric, "metric ref for {reference}");
+        assert_eq!(linux.unit, windows.unit, "unit for {reference}");
+        assert_eq!(linux.kind, windows.kind, "kind for {reference}");
+        assert_eq!(
+            linux.value_type, windows.value_type,
+            "value type for {reference}"
+        );
+        assert_eq!(linux.category, windows.category, "category for {reference}");
+        assert_eq!(
+            linux.display_name, windows.display_name,
+            "display name for {reference}"
+        );
+        assert_eq!(
+            linux.source_label, windows.source_label,
+            "source label for {reference}"
+        );
+        assert_eq!(
+            linux.description, windows.description,
+            "description for {reference}"
+        );
+
+        assert_ne!(
+            linux.provider_id, windows.provider_id,
+            "provider id should identify the platform for {reference}"
+        );
+    }
+}
+
+#[test]
+fn the_gpu_catalog_size_follows_the_machine_identically_on_both_platforms() {
+    for count in 0..=4_usize {
+        let gpus: Vec<GpuDescriptor> = (0..count)
+            .map(|index| {
+                let uuid = format!("GPU-{index:08x}-0000-0000-0000-000000000000");
+                GpuDescriptor {
+                    source_id: gpu::nvml_source_id(&uuid).expect("valid"),
+                    display_name: "NVIDIA GeForce RTX 4090".to_string(),
+                    vendor: GpuVendor::Nvidia,
+                    identity: GpuIdentity::NvmlUuid(uuid),
+                    pci: None,
+                    backend: "nvml",
+                    capabilities: GpuCapabilities::all_available(),
+                }
+            })
+            .collect();
+
+        let sizes: Vec<usize> = ["linux.gpu", "windows.gpu"]
+            .map(|id| {
+                let provider = ProviderId::new(id).expect("valid");
+                gpu::definitions(&provider, &gpus).len()
+            })
+            .to_vec();
+
+        assert_eq!(sizes[0], sizes[1]);
+        assert_eq!(sizes[0], 1 + 7 * count);
+    }
+}
+
+#[test]
+fn an_unsupported_gpu_metric_keeps_its_definition_on_both_platforms() {
+    // A driver difference between the two operating systems must change the
+    // availability and nothing else, so the reference stays resolvable.
+    let degraded = vec![GpuDescriptor {
+        capabilities: GpuCapabilities::none_available(&Availability::unsupported(
+            "no telemetry backend",
+        )),
+        ..synthetic_gpus().remove(0)
+    }];
+
+    for id in ["linux.gpu", "windows.gpu"] {
+        let provider = ProviderId::new(id).expect("valid");
+        let definitions = gpu::definitions(&provider, &degraded);
+
+        assert_eq!(definitions.len(), 8, "{id} dropped a metric");
+        assert_eq!(
+            definitions
+                .iter()
+                .filter(|definition| !definition.availability.is_available())
+                .count(),
+            7
+        );
+    }
+}
+
+#[test]
+fn gpu_provider_ids_follow_the_documented_convention() {
+    assert_eq!(crate::platform::linux::gpu::PROVIDER_ID, "linux.gpu");
+    assert_eq!(crate::platform::windows::gpu::PROVIDER_ID, "windows.gpu");
+
+    for id in [
+        crate::platform::linux::gpu::PROVIDER_ID,
+        crate::platform::windows::gpu::PROVIDER_ID,
+    ] {
+        assert!(ProviderId::new(id).is_ok(), "invalid provider id: {id}");
+    }
+}
+
+#[test]
+fn one_gpu_provider_owns_every_gpu_metric_on_both_platforms() {
+    // Not one provider per GPU, and not one per vendor backend — which would
+    // make two providers claim the same reference.
+    for declarations in [linux_gpu_declarations(), windows_gpu_declarations()] {
+        let mut owners: Vec<&str> = declarations
+            .iter()
+            .map(|definition| definition.provider_id.as_str())
+            .collect();
+        owners.sort_unstable();
+        owners.dedup();
+
+        assert_eq!(owners.len(), 1);
+    }
+}
+
+#[test]
+fn gpu_user_facing_text_never_names_an_operating_system_or_backend() {
+    for definition in linux_gpu_declarations()
+        .iter()
+        .chain(windows_gpu_declarations().iter())
+    {
+        let lowered = definition.display_name.to_lowercase();
+        for forbidden in [
+            "linux", "windows", "fedora", "nvml", "dxgi", "amdgpu", "/sys",
+        ] {
+            assert!(
+                !lowered.contains(forbidden),
+                "'{}' leaks '{forbidden}'",
+                definition.display_name
+            );
+        }
+    }
 }
 
 fn linux_declarations() -> Vec<MetricDefinition> {

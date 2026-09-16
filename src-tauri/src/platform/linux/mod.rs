@@ -6,6 +6,7 @@
 pub mod cpu;
 pub mod cpu_list;
 pub mod cpu_sysfs;
+pub mod gpu;
 pub mod memory;
 mod os_release;
 
@@ -43,7 +44,7 @@ impl HostPlatform for LinuxPlatform {
     ///
     /// All are world-readable, so none needs root.
     fn metric_providers(&self) -> Vec<Arc<dyn MetricProvider>> {
-        vec![cpu::provider(), memory::provider()]
+        vec![cpu::provider(), memory::provider(), gpu::provider()]
     }
 
     fn display_server(&self) -> Option<String> {

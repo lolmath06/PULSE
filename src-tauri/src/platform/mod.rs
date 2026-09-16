@@ -35,6 +35,10 @@ use crate::metrics::providers::MetricProvider;
 // compiles and is tested everywhere. That is what lets Fedora CI catch a
 // broken Windows formula and vice versa.
 pub mod linux;
+// NVIDIA telemetry is the same library on both operating systems, so it lives
+// beside them rather than inside either. Loaded at runtime; see its docs.
+pub mod gpu;
+pub mod nvml;
 pub mod windows;
 
 /// Platform families PULSE ships a backend implementation for.

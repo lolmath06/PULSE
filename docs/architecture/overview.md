@@ -115,10 +115,11 @@ Two conventions matter already:
 **Implemented.** Phase 1 built the model, the provider contract and the engine;
 Phase 2 added the first native collectors — CPU usage and physical memory, on
 both Fedora and Windows; Phase 3 grew the CPU support to per-logical-processor
-usage and frequency plus topology. The engine did not change to accommodate
-either, which was the point of building it first — including when the catalog
-stopped being a fixed list and became `8 + 3N` entries sized by the host's
-processor count.
+usage and frequency plus topology; Phase 4 added GPU inventory, identity and
+core telemetry across NVIDIA, AMD and Intel. The engine did not change to
+accommodate any of them, which was the point of building it first — including
+when the catalog stopped being a fixed list and became `9 + 3N + 7G` entries
+sized by the host's processor and adapter count.
 
 The engine is the second boundary in PULSE, after the platform layer, and it
 exists to make one sentence true:
@@ -170,8 +171,14 @@ Shared metric declarations live in `metrics/wellknown/`, which owns each
 metric's key, unit, kind, user-facing text and arithmetic. Platform providers
 supply only raw counters and the topology they discovered. For metric families
 whose size depends on the machine, `wellknown` exposes a **generator** —
-`cpu::definitions(provider, topology)` — rather than a constant list, so neither
-platform invents its own per-processor keys or labels.
+`cpu::definitions(provider, topology)`, `gpu::definitions(provider, devices)` —
+rather than a constant list, so neither platform invents its own per-processor
+or per-device keys and labels.
+
+A provider owns a whole metric _family_, not a device: `linux.gpu` hosts the DRM
+inventory, the NVML capability and the AMDGPU capability together. Splitting
+them would make two providers claim the same `MetricRef` for a card both can
+see, which the engine rejects by design.
 
 Contract tests assert that the Linux and Windows declarations, generated for the
 same synthetic topology, differ in `providerId` and nothing else — that is the

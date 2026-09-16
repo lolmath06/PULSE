@@ -75,19 +75,22 @@ mod tests {
         let status = state.metrics().status();
 
         if crate::platform::PlatformKind::current().is_supported() {
-            assert_eq!(status.provider_count, 2);
-            // The catalog is sized by the machine: 8 fixed metrics plus three
-            // per logical processor. Nothing here may assume a number.
-            let logical = state
-                .metrics()
-                .catalog()
-                .iter()
-                .filter(|definition| {
-                    definition.metric.key.as_str() == crate::metrics::wellknown::cpu::USAGE_LOGICAL
-                })
-                .count();
+            assert_eq!(status.provider_count, 3);
+            // The catalog is sized by the machine: 9 fixed metrics, plus three
+            // per logical processor and seven per GPU. Nothing here may assume
+            // a number.
+            let count_of = |key: &str| {
+                state
+                    .metrics()
+                    .catalog()
+                    .iter()
+                    .filter(|definition| definition.metric.key.as_str() == key)
+                    .count()
+            };
+            let logical = count_of(crate::metrics::wellknown::cpu::USAGE_LOGICAL);
+            let gpus = count_of(crate::metrics::wellknown::gpu::USAGE_CORE);
             assert!(logical > 0);
-            assert_eq!(status.metric_count, 8 + 3 * logical);
+            assert_eq!(status.metric_count, 9 + 3 * logical + 7 * gpus);
         } else {
             assert_eq!(status.provider_count, 0);
         }

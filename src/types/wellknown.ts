@@ -120,6 +120,62 @@ export const MEMORY_USAGE_PERCENT: MetricRef = {
   sourceId: 'memory:system',
 };
 
+// --- GPU ------------------------------------------------------------------
+
+/** Number of hardware graphics adapters inventoried. */
+export const GPU_COUNT_KEY = 'gpu.count';
+/** Share of a GPU's graphics engine in use, 0–100 percent. */
+export const GPU_USAGE_CORE_KEY = 'gpu.usage.core';
+/** Dedicated video memory installed on an adapter, in bytes. */
+export const GPU_MEMORY_TOTAL_KEY = 'gpu.memory.total';
+/** Dedicated video memory in use, in bytes. */
+export const GPU_MEMORY_USED_KEY = 'gpu.memory.used';
+/** Dedicated video memory still allocatable, in bytes. */
+export const GPU_MEMORY_FREE_KEY = 'gpu.memory.free';
+/** Share of dedicated video memory in use, 0–100 percent. */
+export const GPU_MEMORY_USAGE_PERCENT_KEY = 'gpu.memory.usage.percent';
+/** Current graphics clock, in hertz. */
+export const GPU_FREQUENCY_CORE_KEY = 'gpu.frequency.core';
+/** Current video memory clock, in hertz. */
+export const GPU_FREQUENCY_MEMORY_KEY = 'gpu.frequency.memory';
+
+/** The machine-wide GPU source. */
+export const GPU_SYSTEM_SOURCE: SourceId = 'gpu:system';
+
+/**
+ * Every metric PULSE publishes per GPU.
+ *
+ * Mirrors `metrics::wellknown::gpu::PER_GPU_KEYS`. The frontend never assumes
+ * how many GPUs exist — it discovers their sources from the catalog.
+ */
+export const GPU_PER_DEVICE_KEYS: readonly string[] = [
+  GPU_USAGE_CORE_KEY,
+  GPU_MEMORY_TOTAL_KEY,
+  GPU_MEMORY_USED_KEY,
+  GPU_MEMORY_FREE_KEY,
+  GPU_MEMORY_USAGE_PERCENT_KEY,
+  GPU_FREQUENCY_CORE_KEY,
+  GPU_FREQUENCY_MEMORY_KEY,
+] as const;
+
+/** How many hardware GPUs this machine has. */
+export const GPU_COUNT: MetricRef = {
+  key: GPU_COUNT_KEY,
+  sourceId: GPU_SYSTEM_SOURCE,
+};
+
+/**
+ * Whether a source identifies one physical GPU.
+ *
+ * Every GPU source is `gpu:<instance>`; `gpu:system` is the machine-wide
+ * aggregate and is deliberately excluded. Nothing here parses the instance —
+ * it is a stable identifier whose internal shape (an NVML UUID, a PCI address,
+ * a device-model tuple) is the backend's business, not the interface's.
+ */
+export function isGpuDeviceSource(sourceId: SourceId): boolean {
+  return sourceId.startsWith('gpu:') && sourceId !== GPU_SYSTEM_SOURCE;
+}
+
 /** Everything the "Live system sample" card requests, in display order. */
 export const LIVE_SAMPLE_METRICS: readonly MetricRef[] = [
   CPU_USAGE_TOTAL,

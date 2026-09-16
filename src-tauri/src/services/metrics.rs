@@ -51,7 +51,7 @@ pub fn sample(engine: &MetricsEngine, requested: &[MetricRef]) -> Vec<MetricSamp
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::metrics::wellknown::{cpu, memory};
+    use crate::metrics::wellknown::{cpu, gpu, memory};
 
     /// The metric references PULSE ships on **every** machine, whatever its
     /// CPU. The per-processor references are added to these at runtime.
@@ -61,6 +61,7 @@ mod tests {
             cpu::count_package_ref(),
             cpu::count_physical_ref(),
             cpu::usage_total_ref(),
+            gpu::count_ref(),
             memory::available_ref(),
             memory::total_ref(),
             memory::usage_percent_ref(),
@@ -76,6 +77,16 @@ mod tests {
             .count()
     }
 
+    /// How many GPUs this host reports, via the catalog itself.
+    ///
+    /// Zero on a headless machine, which is a perfectly valid answer.
+    fn gpu_count(engine: &MetricsEngine) -> usize {
+        catalog(engine)
+            .iter()
+            .filter(|definition| definition.metric.key.as_str() == gpu::USAGE_CORE)
+            .count()
+    }
+
     #[test]
     fn the_shipped_engine_registers_the_platform_providers() {
         let engine = build_engine();
@@ -87,16 +98,20 @@ mod tests {
             return;
         }
 
-        // Two providers, whatever the machine: the CPU provider owns every
-        // CPU metric rather than there being one provider per processor.
-        assert_eq!(status.provider_count, 2, "one CPU and one memory provider");
+        // Three providers, whatever the machine: each owns a whole metric
+        // family rather than there being one per processor or one per GPU.
+        assert_eq!(
+            status.provider_count, 3,
+            "one CPU, one memory and one GPU provider"
+        );
         assert_eq!(status.state, crate::metrics::EngineState::Ready);
 
-        // 8 fixed metrics plus three per logical processor — discovered, never
-        // hardcoded.
+        // 9 fixed metrics, plus three per logical processor and seven per
+        // GPU — all discovered, never hardcoded.
         let logical = logical_processor_count(&engine);
+        let gpus = gpu_count(&engine);
         assert!(logical > 0, "a running machine has logical processors");
-        assert_eq!(status.metric_count, 8 + 3 * logical);
+        assert_eq!(status.metric_count, 9 + 3 * logical + 7 * gpus);
         assert!(status.available_metric_count <= status.metric_count);
     }
 
@@ -159,8 +174,8 @@ mod tests {
             .collect();
 
         let expected = match platform::PlatformKind::current() {
-            platform::PlatformKind::Linux => ["linux.cpu", "linux.memory"],
-            platform::PlatformKind::Windows => ["windows.cpu", "windows.memory"],
+            platform::PlatformKind::Linux => ["linux.cpu", "linux.memory", "linux.gpu"],
+            platform::PlatformKind::Windows => ["windows.cpu", "windows.memory", "windows.gpu"],
             platform::PlatformKind::Unsupported => unreachable!("guarded above"),
         };
 

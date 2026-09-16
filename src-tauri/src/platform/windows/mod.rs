@@ -22,6 +22,7 @@ pub mod cpu;
 pub mod cpu_freq;
 pub mod cpu_perf;
 pub mod cpu_topology;
+pub mod gpu;
 pub mod memory;
 pub mod ntdll;
 
@@ -58,7 +59,7 @@ impl HostPlatform for WindowsPlatform {
     ///
     /// All are available to any process, so none needs administrator rights.
     fn metric_providers(&self) -> Vec<Arc<dyn MetricProvider>> {
-        vec![cpu::provider(), memory::provider()]
+        vec![cpu::provider(), memory::provider(), gpu::provider()]
     }
 
     /// Windows has a single compositor (DWM), so there is nothing analogous to

@@ -140,6 +140,37 @@ so it matches `htop` and `taskset`. On Windows it is assigned by sorting
 no flat native number to borrow. Both are documented in
 [`cpu-advanced.md`](cpu-advanced.md).
 
+### GPU sources
+
+Phase 4 added one source per graphics adapter, and GPUs make the identity
+problem sharper than anything before them — every obvious candidate is an
+enumeration artefact:
+
+| Candidate              | Why it is not an identity                                                                           |
+| ---------------------- | --------------------------------------------------------------------------------------------------- |
+| `/sys/class/drm/card0` | A DRM minor number, assigned in probe order; `card0` and `card1` can swap between boots             |
+| NVML index             | NVIDIA documents it as unstable across reboots, and it shifts when a GPU is added, removed or reset |
+| DXGI adapter index     | Enumeration order, reflecting which adapter Windows currently prefers                               |
+| `AdapterLuid`          | Microsoft documents it as valid **only until the system restarts**                                  |
+| Product name           | Two identical cards collapse into one identifier                                                    |
+
+All three indices are used during enumeration and **none is ever stored**. What
+PULSE stores instead, in descending order of strength:
+
+```text
+gpu:nvidia-11111111-2222-3333-4444-555555555555   NVML UUID   (hardware)
+gpu:pci-0000-01-00-0                              PCI address (slot)
+gpu:amd-73ff-10020e3b-c1                          device model
+gpu:amd-73ff-10020e3b-c1-n1                       device model, session-disambiguated
+```
+
+The **stability level is recorded in the descriptor** rather than assumed,
+because the honest answer differs by platform and vendor. An NVML UUID survives
+anything; a PCI address survives everything except moving the card to another
+slot; a DXGI device-model tuple survives reboots but tells two identical cards
+apart only within one session. PULSE does not claim more than the platform
+gives. See [`gpu.md`](gpu.md).
+
 **The dashboard implication.** A saved dashboard must eventually be able to
 express _"every `cpu.usage.logical`"_ as one selection rather than as
 thirty-two individual references — otherwise it breaks on any machine with a
@@ -187,13 +218,14 @@ Windows interface GUID
 
 Applied per class:
 
-| Class       | Fedora / Linux                             | Windows                         |
-| ----------- | ------------------------------------------ | ------------------------------- |
-| GPU         | PCI BDF from `/sys/class/drm/card*/device` | PCI location path / LUID        |
-| Storage     | `/dev/disk/by-id`, serial or WWN           | device instance ID plus serial  |
-| Network     | MAC, or a systemd-predictable name         | interface GUID                  |
-| CPU package | package index                              | package index                   |
-| Logical CPU | kernel CPU number                          | sorted `(group, index)` ordinal |
+| Class       | Fedora / Linux                             | Windows                            |
+| ----------- | ------------------------------------------ | ---------------------------------- |
+| GPU         | PCI BDF from `/sys/class/drm/card*/device` | PCI location path / LUID           |
+| Storage     | `/dev/disk/by-id`, serial or WWN           | device instance ID plus serial     |
+| Network     | MAC, or a systemd-predictable name         | interface GUID                     |
+| CPU package | package index                              | package index                      |
+| Logical CPU | kernel CPU number                          | sorted `(group, index)` ordinal    |
+| GPU         | NVML UUID, else PCI address                | NVML UUID, else device-model tuple |
 
 A provider that can only obtain an enumeration name must map it to something
 stable before publishing it — hwmon, for instance, must be keyed on the `name`

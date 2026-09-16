@@ -18,7 +18,9 @@
 //! [`SourceId`]: crate::metrics::model::SourceId
 
 pub mod cpu;
+pub mod gpu;
 pub mod memory;
+pub mod units;
 
 #[cfg(test)]
 mod contract_tests;

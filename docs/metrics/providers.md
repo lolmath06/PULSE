@@ -2,9 +2,9 @@
 
 > Phase 1 defined the provider contract and the engine that hosts it. Phase 2
 > added the first real providers — CPU and memory, natively on both platforms.
-> Phase 3 grew the CPU providers to cover every logical processor, and the
-> contract did not have to change to accommodate a catalog whose size is
-> decided at runtime.
+> Phase 3 grew the CPU providers to cover every logical processor. Phase 4 added
+> a GPU provider per platform, each hosting several vendor backends behind one
+> owner. The contract has not had to change once.
 
 ## What a provider is
 
@@ -18,6 +18,13 @@ provider per processor**: thirty-two providers would each re-read `/proc/stat`,
 each appear in the engine status, and share nothing. So `Providers = 2` holds on
 both platforms whatever the CPU; it is the **metric count** that scales with the
 machine.
+
+The same reasoning decides the GPU architecture, more sharply. `linux.gpu` owns
+the DRM inventory, the NVML capability and the AMDGPU capability together —
+because an NVIDIA card is seen by _both_ the DRM inventory and NVML, so
+registering `nvidia.nvml` separately would make two providers claim the same
+`MetricRef` and the engine would reject one. Owning the family in one provider
+is what lets the backends be merged before anything is published.
 
 ```text
 linux.cpu      /proc/stat, /sys/devices/system/cpu
@@ -173,16 +180,16 @@ cross-platform answer.
 | ---------------- | ---------------- | ------------------------------------------------------------------------------------------------------------ | --------------- |
 | `linux.cpu`      | Fedora           | `/proc/stat`, `/sys/devices/system/cpu`                                                                      | **Implemented** |
 | `linux.memory`   | Fedora           | `/proc/meminfo`                                                                                              | **Implemented** |
+| `linux.gpu`      | Fedora           | `/sys/class/drm`, NVML, `amdgpu` sysfs                                                                       | **Implemented** |
 | `windows.cpu`    | Windows          | `GetSystemTimes`, `NtQuerySystemInformationEx`, `CallNtPowerInformation`, `GetLogicalProcessorInformationEx` | **Implemented** |
 | `windows.memory` | Windows          | `GlobalMemoryStatusEx`                                                                                       | **Implemented** |
+| `windows.gpu`    | Windows          | DXGI, NVML                                                                                                   | **Implemented** |
 | `linux.hwmon`    | Fedora           | `/sys/class/hwmon`                                                                                           | Planned         |
 | `windows.pdh`    | Windows          | Performance counters                                                                                         | Planned         |
-| `nvidia.nvml`    | both             | NVML                                                                                                         | Planned         |
-| `linux.drm`      | Fedora           | `/sys/class/drm`                                                                                             | Planned         |
 | `storage.smart`  | both, privileged | SMART                                                                                                        | Later           |
 
-See [`cpu-memory.md`](cpu-memory.md) and [`cpu-advanced.md`](cpu-advanced.md)
-for how the implemented ones work, and
+See [`cpu-memory.md`](cpu-memory.md), [`cpu-advanced.md`](cpu-advanced.md) and
+[`gpu.md`](gpu.md) for how the implemented ones work, and
 [`../platforms/fedora.md`](../platforms/fedora.md) /
 [`../platforms/windows.md`](../platforms/windows.md) for the data sources and
 their constraints.

@@ -1,13 +1,15 @@
 # PULSE Metrics Engine
 
-> **Phase 3 — detailed CPU metrics.**
+> **Phase 4 — GPU inventory and core metrics.**
 >
 > The model, the provider contract, the engine and the frontend API were built
 > in Phase 1. Phase 2 added the first native collectors: CPU usage and physical
 > memory, on both Fedora and Windows. Phase 3 made the CPU support real —
-> per-logical-processor usage and frequency, plus topology — so the catalog is
-> now **sized by the machine** (`8 + 3N` for `N` logical processors) rather than
-> being a fixed list of five. Still two providers per platform.
+> per-logical-processor usage and frequency, plus topology. Phase 4 added the
+> first GPU support: inventory, stable identity, and seven metrics per device
+> across NVIDIA, AMD and Intel. The catalog is now **sized by the machine** —
+> `9 + 3N + 7G` for `N` logical processors and `G` GPUs — and there are three
+> providers per platform.
 
 ## Documents
 
@@ -57,6 +59,10 @@ The CPU provider does the same at a larger scale: **one `/proc/stat` read feeds
 reconcile with the aggregate instead of being sampled at slightly different
 instants. On Windows, one call per processor group covers every logical
 processor, and one `CallNtPowerInformation` returns the whole frequency array.
+
+The GPU provider follows the same rule: each device is read at most once per
+request, whichever of its seven metrics were asked for — one NVML round trip or
+one sysfs pass, never seven.
 
 ### 2. Sample only what is asked for
 

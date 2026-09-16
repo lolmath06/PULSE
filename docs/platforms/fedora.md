@@ -1,7 +1,8 @@
 # PULSE on Fedora Linux
 
-> Status: Phase 3. CPU (aggregate, per logical processor, frequency, topology)
-> and physical memory are implemented natively. Everything below the
+> Status: Phase 4. CPU (aggregate, per logical processor, frequency, topology),
+> physical memory, and GPU (inventory, identity and core telemetry) are
+> implemented natively. Everything below the
 > "Planned data sources" heading is still design work.
 
 Fedora Linux is a **first-class PULSE platform**, on equal footing with Windows.
@@ -24,8 +25,14 @@ Fedora Linux is a **first-class PULSE platform**, on equal footing with Windows.
 | `memory.used`           | derived                             | `total - available`                             |
 | `memory.usage.percent`  | derived                             | `used / total * 100`                            |
 
-The frequency and per-processor metrics exist **once per logical processor**, so
-the catalog holds `8 + 3N` metrics for `N` of them — 104 on a 32-thread machine.
+| `gpu.count` | `/sys/class/drm` | Hardware adapters, excluding virtual devices |
+| `gpu.usage.core` | NVML, or `gpu_busy_percent` | Per adapter; vendor-dependent |
+| `gpu.memory.*` | NVML, or `mem_info_vram_{total,used}` | Dedicated VRAM only |
+| `gpu.frequency.*` | NVML, or `pp_dpm_{sclk,mclk}` | MHz → Hz in the platform layer |
+
+The per-processor metrics exist once per logical processor and the GPU metrics
+once per adapter, so the catalog holds `9 + 3N + 7G` metrics — 112 on this
+32-thread, single-GPU machine.
 
 Three details that the implementation gets right and that are easy to get wrong:
 
@@ -61,13 +68,31 @@ Four more details the Phase 3 implementation gets right:
   32-core server as having 32 cores.
 
 **No subprocess is ever spawned.** No `lscpu`, no `cat`, no `grep`, no
-`cpupower` — everything is read with `std::fs`. Spawning a process per metric
+`cpupower`, and for GPUs no `nvidia-smi`, `lspci`, `glxinfo`, `vulkaninfo`,
+`radeontop`, `rocm-smi` or `intel_gpu_top` — everything is read with `std::fs`
+or through a library loaded at runtime. Spawning a process per metric
 would be slower, would depend on tools that may not be installed, would parse
 output that changes with locale, and would give PULSE a shell-injection surface.
 
+### GPU
+
+`/sys/class/drm` is the generic inventory: only `card<N>` entries that resolve
+to a real PCI device count, so display connectors (`card0-DP-1`), render nodes
+(`renderD128`) and virtual devices (`vkms`) are excluded. Device names come from
+the system PCI ID database (`/usr/share/hwdata/pci.ids`), read as an ordinary
+file — the same data `lspci` prints, without running it.
+
+Telemetry comes from whichever backend serves the card: **NVML** for NVIDIA
+(loaded at runtime via `dlopen("libnvidia-ml.so.1")`, absent without the
+proprietary driver), or the **`amdgpu`** driver's sysfs attributes. A card
+served by neither — an NVIDIA GPU running `nouveau`, for instance — is still
+inventoried, named and identified, with all seven metrics honestly
+`unsupported`. It never disappears.
+
 Full formulas and edge cases:
-[`../metrics/cpu-memory.md`](../metrics/cpu-memory.md) and
-[`../metrics/cpu-advanced.md`](../metrics/cpu-advanced.md).
+[`../metrics/cpu-memory.md`](../metrics/cpu-memory.md),
+[`../metrics/cpu-advanced.md`](../metrics/cpu-advanced.md) and
+[`../metrics/gpu.md`](../metrics/gpu.md).
 
 ## What Phase 0 already does on Fedora
 

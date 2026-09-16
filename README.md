@@ -11,13 +11,13 @@
 
 ## Status
 
-**Phase 3 — Advanced CPU Metrics.** Version `0.1.0-dev`.
+**Phase 4 — GPU Inventory & Core Metrics.** Version `0.1.0-dev`.
 
 PULSE can now answer, on Fedora and Windows behind exactly the same contract:
 
 > How many physical cores and logical processors does my CPU have, what is each
-> logical processor doing right now, and at what frequency does the OS report it
-> running?
+> logical processor doing, which GPUs does this machine have, what is their
+> stable identity, and what load, memory and clocks do they report?
 
 On top of the Phase 0 foundation, the Phase 1 metrics contract and the Phase 2
 collectors, it reads **per-logical-processor usage, per-logical-processor
@@ -27,15 +27,25 @@ frequency and CPU topology natively on both platforms** — `/proc/stat` and
 `GetLogicalProcessorInformationEx` on the other. No third-party monitoring
 crate, no subprocess, no elevated privileges.
 
-The catalog is now **sized by the machine**: `8 + 3N` metrics for `N` logical
-processors — 104 on a 32-thread laptop, 20 on a four-thread virtual machine.
-Nothing anywhere hardcodes that number. References stay identical across
-operating systems, so a widget bound to `cpu.usage.logical@cpu:logical-3` moves
-from Fedora to Windows unchanged.
+GPU support arrived in Phase 4: adapters are inventoried through DRM on Fedora
+and DXGI on Windows, identified by the most stable thing each platform genuinely
+offers (an NVML hardware UUID where possible, a PCI address otherwise), and
+measured through NVML or the `amdgpu` driver's sysfs attributes — **both loaded
+at runtime, so a missing vendor driver costs metrics rather than preventing
+PULSE from starting**. A card no backend serves is still shown, named and
+identified, with an honest reason on every metric it cannot provide.
 
-PULSE is careful about the difference between a **physical core** and a
-**logical processor** — with simultaneous multithreading they are not the same
-thing, and on a hybrid CPU their ratio is not even constant.
+The catalog is **sized by the machine**: `9 + 3N + 7G` metrics for `N` logical
+processors and `G` GPUs — 112 on the 32-thread, single-GPU laptop this was built
+on. Nothing anywhere hardcodes those numbers. References stay identical across
+operating systems, so a widget bound to `cpu.usage.logical@cpu:logical-3`, or to
+an NVIDIA card's UUID, moves from Fedora to Windows unchanged.
+
+PULSE is careful about distinctions other monitors blur: a **physical core** is
+not a **logical processor**, and dedicated **VRAM** is not system memory shared
+with an integrated GPU. It is equally careful about identity — a GPU is never
+identified by its product name, its DRM card number, its NVML index or its DXGI
+adapter index, because every one of those can change between boots.
 
 There is still no scheduler and no history: the UI samples on demand.
 
@@ -220,7 +230,7 @@ Start at [`docs/README.md`](docs/README.md).
 - [Metrics engine](docs/metrics/README.md) — [model](docs/metrics/model.md),
   [identifiers](docs/metrics/identifiers.md), [providers](docs/metrics/providers.md),
   [CPU & memory](docs/metrics/cpu-memory.md),
-  [advanced CPU](docs/metrics/cpu-advanced.md)
+  [advanced CPU](docs/metrics/cpu-advanced.md), [GPU](docs/metrics/gpu.md)
 - [Widgets](docs/widgets/README.md)
 
 ## Roadmap

@@ -1,7 +1,8 @@
 # PULSE on Windows
 
-> Status: Phase 3. CPU (aggregate, per logical processor, frequency, topology)
-> and physical memory are implemented natively. Everything below the
+> Status: Phase 4. CPU (aggregate, per logical processor, frequency, topology),
+> physical memory, and GPU (inventory, identity and core telemetry) are
+> implemented natively. Everything below the
 > "Planned data sources" heading is still design work.
 
 Windows is a **first-class PULSE platform**, on equal footing with Fedora Linux.
@@ -10,19 +11,54 @@ Windows is a **first-class PULSE platform**, on equal footing with Fedora Linux.
 
 **Implemented (Phase 2).** No administrator rights required.
 
-| Metric                  | API                                                                    | Notes                                  |
-| ----------------------- | ---------------------------------------------------------------------- | -------------------------------------- |
-| `cpu.usage.total`       | `GetSystemTimes`                                                       | Delta between two samples              |
-| `cpu.usage.logical`     | `NtQuerySystemInformationEx` / `SystemProcessorPerformanceInformation` | One call per processor group           |
-| `cpu.frequency.current` | `CallNtPowerInformation(ProcessorInformation)`                         | `CurrentMhz`, MHz → Hz                 |
-| `cpu.frequency.max`     | `CallNtPowerInformation(ProcessorInformation)`                         | `MaxMhz`, typically the **base** clock |
-| `cpu.count.logical`     | `GetLogicalProcessorInformationEx`                                     | Set bits across core records           |
-| `cpu.count.physical`    | `GetLogicalProcessorInformationEx`                                     | `RelationProcessorCore` **records**    |
-| `cpu.count.package`     | `GetLogicalProcessorInformationEx`                                     | `RelationProcessorPackage` records     |
-| `memory.total`          | `GlobalMemoryStatusEx`                                                 | `ullTotalPhys`                         |
-| `memory.available`      | `GlobalMemoryStatusEx`                                                 | `ullAvailPhys`                         |
-| `memory.used`           | derived                                                                | `total - available`                    |
-| `memory.usage.percent`  | derived                                                                | `used / total * 100`                   |
+| Metric                                                                  | API                                                                    | Notes                                   |
+| ----------------------------------------------------------------------- | ---------------------------------------------------------------------- | --------------------------------------- |
+| `cpu.usage.total`                                                       | `GetSystemTimes`                                                       | Delta between two samples               |
+| `cpu.usage.logical`                                                     | `NtQuerySystemInformationEx` / `SystemProcessorPerformanceInformation` | One call per processor group            |
+| `cpu.frequency.current`                                                 | `CallNtPowerInformation(ProcessorInformation)`                         | `CurrentMhz`, MHz → Hz                  |
+| `cpu.frequency.max`                                                     | `CallNtPowerInformation(ProcessorInformation)`                         | `MaxMhz`, typically the **base** clock  |
+| `cpu.count.logical`                                                     | `GetLogicalProcessorInformationEx`                                     | Set bits across core records            |
+| `cpu.count.physical`                                                    | `GetLogicalProcessorInformationEx`                                     | `RelationProcessorCore` **records**     |
+| `cpu.count.package`                                                     | `GetLogicalProcessorInformationEx`                                     | `RelationProcessorPackage` records      |
+| `memory.total`                                                          | `GlobalMemoryStatusEx`                                                 | `ullTotalPhys`                          |
+| `memory.available`                                                      | `GlobalMemoryStatusEx`                                                 | `ullAvailPhys`                          |
+| `memory.used`                                                           | derived                                                                | `total - available`                     |
+| `memory.usage.percent`                                                  | derived                                                                | `used / total * 100`                    |
+| `gpu.count`                                                             | `CreateDXGIFactory1` + `EnumAdapters1`                                 | Hardware adapters; WARP excluded        |
+| `gpu.memory.total`                                                      | `DXGI_ADAPTER_DESC1.DedicatedVideoMemory`, or NVML                     | Installed VRAM capacity                 |
+| `gpu.usage.core`, `gpu.memory.used`/`free`/`percent`, `gpu.frequency.*` | NVML only                                                              | `unsupported` without the NVIDIA driver |
+
+### GPU
+
+DXGI is the generic inventory — no privileges, no service, no vendor SDK, the
+same enumeration every Direct3D application performs. _Microsoft Basic Render
+Driver_ (WARP) is excluded by both its `DXGI_ADAPTER_FLAG_SOFTWARE` flag and the
+reserved `0x1414:0x008C` vendor/device pair, since older drivers do not always
+set the flag. DXCore was considered and rejected: newer and richer, but aimed at
+compute-adapter enumeration and unavailable on older supported Windows versions.
+
+**`IDXGIAdapter3::QueryVideoMemoryInfo` is deliberately not published as VRAM
+usage.** Its `CurrentUsage` is the video memory attributed to _the querying
+process_, so PULSE would be reporting its own consumption and labelling it
+system-wide — near zero on an idle machine while a game filled the card. A
+DXGI-only adapter therefore publishes the installed capacity and nothing else;
+`—` beats a number that is confidently wrong.
+
+**Identity** is the honest weak point of DXGI. It exposes no PCI bus address and
+no Plug-and-Play device instance ID. `AdapterLuid` is documented as valid only
+until restart, so PULSE never stores it. A Windows adapter is identified by its
+`vendor:device:subsystem:revision` tuple, with a session-scoped index appended
+only when two adapters share it — recorded as `ModelWithSessionDisambiguator`
+so the weaker guarantee is inspectable rather than silent. **NVIDIA cards are
+unaffected**: NVML supplies a hardware UUID, and the merge replaces the tuple
+with it, so the same card carries the same `SourceId` on Windows and on Fedora.
+
+NVML is loaded with
+`LoadLibraryExW(L"nvml.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32)`. The flag
+matters: a plain `LoadLibraryW` searches the application directory first, so
+anyone able to drop a file beside `pulse.exe` could have PULSE load their DLL —
+a classic DLL planting vulnerability. PULSE does not widen the search when the
+System32 lookup fails.
 
 ### Why `NtQuerySystemInformationEx` for per-processor usage
 
@@ -128,7 +164,13 @@ The only Windows crate used for metrics is `windows-sys` — raw FFI bindings,
 no wrapper layer, no runtime — declared under
 `[target.'cfg(target_os = "windows")'.dependencies]` with exactly the features
 that declare the calls PULSE makes. `PROCESSOR_POWER_INFORMATION` is not shipped
-by `windows-sys` and is declared next to the code that uses it;
+by `windows-sys` and is declared next to the code that uses it; DXGI is COM,
+which `windows-sys` deliberately does not cover, so the `windows` crate supplies
+those bindings — it is already in the dependency graph on Windows because Tauri
+pulls it in, so this buys correct COM lifetime handling at no build cost; DXGI is COM,
+which `windows-sys` deliberately does not cover, so the `windows` crate supplies
+those bindings — it is already in the dependency graph on Windows because Tauri
+pulls it in, so this buys correct COM lifetime handling at no build cost;
 `NtQuerySystemInformationEx` is declared as a **function-pointer type** rather
 than an `extern` block, because it is resolved dynamically — a type alias
 creates no import, which is precisely what keeps its absence from being fatal.

@@ -29,6 +29,11 @@ serde_json = "1"
 
 [target.'cfg(target_os = "windows")'.dependencies]
 windows-version = "0.100"
+# DXGI adapter enumeration is COM, which `windows-sys` deliberately does not
+# cover. The `windows` crate is already in the dependency graph on Windows
+# (Tauri pulls it in), so this adds correct COM lifetime handling and no build
+# weight — and avoids hand-rolling vtable calls for an enumeration loop.
+windows = { version = "0.61", features = ["Win32_Graphics_Dxgi"] }
 # Raw FFI bindings only — no wrapper layer, no runtime. Just the calls PULSE
 # needs, behind exactly the features that declare them:
 #   Threading           GetSystemTimes

@@ -7,6 +7,105 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added — Phase 4: GPU Inventory & Core Metrics
+
+PULSE's first real GPU support, on both Fedora Linux and Windows, across NVIDIA,
+AMD and Intel hardware — and honest about what each of them does not expose.
+
+- **`gpu.count`** (`gpu:system`, count, **state**) — hardware adapters
+  inventoried. Software renderers such as Microsoft Basic Render Driver and WARP
+  are deliberately not counted as GPUs.
+- **Seven metrics per GPU** — `gpu.usage.core` (percent), `gpu.memory.total`
+  (bytes, **state**, because installed VRAM is a hardware fact rather than an
+  averageable reading), `gpu.memory.used`, `gpu.memory.free`,
+  `gpu.memory.usage.percent`, `gpu.frequency.core` and `gpu.frequency.memory`
+  (hertz).
+- **A catalog sized by the machine** — `1 + 7G` GPU metrics added to the CPU and
+  memory families, for a total of `9 + 3N + 7G`. Nothing hardcodes `G`, in Rust
+  or in React. A headless machine publishes `gpu.count` reporting zero, which is
+  a fact rather than a failure.
+- **Stable GPU identity, and none of the tempting wrong answers.** A GPU is
+  never identified by its product name, its DRM card number, its NVML index or
+  its DXGI adapter index — all of which are enumeration artefacts that change
+  between boots. PULSE uses, in descending order of strength: an **NVML hardware
+  UUID**, a **PCI bus address**, or a **device-model tuple** with a
+  session-scoped disambiguator when two adapters share it. The stability level
+  is recorded in the descriptor rather than assumed, so a weaker guarantee is
+  inspectable instead of silent.
+- **One GPU provider per platform**, hosting several vendor backends —
+  `linux.gpu` over DRM, NVML and `amdgpu`; `windows.gpu` over DXGI and NVML.
+  Registering `nvidia.nvml` separately would make two providers claim the same
+  `MetricRef` for a card both can see, which the engine rejects by design.
+  Provider count is now **3** per platform.
+- **Deduplication** — a card seen by both the generic inventory and a vendor
+  backend is published once, under the stronger identity. Matched by PCI address
+  where both report one (Fedora), and by vendor and enumeration order where DXGI
+  exposes none (Windows). Never by product name.
+- **NVML loaded at runtime on both platforms**, extending the rule Phase 3
+  established: an optional monitoring backend is not a mandatory application
+  dependency. `dlopen("libnvidia-ml.so.1")` on Fedora — the SONAME, not the
+  CUDA development symlink — and
+  `LoadLibraryExW(L"nvml.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32)` on Windows.
+  The Windows flag is a security decision: a plain `LoadLibraryW` searches the
+  application directory first, so anyone able to drop a file beside `pulse.exe`
+  could have PULSE load their DLL. PULSE does not widen the search on failure.
+- **Granular NVML degradation** — `NOT_SUPPORTED`, `NO_PERMISSION`,
+  `GPU_IS_LOST`, `NOT_FOUND` and `UNINITIALIZED` map to four different
+  availabilities plus a provider error, never all to "provider error". A card
+  whose memory clock is unsupported keeps its usage, VRAM and core clock.
+- **AMD telemetry from `amdgpu` sysfs** — `gpu_busy_percent`,
+  `mem_info_vram_{total,used}`, and the active clock state from `pp_dpm_sclk`
+  and `pp_dpm_mclk`, whose `*` marker, spacing and `Mhz` capitalisation vary by
+  driver version. An absent file costs that metric, never the GPU.
+- **Fedora inventory from `/sys/class/drm`** — only `card<N>` entries resolving
+  to a real PCI device count, so display connectors, render nodes and virtual
+  devices such as `vkms` are excluded. Device names come from the system PCI ID
+  database read as an ordinary file — the same data `lspci` prints, without
+  running it.
+- **Windows inventory from DXGI**, with `QueryVideoMemoryInfo` deliberately
+  **not** published as VRAM usage: its `CurrentUsage` is the querying process's
+  own consumption, so it would read near zero while a game filled the card.
+  `DedicatedVideoMemory` is published as the installed capacity, and the live
+  figures are reported `unsupported`.
+- **VRAM means dedicated video memory.** System memory shared with an integrated
+  GPU is never turned into pretend VRAM. Memory arithmetic refuses a zero total,
+  `used` above `total`, `free` above `total`, and an overflowing `used + free`,
+  so nothing published is ever `NaN`, infinite, negative or above 100.
+- **GPU details card** on Overview — adapters discovered from the catalog, laid
+  out in an auto-filling grid that grows in columns rather than height, with its
+  own Refresh. An unmeasured metric shows `—` with the reason in its tooltip,
+  never `0 %`, `0 GiB` or `0 GHz`. Identical cards are numbered `#1`, `#2` for
+  display only, leaving their identity untouched.
+- **Still no scheduler** — one sample on mount, one per Refresh, and a test that
+  advances timers and asserts no further request is made. Identity, names and
+  capabilities are discovered once; only the values that move are re-read.
+
+### Changed
+
+- `wellknown::units` now holds the shared hertz conversions, which GPU clocks
+  need as much as CPU ones; `cpu::frequency` re-exports them unchanged.
+- The engine-status and state tests no longer assume two providers or a CPU-only
+  catalog; both counts are derived from the catalog itself.
+- `windows` (COM bindings) added as a direct dependency for DXGI, gated to
+  Windows. It is already in the graph there via Tauri, so it adds no build
+  weight.
+- Fixed a latent MSRV violation: `Option::is_none_or` is newer than the declared
+  `rust-version` of 1.77.2.
+
+### Documentation
+
+- New [`docs/metrics/gpu.md`](docs/metrics/gpu.md) — the four problems GPU
+  support solves, identity and why every obvious candidate is wrong, the
+  provider architecture and why backends are not separate providers,
+  deduplication, NVML loading and its security reasoning, per-vendor
+  degradation, DRM discovery, AMDGPU sysfs, Windows inventory, VRAM semantics,
+  multi-GPU, and per-refresh cost.
+- Updated `docs/metrics/README.md`, `docs/metrics/providers.md`,
+  `docs/metrics/identifiers.md`, `docs/platforms/fedora.md`,
+  `docs/platforms/windows.md`, `docs/architecture/overview.md` and `README.md`.
+
+## [Phase 3]
+
 ### Fixed
 
 - **`NtQuerySystemInformationEx` is now resolved dynamically** rather than
