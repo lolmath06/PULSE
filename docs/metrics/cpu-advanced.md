@@ -307,19 +307,80 @@ The arithmetic is identical to `GetSystemTimes`', so `cpu.usage.total` and
 definitions that happen to share a name. A test asserts the two conversions
 agree.
 
-**The cost:** `NtQuerySystemInformation` lives in `ntdll` and Microsoft
-documents it as "may be altered or unavailable in future versions". In practice
-`SystemProcessorPerformanceInformation` has been stable since Windows NT and is
-what every Windows system monitor uses. PULSE contains the risk: the call is
-isolated in one `unsafe` function that fills a buffer and converts it to safe
-structs; a failed or short reply degrades to "per-processor usage unavailable",
-never a panic and never a fabricated number; and `cpu.usage.total` comes from
-the fully documented `GetSystemTimes`, so it keeps working even if this call
-ever stops.
-
 `NtQuerySystemInformationEx` is used rather than the plain form because the
 plain form reports only the **calling thread's** processor group — on a
 128-processor machine it silently returns 64 entries.
+
+### An optional capability, resolved at runtime
+
+`NtQuerySystemInformation(Ex)` lives in `ntdll`, and Microsoft documents that
+layer as "may be altered or unavailable in future versions". In practice
+`SystemProcessorPerformanceInformation` has been stable since Windows NT and is
+what every Windows system monitor uses — but **PULSE does not treat it as a
+guarantee of Windows**, and nothing in this document should be read as claiming
+it is.
+
+The decisive consequence is _how_ the symbol is bound. Declaring it in an
+`extern` block would make it a **load-time import**: the Windows loader resolves
+every imported symbol before the first line of PULSE runs, so on a Windows
+build, emulation layer or hardened environment that does not export it, the
+process would fail to start — with a loader error, before the availability model
+could say anything at all. That inverts the principle the model exists to
+enforce:
+
+```text
+a capability being unavailable  ≠  the application being unable to start
+```
+
+So PULSE resolves the entry point **at runtime**, once, during provider
+construction:
+
+```text
+GetModuleHandleW("ntdll.dll")   ntdll is already mapped into every Win32
+        │                       process — no filesystem access, no DLL search
+        │                       path to hijack, no arbitrary library loaded
+GetProcAddress(…, "NtQuerySystemInformationEx")
+        │
+probe: one undersized query     proves the symbol exists *and* understands the
+        │                       information class
+NtCpuApi                        a safe wrapper; the raw pointer is private and
+                                never circulates through the provider
+```
+
+`GetModuleHandleW` rather than `LoadLibrary` is deliberate: `ntdll.dll` _is_ the
+loader and is mapped into every Win32 process before any user code runs, so the
+lookup is of a module already present rather than a request to go and find one.
+
+If the module cannot be looked up, or the symbol is absent, or the resolved
+symbol refuses the probe, the result is a structured `MetricError` that becomes
+`Availability::Unsupported`. There is no `unwrap` and no `expect` anywhere on
+that path, and `WindowsCpuProvider` still constructs successfully.
+
+**What a user sees when the capability is missing:**
+
+| Family              | State                          | Why it survives                                       |
+| ------------------- | ------------------------------ | ----------------------------------------------------- |
+| `cpu.usage.total`   | **Available**                  | `GetSystemTimes`, a guaranteed `kernel32` export      |
+| `cpu.count.*`       | **Available**                  | `GetLogicalProcessorInformationEx`, `kernel32`        |
+| `cpu.frequency.*`   | **Available**                  | `CallNtPowerInformation`, `powrprof`                  |
+| `memory.*`          | **Available**                  | `GlobalMemoryStatusEx`, a different provider entirely |
+| `cpu.usage.logical` | **Unsupported**, with a reason | the one casualty                                      |
+
+This is also why `cpu.usage.total` is read from `GetSystemTimes` rather than
+derived by summing the per-processor array: keeping the aggregate on an
+independent, fully documented API is what lets it survive the optional one
+being absent. The two are different code paths, and a test asserts their
+arithmetic agrees so they cannot drift.
+
+The per-processor metrics **stay in the catalog** either way, carrying an
+unavailable status rather than disappearing — so a dashboard holding
+`cpu.usage.logical@cpu:logical-3` keeps exactly the same reference on a machine
+where the capability is missing, and starts working again on one where it is
+not.
+
+Resolution happens once per provider, never per refresh and never per
+processor, and the resolved handle is an ordinary immutable field — no lazy
+global, no mutable static.
 
 ### Windows CPU time arithmetic
 

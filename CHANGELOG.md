@@ -7,6 +7,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **`NtQuerySystemInformationEx` is now resolved dynamically** rather than
+  imported at load time. It backs `cpu.usage.logical` on Windows and lives in
+  `ntdll`, which Microsoft documents as subject to change — so an `extern`
+  block made it a load-time import, and on a Windows that does not export the
+  symbol the loader would have failed the process **before PULSE could report
+  anything**. That inverted the principle the availability model exists to
+  enforce: a capability being unavailable is not the application being unable
+  to start.
+
+  The symbol is now looked up once at provider construction with
+  `GetModuleHandleW("ntdll.dll")` and `GetProcAddress`, then probed with one
+  undersized query to confirm it understands the information class.
+  `GetModuleHandleW` rather than `LoadLibrary`: `ntdll` is already mapped into
+  every Win32 process, so nothing touches the filesystem and no arbitrary
+  library is loaded. There is no `#[link]` attribute and no `extern "system" { }`
+  block left anywhere in PULSE.
+
+  If the module, the symbol, or the probe fails, the result is a structured
+  `Unsupported` availability — no `unwrap`, no `expect`, no panic, and
+  `WindowsCpuProvider` still constructs. Only `cpu.usage.logical` becomes
+  unavailable; `cpu.usage.total` (`GetSystemTimes`), `cpu.count.*`
+  (`GetLogicalProcessorInformationEx`), `cpu.frequency.*`
+  (`CallNtPowerInformation`) and `memory.*` all keep working, because each sits
+  on its own entry point. This is also why the aggregate is read from
+  `GetSystemTimes` rather than summed from the per-processor array.
+
+  The per-processor metrics **stay in the catalog** with an honest status
+  instead of disappearing, so a dashboard holding
+  `cpu.usage.logical@cpu:logical-3` keeps the same reference on a machine
+  without the capability. Provider count is unaffected and stays at 2.
+
+  Resolution happens once and the handle is reused: no `GetProcAddress` per
+  refresh or per processor, and no mutable global. The raw pointer is private
+  to a safe wrapper and never circulates through the provider.
+
+- Per-processor counter reads now go through a `ProcessorTimesSource` seam, so
+  the group stitching, short-reply handling and every failure path are unit
+  tested from Fedora against a fake source rather than requiring the real DLL.
+- `records_in_reply` replaced `usize::is_multiple_of`, which is newer than the
+  crate's declared `rust-version` of 1.77.2 — a latent MSRV violation that was
+  invisible while the code sat behind `cfg(target_os = "windows")`.
+
 ### Added — Phase 3: Advanced CPU Metrics
 
 Real per-processor CPU detail on both Fedora Linux and Windows, behind one

@@ -23,6 +23,7 @@ pub mod cpu_freq;
 pub mod cpu_perf;
 pub mod cpu_topology;
 pub mod memory;
+pub mod ntdll;
 
 /// Windows implementation of [`HostPlatform`].
 #[cfg(target_os = "windows")]

@@ -13,12 +13,24 @@
 //! failing degrades one metric family: a machine where the frequency call is
 //! unavailable still reports usage and topology, and vice versa.
 //!
+//! Three of the four are guaranteed Win32 entry points. The fourth —
+//! `NtQuerySystemInformationEx`, which serves `cpu.usage.logical` — is an
+//! **optional capability resolved at runtime** (see [`super::ntdll`]), because
+//! importing it at load time would let its absence stop PULSE from starting
+//! rather than cost one metric family.
+//!
 //! The arithmetic is deliberately separated from the FFI. Everything outside
 //! the `imp` modules is pure and compiles on every platform, so the Windows CPU
 //! semantics are unit-tested from Fedora; only the thin `unsafe` wrappers need
 //! a Windows host.
 
-use crate::metrics::wellknown::cpu::CpuCounters;
+use std::collections::BTreeMap;
+
+use crate::metrics::model::Availability;
+use crate::metrics::wellknown::cpu::{CpuCounters, CpuTopology, LogicalId, LogicalProcessor};
+
+use super::cpu_freq::ProcessorFrequencies;
+use super::cpu_topology::ProcessorMap;
 
 /// Identifier of the Windows CPU provider.
 ///
@@ -61,6 +73,55 @@ pub fn counters_from_system_times(idle: u64, kernel: u64, user: u64) -> Option<C
     Some(CpuCounters::new(busy, total))
 }
 
+/// Builds the platform-neutral topology from what each API reported.
+///
+/// Pure, and free of every Windows type, so the degradation rules it encodes
+/// are unit-tested on Fedora — including the case this function exists for:
+/// **the per-processor counter capability being absent**.
+///
+/// The three availabilities move independently:
+///
+/// - `logical_usage` applies to every logical processor at once, because the
+///   one API behind it either resolved or did not;
+/// - each processor's two frequency availabilities come from whether that
+///   processor appeared in the frequency reply, so one silent processor costs
+///   only its own metrics.
+///
+/// Every logical processor is described whatever those say, so the catalog
+/// keeps publishing `cpu.usage.logical@cpu:logical-N` for each of them — with
+/// an honest availability instead of being silently dropped. A dashboard
+/// therefore keeps exactly the same references on a machine where the
+/// capability is missing.
+pub fn describe_topology(
+    map: &ProcessorMap,
+    logical_usage: &Availability,
+    frequencies: &BTreeMap<LogicalId, ProcessorFrequencies>,
+) -> CpuTopology {
+    let frequency_missing =
+        Availability::unsupported("this system reports no frequency for this logical processor");
+
+    let processors = (0..map.logical_count())
+        .map(|ordinal| {
+            let id = LogicalId::new(ordinal);
+            let reported = frequencies.get(&id).copied().unwrap_or_default();
+
+            let mut processor = LogicalProcessor::available(id);
+            processor.usage = logical_usage.clone();
+
+            if reported.current_hz.is_none() {
+                processor = processor.with_frequency_current(frequency_missing.clone());
+            }
+            if reported.max_hz.is_none() {
+                processor = processor.with_frequency_max(frequency_missing.clone());
+            }
+
+            processor
+        })
+        .collect();
+
+    CpuTopology::new(processors, map.physical_core_count(), map.package_count())
+}
+
 /// The parts that call into the Windows API.
 #[cfg(target_os = "windows")]
 mod imp {
@@ -77,13 +138,13 @@ mod imp {
     use crate::metrics::wellknown::availability_for;
     use crate::metrics::wellknown::cpu::{
         self, CpuCounters, CpuSnapshot, CpuTopology, CpuUsage, CpuUsageReport, CpuUsageTracker,
-        LogicalId, LogicalProcessor,
+        LogicalId,
     };
 
     use super::super::cpu_freq::{self, ProcessorFrequencies};
-    use super::super::cpu_perf;
+    use super::super::cpu_perf::{self, imp::NtProcessorTimes};
     use super::super::cpu_topology::{self, ProcessorMap};
-    use super::{counters_from_system_times, filetime_to_u64, PROVIDER_ID};
+    use super::{counters_from_system_times, describe_topology, filetime_to_u64, PROVIDER_ID};
 
     /// Calls `GetSystemTimes` and converts the result.
     ///
@@ -137,23 +198,31 @@ mod imp {
     /// The two halves are independent: a failing per-processor call still
     /// yields the aggregate, which is the whole reason `cpu.usage.total` uses
     /// the documented `GetSystemTimes` rather than summing the `Nt` array.
-    fn read_snapshot(map: &ProcessorMap) -> (CpuSnapshot, Option<MetricError>) {
+    fn read_snapshot(
+        map: &ProcessorMap,
+        source: Option<&NtProcessorTimes>,
+    ) -> (CpuSnapshot, Option<MetricError>) {
         let mut snapshot = CpuSnapshot::new();
         let mut error = None;
 
+        // Always attempted, and on its own documented API: this is what keeps
+        // `cpu.usage.total` alive when the optional capability below is not.
         match read_total_counters() {
             Ok(total) => snapshot = snapshot.with_total(total),
             Err(failure) => error = Some(failure),
         }
 
-        // One call per processor group, never one per processor.
-        match cpu_perf::imp::read_all_groups(map) {
-            Ok(groups) => {
-                for (id, counters) in cpu_perf::counters_by_ordinal(&groups, map) {
-                    snapshot.insert_logical(id, counters);
+        // Only when the capability resolved at startup. One call per processor
+        // group, never one per processor — and none at all when absent.
+        if let Some(source) = source {
+            match cpu_perf::read_all_groups(source, map) {
+                Ok(groups) => {
+                    for (id, counters) in cpu_perf::counters_by_ordinal(&groups, map) {
+                        snapshot.insert_logical(id, counters);
+                    }
                 }
+                Err(failure) => error = error.or(Some(failure)),
             }
-            Err(failure) => error = error.or(Some(failure)),
         }
 
         (snapshot, error)
@@ -165,6 +234,13 @@ mod imp {
         /// The `(group, index)` ↔ ordinal mapping, shared by every CPU metric.
         map: ProcessorMap,
         topology: CpuTopology,
+        /// The per-processor counter capability, when this Windows offers it.
+        ///
+        /// Resolved **once**, here, and reused for every sample: there is no
+        /// `GetProcAddress` per refresh, none per processor, and no mutable
+        /// global. `None` means the capability is absent, which costs
+        /// `cpu.usage.logical` and nothing else.
+        usage_source: Option<NtProcessorTimes>,
     }
 
     impl CpuInventory {
@@ -177,42 +253,33 @@ mod imp {
         fn discover() -> Self {
             let map = cpu_topology::imp::read_processor_map().unwrap_or_default();
 
-            let usage = match cpu_perf::imp::probe() {
-                Ok(()) => Availability::Available,
-                Err(error) => availability_for(error),
+            // The optional capability. Resolving it is also the probe, so a
+            // success here means the entry point exists *and* answers.
+            // A failure is one availability, never a panic and never fatal.
+            let (usage_source, logical_usage) = match NtProcessorTimes::resolve() {
+                Ok(source) => (Some(source), Availability::Available),
+                Err(error) => {
+                    eprintln!(
+                        "PULSE: per-processor CPU counters unavailable on this system: {}",
+                        error.message
+                    );
+                    (None, availability_for(error))
+                }
             };
 
             // One call, at startup, to learn which processors report a
             // frequency at all. The values themselves are re-read on every
-            // sample.
+            // sample. Independent of the above: a missing counter capability
+            // must not cost the frequencies.
             let frequencies = cpu_freq::imp::read_all(&map)
                 .map(|readings| cpu_freq::frequencies_by_ordinal(&readings, &map))
                 .unwrap_or_default();
-            let frequency_error = Availability::unsupported(
-                "this system reports no frequency for this logical processor",
-            );
 
-            let processors = (0..map.logical_count())
-                .map(|ordinal| {
-                    let id = LogicalId::new(ordinal);
-                    let reported = frequencies.get(&id).copied().unwrap_or_default();
-
-                    let mut processor = LogicalProcessor::available(id);
-                    processor.usage = usage.clone();
-                    if reported.current_hz.is_none() {
-                        processor = processor.with_frequency_current(frequency_error.clone());
-                    }
-                    if reported.max_hz.is_none() {
-                        processor = processor.with_frequency_max(frequency_error.clone());
-                    }
-                    processor
-                })
-                .collect();
-
-            let topology =
-                CpuTopology::new(processors, map.physical_core_count(), map.package_count());
-
-            Self { map, topology }
+            Self {
+                topology: describe_topology(&map, &logical_usage, &frequencies),
+                map,
+                usage_source,
+            }
         }
     }
 
@@ -237,7 +304,7 @@ mod imp {
             let inventory = CpuInventory::discover();
             let tracker = CpuUsageTracker::new();
 
-            let (snapshot, _) = read_snapshot(&inventory.map);
+            let (snapshot, _) = read_snapshot(&inventory.map, inventory.usage_source.as_ref());
             if !snapshot.is_empty() {
                 tracker.prime(&snapshot);
             }
@@ -340,7 +407,8 @@ mod imp {
 
             let mut usage_error = None;
             let report: CpuUsageReport = if wants(&[cpu::USAGE_TOTAL, cpu::USAGE_LOGICAL]) {
-                let (snapshot, error) = read_snapshot(&self.inventory.map);
+                let (snapshot, error) =
+                    read_snapshot(&self.inventory.map, self.inventory.usage_source.as_ref());
                 usage_error = error;
 
                 match self.tracker.update(&snapshot) {
@@ -444,9 +512,272 @@ pub use imp::{provider, WindowsCpuProvider};
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::metrics::model::ProviderId;
     use crate::metrics::wellknown::cpu::{
-        CpuSnapshot, CpuUsage, CpuUsageTracker, NeedsAnotherSample,
+        self, CpuSnapshot, CpuUsage, CpuUsageTracker, NeedsAnotherSample,
     };
+
+    use super::super::cpu_topology::{GroupMask, ProcessorRelation};
+    use super::super::ntdll;
+
+    /// Four logical processors on two SMT cores in one package.
+    fn map_with_smt() -> ProcessorMap {
+        ProcessorMap::from_relations(&[
+            ProcessorRelation::core(vec![GroupMask::new(0, 0b0011)]),
+            ProcessorRelation::core(vec![GroupMask::new(0, 0b1100)]),
+            ProcessorRelation::package(vec![GroupMask::new(0, 0b1111)]),
+        ])
+    }
+
+    /// Frequencies as a working `CallNtPowerInformation` would report them.
+    fn working_frequencies() -> BTreeMap<LogicalId, ProcessorFrequencies> {
+        (0..4)
+            .map(|ordinal| {
+                (
+                    LogicalId::new(ordinal),
+                    ProcessorFrequencies {
+                        current_hz: Some(3_200_000_000),
+                        max_hz: Some(4_800_000_000),
+                    },
+                )
+            })
+            .collect()
+    }
+
+    /// The availability the provider derives when the optional `ntdll` entry
+    /// point cannot be resolved.
+    fn capability_absent() -> Availability {
+        crate::metrics::wellknown::availability_for(ntdll::symbol_unavailable_error())
+    }
+
+    fn definitions_for(topology: &CpuTopology) -> Vec<crate::metrics::model::MetricDefinition> {
+        cpu::definitions(&ProviderId::new(PROVIDER_ID).expect("valid"), topology)
+    }
+
+    fn availability_of(
+        definitions: &[crate::metrics::model::MetricDefinition],
+        reference: &crate::metrics::model::MetricRef,
+    ) -> Availability {
+        definitions
+            .iter()
+            .find(|definition| &definition.metric == reference)
+            .unwrap_or_else(|| panic!("{reference} must be declared"))
+            .availability
+            .clone()
+    }
+
+    // --- the per-processor capability being absent ------------------------
+    //
+    // These are the point of the dynamic resolution: on a Windows that does
+    // not export `NtQuerySystemInformationEx`, exactly one metric family goes
+    // unavailable and everything else keeps working.
+
+    #[test]
+    fn a_missing_capability_costs_only_the_per_processor_usage() {
+        let map = map_with_smt();
+        let topology = describe_topology(&map, &capability_absent(), &working_frequencies());
+        let definitions = definitions_for(&topology);
+
+        for ordinal in 0..4 {
+            let id = LogicalId::new(ordinal);
+
+            // The one casualty.
+            assert_eq!(
+                availability_of(&definitions, &cpu::usage_logical_ref(id)).status_str(),
+                "unsupported",
+                "CPU {ordinal} per-processor usage should be unavailable"
+            );
+
+            // Frequencies come from a different API and are untouched.
+            assert!(
+                availability_of(&definitions, &cpu::frequency_current_ref(id)).is_available(),
+                "CPU {ordinal} current frequency must survive"
+            );
+            assert!(
+                availability_of(&definitions, &cpu::frequency_max_ref(id)).is_available(),
+                "CPU {ordinal} maximum frequency must survive"
+            );
+        }
+    }
+
+    #[test]
+    fn a_missing_capability_leaves_aggregate_usage_declarable() {
+        // `cpu.usage.total` comes from GetSystemTimes, which is a guaranteed
+        // kernel32 entry point and entirely independent of the ntdll one.
+        let topology = describe_topology(&map_with_smt(), &capability_absent(), &BTreeMap::new());
+
+        assert!(
+            availability_of(&definitions_for(&topology), &cpu::usage_total_ref()).is_available(),
+            "total CPU usage must not depend on the optional capability"
+        );
+    }
+
+    #[test]
+    fn a_missing_capability_leaves_topology_declarable() {
+        let map = map_with_smt();
+        let topology = describe_topology(&map, &capability_absent(), &BTreeMap::new());
+        let definitions = definitions_for(&topology);
+
+        for reference in [
+            cpu::count_logical_ref(),
+            cpu::count_physical_ref(),
+            cpu::count_package_ref(),
+        ] {
+            assert!(
+                availability_of(&definitions, &reference).is_available(),
+                "{reference} must survive a missing per-processor capability"
+            );
+        }
+
+        // And the counts are still the real ones.
+        assert_eq!(topology.logical_count(), 4);
+        assert_eq!(topology.physical_core_count, Some(2));
+        assert_eq!(topology.package_count, Some(1));
+    }
+
+    #[test]
+    fn a_missing_capability_leaves_frequencies_declarable() {
+        let topology = describe_topology(
+            &map_with_smt(),
+            &capability_absent(),
+            &working_frequencies(),
+        );
+        let definitions = definitions_for(&topology);
+
+        let available = definitions
+            .iter()
+            .filter(|definition| {
+                matches!(
+                    definition.metric.key.as_str(),
+                    cpu::FREQUENCY_CURRENT | cpu::FREQUENCY_MAX
+                ) && definition.availability.is_available()
+            })
+            .count();
+
+        assert_eq!(available, 8, "both frequencies of all four processors");
+    }
+
+    #[test]
+    fn the_catalog_keeps_exactly_the_same_references_either_way() {
+        // The contract that lets a saved dashboard survive moving to a machine
+        // without the capability: the metrics are still there, just honest
+        // about being unreadable.
+        let map = map_with_smt();
+        let frequencies = working_frequencies();
+
+        let healthy = describe_topology(&map, &Availability::Available, &frequencies);
+        let degraded = describe_topology(&map, &capability_absent(), &frequencies);
+
+        let references = |topology: &CpuTopology| -> Vec<String> {
+            definitions_for(topology)
+                .iter()
+                .map(|definition| definition.metric.to_string())
+                .collect()
+        };
+
+        assert_eq!(references(&healthy), references(&degraded));
+        assert_eq!(
+            references(&healthy).len(),
+            4 + 3 * 4,
+            "4 machine-wide metrics plus three per logical processor"
+        );
+    }
+
+    #[test]
+    fn a_missing_capability_never_fabricates_a_zero_percent() {
+        // The whole availability model in one assertion: an unreadable metric
+        // carries no value at all, so no widget can render it as an idle core.
+        let topology = describe_topology(
+            &map_with_smt(),
+            &capability_absent(),
+            &working_frequencies(),
+        );
+
+        for definition in definitions_for(&topology) {
+            if definition.metric.key.as_str() != cpu::USAGE_LOGICAL {
+                continue;
+            }
+
+            assert!(!definition.availability.is_available());
+            // Not transient either: the UI must not suggest waiting for a
+            // capability this Windows does not have.
+            assert!(!definition.availability.is_transient());
+        }
+    }
+
+    #[test]
+    fn one_provider_still_owns_every_cpu_metric_when_the_capability_is_absent() {
+        // Provider count stays conceptually 2 (one CPU, one memory): a missing
+        // capability changes availabilities, never the provider topology.
+        let topology = describe_topology(
+            &map_with_smt(),
+            &capability_absent(),
+            &working_frequencies(),
+        );
+
+        let definitions = definitions_for(&topology);
+        let mut owners: Vec<&str> = definitions
+            .iter()
+            .map(|definition| definition.provider_id.as_str())
+            .collect();
+        owners.sort_unstable();
+        owners.dedup();
+
+        assert_eq!(owners, [PROVIDER_ID]);
+    }
+
+    #[test]
+    fn the_capability_being_present_reports_everything_as_available() {
+        // The other side of the same function: nothing is degraded when the
+        // entry point resolves.
+        let topology = describe_topology(
+            &map_with_smt(),
+            &Availability::Available,
+            &working_frequencies(),
+        );
+
+        assert!(definitions_for(&topology)
+            .iter()
+            .all(|definition| definition.availability.is_available()));
+    }
+
+    #[test]
+    fn a_processor_missing_a_frequency_keeps_its_usage() {
+        // Frequency availability stays per processor even while the usage
+        // availability is machine-wide.
+        let mut frequencies = working_frequencies();
+        frequencies.remove(&LogicalId::new(2));
+
+        let topology = describe_topology(&map_with_smt(), &Availability::Available, &frequencies);
+        let definitions = definitions_for(&topology);
+        let id = LogicalId::new(2);
+
+        assert!(availability_of(&definitions, &cpu::usage_logical_ref(id)).is_available());
+        assert_eq!(
+            availability_of(&definitions, &cpu::frequency_current_ref(id)).status_str(),
+            "unsupported"
+        );
+        // And its neighbour is untouched.
+        assert!(
+            availability_of(&definitions, &cpu::frequency_current_ref(LogicalId::new(3)))
+                .is_available()
+        );
+    }
+
+    #[test]
+    fn a_machine_with_no_discoverable_processors_still_declares_the_system_metrics() {
+        // Topology API failing entirely: no per-processor rows, but the
+        // machine-wide metrics remain.
+        let topology = describe_topology(
+            &ProcessorMap::default(),
+            &capability_absent(),
+            &BTreeMap::new(),
+        );
+        let definitions = definitions_for(&topology);
+
+        assert_eq!(definitions.len(), 4);
+        assert!(availability_of(&definitions, &cpu::usage_total_ref()).is_available());
+    }
 
     #[test]
     fn recombines_the_two_halves_of_a_filetime() {

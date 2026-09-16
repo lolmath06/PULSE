@@ -36,11 +36,46 @@ returns cycles, which on a hybrid CPU are not comparable between P- and E-cores.
 
 `SystemProcessorPerformanceInformation` returns a flat array of the exact
 `IdleTime`/`KernelTime`/`UserTime` totals the shared delta model already
-consumes, with no strings anywhere, in one call per processor group. Its cost is
-that `ntdll` is documented as subject to change; PULSE contains that by
-isolating the call, degrading to "unavailable" rather than panicking, and
-keeping `cpu.usage.total` on the fully documented `GetSystemTimes`. The full
+consumes, with no strings anywhere, in one call per processor group. The full
 comparison is in [`../metrics/cpu-advanced.md`](../metrics/cpu-advanced.md).
+
+### `NtQuerySystemInformationEx` is an optional capability
+
+`ntdll` is documented by Microsoft as subject to change, and PULSE does **not**
+present this entry point as a guaranteed part of Windows. It is therefore
+**resolved at runtime** — `GetModuleHandleW("ntdll.dll")` followed by
+`GetProcAddress`, plus a probe query — rather than imported at load time.
+
+That distinction is the whole point. A load-time import is resolved by the
+Windows loader before any PULSE code runs, so on a Windows that does not export
+the symbol the process would fail to start outright. Resolving it at runtime
+means its absence costs exactly one metric family:
+
+```text
+cpu.usage.total     available     GetSystemTimes            (kernel32)
+cpu.count.*         available     GetLogicalProcessorInformationEx (kernel32)
+cpu.frequency.*     available     CallNtPowerInformation    (powrprof)
+memory.*            available     GlobalMemoryStatusEx      (kernel32)
+cpu.usage.logical   unsupported   ← the only casualty
+```
+
+`GetModuleHandleW` is used rather than `LoadLibrary`: `ntdll.dll` is mapped into
+every Win32 process before any user code runs, so the lookup touches no
+filesystem and loads no arbitrary library.
+
+Failure at any step — module, symbol, or probe — produces a structured
+`MetricError` that becomes `Availability::Unsupported`. Nothing on that path
+panics, and `WindowsCpuProvider` still constructs. The per-processor metrics
+remain in the catalog with an honest status rather than being dropped, so a
+saved dashboard keeps the same references.
+
+Note that **`cpu.usage.total` is deliberately not derived** from this array even
+when it is available: keeping the aggregate on the independent, fully documented
+`GetSystemTimes` is what makes it survive this capability being absent.
+
+Resolution happens once, at provider construction, and the resolved pointer is
+reused for every sample — there is no `GetProcAddress` per refresh or per
+processor, and no mutable global.
 
 ### Processor groups
 
@@ -92,13 +127,21 @@ Full formulas and edge cases: [`../metrics/cpu-memory.md`](../metrics/cpu-memory
 The only Windows crate used for metrics is `windows-sys` — raw FFI bindings,
 no wrapper layer, no runtime — declared under
 `[target.'cfg(target_os = "windows")'.dependencies]` with exactly the features
-that declare the calls PULSE makes. `NtQuerySystemInformationEx` and
-`PROCESSOR_POWER_INFORMATION` are not shipped by `windows-sys` and are declared
-directly, next to the code that uses them.
+that declare the calls PULSE makes. `PROCESSOR_POWER_INFORMATION` is not shipped
+by `windows-sys` and is declared next to the code that uses it;
+`NtQuerySystemInformationEx` is declared as a **function-pointer type** rather
+than an `extern` block, because it is resolved dynamically — a type alias
+creates no import, which is precisely what keeps its absence from being fatal.
+There is no `#[link]` attribute and no `extern "system" { … }` block anywhere in
+PULSE.
 
 Every `unsafe` block is a handful of lines wrapping one API call, each with a
 `# Safety` comment explaining why it is sound, and each converting the packed
-Windows buffer into plain Rust structs immediately. Everything after that —
+Windows buffer into plain Rust structs immediately. The dynamic resolution adds
+three, all in `platform/windows/ntdll.rs`: the `GetModuleHandleW` lookup, the
+`GetProcAddress` lookup, and the `transmute` of the returned `FARPROC` onto the
+declared signature — after which the pointer is private to a safe wrapper and
+never reaches the provider. Everything after that —
 FILETIME recombination, the CPU counter semantics, the memory convention, the
 processor-group ordinal mapping, core and package counting, MHz→Hz conversion —
 is safe, pure Rust that compiles and is **unit-tested on Fedora**. That is why

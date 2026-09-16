@@ -32,19 +32,24 @@
 //! `cpu.usage.logical` are the same measurement at two scopes rather than two
 //! definitions that happen to share a name.
 //!
-//! ## The cost of the choice
+//! ## The cost of the choice, and how it is contained
 //!
 //! `NtQuerySystemInformation` lives in `ntdll` and Microsoft documents it as
 //! "may be altered or unavailable in future versions". In practice
 //! `SystemProcessorPerformanceInformation` has been stable since Windows NT
-//! and is what every Windows system monitor uses. PULSE contains the risk:
+//! and is what every Windows system monitor uses. PULSE still treats it as an
+//! **optional capability**, never as a guarantee:
 //!
-//! - the call is isolated in one `unsafe` function that does nothing but fill
-//!   a buffer and convert it to safe structs;
-//! - a failed or short reply degrades to "per-processor usage unavailable",
-//!   never a panic and never a fabricated number;
-//! - `cpu.usage.total` comes from the fully documented `GetSystemTimes`, so it
-//!   keeps working even if this call ever stops.
+//! - the entry point is **resolved at runtime**, not imported at load time, so
+//!   a Windows that does not export it cannot stop PULSE from starting. See
+//!   [`super::ntdll`] for why that distinction matters.
+//! - every call goes through [`ProcessorTimesSource`], so the logic below is
+//!   exercised on Fedora against a fake source, including the failure paths;
+//! - a failed, short or malformed reply degrades to "per-processor usage
+//!   unavailable", never a panic and never a fabricated number;
+//! - `cpu.usage.total` comes from the fully documented `GetSystemTimes`, and
+//!   topology and frequency come from `kernel32` and `powrprof`, so all three
+//!   keep working even when this capability is entirely absent.
 //!
 //! ## Processor groups
 //!
@@ -60,6 +65,7 @@
 
 use std::collections::BTreeMap;
 
+use crate::metrics::model::{MetricError, MetricErrorCode};
 use crate::metrics::wellknown::cpu::{CpuCounters, LogicalId};
 
 use super::cpu_topology::{ProcessorMap, ProcessorNumber};
@@ -118,6 +124,98 @@ impl GroupTimes {
     }
 }
 
+/// Something that can answer a per-group processor performance query.
+///
+/// The seam between "how the counters are obtained" and "what is done with
+/// them". On Windows the only implementation wraps the dynamically resolved
+/// `ntdll` entry point; in tests it is a fake, which is what lets the
+/// stitching, the short-reply handling and the failure paths below be verified
+/// from Fedora.
+pub trait ProcessorTimesSource: Send + Sync {
+    /// Reads up to `capacity` processors' counters from one processor group.
+    ///
+    /// Returning fewer entries than `capacity` is allowed and handled; the
+    /// processors that were reported are still published.
+    fn read_group(&self, group: u16, capacity: usize) -> Result<Vec<ProcessorTimes>, MetricError>;
+}
+
+/// Turns a reply's byte count into a number of whole records.
+///
+/// A reply that is not a whole number of records means the buffer was
+/// misinterpreted; truncating rather than checking would silently attribute
+/// one processor's times to another. A reply longer than the buffer is clamped
+/// rather than trusted.
+///
+/// Kept free of any Windows type so the arithmetic is testable anywhere.
+pub fn records_in_reply(
+    returned_bytes: usize,
+    record_size: usize,
+    capacity: usize,
+) -> Result<usize, MetricError> {
+    if record_size == 0 {
+        return Err(MetricError::internal(
+            "processor performance record size cannot be zero",
+        ));
+    }
+
+    // `%` rather than `usize::is_multiple_of`, which is newer than this
+    // crate's declared `rust-version`.
+    if returned_bytes % record_size != 0 {
+        return Err(MetricError::new(
+            MetricErrorCode::Parse,
+            format!(
+                "processor performance reply of {returned_bytes} bytes is not a whole number \
+                 of {record_size}-byte records"
+            ),
+        ));
+    }
+
+    Ok((returned_bytes / record_size).min(capacity))
+}
+
+/// Reads per-processor times for every group in the machine.
+///
+/// **One call per processor group, never one per processor**: a 128-processor
+/// machine costs two calls.
+///
+/// A group that fails is skipped rather than failing the whole read, so a
+/// problem on one group still leaves the others measurable. Only when *no*
+/// group could be read at all does this report failure — and even then it is
+/// one metric family, not the provider.
+pub fn read_all_groups(
+    source: &dyn ProcessorTimesSource,
+    map: &ProcessorMap,
+) -> Result<Vec<GroupTimes>, MetricError> {
+    let groups = map.groups();
+    if groups.is_empty() {
+        return Err(MetricError::new(
+            MetricErrorCode::NotDetected,
+            "no processor group was discovered",
+        ));
+    }
+
+    let mut readings = Vec::with_capacity(groups.len());
+    let mut last_error = None;
+
+    for group in groups {
+        match source.read_group(group, map.processors_in_group(group) as usize) {
+            Ok(times) => readings.push(GroupTimes::new(group, times)),
+            Err(error) => last_error = Some(error),
+        }
+    }
+
+    if readings.is_empty() {
+        return Err(last_error.unwrap_or_else(|| {
+            MetricError::new(
+                MetricErrorCode::ProviderUnavailable,
+                "no processor group could be read",
+            )
+        }));
+    }
+
+    Ok(readings)
+}
+
 /// Attributes every group's readings to PULSE ordinals.
 ///
 /// The array Windows returns is indexed by position within the group, so entry
@@ -156,31 +254,80 @@ pub fn counters_by_ordinal(
 /// The parts that call into `ntdll`.
 #[cfg(target_os = "windows")]
 pub mod imp {
-    use windows_sys::Wdk::System::SystemInformation::{
-        NtQuerySystemInformation, SystemProcessorPerformanceInformation, SYSTEM_INFORMATION_CLASS,
-    };
-    use windows_sys::Win32::Foundation::NTSTATUS;
     use windows_sys::Win32::System::WindowsProgramming::SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION;
 
     use crate::metrics::model::{MetricError, MetricErrorCode};
 
-    use super::super::cpu_topology::ProcessorMap;
-    use super::{GroupTimes, ProcessorTimes};
+    use super::super::ntdll::imp::NtCpuApi;
+    use super::{records_in_reply, ProcessorTimes, ProcessorTimesSource};
 
-    // The group-aware form of `NtQuerySystemInformation`. Not exposed by
-    // `windows-sys`, so it is declared here; present in `ntdll` since
-    // Windows 7. For `SystemProcessorPerformanceInformation` the input buffer
-    // is a single `USHORT` naming the processor group to report on.
-    #[link(name = "ntdll")]
-    extern "system" {
-        fn NtQuerySystemInformationEx(
-            system_information_class: SYSTEM_INFORMATION_CLASS,
-            input_buffer: *const core::ffi::c_void,
-            input_buffer_length: u32,
-            system_information: *mut core::ffi::c_void,
-            system_information_length: u32,
-            return_length: *mut u32,
-        ) -> NTSTATUS;
+    /// The real per-processor counter source, backed by the dynamically
+    /// resolved `ntdll` entry point.
+    ///
+    /// Holding one is proof the capability exists: it cannot be constructed
+    /// without a successful resolve *and* a successful probe. The provider
+    /// therefore stores an `Option<NtProcessorTimes>` and the `None` case is
+    /// the whole "this Windows does not offer per-processor counters" story —
+    /// no flags, no re-checking, no repeated `GetProcAddress`.
+    #[derive(Debug, Clone, Copy)]
+    pub struct NtProcessorTimes {
+        api: NtCpuApi,
+    }
+
+    impl NtProcessorTimes {
+        /// Resolves the entry point once.
+        ///
+        /// Returns a structured error — never a panic — when `ntdll` cannot be
+        /// looked up, when it does not export the symbol, or when the resolved
+        /// symbol refuses the query.
+        pub fn resolve() -> Result<Self, MetricError> {
+            Ok(Self {
+                api: NtCpuApi::resolve()?,
+            })
+        }
+    }
+
+    impl ProcessorTimesSource for NtProcessorTimes {
+        /// Reads one processor group's per-processor times.
+        ///
+        /// Contains **no `unsafe`**: the buffer is ordinary initialised Rust
+        /// memory, the call goes through [`NtCpuApi`]'s safe wrapper, and only
+        /// the records the reply accounts for are converted.
+        fn read_group(
+            &self,
+            group: u16,
+            capacity: usize,
+        ) -> Result<Vec<ProcessorTimes>, MetricError> {
+            // Initialised up front rather than reserved-and-`set_len`, so no
+            // element is ever observed uninitialised whatever the callee does.
+            // `SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION` is plain old data, so
+            // this costs one memset of a few hundred bytes.
+            let mut buffer =
+                vec![SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION::default(); capacity.max(1)];
+            let mut returned_bytes: u32 = 0;
+
+            let status =
+                self.api
+                    .query_processor_performance(group, &mut buffer, &mut returned_bytes);
+
+            if status < 0 {
+                return Err(MetricError::new(
+                    MetricErrorCode::ProviderUnavailable,
+                    format!(
+                        "NtQuerySystemInformationEx(SystemProcessorPerformanceInformation) \
+                         failed for processor group {group} with status {status:#010x}"
+                    ),
+                ));
+            }
+
+            let count = records_in_reply(
+                returned_bytes as usize,
+                core::mem::size_of::<SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION>(),
+                buffer.len(),
+            )?;
+
+            Ok(buffer[..count].iter().filter_map(convert).collect())
+        }
     }
 
     /// Converts the raw FFI record into the safe form.
@@ -194,183 +341,6 @@ pub mod imp {
             u64::try_from(raw.KernelTime).ok()?,
             u64::try_from(raw.UserTime).ok()?,
         ))
-    }
-
-    /// Turns the returned byte count into a number of whole records.
-    ///
-    /// A reply that is not a whole number of records means the buffer was
-    /// misinterpreted; truncating rather than checking would silently
-    /// attribute one processor's times to another.
-    fn record_count(returned_bytes: u32, capacity: usize) -> Result<usize, MetricError> {
-        let record_size = core::mem::size_of::<SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION>();
-        let returned = returned_bytes as usize;
-
-        if !returned.is_multiple_of(record_size) {
-            return Err(MetricError::new(
-                MetricErrorCode::Parse,
-                format!(
-                    "processor performance reply of {returned} bytes is not a whole number of \
-                     {record_size}-byte records"
-                ),
-            ));
-        }
-
-        Ok((returned / record_size).min(capacity))
-    }
-
-    /// Reads one processor group's per-processor times.
-    ///
-    /// # Safety
-    ///
-    /// The single `unsafe` call writes at most `capacity` records into a
-    /// `Vec` that has been reserved for exactly that many and whose pointer is
-    /// alive for the whole call. The group number is passed by pointer to a
-    /// live local of the declared size. The status and the returned byte count
-    /// are both checked before any element is read, and the vector's length is
-    /// only grown to the number of records the call actually reported, so no
-    /// uninitialised element is ever observed.
-    fn read_group(group: u16, capacity: usize) -> Result<GroupTimes, MetricError> {
-        let mut buffer: Vec<SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION> =
-            Vec::with_capacity(capacity);
-        let byte_capacity = capacity
-            .checked_mul(core::mem::size_of::<SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION>())
-            .and_then(|bytes| u32::try_from(bytes).ok())
-            .ok_or_else(|| MetricError::internal("processor performance buffer size overflowed"))?;
-
-        let mut returned_bytes: u32 = 0;
-        let group_number = group;
-
-        // SAFETY: see the function docs.
-        let status = unsafe {
-            NtQuerySystemInformationEx(
-                SystemProcessorPerformanceInformation,
-                core::ptr::from_ref(&group_number).cast(),
-                u32::try_from(core::mem::size_of::<u16>()).expect("2 fits in u32"),
-                buffer.as_mut_ptr().cast(),
-                byte_capacity,
-                &mut returned_bytes,
-            )
-        };
-
-        if status < 0 {
-            return Err(MetricError::new(
-                MetricErrorCode::ProviderUnavailable,
-                format!(
-                    "NtQuerySystemInformationEx(SystemProcessorPerformanceInformation) failed \
-                     for processor group {group} with status {status:#010x}"
-                ),
-            ));
-        }
-
-        let count = record_count(returned_bytes, capacity)?;
-
-        // SAFETY: the call reported `returned_bytes` written, and `count` is
-        // derived from it and clamped to the reserved capacity, so exactly
-        // that many elements are initialised.
-        unsafe { buffer.set_len(count) };
-
-        Ok(GroupTimes::new(
-            group,
-            buffer.iter().filter_map(convert).collect(),
-        ))
-    }
-
-    /// Reads per-processor times for every group in the machine.
-    ///
-    /// **One call per processor group, never one per processor**: a
-    /// 128-processor machine costs two calls.
-    ///
-    /// A group that fails is skipped rather than failing the whole read, so a
-    /// problem on one group still leaves the others measurable.
-    pub fn read_all_groups(map: &ProcessorMap) -> Result<Vec<GroupTimes>, MetricError> {
-        let groups = map.groups();
-        if groups.is_empty() {
-            return Err(MetricError::new(
-                MetricErrorCode::NotDetected,
-                "no processor group was discovered",
-            ));
-        }
-
-        let mut readings = Vec::with_capacity(groups.len());
-        let mut last_error = None;
-
-        for group in groups {
-            match read_group(group, map.processors_in_group(group) as usize) {
-                Ok(reading) => readings.push(reading),
-                Err(error) => last_error = Some(error),
-            }
-        }
-
-        if readings.is_empty() {
-            return Err(last_error.unwrap_or_else(|| {
-                MetricError::new(
-                    MetricErrorCode::ProviderUnavailable,
-                    "no processor group could be read",
-                )
-            }));
-        }
-
-        Ok(readings)
-    }
-
-    /// Whether the per-processor counter source works on this machine.
-    ///
-    /// Probed once at startup so the catalog can declare per-processor usage
-    /// unsupported up front on a system where the call is unavailable, rather
-    /// than reporting N failures on every refresh.
-    pub fn probe() -> Result<(), MetricError> {
-        let mut returned_bytes: u32 = 0;
-        let mut buffer = [SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION::default(); 1];
-        let group_number: u16 = 0;
-
-        // SAFETY: a one-element buffer with its exact byte size; a short reply
-        // is expected and its contents are never read.
-        let status = unsafe {
-            NtQuerySystemInformationEx(
-                SystemProcessorPerformanceInformation,
-                core::ptr::from_ref(&group_number).cast(),
-                u32::try_from(core::mem::size_of::<u16>()).expect("2 fits in u32"),
-                buffer.as_mut_ptr().cast(),
-                u32::try_from(core::mem::size_of_val(&buffer)).expect("size fits in u32"),
-                &mut returned_bytes,
-            )
-        };
-
-        // STATUS_INFO_LENGTH_MISMATCH is the expected answer to a
-        // deliberately undersized buffer: the entry point exists and
-        // understands the request, which is all this probe asks.
-        const STATUS_INFO_LENGTH_MISMATCH: NTSTATUS = 0xC000_0004_u32 as NTSTATUS;
-
-        if status >= 0 || status == STATUS_INFO_LENGTH_MISMATCH {
-            return Ok(());
-        }
-
-        Err(MetricError::new(
-            MetricErrorCode::Unsupported,
-            format!(
-                "per-processor CPU counters are unavailable on this system \
-                 (NtQuerySystemInformationEx returned {status:#010x})"
-            ),
-        ))
-    }
-
-    /// Kept to prove the non-`Ex` entry point is linked and to document the
-    /// fallback shape; the group-aware form is what PULSE calls.
-    #[allow(dead_code)]
-    fn single_group_fallback(
-        buffer: &mut [SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION],
-        returned_bytes: &mut u32,
-    ) -> NTSTATUS {
-        // SAFETY: the buffer's own length and size are passed; the caller
-        // reads no element unless the status is success.
-        unsafe {
-            NtQuerySystemInformation(
-                SystemProcessorPerformanceInformation,
-                buffer.as_mut_ptr().cast(),
-                u32::try_from(core::mem::size_of_val(buffer)).unwrap_or(0),
-                returned_bytes,
-            )
-        }
     }
 }
 
@@ -397,6 +367,185 @@ mod tests {
                 })
                 .collect::<Vec<_>>(),
         )
+    }
+
+    /// A scripted stand-in for the `ntdll` entry point.
+    ///
+    /// This is what makes the failure paths testable from Fedora: the real
+    /// source can only exist on a Windows that exports the symbol, but every
+    /// decision around it — stitching groups together, tolerating a short
+    /// reply, surviving one group failing — is exercised here.
+    struct FakeSource {
+        /// Replies per group, in group order.
+        replies: BTreeMap<u16, Result<Vec<ProcessorTimes>, MetricError>>,
+        calls: std::sync::atomic::AtomicUsize,
+    }
+
+    impl FakeSource {
+        fn new() -> Self {
+            Self {
+                replies: BTreeMap::new(),
+                calls: std::sync::atomic::AtomicUsize::new(0),
+            }
+        }
+
+        fn answering(mut self, group: u16, times: Vec<ProcessorTimes>) -> Self {
+            self.replies.insert(group, Ok(times));
+            self
+        }
+
+        fn failing(mut self, group: u16, error: MetricError) -> Self {
+            self.replies.insert(group, Err(error));
+            self
+        }
+
+        fn call_count(&self) -> usize {
+            self.calls.load(std::sync::atomic::Ordering::SeqCst)
+        }
+    }
+
+    impl ProcessorTimesSource for FakeSource {
+        fn read_group(
+            &self,
+            group: u16,
+            _capacity: usize,
+        ) -> Result<Vec<ProcessorTimes>, MetricError> {
+            self.calls.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+
+            match self.replies.get(&group) {
+                Some(Ok(times)) => Ok(times.clone()),
+                Some(Err(error)) => Err(error.clone()),
+                None => Err(MetricError::new(
+                    MetricErrorCode::ProviderUnavailable,
+                    "group not scripted",
+                )),
+            }
+        }
+    }
+
+    fn busy(count: usize) -> Vec<ProcessorTimes> {
+        vec![ProcessorTimes::new(0, 100, 0); count]
+    }
+
+    // --- record accounting ------------------------------------------------
+
+    #[test]
+    fn counts_whole_records_in_a_reply() {
+        assert_eq!(records_in_reply(0, 48, 4), Ok(0));
+        assert_eq!(records_in_reply(48, 48, 4), Ok(1));
+        assert_eq!(records_in_reply(192, 48, 4), Ok(4));
+    }
+
+    #[test]
+    fn clamps_a_reply_longer_than_the_buffer() {
+        // Cannot happen if the API honours the length it was given, but
+        // trusting it would index past the buffer.
+        assert_eq!(records_in_reply(480, 48, 4), Ok(4));
+    }
+
+    #[test]
+    fn rejects_a_reply_that_is_not_a_whole_number_of_records() {
+        // Truncating here would silently attribute one processor's times to
+        // another, which is worse than reporting nothing.
+        let error = records_in_reply(50, 48, 4).expect_err("must be rejected");
+
+        assert_eq!(error.code, MetricErrorCode::Parse);
+        assert!(error.message.contains("whole number"));
+    }
+
+    #[test]
+    fn a_zero_record_size_is_an_internal_error_not_a_division_by_zero() {
+        let error = records_in_reply(48, 0, 4).expect_err("must be rejected");
+        assert_eq!(error.code, MetricErrorCode::Internal);
+    }
+
+    // --- reading every group through the source ---------------------------
+
+    #[test]
+    fn reads_one_group_per_group_never_one_per_processor() {
+        // The performance promise: a 128-processor machine costs two calls.
+        let map = two_group_map(64);
+        let source = FakeSource::new()
+            .answering(0, busy(64))
+            .answering(1, busy(64));
+
+        let groups = read_all_groups(&source, &map).expect("read");
+
+        assert_eq!(groups.len(), 2);
+        assert_eq!(source.call_count(), 2, "one call per group");
+        assert_eq!(counters_by_ordinal(&groups, &map).len(), 128);
+    }
+
+    #[test]
+    fn a_single_failing_group_does_not_cost_the_others() {
+        let map = two_group_map(4);
+        let source = FakeSource::new().answering(0, busy(4)).failing(
+            1,
+            MetricError::new(MetricErrorCode::ProviderUnavailable, "group 1 refused"),
+        );
+
+        let groups = read_all_groups(&source, &map).expect("group 0 still readable");
+
+        assert_eq!(groups.len(), 1);
+        let counters = counters_by_ordinal(&groups, &map);
+        assert_eq!(counters.len(), 4);
+        assert!(counters.contains_key(&LogicalId::new(0)));
+        // Group 1's processors are simply absent — never invented as 0%.
+        assert!(!counters.contains_key(&LogicalId::new(4)));
+    }
+
+    #[test]
+    fn every_group_failing_is_an_error_rather_than_a_silent_empty_reading() {
+        let map = two_group_map(4);
+        let source = FakeSource::new()
+            .failing(
+                0,
+                MetricError::new(MetricErrorCode::ProviderUnavailable, "refused"),
+            )
+            .failing(
+                1,
+                MetricError::new(MetricErrorCode::ProviderUnavailable, "refused"),
+            );
+
+        let error = read_all_groups(&source, &map).expect_err("nothing could be read");
+
+        assert_eq!(error.code, MetricErrorCode::ProviderUnavailable);
+    }
+
+    #[test]
+    fn a_short_reply_publishes_the_processors_it_did_cover() {
+        // "résultat API invalide": fewer entries than the group holds.
+        let map = single_group_map(4);
+        let source = FakeSource::new().answering(0, busy(2));
+
+        let groups = read_all_groups(&source, &map).expect("read");
+        let counters = counters_by_ordinal(&groups, &map);
+
+        assert_eq!(counters.len(), 2);
+        assert!(counters.contains_key(&LogicalId::new(1)));
+        assert!(!counters.contains_key(&LogicalId::new(2)));
+    }
+
+    #[test]
+    fn an_empty_reply_yields_no_counters_and_no_panic() {
+        let map = single_group_map(4);
+        let source = FakeSource::new().answering(0, Vec::new());
+
+        let groups = read_all_groups(&source, &map).expect("read");
+
+        assert_eq!(groups.len(), 1);
+        assert!(counters_by_ordinal(&groups, &map).is_empty());
+    }
+
+    #[test]
+    fn a_machine_with_no_discovered_group_is_reported_as_not_detected() {
+        let source = FakeSource::new();
+
+        let error =
+            read_all_groups(&source, &ProcessorMap::default()).expect_err("no group to read from");
+
+        assert_eq!(error.code, MetricErrorCode::NotDetected);
+        assert_eq!(source.call_count(), 0, "nothing to call");
     }
 
     // --- the Windows-specific arithmetic ----------------------------------
