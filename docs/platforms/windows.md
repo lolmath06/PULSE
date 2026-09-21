@@ -44,21 +44,52 @@ system-wide — near zero on an idle machine while a game filled the card. A
 DXGI-only adapter therefore publishes the installed capacity and nothing else;
 `—` beats a number that is confidently wrong.
 
+**Correlation with NVML** is by **PCI bus address**, not by enumeration order.
+DXGI does not report one, so PULSE asks the kernel graphics subsystem for it:
+`D3DKMTOpenAdapterFromLuid` with the adapter's `AdapterLuid`, then
+`D3DKMTQueryAdapterInfo(KMTQAITYPE_ADAPTERADDRESS)`, then `D3DKMTCloseAdapter` on
+every path. The entry points are `gdi32` exports of the kernel-mode graphics
+interface, so they are resolved at runtime like `NtQuerySystemInformationEx`;
+their absence costs one correlation hint, never the application.
+
+Where no address is available, PULSE pairs an adapter with an NVML device **only
+when exactly one of each is left unmatched**. Two NVIDIA cards are never paired
+by enumeration order: the two APIs enumerate independently, and a wrong pairing
+writes the wrong card's identity into a saved dashboard. See
+`docs/metrics/gpu.md` for the full rules, including what happens to an adapter
+that could not be paired.
+
 **Identity** is the honest weak point of DXGI. It exposes no PCI bus address and
 no Plug-and-Play device instance ID. `AdapterLuid` is documented as valid only
-until restart, so PULSE never stores it. A Windows adapter is identified by its
+until restart, so PULSE never stores it — a resolved bus address is correlation
+data, and does not become the identity, so upgrading to a build that can resolve
+one never changes a `SourceId` a dashboard already holds. A Windows adapter is
+identified by its
 `vendor:device:subsystem:revision` tuple, with a session-scoped index appended
 only when two adapters share it — recorded as `ModelWithSessionDisambiguator`
 so the weaker guarantee is inspectable rather than silent. **NVIDIA cards are
 unaffected**: NVML supplies a hardware UUID, and the merge replaces the tuple
 with it, so the same card carries the same `SourceId` on Windows and on Fedora.
 
-NVML is loaded with
-`LoadLibraryExW(L"nvml.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32)`. The flag
-matters: a plain `LoadLibraryW` searches the application directory first, so
-anyone able to drop a file beside `pulse.exe` could have PULSE load their DLL —
-a classic DLL planting vulnerability. PULSE does not widen the search when the
-System32 lookup fails.
+NVML is looked for in exactly two places, in order:
+
+1. `%SystemRoot%\System32\nvml.dll`, via
+   `LoadLibraryExW(L"nvml.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32)` — where the
+   display driver installs it;
+2. `<Program Files>\NVIDIA Corporation\NVSMI\nvml.dll`, by absolute path, via
+   `LoadLibraryExW(path, NULL, LOAD_LIBRARY_SEARCH_SYSTEM32 | LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR)`
+   — the layout NVIDIA's management tooling uses, and the copy present on
+   machines whose driver package left none in the system directory.
+
+Program Files is located with `SHGetKnownFolderPath(FOLDERID_ProgramFiles)`, not
+read from `%ProgramW6432%`: the environment is inherited, and anything that can
+start PULSE can set it.
+
+The flags matter: a plain `LoadLibraryW` searches the application directory
+first, so anyone able to drop a file beside `pulse.exe` could have PULSE load
+their DLL — a classic DLL planting vulnerability. PULSE never widens the search
+beyond those two locations — not the application directory, not the working
+directory, not `PATH`.
 
 ### Why `NtQuerySystemInformationEx` for per-processor usage
 
@@ -212,6 +243,30 @@ No administrator rights are required by any of it.
   Windows 10; otherwise install the Evergreen Bootstrapper.
 - **Rust** via `rustup` (the `x86_64-pc-windows-msvc` toolchain).
 - **Node.js 20.19+** and pnpm.
+
+### Type-checking the Windows code from Fedora
+
+The full application cannot be _built_ for Windows on a Fedora workstation:
+`tauri-build` compiles a Windows resource file and needs a resource compiler
+(`llvm-rc`) that a stock Fedora toolchain does not ship. Everything PULSE writes
+itself is tauri-free, so `tools/windows-check/` includes the `metrics/` and
+`platform/` module trees **by path** — the same files, never a copy — and type
+checks them for a real Windows target:
+
+```bash
+rustup target add x86_64-pc-windows-msvc
+pnpm rust:windows        # cargo check  --target x86_64-pc-windows-msvc
+pnpm rust:windows:lint   # cargo clippy --target x86_64-pc-windows-msvc -D warnings
+```
+
+The harness pins the same `rust-version = 1.77.2` as the application, so it
+refuses anything PULSE itself could not compile.
+
+It proves the Windows CPU, memory and GPU providers, the DXGI and `D3DKMT`
+layers, the NVML loader and every metric declaration compile and type check for
+Windows. It proves **nothing about runtime behaviour** — nothing here executes on
+Windows. CI's `windows-latest` job builds and runs the whole crate; a physical
+machine is still the only real validation.
 
 ## Planned data sources
 

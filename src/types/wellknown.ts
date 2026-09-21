@@ -138,17 +138,28 @@ export const GPU_MEMORY_USAGE_PERCENT_KEY = 'gpu.memory.usage.percent';
 export const GPU_FREQUENCY_CORE_KEY = 'gpu.frequency.core';
 /** Current video memory clock, in hertz. */
 export const GPU_FREQUENCY_MEMORY_KEY = 'gpu.frequency.memory';
+/** GPU die temperature, in degrees Celsius. */
+export const GPU_TEMPERATURE_CORE_KEY = 'gpu.temperature.core';
+/** Hottest point on the GPU package, in degrees Celsius. */
+export const GPU_TEMPERATURE_HOTSPOT_KEY = 'gpu.temperature.hotspot';
+/** Video memory temperature, in degrees Celsius. */
+export const GPU_TEMPERATURE_MEMORY_KEY = 'gpu.temperature.memory';
+/** Fan speed, in revolutions per minute. */
+export const GPU_FAN_SPEED_KEY = 'gpu.fan.speed';
 
 /** The machine-wide GPU source. */
 export const GPU_SYSTEM_SOURCE: SourceId = 'gpu:system';
 
 /**
- * Every metric PULSE publishes per GPU.
+ * The GPU metrics that describe **performance**: what the engine is doing and
+ * how fast, as opposed to how hot it is.
  *
- * Mirrors `metrics::wellknown::gpu::PER_GPU_KEYS`. The frontend never assumes
- * how many GPUs exist — it discovers their sources from the catalog.
+ * Kept apart from the thermal set because the two fail independently. An
+ * open-source driver commonly exposes a temperature and no utilisation
+ * counter, and telling such a user "GPU telemetry unavailable" would be wrong
+ * on both counts — the GPU is detected, and one half of its telemetry works.
  */
-export const GPU_PER_DEVICE_KEYS: readonly string[] = [
+export const GPU_PERFORMANCE_KEYS: readonly string[] = [
   GPU_USAGE_CORE_KEY,
   GPU_MEMORY_TOTAL_KEY,
   GPU_MEMORY_USED_KEY,
@@ -157,6 +168,22 @@ export const GPU_PER_DEVICE_KEYS: readonly string[] = [
   GPU_FREQUENCY_CORE_KEY,
   GPU_FREQUENCY_MEMORY_KEY,
 ] as const;
+
+/** The GPU metrics that describe **temperature and cooling**. */
+export const GPU_THERMAL_KEYS: readonly string[] = [
+  GPU_TEMPERATURE_CORE_KEY,
+  GPU_TEMPERATURE_HOTSPOT_KEY,
+  GPU_TEMPERATURE_MEMORY_KEY,
+  GPU_FAN_SPEED_KEY,
+] as const;
+
+/**
+ * Every metric PULSE publishes per GPU.
+ *
+ * Mirrors `metrics::wellknown::gpu::PER_GPU_KEYS`. The frontend never assumes
+ * how many GPUs exist — it discovers their sources from the catalog.
+ */
+export const GPU_PER_DEVICE_KEYS: readonly string[] = [...GPU_PERFORMANCE_KEYS] as const;
 
 /** How many hardware GPUs this machine has. */
 export const GPU_COUNT: MetricRef = {

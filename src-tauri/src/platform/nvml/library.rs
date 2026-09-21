@@ -14,24 +14,31 @@
 //!
 //! ## Windows
 //!
-//! `LoadLibraryExW(L"nvml.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32)`.
+//! Two locations, both absolute, tried in order — see [`super::search`], which
+//! holds the list and the reasoning:
 //!
-//! The flag is the entire point. A plain `LoadLibraryW("nvml.dll")` searches
+//! ```text
+//! 1. LoadLibraryExW(L"nvml.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32)
+//! 2. LoadLibraryExW(<Program Files>\NVIDIA Corporation\NVSMI\nvml.dll, NULL,
+//!                   LOAD_LIBRARY_SEARCH_SYSTEM32 | LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR)
+//! ```
+//!
+//! The flags are the entire point. A plain `LoadLibraryW("nvml.dll")` searches
 //! the **application directory first**, so anyone able to drop a file next to
 //! `pulse.exe` — an installer, an unpacked archive, a shared downloads folder —
 //! could have PULSE load their DLL with PULSE's privileges. That is a classic
 //! DLL planting vulnerability, and a monitoring tool that loads vendor
 //! libraries is exactly the kind of program it targets.
 //!
-//! `LOAD_LIBRARY_SEARCH_SYSTEM32` restricts the search to `%SystemRoot%\System32`
-//! and nothing else: not the application directory, not the working directory,
-//! not `PATH`. The NVIDIA display driver installs `nvml.dll` there, so this is
-//! both the safe path and the correct one.
+//! Program Files is located with `SHGetKnownFolderPath(FOLDERID_ProgramFiles)`
+//! rather than read from `%ProgramW6432%`: the environment is inherited and
+//! anything that can start PULSE can set it, while the Known Folder API asks
+//! the system and cannot be redirected by the process's own environment.
 //!
-//! PULSE deliberately does **not** fall back to a wider search when the
-//! System32 lookup fails. A missing NVML means "no NVIDIA telemetry", which
-//! costs one vendor's metrics; a hijacked NVML means arbitrary code inside
-//! PULSE. The trade is not close.
+//! PULSE deliberately does **not** fall back to a wider search when both
+//! lookups fail. A missing NVML means "no NVIDIA telemetry", which costs one
+//! vendor's metrics; a hijacked NVML means arbitrary code inside PULSE. The
+//! trade is not close.
 //!
 //! # Lifecycle
 //!
@@ -396,11 +403,11 @@ impl ModuleHandle {
         };
 
         if raw.is_null() {
-            return Err(NvmlError::Unavailable(
-                "libnvidia-ml.so.1 is not installed, so NVIDIA telemetry is unavailable \
-                 (this is expected without the proprietary NVIDIA driver)"
-                    .to_string(),
-            ));
+            return Err(NvmlError::Unavailable(format!(
+                "{} is not installed, so NVIDIA telemetry is unavailable \
+                 (this is expected without the proprietary NVIDIA driver)",
+                super::search::LINUX_SONAME
+            )));
         }
 
         Ok(Self { raw })
@@ -408,44 +415,15 @@ impl ModuleHandle {
 
     #[cfg(target_os = "windows")]
     fn open() -> Result<Self, NvmlError> {
-        use windows_sys::Win32::System::LibraryLoader::{
-            LoadLibraryExW, LOAD_LIBRARY_SEARCH_SYSTEM32,
-        };
+        use super::search::WindowsLocation;
 
-        // `nvml.dll`, NUL-terminated UTF-16.
-        const NVML_DLL: &[u16] = &[
-            b'n' as u16,
-            b'v' as u16,
-            b'm' as u16,
-            b'l' as u16,
-            b'.' as u16,
-            b'd' as u16,
-            b'l' as u16,
-            b'l' as u16,
-            0,
-        ];
-
-        // SAFETY: a `'static` NUL-terminated UTF-16 name, a null reserved
-        // handle as the API requires, and a search flag that confines the
-        // lookup to System32 — never the application or working directory.
-        // The result is checked for null before use.
-        let raw = unsafe {
-            LoadLibraryExW(
-                NVML_DLL.as_ptr(),
-                core::ptr::null_mut(),
-                LOAD_LIBRARY_SEARCH_SYSTEM32,
-            )
-        };
-
-        if raw.is_null() {
-            return Err(NvmlError::Unavailable(
-                "nvml.dll was not found in the system directory, so NVIDIA telemetry is \
-                 unavailable (this is expected without the NVIDIA display driver)"
-                    .to_string(),
-            ));
+        for location in WindowsLocation::ORDER {
+            if let Some(raw) = windows_loader::load(*location) {
+                return Ok(Self { raw: raw.cast() });
+            }
         }
 
-        Ok(Self { raw: raw.cast() })
+        Err(NvmlError::Unavailable(super::search::not_found_message()))
     }
 
     #[cfg(not(any(target_os = "linux", target_os = "windows")))]
@@ -499,6 +477,139 @@ impl ModuleHandle {
             "NVIDIA telemetry is not implemented on this platform".to_string(),
         ))
     }
+}
+
+/// Loading NVML from one permitted location.
+///
+/// Every path this module can produce is absolute or system-confined; see
+/// [`super::search`] for why that is a security property rather than a detail.
+#[cfg(target_os = "windows")]
+mod windows_loader {
+    use std::os::windows::ffi::OsStrExt;
+    use std::path::PathBuf;
+
+    use windows_sys::Win32::Foundation::HMODULE;
+    use windows_sys::Win32::System::Com::CoTaskMemFree;
+    use windows_sys::Win32::System::LibraryLoader::{
+        LoadLibraryExW, LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR, LOAD_LIBRARY_SEARCH_SYSTEM32,
+    };
+    use windows_sys::Win32::UI::Shell::{FOLDERID_ProgramFiles, SHGetKnownFolderPath};
+
+    use super::super::search::{nvml_under_program_files, WindowsLocation, WINDOWS_LIBRARY};
+
+    /// `nvml.dll`, NUL-terminated UTF-16.
+    const NVML_DLL: &[u16] = &[
+        b'n' as u16,
+        b'v' as u16,
+        b'm' as u16,
+        b'l' as u16,
+        b'.' as u16,
+        b'd' as u16,
+        b'l' as u16,
+        b'l' as u16,
+        0,
+    ];
+
+    /// Loads NVML from one location, or reports that it is not there.
+    pub fn load(location: WindowsLocation) -> Option<HMODULE> {
+        match location {
+            WindowsLocation::System32 => from_system32(),
+            WindowsLocation::ProgramFilesNvsmi => from_program_files(),
+        }
+    }
+
+    /// The display driver's copy, through the system-directory-only search.
+    fn from_system32() -> Option<HMODULE> {
+        // SAFETY: a `'static` NUL-terminated UTF-16 name, a null reserved
+        // handle as the API requires, and a search flag that confines the
+        // lookup to System32 — never the application or working directory.
+        let raw = unsafe {
+            LoadLibraryExW(
+                NVML_DLL.as_ptr(),
+                core::ptr::null_mut(),
+                LOAD_LIBRARY_SEARCH_SYSTEM32,
+            )
+        };
+
+        (!raw.is_null()).then_some(raw)
+    }
+
+    /// The management tooling's copy, by absolute path.
+    fn from_program_files() -> Option<HMODULE> {
+        let path = nvml_under_program_files(&program_files()?);
+
+        // A path with an interior NUL cannot name a real file, and passing one
+        // to a wide API would silently truncate it.
+        let mut wide: Vec<u16> = path.as_os_str().encode_wide().collect();
+        if wide.contains(&0) {
+            return None;
+        }
+        wide.push(0);
+
+        // SAFETY: a live, NUL-terminated UTF-16 absolute path and a null
+        // reserved handle. The flags confine the *dependency* search to
+        // System32 and to the directory the library itself was loaded from —
+        // never the application directory, the working directory or PATH.
+        let raw = unsafe {
+            LoadLibraryExW(
+                wide.as_ptr(),
+                core::ptr::null_mut(),
+                LOAD_LIBRARY_SEARCH_SYSTEM32 | LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR,
+            )
+        };
+
+        (!raw.is_null()).then_some(raw)
+    }
+
+    /// Asks the system where Program Files is.
+    ///
+    /// Never `%ProgramW6432%`: the environment is inherited, and anything that
+    /// can start PULSE can set it.
+    fn program_files() -> Option<PathBuf> {
+        let mut raw: windows_sys::core::PWSTR = core::ptr::null_mut();
+
+        // SAFETY: a documented Known Folder ID, no flags, no impersonation
+        // token, and an out-pointer to a live local. The call allocates the
+        // string with the COM task allocator and the result is checked before
+        // it is read.
+        let status = unsafe {
+            SHGetKnownFolderPath(&FOLDERID_ProgramFiles, 0, core::ptr::null_mut(), &mut raw)
+        };
+
+        if status < 0 || raw.is_null() {
+            // The API allocates nothing on failure, but documents that the
+            // caller must free the pointer regardless.
+            if !raw.is_null() {
+                // SAFETY: `raw` came from `SHGetKnownFolderPath` and is freed
+                // exactly once.
+                unsafe { CoTaskMemFree(raw.cast()) };
+            }
+            return None;
+        }
+
+        // SAFETY: on success the API returns a NUL-terminated wide string.
+        let mut length = 0usize;
+        // SAFETY: walking a NUL-terminated string the API guarantees.
+        while unsafe { *raw.add(length) } != 0 {
+            length += 1;
+        }
+
+        // SAFETY: `length` units were just confirmed to precede the NUL.
+        let units = unsafe { core::slice::from_raw_parts(raw, length) };
+        let path = PathBuf::from(String::from_utf16_lossy(units));
+
+        // SAFETY: `raw` came from `SHGetKnownFolderPath` and is freed exactly
+        // once, after the last read of it.
+        unsafe { CoTaskMemFree(raw.cast()) };
+
+        // A Known Folder that came back empty is not a directory PULSE will
+        // build a load path out of.
+        (!path.as_os_str().is_empty()).then_some(path)
+    }
+
+    /// Kept so the name appears in this module's own diagnostics.
+    #[allow(dead_code)]
+    pub const LIBRARY: &str = WINDOWS_LIBRARY;
 }
 
 impl Drop for ModuleHandle {

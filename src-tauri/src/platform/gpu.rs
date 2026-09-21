@@ -25,13 +25,41 @@
 //! same physical slot, so this is exact — it distinguishes two identical cards
 //! and cannot be fooled by naming.
 //!
-//! **By vendor and enumeration order second**, and only for adapters of the
-//! vendor the backend serves. Windows' DXGI does not expose a bus address, so
-//! there is nothing exact to match on; pairing the *n*-th NVIDIA adapter with
-//! the *n*-th NVML device is the best available, and is recorded as such.
+//! **Never by enumeration order.** Pairing the *n*-th NVIDIA adapter with the
+//! *n*-th NVML device looks reasonable and is not: the two APIs enumerate
+//! independently, DXGI's order reflects which adapter Windows currently
+//! prefers, and NVML's reflects its own device list. On a machine with two
+//! NVIDIA cards the two orders can disagree, and the result is a dashboard
+//! attributing one card's telemetry to the other — silently, and permanently,
+//! because the wrong identity is what gets saved. **A wrong merge is worse
+//! than an unmerged inventory.**
+//!
+//! **A one-to-one fallback is allowed, and only that.** When exactly one
+//! unmatched adapter of a vendor faces exactly one unmatched device of that
+//! vendor, there is no ambiguity left to get wrong: the pairing is forced.
+//! That is the case on every single-GPU laptop whose platform exposes no bus
+//! address, and it is recorded here explicitly rather than falling out of an
+//! ordering coincidence.
 //!
 //! **Never by product name.** `"NVIDIA GeForce RTX 4070"` matches both cards in
 //! a two-card machine and neither after a driver reworded the string.
+//!
+//! # What happens to an adapter that could not be paired
+//!
+//! The vendor backend's devices are always published — they carry the stronger
+//! identity and the telemetry. A generic entry that was not paired is then
+//! **absorbed** (dropped) when it is certain to be one of those same devices:
+//! that is, when the vendor serves at least as many unpaired devices as there
+//! are unpaired adapters of its vendor. Absorbing is a statement about the
+//! *count*, not about which adapter is which, so nothing per-adapter is
+//! transferred and no identity is guessed.
+//!
+//! When the generic inventory holds **more** unpaired adapters of a vendor than
+//! the backend has unpaired devices — NVML skipping a GPU whose UUID it cannot
+//! read, for instance — they are all kept. One card may then appear twice, once
+//! under each identity. That is a visible, honest degradation; dropping an
+//! arbitrary one would hide real hardware, and pairing an arbitrary one would
+//! mislabel it.
 
 use std::collections::BTreeSet;
 
@@ -181,30 +209,94 @@ pub fn nvml_telemetry(backend: &dyn NvmlBackend, index: u32) -> GpuTelemetry {
 /// carries a stronger identity (a hardware UUID rather than a slot address)
 /// and the telemetry the generic inventory cannot provide.
 ///
+/// Three passes, in decreasing order of confidence — see the module docs:
+///
+/// 1. exact PCI bus address,
+/// 2. a forced one-to-one pairing, when one unmatched adapter of a vendor
+///    faces exactly one unmatched device of it,
+/// 3. absorption of the generic entries that must be the same devices.
+///
 /// The result is sorted by `SourceId`, so the catalog order does not depend on
 /// which backend enumerated first.
 pub fn merge(generic: Vec<GpuDescriptor>, vendor: Vec<NvmlDiscovered>) -> Vec<InventoriedGpu> {
-    let mut merged: Vec<InventoriedGpu> = Vec::with_capacity(generic.len().max(vendor.len()));
+    // `paired[i]` is the generic entry the i-th vendor device was matched to.
+    let mut paired: Vec<Option<usize>> = vec![None; vendor.len()];
     let mut claimed: BTreeSet<usize> = BTreeSet::new();
 
-    for device in vendor {
-        let matched = match_generic(&generic, &claimed, &device);
+    // Pass 1 — exact: the same slot on the same bus. This is the only match
+    // that distinguishes two identical cards, and it cannot be fooled.
+    for (index, device) in vendor.iter().enumerate() {
+        let Some(pci) = device.descriptor.pci else {
+            continue;
+        };
 
-        if let Some(position) = matched {
+        if let Some(position) = generic
+            .iter()
+            .enumerate()
+            .find(|(position, candidate)| candidate.pci == Some(pci) && !claimed.contains(position))
+            .map(|(position, _)| position)
+        {
             claimed.insert(position);
+            paired[index] = Some(position);
+        }
+    }
+
+    // Pass 2 — forced: one unmatched device of a vendor, one unmatched adapter
+    // of that vendor, therefore no choice to make. Deliberately *not* "the
+    // first unmatched adapter": with two of either, nothing is paired at all.
+    for index in 0..vendor.len() {
+        if paired[index].is_some() {
+            continue;
         }
 
+        let vendor_of = vendor[index].descriptor.vendor;
+        if unmatched_devices(&vendor, &paired, vendor_of) != 1 {
+            continue;
+        }
+
+        let candidates = unclaimed_adapters(&generic, &claimed, vendor_of);
+        if let [only] = candidates[..] {
+            claimed.insert(only);
+            paired[index] = Some(only);
+        }
+    }
+
+    // Pass 3 — absorption: an adapter of a vendor whose backend still has at
+    // least as many unpaired devices is certainly one of them, so publishing it
+    // separately would count one card twice. Nothing per-adapter moves across.
+    let served: BTreeSet<GpuVendor> = vendor
+        .iter()
+        .map(|device| device.descriptor.vendor)
+        .collect();
+
+    let mut absorbed: BTreeSet<usize> = BTreeSet::new();
+    for vendor_of in served {
+        let leftover = unclaimed_adapters(&generic, &claimed, vendor_of);
+        if leftover.is_empty() {
+            continue;
+        }
+
+        // More adapters than devices: one of them is a card the backend does
+        // not serve, and there is no way to tell which. All are kept.
+        if leftover.len() <= unmatched_devices(&vendor, &paired, vendor_of) {
+            absorbed.extend(leftover);
+        }
+    }
+
+    let mut merged: Vec<InventoriedGpu> = Vec::with_capacity(generic.len().max(vendor.len()));
+
+    for device in vendor {
         merged.push(InventoriedGpu {
             descriptor: device.descriptor,
             nvml_index: Some(device.index),
         });
     }
 
-    // Everything the vendor backend did not claim stays as the generic
-    // inventory described it — an AMD card beside an NVIDIA one, or an NVIDIA
-    // card running an open-source driver NVML does not serve.
+    // Everything neither paired nor absorbed stays as the generic inventory
+    // described it — an AMD card beside an NVIDIA one, or an NVIDIA card
+    // running an open-source driver NVML does not serve.
     for (position, descriptor) in generic.into_iter().enumerate() {
-        if claimed.contains(&position) {
+        if claimed.contains(&position) || absorbed.contains(&position) {
             continue;
         }
 
@@ -219,34 +311,27 @@ pub fn merge(generic: Vec<GpuDescriptor>, vendor: Vec<NvmlDiscovered>) -> Vec<In
     merged
 }
 
-/// Finds the generic entry describing the same physical card.
-fn match_generic(
+/// How many of a vendor's devices are still unpaired.
+fn unmatched_devices(vendor: &[NvmlDiscovered], paired: &[Option<usize>], of: GpuVendor) -> usize {
+    vendor
+        .iter()
+        .enumerate()
+        .filter(|(index, device)| paired[*index].is_none() && device.descriptor.vendor == of)
+        .count()
+}
+
+/// The positions of a vendor's generic entries that nothing has claimed.
+fn unclaimed_adapters(
     generic: &[GpuDescriptor],
     claimed: &BTreeSet<usize>,
-    device: &NvmlDiscovered,
-) -> Option<usize> {
-    // Exact: the same slot on the same bus.
-    if let Some(pci) = device.descriptor.pci {
-        let exact = generic
-            .iter()
-            .enumerate()
-            .find(|(position, candidate)| candidate.pci == Some(pci) && !claimed.contains(position))
-            .map(|(position, _)| position);
-
-        if exact.is_some() {
-            return exact;
-        }
-    }
-
-    // Best effort: the n-th unclaimed adapter of the same vendor. Used on
-    // Windows, where the generic inventory exposes no bus address.
+    of: GpuVendor,
+) -> Vec<usize> {
     generic
         .iter()
         .enumerate()
-        .find(|(position, candidate)| {
-            candidate.vendor == device.descriptor.vendor && !claimed.contains(position)
-        })
+        .filter(|(position, candidate)| candidate.vendor == of && !claimed.contains(position))
         .map(|(position, _)| position)
+        .collect()
 }
 
 #[cfg(test)]
@@ -768,8 +853,12 @@ mod tests {
     }
 
     #[test]
-    fn adapters_without_a_bus_address_are_paired_by_vendor_and_order() {
-        // The Windows case: DXGI exposes no bus address.
+    fn two_unaddressable_adapters_are_absorbed_rather_than_paired_by_order() {
+        // The Windows case where `D3DKMT` could not supply a bus address for
+        // either adapter. Pairing NVML device 0 with DXGI adapter 0 would be a
+        // coin flip whose result gets *saved*, so nothing is paired — the two
+        // NVML devices are published, and the two adapters that must be those
+        // same cards are absorbed so nothing is counted twice.
         let mut first = generic_nvidia(PciAddress::new(0, 1, 0, 0), "NVIDIA A");
         first.pci = None;
         let mut second = generic_nvidia(PciAddress::new(0, 2, 0, 0), "NVIDIA B");
@@ -783,7 +872,116 @@ mod tests {
 
         let merged = merge(vec![first, second], vendor);
 
-        assert_eq!(merged.len(), 2, "neither adapter is published twice");
+        assert_eq!(merged.len(), 2, "neither card is published twice");
+        assert!(
+            merged.iter().all(|gpu| gpu.nvml_index.is_some()),
+            "both published devices must be the NVML ones"
+        );
+    }
+
+    #[test]
+    fn a_reversed_enumeration_order_still_matches_by_bus_address() {
+        // DXGI hands adapters back in A, B; NVML in B, A. Order-based pairing
+        // would swap the two cards' telemetry for the rest of the session.
+        let a = PciAddress::new(0, 0x01, 0, 0);
+        let b = PciAddress::new(0, 0x41, 0, 0);
+
+        let generic = vec![
+            generic_nvidia(a, "NVIDIA GeForce RTX 4090"),
+            generic_nvidia(b, "NVIDIA GeForce RTX 4090"),
+        ];
+
+        let vendor = nvml_descriptors(&FakeNvml::with_devices(vec![
+            FakeDevice::healthy("GPU-bbbb", "NVIDIA GeForce RTX 4090", Some(b)),
+            FakeDevice::healthy("GPU-aaaa", "NVIDIA GeForce RTX 4090", Some(a)),
+        ]))
+        .expect("no error");
+
+        let merged = merge(generic, vendor);
+
+        assert_eq!(merged.len(), 2);
+        // Each published device keeps the bus address it was discovered at,
+        // so the two identical cards did not swap identities.
+        for gpu in &merged {
+            let expected = match gpu.descriptor.source_id.as_str() {
+                "gpu:nvidia-aaaa" => a,
+                "gpu:nvidia-bbbb" => b,
+                other => panic!("unexpected source {other}"),
+            };
+            assert_eq!(gpu.descriptor.pci, Some(expected));
+        }
+    }
+
+    #[test]
+    fn a_single_unaddressable_adapter_takes_the_forced_one_to_one_pairing() {
+        // One adapter, one device, no bus address: there is no other pairing
+        // to make, so this one is not a guess.
+        let mut only = generic_nvidia(PciAddress::new(0, 1, 0, 0), "NVIDIA GeForce RTX 4070");
+        only.pci = None;
+
+        let vendor = nvml_descriptors(&FakeNvml::with_devices(vec![FakeDevice::healthy(
+            "GPU-aaaa",
+            "NVIDIA GeForce RTX 4070 Laptop GPU",
+            None,
+        )]))
+        .expect("no error");
+
+        let merged = merge(vec![only], vendor);
+
+        assert_eq!(merged.len(), 1);
+        assert_eq!(merged[0].nvml_index, Some(0));
+        assert_eq!(merged[0].descriptor.source_id.as_str(), "gpu:nvidia-aaaa");
+    }
+
+    #[test]
+    fn an_adapter_the_backend_cannot_account_for_is_kept_rather_than_dropped() {
+        // Two NVIDIA adapters, one NVML device: one of the two is a card NVML
+        // does not serve, and nothing says which. Dropping one would hide real
+        // hardware; pairing one would mislabel it. Both stay.
+        let mut first = generic_nvidia(PciAddress::new(0, 1, 0, 0), "NVIDIA A");
+        first.pci = None;
+        let mut second = generic_nvidia(PciAddress::new(0, 2, 0, 0), "NVIDIA B");
+        second.pci = None;
+
+        let vendor = nvml_descriptors(&FakeNvml::with_devices(vec![FakeDevice::healthy(
+            "GPU-aaaa",
+            "NVIDIA GeForce RTX 4090",
+            None,
+        )]))
+        .expect("no error");
+
+        let merged = merge(vec![first, second], vendor);
+
+        assert_eq!(merged.len(), 3);
+        assert_eq!(
+            merged.iter().filter(|gpu| gpu.nvml_index.is_some()).count(),
+            1
+        );
+    }
+
+    #[test]
+    fn a_bus_address_match_survives_a_second_unaddressable_card() {
+        // The mixed case: one adapter PULSE could address, one it could not.
+        let addressed = PciAddress::new(0, 0x01, 0, 0);
+        let mut unaddressed = generic_nvidia(PciAddress::new(0, 0x41, 0, 0), "NVIDIA B");
+        unaddressed.pci = None;
+
+        let generic = vec![
+            generic_nvidia(addressed, "NVIDIA GeForce RTX 4090"),
+            unaddressed,
+        ];
+
+        let vendor = nvml_descriptors(&FakeNvml::with_devices(vec![
+            FakeDevice::healthy("GPU-bbbb", "NVIDIA GeForce RTX 4090", None),
+            FakeDevice::healthy("GPU-aaaa", "NVIDIA GeForce RTX 4090", Some(addressed)),
+        ]))
+        .expect("no error");
+
+        let merged = merge(generic, vendor);
+
+        // The addressed pair matched exactly; the remaining adapter and device
+        // are then the only ones left, which is a forced pairing.
+        assert_eq!(merged.len(), 2);
         assert!(merged.iter().all(|gpu| gpu.nvml_index.is_some()));
     }
 

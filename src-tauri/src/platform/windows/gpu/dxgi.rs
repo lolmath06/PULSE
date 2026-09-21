@@ -33,7 +33,10 @@
 //!
 //! - `AdapterLuid` — which Microsoft documents as valid **only until the system
 //!   restarts**. PULSE therefore does *not* use it as a stored identity, only
-//!   to correlate objects within one session.
+//!   to correlate objects within one session. It is, however, the handle
+//!   [`super::d3dkmt`] uses to ask the kernel graphics subsystem for the
+//!   adapter's **PCI bus address**, which is what lets an NVML device be paired
+//!   with a DXGI adapter exactly rather than by enumeration order.
 //! - `VendorId`, `DeviceId`, `SubSysId`, `Revision` — which describe *what the
 //!   adapter is* rather than *which one it is*. Stable across reboots, but
 //!   identical for two identical cards.
@@ -52,8 +55,10 @@
 
 use crate::metrics::model::Availability;
 use crate::metrics::wellknown::gpu::{
-    device_model_source_id, GpuCapabilities, GpuDescriptor, GpuIdentity, GpuVendor,
+    device_model_source_id, GpuCapabilities, GpuDescriptor, GpuIdentity, GpuVendor, PciAddress,
 };
+
+use super::d3dkmt::AdapterLuid;
 
 /// Microsoft's reserved vendor ID, used by its software adapters.
 pub const MICROSOFT_VENDOR_ID: u16 = 0x1414;
@@ -78,6 +83,17 @@ pub struct DxgiAdapter {
     pub dedicated_video_memory: u64,
     /// Whether DXGI flagged this adapter as a software renderer.
     pub software_flag: bool,
+    /// The adapter's session LUID. **Never an identity** — Microsoft documents
+    /// it as valid only until the machine restarts — but the handle the kernel
+    /// graphics subsystem accepts when asked for the bus address.
+    pub luid: AdapterLuid,
+    /// The PCI bus address, when `D3DKMT` supplied one.
+    ///
+    /// Correlation data only: the Windows identity stays the model tuple, so
+    /// upgrading a machine to a build that can resolve addresses never changes
+    /// a `SourceId` a dashboard already stored. What it changes is whether an
+    /// NVML device can be paired with this adapter *exactly*.
+    pub pci: Option<PciAddress>,
 }
 
 impl DxgiAdapter {
@@ -154,9 +170,10 @@ pub fn describe_all(adapters: &[DxgiAdapter]) -> Vec<GpuDescriptor> {
             identity: GpuIdentity::DeviceModel {
                 disambiguated: duplicated,
             },
-            // DXGI exposes no bus address, which is why the merge falls back
-            // to vendor-and-order matching on this platform.
-            pci: None,
+            // Present when D3DKMT answered for this adapter; `None` otherwise,
+            // and the merge then applies its conservative rules rather than
+            // pairing by enumeration order.
+            pci: adapter.pci,
             backend: "dxgi",
             capabilities: capabilities_for(adapter),
         });
@@ -213,6 +230,7 @@ pub mod imp {
 
     use crate::metrics::model::{MetricError, MetricErrorCode};
 
+    use super::super::d3dkmt::AdapterLuid;
     use super::DxgiAdapter;
 
     /// Enumerates every adapter DXGI reports.
@@ -259,6 +277,8 @@ pub mod imp {
                     .unwrap_or(desc.Description.len())],
             );
 
+            let luid = AdapterLuid::new(desc.AdapterLuid.LowPart, desc.AdapterLuid.HighPart);
+
             adapters.push(DxgiAdapter {
                 index,
                 description: description.trim().to_string(),
@@ -268,6 +288,10 @@ pub mod imp {
                 revision: (desc.Revision & 0xFF) as u8,
                 dedicated_video_memory: desc.DedicatedVideoMemory as u64,
                 software_flag: DXGI_ADAPTER_FLAG(desc.Flags as i32) == DXGI_ADAPTER_FLAG_SOFTWARE,
+                luid,
+                // Asked once per adapter, at startup. A failure here costs the
+                // exact correlation and nothing else.
+                pci: super::super::d3dkmt::imp::pci_address_for_luid(luid),
             });
         }
 
@@ -291,6 +315,8 @@ mod tests {
             revision: 0xA1,
             dedicated_video_memory: 8 * GIB,
             software_flag: false,
+            luid: AdapterLuid::new(index, 0),
+            pci: None,
         }
     }
 
@@ -304,6 +330,8 @@ mod tests {
             revision: 0,
             dedicated_video_memory: 0,
             software_flag: true,
+            luid: AdapterLuid::new(0xFFFF, 0),
+            pci: None,
         }
     }
 

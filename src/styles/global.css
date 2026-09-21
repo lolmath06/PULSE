@@ -286,10 +286,13 @@ code,
   margin: 16px 0 0;
   padding: 0;
   list-style: none;
-  /* Beyond roughly forty rows per column the card would run off the page; the
-   * grid scrolls inside itself instead of pushing everything else away. */
-  max-height: 340px;
-  overflow-y: auto;
+  /* Deliberately no `max-height` and no `overflow`. A nested scrollbar hid the
+   * last four rows of a 32-processor machine behind a scroll gesture inside a
+   * card that already sits on a scrollable page — two scroll contexts for four
+   * lines. The card grows to fit every processor instead, and the page's own
+   * scrollbar handles the overflow. Machines beyond `PROCESSOR_DISPLAY_LIMIT`
+   * are collapsed in the component with an explicit "Show all" control rather
+   * than by clipping. */
 }
 
 .cpu-grid__row {
@@ -332,6 +335,11 @@ code,
   color: var(--pulse-text-muted);
 }
 
+/* The "Show all N processors" control, used only above the display limit. */
+.cpu-grid__expand {
+  margin-top: 12px;
+}
+
 @media (max-width: 560px) {
   .cpu-grid {
     grid-template-columns: 1fr;
@@ -351,8 +359,8 @@ code,
   margin: 16px 0 0;
   padding: 0;
   list-style: none;
-  max-height: 420px;
-  overflow-y: auto;
+  /* No nested scrollbar here either: adapters are few, each block is short,
+   * and the page scrolls. */
 }
 
 .gpu-list__item {
@@ -375,6 +383,30 @@ code,
   margin: 10px 0 0;
   color: var(--pulse-text-faint);
   font-size: 11.5px;
+}
+
+/* ---------- GPU telemetry notice ----------
+ *
+ * Shown inside the adapter's block, without a hover: a user whose driver
+ * exposes no performance counters must be able to read why every row says "—"
+ * without discovering that the dashes carry tooltips.
+ */
+
+.gpu-list__notice {
+  margin: 0 0 10px;
+  padding: 7px 9px;
+  border-left: 2px solid var(--pulse-border-strong);
+  border-radius: 0 var(--pulse-radius-sm) var(--pulse-radius-sm) 0;
+  background: var(--pulse-bg);
+  color: var(--pulse-text-muted);
+  font-size: 11.5px;
+  line-height: 1.45;
+}
+
+.gpu-list__notice strong {
+  display: block;
+  color: var(--pulse-text);
+  font-weight: 600;
 }
 
 /* A denser variant of the shared key/value list, for inside a GPU block. */

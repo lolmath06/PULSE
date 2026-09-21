@@ -1,13 +1,16 @@
 import { describe, expect, it } from 'vitest';
-import type { MetricDefinition } from '@/types/metrics';
+import type { Availability, MetricDefinition, MetricSample } from '@/types/metrics';
 import {
   GPU_FREQUENCY_CORE_KEY,
   GPU_MEMORY_TOTAL_KEY,
+  GPU_PERFORMANCE_KEYS,
   GPU_PER_DEVICE_KEYS,
+  GPU_TEMPERATURE_CORE_KEY,
   GPU_USAGE_CORE_KEY,
   isGpuDeviceSource,
+  metricRefId,
 } from '@/types/wellknown';
-import { disambiguateLabels, discoverGpus, gpuMetrics } from '@/utils/gpu';
+import { disambiguateLabels, discoverGpus, gpuMetrics, gpuTelemetryState } from '@/utils/gpu';
 
 function definition(key: string, sourceId: string, sourceLabel = sourceId): MetricDefinition {
   return {
@@ -215,5 +218,97 @@ describe('disambiguateLabels', () => {
 
   it('handles an empty list', () => {
     expect(disambiguateLabels([])).toEqual([]);
+  });
+});
+
+describe('gpuTelemetryState', () => {
+  const SOURCE = 'gpu:nvidia-1111';
+
+  function samplesOf(
+    entries: readonly { key: string; value?: number; availability?: Availability }[],
+  ): Map<string, MetricSample> {
+    const map = new Map<string, MetricSample>();
+
+    for (const entry of entries) {
+      const metric = { key: entry.key, sourceId: SOURCE };
+      map.set(metricRefId(metric), {
+        metric,
+        timestamp: 1_700_000_000_000,
+        value: entry.value === undefined ? null : { type: 'number', value: entry.value },
+        availability: entry.availability ?? { status: 'available' },
+      });
+    }
+
+    return map;
+  }
+
+  it('reports performance telemetry as present when one figure arrives', () => {
+    const state = gpuTelemetryState(samplesOf([{ key: GPU_USAGE_CORE_KEY, value: 17 }]), SOURCE);
+
+    expect(state.performanceAvailable).toBe(true);
+    expect(state.reason).toBeNull();
+  });
+
+  it("carries the backend's own reason rather than inventing one", () => {
+    const state = gpuTelemetryState(
+      samplesOf(
+        GPU_PERFORMANCE_KEYS.map((key) => ({
+          key,
+          availability: {
+            status: 'unsupported',
+            reason: 'libnvidia-ml.so.1 is not installed',
+          } as Availability,
+        })),
+      ),
+      SOURCE,
+    );
+
+    expect(state.performanceAvailable).toBe(false);
+    expect(state.reason).toBe('libnvidia-ml.so.1 is not installed');
+  });
+
+  it('surfaces the reason a user can act on ahead of the others', () => {
+    const state = gpuTelemetryState(
+      samplesOf([
+        {
+          key: GPU_USAGE_CORE_KEY,
+          availability: { status: 'temporarilyUnavailable', reason: 'a passing hiccup' },
+        },
+        {
+          key: GPU_FREQUENCY_CORE_KEY,
+          availability: { status: 'permissionDenied', reason: 'the driver refused this query' },
+        },
+      ]),
+      SOURCE,
+    );
+
+    expect(state.reason).toBe('the driver refused this query');
+  });
+
+  it('keeps thermal availability separate from performance availability', () => {
+    // The `nouveau` shape: no counters, a working temperature sensor. Saying
+    // "GPU telemetry unavailable" here would be wrong twice over.
+    const state = gpuTelemetryState(
+      samplesOf([
+        {
+          key: GPU_USAGE_CORE_KEY,
+          availability: { status: 'unsupported', reason: 'no vendor library' },
+        },
+        { key: GPU_TEMPERATURE_CORE_KEY, value: 46 },
+      ]),
+      SOURCE,
+    );
+
+    expect(state.performanceAvailable).toBe(false);
+    expect(state.thermalAvailable).toBe(true);
+    expect(state.reason).toBe('no vendor library');
+  });
+
+  it('reports no reason at all rather than guessing one', () => {
+    const state = gpuTelemetryState(new Map(), SOURCE);
+
+    expect(state.performanceAvailable).toBe(false);
+    expect(state.thermalAvailable).toBe(false);
+    expect(state.reason).toBeNull();
   });
 });

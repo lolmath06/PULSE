@@ -26,6 +26,7 @@
 //! Without NVML, an NVIDIA card still appears — inventoried by DXGI, with its
 //! VRAM capacity and an honest `unsupported` on everything else.
 
+pub mod d3dkmt;
 pub mod dxgi;
 
 use std::sync::Arc;
@@ -88,9 +89,18 @@ fn attach(entry: InventoriedGpu, adapters: &[dxgi::DxgiAdapter]) -> Device {
 
     // A DXGI-only adapter: its capacity is static, so it is captured here
     // rather than re-read on every refresh.
+    //
+    // Matched on the bus address when `D3DKMT` supplied one, and only then on
+    // the description — which is not an identity and collapses two identical
+    // cards onto one entry. Since this device was not claimed by a vendor
+    // backend, its display name is still DXGI's own, so the fallback is exact
+    // whenever the machine holds no two adapters of the same model.
     let capacity = adapters
         .iter()
-        .find(|adapter| adapter.description == entry.descriptor.display_name)
+        .find(|adapter| match (adapter.pci, entry.descriptor.pci) {
+            (Some(left), Some(right)) => left == right,
+            _ => adapter.description == entry.descriptor.display_name,
+        })
         .map(|adapter| adapter.dedicated_video_memory)
         .unwrap_or(0);
 
@@ -320,11 +330,14 @@ pub fn provider() -> Arc<dyn MetricProvider> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::metrics::wellknown::gpu::{GpuIdentity, GpuVendor};
+    use crate::metrics::wellknown::gpu::{GpuIdentity, GpuVendor, PciAddress};
     use crate::platform::gpu::testing::{FakeDevice, FakeNvml};
+
+    use d3dkmt::AdapterLuid;
 
     const GIB: u64 = 1024 * 1024 * 1024;
 
+    /// An adapter whose bus address `D3DKMT` could not supply.
     fn adapter(index: u32, vendor: u16, device: u16, description: &str) -> dxgi::DxgiAdapter {
         dxgi::DxgiAdapter {
             index,
@@ -335,6 +348,22 @@ mod tests {
             revision: 0xA1,
             dedicated_video_memory: 8 * GIB,
             software_flag: false,
+            luid: AdapterLuid::new(index + 1, 0),
+            pci: None,
+        }
+    }
+
+    /// The same adapter, with the bus address `D3DKMT` normally resolves.
+    fn addressed_adapter(
+        index: u32,
+        vendor: u16,
+        device: u16,
+        description: &str,
+        pci: PciAddress,
+    ) -> dxgi::DxgiAdapter {
+        dxgi::DxgiAdapter {
+            pci: Some(pci),
+            ..adapter(index, vendor, device, description)
         }
     }
 
@@ -348,6 +377,8 @@ mod tests {
             revision: 0,
             dedicated_video_memory: 0,
             software_flag: true,
+            luid: AdapterLuid::new(0xFFFF, 0),
+            pci: None,
         }
     }
 
@@ -448,6 +479,132 @@ mod tests {
         assert!(devices
             .iter()
             .all(|device| matches!(device.descriptor.identity, GpuIdentity::NvmlUuid(_))));
+    }
+
+    #[test]
+    fn two_nvidia_cards_are_paired_by_bus_address_whatever_order_each_api_used() {
+        // DXGI hands them back A, B; NVML B, A. The two APIs enumerate
+        // independently, so this is not a contrived ordering.
+        let a = PciAddress::new(0, 0x01, 0, 0);
+        let b = PciAddress::new(0, 0x41, 0, 0);
+
+        let nvml = FakeNvml::with_devices(vec![
+            FakeDevice::healthy("GPU-bbbb", "NVIDIA GeForce RTX 4090", Some(b)),
+            FakeDevice::healthy("GPU-aaaa", "NVIDIA GeForce RTX 4090", Some(a)),
+        ]);
+
+        let devices = compose(
+            vec![
+                addressed_adapter(0, 0x10DE, 0x2684, "NVIDIA GeForce RTX 4090", a),
+                addressed_adapter(1, 0x10DE, 0x2684, "NVIDIA GeForce RTX 4090", b),
+            ],
+            Some(&nvml),
+        );
+
+        assert_eq!(devices.len(), 2, "two cards, two entries");
+
+        // Each published card kept the address it was actually discovered at.
+        for device in &devices {
+            let expected = match device.descriptor.source_id.as_str() {
+                "gpu:nvidia-aaaa" => a,
+                "gpu:nvidia-bbbb" => b,
+                other => panic!("unexpected source {other}"),
+            };
+            assert_eq!(device.descriptor.pci, Some(expected));
+        }
+    }
+
+    #[test]
+    fn a_single_card_is_paired_even_without_a_bus_address() {
+        // The documented one-to-one fallback: one NVIDIA adapter, one NVML
+        // device, nothing ambiguous left to get wrong.
+        let nvml = FakeNvml::with_devices(vec![FakeDevice::healthy(
+            "GPU-aaaa",
+            "NVIDIA GeForce RTX 4070 Laptop GPU",
+            None,
+        )]);
+
+        let devices = compose(
+            vec![adapter(
+                0,
+                0x10DE,
+                0x2820,
+                "NVIDIA GeForce RTX 4070 Laptop GPU",
+            )],
+            Some(&nvml),
+        );
+
+        assert_eq!(devices.len(), 1);
+        assert!(matches!(devices[0].telemetry, Telemetry::Nvml(0)));
+        assert!(matches!(
+            devices[0].descriptor.identity,
+            GpuIdentity::NvmlUuid(_)
+        ));
+    }
+
+    #[test]
+    fn two_cards_without_bus_addresses_are_never_paired_by_enumeration_order() {
+        // `D3DKMT` answered for neither adapter. Pairing device 0 with adapter
+        // 0 would be a guess that gets written into a saved dashboard, so the
+        // NVML devices are published on their own and the adapters — which must
+        // be those same cards — are absorbed rather than counted again.
+        let nvml = FakeNvml::with_devices(vec![
+            FakeDevice::healthy("GPU-aaaa", "NVIDIA GeForce RTX 4090", None),
+            FakeDevice::healthy("GPU-bbbb", "NVIDIA GeForce RTX 4090", None),
+        ]);
+
+        let devices = compose(
+            vec![
+                adapter(0, 0x10DE, 0x2684, "NVIDIA GeForce RTX 4090"),
+                adapter(1, 0x10DE, 0x2684, "NVIDIA GeForce RTX 4090"),
+            ],
+            Some(&nvml),
+        );
+
+        assert_eq!(devices.len(), 2);
+        assert!(
+            devices
+                .iter()
+                .all(|device| matches!(device.telemetry, Telemetry::Nvml(_))),
+            "no adapter may be published beside the device it duplicates"
+        );
+        // And none of them inherited a DXGI capacity it was never matched to.
+        assert!(devices
+            .iter()
+            .all(|device| !matches!(device.telemetry, Telemetry::Capacity { .. })));
+    }
+
+    #[test]
+    fn a_bus_address_match_is_unaffected_by_an_amd_card_beside_it() {
+        let nvidia_pci = PciAddress::new(0, 0x01, 0, 0);
+        let nvml = FakeNvml::with_devices(vec![FakeDevice::healthy(
+            "GPU-aaaa",
+            "NVIDIA GeForce RTX 4070",
+            Some(nvidia_pci),
+        )]);
+
+        let devices = compose(
+            vec![
+                addressed_adapter(
+                    0,
+                    0x1002,
+                    0x73FF,
+                    "AMD Radeon RX 6600",
+                    PciAddress::new(0, 0x03, 0, 0),
+                ),
+                addressed_adapter(1, 0x10DE, 0x2820, "NVIDIA GeForce RTX 4070", nvidia_pci),
+            ],
+            Some(&nvml),
+        );
+
+        assert_eq!(devices.len(), 2);
+        assert_eq!(
+            devices
+                .iter()
+                .filter(|device| device.descriptor.vendor == GpuVendor::Amd)
+                .count(),
+            1
+        );
     }
 
     #[test]

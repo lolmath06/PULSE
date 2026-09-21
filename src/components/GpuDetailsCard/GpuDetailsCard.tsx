@@ -11,7 +11,7 @@ import {
 } from '@/types/wellknown';
 import { useGpuDetails } from '@/hooks/useGpuDetails';
 import type { GpuDevice } from '@/utils/gpu';
-import { disambiguateLabels, gpuMetric } from '@/utils/gpu';
+import { disambiguateLabels, gpuMetric, gpuTelemetryState } from '@/utils/gpu';
 import { describeAvailability } from '@/utils/metrics';
 import {
   formatBytes,
@@ -129,11 +129,20 @@ function GpuEntry({
   const used = numberOf(GPU_MEMORY_USED_KEY);
   const memoryPercent = numberOf(GPU_MEMORY_USAGE_PERCENT_KEY);
 
+  const telemetry = gpuTelemetryState(samples, device.sourceId);
+
   return (
     <li className="gpu-list__item">
       <h3 className="gpu-list__name" title={device.sourceId}>
         {label}
       </h3>
+
+      {!telemetry.performanceAvailable && (
+        <PerformanceUnavailableNotice
+          reason={telemetry.reason}
+          thermalAvailable={telemetry.thermalAvailable}
+        />
+      )}
 
       <dl className="kv kv--compact">
         <Row label="GPU usage">
@@ -182,6 +191,33 @@ function GpuEntry({
         </p>
       )}
     </li>
+  );
+}
+
+/**
+ * States, in the card itself, that this adapter reports no performance figures.
+ *
+ * Without it every row reads `—` and the only explanation lives in a tooltip,
+ * which a user has no reason to go looking for: the honest conclusion they draw
+ * is that PULSE is broken. The wording is deliberately **"performance
+ * telemetry"**, never "GPU unavailable" — the adapter is detected, named and
+ * identified, and its thermal sensors may well be working, which the notice
+ * says when they are.
+ */
+function PerformanceUnavailableNotice({
+  reason,
+  thermalAvailable,
+}: {
+  readonly reason: string | null;
+  readonly thermalAvailable: boolean;
+}) {
+  return (
+    <p className="gpu-list__notice" role="note">
+      <strong>Performance telemetry unavailable</strong>
+      {reason ??
+        'This adapter\u2019s driver exposes no utilisation, video memory or clock figures.'}
+      {thermalAvailable && ' Thermal sensors remain available.'}
+    </p>
   );
 }
 

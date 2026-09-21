@@ -244,6 +244,36 @@ describe('GpuDetailsCard', () => {
     expect(within(only).getAllByTitle(/libnvidia-ml/).length).toBeGreaterThan(0);
   });
 
+  it('explains an adapter with no performance telemetry without needing a hover', async () => {
+    // A tooltip is not an explanation a user will find. With every row reading
+    // "—", the honest conclusion they draw is that PULSE is broken.
+    const reason: Availability = {
+      status: 'unsupported',
+      reason: 'libnvidia-ml.so.1 is not installed, so NVIDIA telemetry is unavailable',
+    };
+    mockBackend([NVIDIA], (metric) => (metric.key === 'gpu.count' ? 1 : reason));
+
+    render(<GpuDetailsCard />);
+
+    const only = entry(await entries(), 0);
+    const notice = within(only).getByRole('note');
+
+    expect(notice).toHaveTextContent('Performance telemetry unavailable');
+    expect(notice).toHaveTextContent(/libnvidia-ml\.so\.1 is not installed/);
+    // The GPU is detected; only half its telemetry is missing.
+    expect(notice).not.toHaveTextContent(/GPU unavailable/i);
+    expect(notice).not.toHaveTextContent(/Thermal sensors remain available/);
+  });
+
+  it('never claims performance telemetry is missing when it works', async () => {
+    mockBackend([NVIDIA]);
+
+    render(<GpuDetailsCard />);
+
+    const only = entry(await entries(), 0);
+    expect(within(only).queryByRole('note')).not.toBeInTheDocument();
+  });
+
   it('shows a partially supported GPU without losing what does work', async () => {
     mockBackend([NVIDIA], (metric) => {
       if (metric.key === GPU_FREQUENCY_MEMORY_KEY) {

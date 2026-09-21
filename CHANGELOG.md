@@ -7,6 +7,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed — monitoring UX and Windows GPU discovery
+
+- **CPU Details shows every processor.** The card used to scroll inside itself
+  above roughly 28 rows, which on a 32-thread machine hid exactly four
+  processors behind a second scroll context inside a page that already scrolls.
+  The card now grows to fit the machine; above 64 logical processors the list is
+  collapsed behind an explicit *Show all N processors* control rather than
+  clipped. The GPU list lost its inner scrollbar for the same reason.
+- **An adapter with no performance telemetry says so, in the card.** A GPU whose
+  driver exposes no utilisation, VRAM or clock figures showed five dashes and
+  put the explanation in tooltips nobody has a reason to open. It now carries a
+  visible *Performance telemetry unavailable* notice with the backend's own
+  reason. The wording is deliberately not "GPU unavailable": the adapter is
+  detected, named and identified, and its thermal sensors are tracked
+  separately, so a card with working temperatures is never described as having
+  no telemetry.
+- **NVML is found where NVIDIA actually installs it.** In addition to
+  `%SystemRoot%\System32\nvml.dll`, PULSE now looks for
+  `<Program Files>\NVIDIA Corporation\NVSMI\nvml.dll`, loaded by absolute path
+  with its dependency search confined to System32 and its own directory. Program
+  Files is located with `SHGetKnownFolderPath(FOLDERID_ProgramFiles)` rather than
+  read from `%ProgramW6432%`, which is inherited and therefore attacker-settable.
+  PULSE still never falls back to the default DLL search path.
+- **Windows GPUs are correlated by PCI bus address, not by enumeration order.**
+  `D3DKMTOpenAdapterFromLuid` + `D3DKMTQueryAdapterInfo(KMTQAITYPE_ADAPTERADDRESS)`
+  now resolves a DXGI adapter's bus address, which is matched against NVML's.
+  Where no address is available, an adapter and a device are paired **only** when
+  exactly one of each is unmatched; two NVIDIA cards are never paired by order,
+  because the two APIs enumerate independently and a wrong pairing writes the
+  wrong card's identity into a saved dashboard. Windows identity is unchanged —
+  the address is correlation data, so no stored `SourceId` moves.
+- **A Windows cross-check harness** (`tools/windows-check/`) type checks the
+  `metrics/` and `platform/` trees for `x86_64-pc-windows-msvc` from a Fedora
+  workstation, where the full Tauri build cannot run for want of a Windows
+  resource compiler. It includes the application's own files by path and pins the
+  same `rust-version`.
+
 ### Added — Phase 4: GPU Inventory & Core Metrics
 
 PULSE's first real GPU support, on both Fedora Linux and Windows, across NVIDIA,

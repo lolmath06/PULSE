@@ -1,0 +1,56 @@
+# The Windows cross-check harness.
+#
+# PULSE treats Windows and Fedora Linux as two first-class platforms, but the
+# full application cannot be *built* for Windows from Fedora: `tauri-build`
+# compiles a Windows resource file and needs a resource compiler (`llvm-rc`)
+# that a stock Fedora toolchain does not ship.
+#
+# Everything PULSE writes itself, however, is tauri-free: `metrics/` and
+# `platform/` depend only on `serde` and, on Windows, on the raw API bindings.
+# This crate includes those two module trees verbatim — the same files, by
+# path, never a copy — so `cargo check --target x86_64-pc-windows-msvc` type
+# checks the real Windows code from a Fedora workstation:
+#
+#     cargo check --manifest-path tools/windows-check/Cargo.toml \
+#       --target x86_64-pc-windows-msvc
+#
+# What it proves: the Windows CPU, memory and GPU providers, the DXGI and
+# D3DKMT layers, the NVML loader and every metric declaration compile and type
+# check for a real Windows target.
+#
+# What it does not prove: that they *work*. Nothing here executes on Windows.
+# Runtime validation is a manual test on a Windows machine, and CI's
+# `windows-latest` job builds and runs the whole crate.
+[package]
+name = "pulse-windows-check"
+version = "0.1.0-dev"
+description = "Type-checks PULSE's Windows platform code from a non-Windows host."
+edition = "2021"
+# Kept identical to src-tauri/Cargo.toml: the harness must refuse anything the
+# application itself could not compile.
+rust-version = "1.77.2"
+license-file = "../../LICENSE"
+publish = false
+
+[lib]
+name = "pulse_windows_check"
+path = "src/lib.rs"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[target.'cfg(target_os = "windows")'.dependencies]
+windows-version = "0.100"
+windows = { version = "0.61", features = ["Win32_Graphics_Dxgi"] }
+windows-sys = { version = "0.61", features = [
+    "Win32_Foundation",
+    "Win32_System_Threading",
+    "Win32_System_SystemInformation",
+    "Win32_System_LibraryLoader",
+    "Win32_System_Power",
+    "Win32_System_WindowsProgramming",
+    "Win32_System_Com",
+    "Win32_UI_Shell",
+    "Wdk_System_SystemInformation",
+] }

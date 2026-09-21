@@ -8,6 +8,8 @@ dist-ssr/
 build/
 src-tauri/target/
 src-tauri/gen/schemas/
+tools/windows-check/target/
+tools/windows-check/Cargo.lock
 *.tsbuildinfo
 
 # --- test / coverage ------------------------------------------------------

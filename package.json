@@ -27,6 +27,8 @@
     "rust:fmt": "cargo fmt --manifest-path src-tauri/Cargo.toml --check",
     "rust:lint": "cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets -- -D warnings",
     "rust:test": "cargo test --manifest-path src-tauri/Cargo.toml",
+    "rust:windows": "cargo check --manifest-path tools/windows-check/Cargo.toml --target x86_64-pc-windows-msvc",
+    "rust:windows:lint": "cargo clippy --manifest-path tools/windows-check/Cargo.toml --target x86_64-pc-windows-msvc --all-targets -- -D warnings",
     "check:all": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm rust:fmt && pnpm rust:lint && pnpm rust:test"
   },
   "dependencies": {

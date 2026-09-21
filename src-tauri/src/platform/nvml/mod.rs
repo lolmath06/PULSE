@@ -53,6 +53,7 @@
 
 pub mod backend;
 pub mod library;
+pub mod search;
 
 pub use backend::{
     availability_for_nvml, NvmlBackend, NvmlClock, NvmlDeviceInfo, NvmlError, NvmlMemory,

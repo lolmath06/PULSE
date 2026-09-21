@@ -161,14 +161,72 @@ published **once**, under the stronger identity.
 
 - **By PCI address first.** DRM and NVML both report the bus address of the same
   slot, so this is exact — it distinguishes identical cards and cannot be fooled
-  by naming. This is the Fedora path.
-- **By vendor and enumeration order second.** DXGI exposes no bus address, so
-  the _n_-th NVIDIA adapter is paired with the _n_-th NVML device. Best
-  available, and recorded as such. This is the Windows path.
-- **Never by product name.**
+  by naming. On Fedora the address comes from the DRM device symlink; on Windows
+  from `D3DKMT` (see below).
+- **By a forced one-to-one pairing second**, and only when exactly one unmatched
+  adapter of a vendor faces exactly one unmatched device of it. There is then no
+  ambiguity left to get wrong. This is the single-GPU laptop whose platform gave
+  no bus address.
+- **Never by enumeration order**, and **never by product name**.
 
 The vendor descriptor wins the merge: it carries a hardware UUID rather than a
 slot address, and the telemetry the generic inventory cannot provide.
+
+#### Why enumeration order is forbidden
+
+Pairing "NVML device _n_" with "DXGI adapter _n_" looks reasonable and is not.
+The two APIs enumerate independently: DXGI's order reflects which adapter Windows
+currently prefers, NVML's reflects its own device list, and on a machine with two
+NVIDIA cards they can disagree. The result is a dashboard that attributes one
+card's telemetry to the other — silently, and permanently, because the wrong
+identity is what gets saved.
+
+**A wrong merge is worse than an unmerged inventory.**
+
+#### What happens to an adapter that could not be paired
+
+The vendor backend's devices are always published. A generic entry that was not
+paired is then **absorbed** — dropped — when it is certain to be one of those
+same devices: when the vendor still has at least as many unpaired devices as
+there are unpaired adapters of its vendor. Absorbing is a statement about the
+_count_, not about which adapter is which, so nothing per-adapter is transferred
+and no identity is guessed.
+
+When the generic inventory holds **more** unpaired adapters of a vendor than the
+backend has unpaired devices — NVML skipping a GPU whose UUID it cannot read, for
+instance — they are all kept, and one card may appear twice, once under each
+identity. That is a visible, honest degradation: dropping an arbitrary one would
+hide real hardware, and pairing an arbitrary one would mislabel it.
+
+#### Windows — the bus address, through `D3DKMT`
+
+`DXGI_ADAPTER_DESC1` carries no PCI address, which is what made order-based
+pairing tempting in the first place. `AdapterLuid` does not solve identity — it
+is documented as valid only until the machine restarts — but it is the right
+handle for asking the kernel graphics subsystem about the adapter _right now_:
+
+```text
+AdapterLuid
+  └─ D3DKMTOpenAdapterFromLuid    → kernel adapter handle
+       └─ D3DKMTQueryAdapterInfo
+            KMTQAITYPE_ADAPTERADDRESS → bus / device / function
+       └─ D3DKMTCloseAdapter      → always, including on failure
+```
+
+`D3DKMT_ADAPTERADDRESS` has no PCI segment field, so the domain is taken as `0`.
+That is correct on all but large multi-segment servers, and where it is not, the
+address simply fails to match NVML's and the merge falls back to the rules above
+rather than pairing the wrong cards.
+
+The entry points are `gdi32` exports of the kernel-mode graphics interface,
+documented for driver-adjacent use rather than as a stable application API, so
+they are **resolved at runtime** — the same rule as `NtQuerySystemInformationEx`.
+`gdi32.dll` itself is loaded with `LOAD_LIBRARY_SEARCH_SYSTEM32`. Their absence
+costs one correlation hint, never the application.
+
+The Windows identity remains the model tuple: resolving a bus address improves
+_correlation_, and changing what a `SourceId` is built from would invalidate
+dashboards a previous build already saved.
 
 ## NVIDIA — NVML
 
@@ -189,17 +247,39 @@ of those into a process that refuses to start.
 `libnvidia-ml.so` (that symlink belongs to the CUDA _development_ package, which
 most users do not have) and never an absolute path.
 
-**Windows**: `LoadLibraryExW(L"nvml.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32)`.
+**Windows**: two locations, both absolute, tried in this order.
 
-The flag is the entire point. A plain `LoadLibraryW("nvml.dll")` searches the
+| #   | Location                                            | How it is opened                                                                                          |
+| --- | --------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| 1   | `%SystemRoot%\System32\nvml.dll`                    | `LoadLibraryExW(L"nvml.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32)`                                         |
+| 2   | `<Program Files>\NVIDIA Corporation\NVSMI\nvml.dll` | `LoadLibraryExW(<absolute path>, NULL, LOAD_LIBRARY_SEARCH_SYSTEM32 \| LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR)` |
+
+The first is where the display driver installs NVML and is the normal answer on
+a desktop. The second is the layout NVIDIA's management tooling has historically
+used, and is where NVML is found on machines whose driver package placed no copy
+in the system directory.
+
+The flags are the entire point. A plain `LoadLibraryW("nvml.dll")` searches the
 **application directory first**, so anyone able to drop a file next to
 `pulse.exe` could have PULSE load their DLL with PULSE's privileges — a classic
 DLL planting vulnerability, and a monitoring tool that loads vendor libraries is
-exactly the target. `LOAD_LIBRARY_SEARCH_SYSTEM32` restricts the search to
-`%SystemRoot%\System32`, where the NVIDIA driver installs the library.
+exactly the target. The Program Files copy is therefore loaded by **absolute
+path**, with even its own dependencies confined to System32 and to the directory
+it was loaded from.
 
-PULSE deliberately does **not** widen the search on failure. A missing NVML
-costs one vendor's metrics; a hijacked NVML is arbitrary code inside PULSE.
+Program Files is located with `SHGetKnownFolderPath(FOLDERID_ProgramFiles)`,
+never from `%ProgramW6432%`: the environment is inherited, and anything that can
+start PULSE can set it, which would put an attacker-chosen directory back into
+the search.
+
+PULSE deliberately does **not** widen the search beyond those two. It never
+looks in the application directory, the working directory, `PATH` or any
+user-writable location. A missing NVML costs one vendor's metrics; a hijacked
+NVML is arbitrary code inside PULSE.
+
+The list lives in `platform::nvml::search` as a closed enum, compiled and tested
+on every platform, so adding a location is a visible change to a reviewed list
+rather than a string appearing inside an FFI block.
 
 ### Why not a crate
 

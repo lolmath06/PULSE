@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { MetricSample } from '@/types/metrics';
 import {
   CPU_COUNT_LOGICAL,
@@ -24,9 +25,32 @@ import { formatHertz, formatPercent, formatSampleTime } from '@/utils/units';
  * The processor list is **discovered from the catalog**, so this component
  * contains no list of CPUs and works unchanged from one logical processor to
  * a hundred and twenty-eight.
+ *
+ * # Every processor is visible, and the card never scrolls inside itself
+ *
+ * Up to [`PROCESSOR_DISPLAY_LIMIT`] processors are all rendered at once and the
+ * card grows to fit them. A nested scrollbar was worse than the problem it
+ * solved: on a 32-thread machine it hid exactly four rows behind a second
+ * scroll context inside a page that already scrolls.
+ *
+ * Beyond the limit the list is collapsed to the first `PROCESSOR_DISPLAY_LIMIT`
+ * rows with an explicit *Show all N processors* control — still no clipping and
+ * still no inner scrollbar, just a deliberate choice the user makes.
  */
+
+/**
+ * How many logical processors are rendered before the list is collapsed.
+ *
+ * 64 covers every ordinary desktop and workstation — including this project's
+ * 32-thread reference machine — so the common case never sees the control at
+ * all. Above it, a 256-thread server would otherwise add a thousand rows to the
+ * page on first paint.
+ */
+export const PROCESSOR_DISPLAY_LIMIT = 64;
+
 export function CpuDetailsCard() {
   const { status, processors, samples, message, refreshing, refresh } = useCpuDetails();
+  const [showAllProcessors, setShowAllProcessors] = useState(false);
 
   const count = (metric: typeof CPU_COUNT_LOGICAL) => numberOf(samples, metric);
 
@@ -35,6 +59,9 @@ export function CpuDetailsCard() {
   const packages = count(CPU_COUNT_PACKAGE);
 
   const timestamp = samples.values().next().value?.timestamp;
+
+  const collapsed = processors.length > PROCESSOR_DISPLAY_LIMIT && !showAllProcessors;
+  const visibleProcessors = collapsed ? processors.slice(0, PROCESSOR_DISPLAY_LIMIT) : processors;
 
   return (
     <div className="card" aria-label="CPU details">
@@ -72,11 +99,23 @@ export function CpuDetailsCard() {
           </dl>
 
           {processors.length > 0 ? (
-            <ul className="cpu-grid" aria-label="Logical processors">
-              {processors.map((processor) => (
-                <ProcessorRow key={processor.ordinal} processor={processor} samples={samples} />
-              ))}
-            </ul>
+            <>
+              <ul className="cpu-grid" aria-label="Logical processors">
+                {visibleProcessors.map((processor) => (
+                  <ProcessorRow key={processor.ordinal} processor={processor} samples={samples} />
+                ))}
+              </ul>
+
+              {collapsed && (
+                <button
+                  type="button"
+                  className="button cpu-grid__expand"
+                  onClick={() => setShowAllProcessors(true)}
+                >
+                  {`Show all ${processors.length} processors`}
+                </button>
+              )}
+            </>
           ) : (
             <p className="card__note">
               No individual logical processor is exposed on this machine.

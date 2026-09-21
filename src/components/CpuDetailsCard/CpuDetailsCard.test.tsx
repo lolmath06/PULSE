@@ -8,7 +8,10 @@ import {
   CPU_USAGE_LOGICAL_KEY,
   cpuLogicalSourceId,
 } from '@/types/wellknown';
-import { CpuDetailsCard } from '@/components/CpuDetailsCard/CpuDetailsCard';
+import {
+  CpuDetailsCard,
+  PROCESSOR_DISPLAY_LIMIT,
+} from '@/components/CpuDetailsCard/CpuDetailsCard';
 import * as metricsService from '@/services/metrics';
 
 const AVAILABLE: Availability = { status: 'available' };
@@ -176,15 +179,37 @@ describe('CpuDetailsCard', () => {
     ]);
   });
 
-  it('stays correct on a machine with many logical processors', async () => {
+  it('shows every processor of an ordinary machine without an inner scrollbar', async () => {
+    // The regression this guards against: a 32-thread machine used to hide
+    // CPU 28-31 behind a scroll gesture inside the card.
+    mockBackend(32);
+
+    render(<CpuDetailsCard />);
+
+    const listed = await rows();
+    expect(listed).toHaveLength(32);
+    expect(row(listed, 31)).toHaveTextContent('CPU 31');
+    expect(screen.queryByRole('button', { name: /show all/i })).not.toBeInTheDocument();
+  });
+
+  it('collapses a very large machine behind an explicit control rather than clipping', async () => {
     mockBackend(128);
 
     render(<CpuDetailsCard />);
 
     const listed = await rows();
-    expect(listed).toHaveLength(128);
+    expect(listed).toHaveLength(PROCESSOR_DISPLAY_LIMIT);
     expect(row(listed, 0)).toHaveTextContent('CPU 0');
-    expect(row(listed, 127)).toHaveTextContent('CPU 127');
+
+    const expand = screen.getByRole('button', { name: 'Show all 128 processors' });
+    await userEvent.click(expand);
+
+    const expanded = await rows();
+    expect(expanded).toHaveLength(128);
+    expect(row(expanded, 127)).toHaveTextContent('CPU 127');
+    // Expanding is one-way: no control remains to collapse the list again,
+    // and nothing is hidden behind a scroll context.
+    expect(screen.queryByRole('button', { name: /show all/i })).not.toBeInTheDocument();
   });
 
   it('renders frequencies in gigahertz while the contract stays in hertz', async () => {
