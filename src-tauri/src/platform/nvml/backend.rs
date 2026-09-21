@@ -125,6 +125,43 @@ pub struct NvmlMemory {
     pub free: u64,
 }
 
+/// A fan speed NVML reported, in revolutions per minute.
+///
+/// A struct rather than a bare `u32` so the unit is impossible to mistake at a
+/// call site: NVML also reports a fan's *duty cycle* as a percentage, and the
+/// two are not convertible. A fan at 40 % duty may be stopped, spinning up, or
+/// sitting on a curve point; turning that into "40 RPM", or into any RPM at
+/// all, would be inventing a measurement.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct NvmlFanRpm(pub u32);
+
+impl NvmlFanRpm {
+    pub const fn get(self) -> u32 {
+        self.0
+    }
+}
+
+/// Which temperature sensor to read.
+///
+/// One variant, deliberately. `NVML_TEMPERATURE_GPU` is the only sensor the
+/// public NVML interface documents, and PULSE will not publish a hotspot or a
+/// memory temperature it cannot name a documented source for. See
+/// `docs/metrics/thermals.md`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum NvmlTemperatureSensor {
+    /// `NVML_TEMPERATURE_GPU` — the die's own sensor.
+    Gpu,
+}
+
+impl NvmlTemperatureSensor {
+    /// The `nvmlTemperatureSensors_t` value.
+    pub const fn as_raw(self) -> u32 {
+        match self {
+            NvmlTemperatureSensor::Gpu => 0,
+        }
+    }
+}
+
 /// Which clock domain to read.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum NvmlClock {
@@ -146,9 +183,9 @@ impl NvmlClock {
 
 /// What PULSE needs from NVIDIA, as a testable interface.
 ///
-/// Deliberately small: exactly the questions this phase asks, and no more.
-/// Temperature, power and encoder queries are not here because they are not in
-/// scope, not because they would be hard to add.
+/// Deliberately small: exactly the questions PULSE asks, and no more. Power,
+/// voltage and encoder queries are not here because they are not in scope, not
+/// because they would be hard to add.
 pub trait NvmlBackend: Send + Sync {
     /// How many NVIDIA devices the driver reports.
     fn device_count(&self) -> Result<u32, NvmlError>;
@@ -168,6 +205,23 @@ pub trait NvmlBackend: Send + Sync {
 
     /// A clock domain's current frequency, in megahertz.
     fn clock_mhz(&self, index: u32, clock: NvmlClock) -> Result<u32, NvmlError>;
+
+    /// A sensor's temperature, in whole degrees Celsius.
+    ///
+    /// Implementations prefer the current `nvmlDeviceGetTemperatureV` entry
+    /// point and fall back to the legacy `nvmlDeviceGetTemperature` when the
+    /// installed library does not export it — both are optional, and neither
+    /// being present costs this metric alone.
+    fn temperature_c(&self, index: u32, sensor: NvmlTemperatureSensor) -> Result<u32, NvmlError>;
+
+    /// The adapter's fan speed, in revolutions per minute.
+    ///
+    /// Returns [`NvmlError::Unavailable`] — which reads as `unsupported` — when
+    /// the library exports no RPM query, when the board has no fan sensor, and
+    /// when the board has **several independent fans**: PULSE's contract has one
+    /// `gpu.fan.speed` per GPU, and picking fan 0 out of three would silently
+    /// publish a partial answer as the whole one.
+    fn fan_rpm(&self, index: u32) -> Result<NvmlFanRpm, NvmlError>;
 }
 
 #[cfg(test)]
@@ -266,5 +320,19 @@ mod tests {
     fn the_clock_domain_values_match_nvml() {
         assert_eq!(NvmlClock::Graphics.as_raw(), 0);
         assert_eq!(NvmlClock::Memory.as_raw(), 1);
+    }
+
+    #[test]
+    fn the_temperature_sensor_value_matches_nvml() {
+        assert_eq!(NvmlTemperatureSensor::Gpu.as_raw(), 0);
+    }
+
+    #[test]
+    fn a_fan_speed_carries_its_unit_in_its_type() {
+        // The mistake this shape exists to prevent: a duty-cycle percentage
+        // reaching `gpu.fan.speed`, which is declared in RPM.
+        let speed = NvmlFanRpm(2187);
+
+        assert_eq!(speed.get(), 2187);
     }
 }

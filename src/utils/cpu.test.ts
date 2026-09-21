@@ -8,7 +8,17 @@ import {
   cpuLogicalOrdinal,
   cpuLogicalSourceId,
 } from '@/types/wellknown';
-import { discoverLogicalProcessors, logicalProcessorMetrics } from '@/utils/cpu';
+import {
+  CPU_TEMPERATURE_PACKAGE_KEY,
+  cpuPackageIndex,
+  cpuPackageSourceId,
+} from '@/types/wellknown';
+import {
+  cpuPackageMetrics,
+  discoverCpuPackages,
+  discoverLogicalProcessors,
+  logicalProcessorMetrics,
+} from '@/utils/cpu';
 
 function definition(key: string, sourceId: string, sourceLabel = sourceId): MetricDefinition {
   return {
@@ -182,5 +192,78 @@ describe('logicalProcessorMetrics', () => {
 
   it('asks for nothing when there is nothing to show', () => {
     expect(logicalProcessorMetrics([])).toEqual([]);
+  });
+});
+
+describe('cpuPackageSourceId / cpuPackageIndex', () => {
+  it('round-trips a package index through its source identifier', () => {
+    for (const index of [0, 1, 7, 15]) {
+      expect(cpuPackageIndex(cpuPackageSourceId(index))).toBe(index);
+    }
+  });
+
+  it('rejects anything that is not a package source', () => {
+    // A malformed identifier silently folded onto package 0 would attribute
+    // one socket's temperature to another.
+    for (const source of [
+      'cpu:system',
+      'cpu:logical-0',
+      'cpu:package-',
+      'cpu:package-01',
+      'cpu:package-1x',
+      'gpu:package-0',
+    ]) {
+      expect(cpuPackageIndex(source)).toBeNull();
+    }
+  });
+});
+
+describe('discoverCpuPackages', () => {
+  it('finds every package the catalog describes, in numeric order', () => {
+    const catalog = [10, 2, 0].map((index) =>
+      definition(CPU_TEMPERATURE_PACKAGE_KEY, cpuPackageSourceId(index), `Package ${index}`),
+    );
+
+    expect(discoverCpuPackages(catalog).map((found) => found.index)).toEqual([0, 2, 10]);
+  });
+
+  it('takes the label from the backend rather than inventing one', () => {
+    const catalog = [definition(CPU_TEMPERATURE_PACKAGE_KEY, cpuPackageSourceId(0), 'Package 0')];
+
+    expect(discoverCpuPackages(catalog)[0]?.label).toBe('Package 0');
+  });
+
+  it('lists a package whose temperature is unsupported', () => {
+    // The Windows case: the definition exists so a dashboard still resolves,
+    // and the row explains itself rather than disappearing.
+    const unsupported: MetricDefinition = {
+      ...definition(CPU_TEMPERATURE_PACKAGE_KEY, cpuPackageSourceId(0), 'Package 0'),
+      availability: { status: 'unsupported', reason: 'no supported source on this platform' },
+    };
+
+    expect(discoverCpuPackages([unsupported])).toHaveLength(1);
+  });
+
+  it('ignores every source that is not a package', () => {
+    const catalog = [
+      definition(CPU_USAGE_LOGICAL_KEY, cpuLogicalSourceId(0), 'CPU 0'),
+      definition(CPU_USAGE_TOTAL_KEY, 'cpu:system', 'System CPU'),
+      definition('memory.used', 'memory:system', 'System memory'),
+    ];
+
+    expect(discoverCpuPackages(catalog)).toHaveLength(0);
+  });
+
+  it('requests one temperature per package and nothing else', () => {
+    const packages = discoverCpuPackages(
+      [0, 1].map((index) =>
+        definition(CPU_TEMPERATURE_PACKAGE_KEY, cpuPackageSourceId(index), `Package ${index}`),
+      ),
+    );
+
+    expect(cpuPackageMetrics(packages)).toEqual([
+      { key: CPU_TEMPERATURE_PACKAGE_KEY, sourceId: 'cpu:package-0' },
+      { key: CPU_TEMPERATURE_PACKAGE_KEY, sourceId: 'cpu:package-1' },
+    ]);
   });
 });

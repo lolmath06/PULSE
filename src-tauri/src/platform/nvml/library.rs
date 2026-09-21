@@ -52,7 +52,10 @@ use std::ffi::{c_char, c_int, c_uint, c_void, CStr};
 
 use crate::metrics::wellknown::gpu::PciAddress;
 
-use super::backend::{NvmlBackend, NvmlClock, NvmlDeviceInfo, NvmlError, NvmlMemory};
+use super::backend::{
+    NvmlBackend, NvmlClock, NvmlDeviceInfo, NvmlError, NvmlFanRpm, NvmlMemory,
+    NvmlTemperatureSensor,
+};
 
 /// `nvmlDevice_t` — an opaque driver handle.
 type NvmlDevice = *mut c_void;
@@ -110,6 +113,37 @@ struct NvmlMemoryRaw {
     used: u64,
 }
 
+/// `nvmlTemperature_v1_t`, the argument of `nvmlDeviceGetTemperatureV`.
+///
+/// NVML's versioned structures carry their own `version` field, which the
+/// caller fills in with the struct's size and its version number so the library
+/// can tell which layout it was handed. A wrong value is answered with
+/// `NVML_ERROR_ARGUMENT_VERSION_MISMATCH` rather than a bad read — and PULSE
+/// falls back to the legacy entry point when that happens, so a future layout
+/// change costs nothing.
+#[repr(C)]
+#[derive(Clone, Copy, Default)]
+struct NvmlTemperatureRaw {
+    version: c_uint,
+    sensor_type: c_uint,
+    temperature: c_int,
+}
+
+/// `nvmlFanSpeedInfo_v1_t`, the argument of `nvmlDeviceGetFanSpeedRPM`.
+#[repr(C)]
+#[derive(Clone, Copy, Default)]
+struct NvmlFanSpeedInfoRaw {
+    version: c_uint,
+    fan: c_uint,
+    speed: c_uint,
+}
+
+/// `NVML_STRUCT_VERSION(name, ver)` — the size of the structure in its low bits
+/// and the version number in bits 24 and up.
+const fn struct_version(size: usize, version: u32) -> c_uint {
+    (size as c_uint) | (version << 24)
+}
+
 /// The NVML entry points PULSE binds.
 ///
 /// Only what this phase needs. Temperature, power, fan and encoder entry
@@ -118,6 +152,28 @@ struct NvmlMemoryRaw {
 /// thing that could fail at startup for no benefit.
 #[allow(non_snake_case)]
 struct NvmlSymbols {
+    /// `nvmlDeviceGetTemperatureV`, the current thermal entry point.
+    ///
+    /// **Optional.** It is recent; an older but perfectly serviceable driver
+    /// does not export it, and refusing to load NVML over a missing temperature
+    /// query would cost utilisation, VRAM and clocks as well.
+    nvmlDeviceGetTemperatureV:
+        Option<unsafe extern "C" fn(NvmlDevice, *mut NvmlTemperatureRaw) -> c_int>,
+    /// `nvmlDeviceGetTemperature`, the legacy entry point.
+    ///
+    /// Also optional, and used only when the current one is absent or refuses
+    /// the call. Deprecated upstream, which is precisely why it is the fallback
+    /// rather than the first choice.
+    nvmlDeviceGetTemperature:
+        Option<unsafe extern "C" fn(NvmlDevice, c_uint, *mut c_uint) -> c_int>,
+    /// `nvmlDeviceGetNumFans`. Optional; without it PULSE cannot know whether a
+    /// board has one fan or three, and will not guess.
+    nvmlDeviceGetNumFans: Option<unsafe extern "C" fn(NvmlDevice, *mut c_uint) -> c_int>,
+    /// `nvmlDeviceGetFanSpeedRPM`. Optional; a library exporting only the
+    /// percentage query leaves `gpu.fan.speed` unsupported rather than
+    /// republishing a duty cycle as a speed.
+    nvmlDeviceGetFanSpeedRPM:
+        Option<unsafe extern "C" fn(NvmlDevice, *mut NvmlFanSpeedInfoRaw) -> c_int>,
     nvmlInit_v2: unsafe extern "C" fn() -> c_int,
     nvmlShutdown: unsafe extern "C" fn() -> c_int,
     nvmlDeviceGetCount_v2: unsafe extern "C" fn(*mut c_uint) -> c_int,
@@ -358,6 +414,136 @@ impl NvmlBackend for NvmlLibrary {
 
         Ok(megahertz)
     }
+
+    /// Reads a sensor, preferring the current entry point over the legacy one.
+    ///
+    /// The order matters in both directions:
+    ///
+    /// - `nvmlDeviceGetTemperatureV` first, because `nvmlDeviceGetTemperature`
+    ///   is deprecated upstream and a future driver may drop it;
+    /// - the legacy call as a fallback on **any** failure of the first, not only
+    ///   on its absence, so a versioned-structure mismatch against a driver
+    ///   newer than these bindings degrades to a working read instead of an
+    ///   error.
+    ///
+    /// Neither present is `unsupported`, and costs this metric alone — every
+    /// other NVML figure keeps working.
+    fn temperature_c(&self, index: u32, sensor: NvmlTemperatureSensor) -> Result<u32, NvmlError> {
+        let device = self.device(index)?;
+
+        if let Some(current) = self.symbols.nvmlDeviceGetTemperatureV {
+            let mut reading = NvmlTemperatureRaw {
+                version: struct_version(core::mem::size_of::<NvmlTemperatureRaw>(), 1),
+                sensor_type: sensor.as_raw(),
+                temperature: 0,
+            };
+
+            // SAFETY: `reading` is a live, fully initialised struct of the
+            // documented layout, and its `version` field tells the library
+            // which layout it is; the callee writes only within it.
+            if unsafe { current(device, &mut reading) } == NVML_SUCCESS {
+                return plausible_celsius(reading.temperature);
+            }
+        }
+
+        let Some(legacy) = self.symbols.nvmlDeviceGetTemperature else {
+            return Err(NvmlError::Unavailable(
+                "the installed NVIDIA management library exports no temperature query, so \
+                 GPU temperature is unavailable"
+                    .to_string(),
+            ));
+        };
+
+        let mut celsius: c_uint = 0;
+
+        // SAFETY: `celsius` is a live local, and the sensor value is one of the
+        // documented `nvmlTemperatureSensors_t` constants.
+        let status = unsafe { legacy(device, sensor.as_raw(), &mut celsius) };
+        if status != NVML_SUCCESS {
+            return Err(NvmlError::from_status(status));
+        }
+
+        plausible_celsius(celsius as c_int)
+    }
+
+    /// Reads the fan speed in RPM, refusing every answer that is not one.
+    fn fan_rpm(&self, index: u32) -> Result<NvmlFanRpm, NvmlError> {
+        let device = self.device(index)?;
+
+        let (Some(count_fans), Some(read_rpm)) = (
+            self.symbols.nvmlDeviceGetNumFans,
+            self.symbols.nvmlDeviceGetFanSpeedRPM,
+        ) else {
+            return Err(NvmlError::Unavailable(
+                "the installed NVIDIA management library exports no fan speed query in \
+                 revolutions per minute, so fan speed is unavailable (a fan control \
+                 percentage is a duty cycle, not a speed, and is never published in its \
+                 place)"
+                    .to_string(),
+            ));
+        };
+
+        let mut fans: c_uint = 0;
+
+        // SAFETY: `fans` is a live local of the expected type.
+        let status = unsafe { count_fans(device, &mut fans) };
+        if status != NVML_SUCCESS {
+            return Err(NvmlError::from_status(status));
+        }
+
+        match fans {
+            0 => {
+                return Err(NvmlError::Unavailable(
+                    "this adapter reports no fan, so there is no speed to read (a passively \
+                     cooled board is a normal design, not a failure)"
+                        .to_string(),
+                ))
+            }
+            1 => {}
+            // PULSE's contract has one `gpu.fan.speed` per GPU. Publishing fan
+            // 0 of three as "the" fan speed would answer a different question
+            // from the one asked, and silently.
+            several => {
+                return Err(NvmlError::Unavailable(format!(
+                    "this adapter has {several} independently reported fans, and PULSE \
+                     publishes a single fan speed per GPU; reporting one of them as the \
+                     adapter's speed would be misleading"
+                )))
+            }
+        }
+
+        let mut info = NvmlFanSpeedInfoRaw {
+            version: struct_version(core::mem::size_of::<NvmlFanSpeedInfoRaw>(), 1),
+            fan: 0,
+            speed: 0,
+        };
+
+        // SAFETY: `info` is a live, fully initialised struct of the documented
+        // layout carrying its own version; the callee writes only within it.
+        let status = unsafe { read_rpm(device, &mut info) };
+        if status != NVML_SUCCESS {
+            return Err(NvmlError::from_status(status));
+        }
+
+        Ok(NvmlFanRpm(info.speed))
+    }
+}
+
+/// Refuses a temperature no silicon reports.
+///
+/// NVML returns an unsigned value through the legacy call and a signed one
+/// through the current structure. A negative reading is a failed read rather
+/// than a cold GPU, and a reading above the hundreds is a field that was never
+/// filled in. Both become an absent metric with a reason, never a published
+/// number.
+fn plausible_celsius(reading: c_int) -> Result<u32, NvmlError> {
+    if (0..=200).contains(&reading) {
+        return Ok(reading as u32);
+    }
+
+    Err(NvmlError::Unavailable(format!(
+        "the driver reported an implausible temperature of {reading} °C"
+    )))
 }
 
 // --- platform-specific module loading ------------------------------------
@@ -476,6 +662,17 @@ impl ModuleHandle {
         Err(NvmlError::Unavailable(
             "NVIDIA telemetry is not implemented on this platform".to_string(),
         ))
+    }
+
+    /// Resolves a symbol whose absence is an acceptable outcome.
+    ///
+    /// # Safety
+    ///
+    /// Same contract as [`ModuleHandle::symbol`]: `name` must be a
+    /// NUL-terminated byte string, and the caller reinterprets the address onto
+    /// the documented signature of that entry point.
+    fn optional_symbol(&self, name: &[u8]) -> Option<*mut c_void> {
+        self.symbol(name).ok()
     }
 }
 
@@ -632,10 +829,14 @@ impl Drop for ModuleHandle {
 impl NvmlSymbols {
     /// Resolves every entry point PULSE needs.
     ///
-    /// All of these are required: a library missing any of them is too old or
-    /// too unusual to serve this phase, and saying so once at load time beats
-    /// discovering it per metric. Optional symbols, if a later phase needs
-    /// any, would be resolved into an `Option` instead.
+    /// The first group is **required**: a library missing any of them is too old
+    /// or too unusual to serve PULSE at all, and saying so once at load time
+    /// beats discovering it per metric.
+    ///
+    /// The thermal group is **optional** and resolved into an `Option`. NVML is
+    /// itself an optional capability; a thermal entry point is an optional part
+    /// of an optional capability, and its absence must cost one metric rather
+    /// than every NVIDIA metric on the machine.
     ///
     /// # Safety
     ///
@@ -677,6 +878,35 @@ impl NvmlSymbols {
             // SAFETY: see the function docs.
             nvmlDeviceGetClockInfo: unsafe {
                 as_symbol(handle.symbol(b"nvmlDeviceGetClockInfo\0")?)
+            },
+            // The optional four. A missing symbol here is an absent capability,
+            // never a failure to load: `optional_symbol` yields `None` and the
+            // metric it serves is published as unsupported.
+            //
+            // SAFETY: see the function docs; each address, when present, comes
+            // from the loaded module and matches the declared signature.
+            nvmlDeviceGetTemperatureV: unsafe {
+                handle
+                    .optional_symbol(b"nvmlDeviceGetTemperatureV\0")
+                    .map(|address| as_symbol(address))
+            },
+            // SAFETY: see above.
+            nvmlDeviceGetTemperature: unsafe {
+                handle
+                    .optional_symbol(b"nvmlDeviceGetTemperature\0")
+                    .map(|address| as_symbol(address))
+            },
+            // SAFETY: see above.
+            nvmlDeviceGetNumFans: unsafe {
+                handle
+                    .optional_symbol(b"nvmlDeviceGetNumFans\0")
+                    .map(|address| as_symbol(address))
+            },
+            // SAFETY: see above.
+            nvmlDeviceGetFanSpeedRPM: unsafe {
+                handle
+                    .optional_symbol(b"nvmlDeviceGetFanSpeedRPM\0")
+                    .map(|address| as_symbol(address))
             },
         })
     }

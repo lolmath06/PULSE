@@ -517,7 +517,7 @@ mod tests {
     }
 
     #[test]
-    fn every_described_adapter_keeps_all_seven_definitions_available_to_the_catalog() {
+    fn every_described_adapter_keeps_its_definitions_available_to_the_catalog() {
         // Capabilities say "unavailable"; the metrics themselves still exist.
         use crate::metrics::model::ProviderId;
         use crate::metrics::wellknown::gpu;
@@ -525,6 +525,9 @@ mod tests {
         let described = describe_all(&[adapter(0, 0x8086, 0xA788, "Intel Iris Xe Graphics")]);
         let provider = ProviderId::new("windows.gpu").expect("valid");
 
-        assert_eq!(gpu::definitions(&provider, &described).len(), 1 + 7);
+        assert_eq!(
+            gpu::definitions(&provider, &described).len(),
+            1 + gpu::PER_GPU_KEYS.len()
+        );
     }
 }

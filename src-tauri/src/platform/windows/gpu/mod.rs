@@ -702,10 +702,30 @@ mod tests {
             .collect();
         let samples = samples_from(&requested, &devices, Some(&nvml));
 
+        let value_of = |key: &str| {
+            samples
+                .iter()
+                .find(|sample| sample.metric.key.as_str() == key)
+                .expect("requested")
+                .value
+                .clone()
+        };
+
+        for key in gpu::PERFORMANCE_KEYS {
+            assert!(
+                value_of(key).is_some(),
+                "a fully served card publishes {key}"
+            );
+        }
+
+        // The vendor library's own thermals, and only the ones it documents.
+        assert!(value_of(gpu::TEMPERATURE_CORE).is_some());
+        assert!(value_of(gpu::FAN_SPEED).is_some());
         assert!(
-            samples.iter().all(|sample| sample.value.is_some()),
-            "a fully served card publishes all seven"
+            value_of(gpu::TEMPERATURE_HOTSPOT).is_none(),
+            "a hotspot is a separate sensor and is never derived from the die temperature"
         );
+        assert!(value_of(gpu::TEMPERATURE_MEMORY).is_none());
     }
 
     #[test]
@@ -745,7 +765,7 @@ mod tests {
         assert_eq!(
             nvml.call_count("utilization") - before,
             1,
-            "seven metrics, one round trip"
+            "every metric, one round trip"
         );
     }
 
@@ -793,7 +813,7 @@ mod tests {
     }
 
     #[test]
-    fn the_catalog_keeps_all_seven_metrics_per_device_whatever_the_backend() {
+    fn the_catalog_keeps_every_metric_per_device_whatever_the_backend() {
         let provider = ProviderId::new(PROVIDER_ID).expect("valid");
         let devices = compose(
             vec![
@@ -807,6 +827,9 @@ mod tests {
             .map(|device| device.descriptor.clone())
             .collect();
 
-        assert_eq!(gpu::definitions(&provider, &descriptors).len(), 1 + 14);
+        assert_eq!(
+            gpu::definitions(&provider, &descriptors).len(),
+            1 + 2 * gpu::PER_GPU_KEYS.len()
+        );
     }
 }

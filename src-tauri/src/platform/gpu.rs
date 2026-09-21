@@ -70,7 +70,9 @@ use crate::metrics::wellknown::gpu::{
 };
 use crate::metrics::wellknown::units::megahertz_to_hertz;
 
-use super::nvml::{availability_for_nvml, NvmlBackend, NvmlClock, NvmlError};
+use super::nvml::{
+    availability_for_nvml, NvmlBackend, NvmlClock, NvmlError, NvmlTemperatureSensor,
+};
 
 /// One inventoried GPU, plus how to measure it.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -164,6 +166,28 @@ fn probe_capabilities(backend: &dyn NvmlBackend, index: u32) -> GpuCapabilities 
         Err(error) => availability_for_nvml(&error),
     };
 
+    let temperature_core = match backend.temperature_c(index, NvmlTemperatureSensor::Gpu) {
+        Ok(_) => Availability::Available,
+        Err(error) => availability_for_nvml(&error),
+    };
+
+    // The hotspot and memory sensors are real and distinct, and the public NVML
+    // interface PULSE binds exposes neither. Deriving them from the die
+    // temperature would produce two numbers that look right and measure
+    // nothing, so they are declared unsupported with the reason.
+    let undocumented = |what: &str| {
+        Availability::unsupported(format!(
+            "the NVIDIA management library exposes no documented {what} sensor for this \
+             device; it is a separate sensor and PULSE will not derive one from the GPU \
+             temperature"
+        ))
+    };
+
+    let fan_speed = match backend.fan_rpm(index) {
+        Ok(_) => Availability::Available,
+        Err(error) => availability_for_nvml(&error),
+    };
+
     GpuCapabilities {
         usage_core,
         memory_total: memory.clone(),
@@ -172,6 +196,10 @@ fn probe_capabilities(backend: &dyn NvmlBackend, index: u32) -> GpuCapabilities 
         memory_usage_percent: memory,
         frequency_core: clock(NvmlClock::Graphics),
         frequency_memory: clock(NvmlClock::Memory),
+        temperature_core,
+        temperature_hotspot: undocumented("hotspot"),
+        temperature_memory: undocumented("memory temperature"),
+        fan_speed,
     }
 }
 
@@ -200,6 +228,18 @@ pub fn nvml_telemetry(backend: &dyn NvmlBackend, index: u32) -> GpuTelemetry {
             .clock_mhz(index, NvmlClock::Memory)
             .ok()
             .and_then(|megahertz| megahertz_to_hertz(u64::from(megahertz))),
+        temperature_core_c: backend
+            .temperature_c(index, NvmlTemperatureSensor::Gpu)
+            .ok()
+            .map(f64::from),
+        // Left absent on purpose: see `probe_capabilities`. Copying the die
+        // temperature here would publish one sensor's reading under two names.
+        temperature_hotspot_c: None,
+        temperature_memory_c: None,
+        fan_rpm: backend
+            .fan_rpm(index)
+            .ok()
+            .map(|speed| f64::from(speed.get())),
     }
 }
 
@@ -342,7 +382,7 @@ pub mod testing {
 
     use super::*;
     use crate::metrics::wellknown::gpu::PciAddress;
-    use crate::platform::nvml::{NvmlDeviceInfo, NvmlMemory};
+    use crate::platform::nvml::{NvmlDeviceInfo, NvmlFanRpm, NvmlMemory};
 
     /// What the fake should answer for one device.
     #[derive(Debug, Clone)]
@@ -352,6 +392,11 @@ pub mod testing {
         pub memory: Result<NvmlMemory, NvmlError>,
         pub graphics_clock: Result<u32, NvmlError>,
         pub memory_clock: Result<u32, NvmlError>,
+        /// What `nvmlDeviceGetTemperatureV` — or its legacy fallback — answers.
+        pub temperature: Result<u32, NvmlError>,
+        /// What the RPM query answers. `Unavailable` covers all three ways a
+        /// real library refuses: no symbol, no fan, several fans.
+        pub fan_rpm: Result<NvmlFanRpm, NvmlError>,
     }
 
     impl FakeDevice {
@@ -373,6 +418,8 @@ pub mod testing {
                 }),
                 graphics_clock: Ok(2_100),
                 memory_clock: Ok(8_001),
+                temperature: Ok(64),
+                fan_rpm: Ok(NvmlFanRpm(2_187)),
             }
         }
 
@@ -398,6 +445,16 @@ pub mod testing {
 
         pub fn with_info(mut self, value: Result<NvmlDeviceInfo, NvmlError>) -> Self {
             self.info = value;
+            self
+        }
+
+        pub fn with_temperature(mut self, value: Result<u32, NvmlError>) -> Self {
+            self.temperature = value;
+            self
+        }
+
+        pub fn with_fan_rpm(mut self, value: Result<NvmlFanRpm, NvmlError>) -> Self {
+            self.fan_rpm = value;
             self
         }
     }
@@ -479,6 +536,20 @@ pub mod testing {
                 NvmlClock::Memory => device.memory_clock.clone(),
             }
         }
+
+        fn temperature_c(
+            &self,
+            index: u32,
+            _sensor: NvmlTemperatureSensor,
+        ) -> Result<u32, NvmlError> {
+            self.record("temperature_c");
+            self.device(index)?.temperature.clone()
+        }
+
+        fn fan_rpm(&self, index: u32) -> Result<NvmlFanRpm, NvmlError> {
+            self.record("fan_rpm");
+            self.device(index)?.fan_rpm.clone()
+        }
     }
 }
 
@@ -519,6 +590,212 @@ mod tests {
 
     // --- discovering NVML devices ----------------------------------------
 
+    // --- thermals ---------------------------------------------------------
+
+    #[test]
+    fn a_healthy_card_publishes_the_sensors_nvml_documents() {
+        let nvml = FakeNvml::with_devices(vec![FakeDevice::healthy(
+            "GPU-aaaa",
+            "NVIDIA GeForce RTX 4070",
+            None,
+        )]);
+
+        let telemetry = nvml_telemetry(&nvml, 0);
+
+        assert_eq!(telemetry.temperature_core_c, Some(64.0));
+        assert_eq!(telemetry.fan_rpm, Some(2_187.0));
+        // And not the two it does not.
+        assert_eq!(telemetry.temperature_hotspot_c, None);
+        assert_eq!(telemetry.temperature_memory_c, None);
+    }
+
+    #[test]
+    fn a_hotspot_is_never_filled_in_from_the_die_temperature() {
+        // They are different sensors on the same package, and the hotspot runs
+        // well above the die under load. A derived figure would look right and
+        // track nothing.
+        let nvml = FakeNvml::with_devices(vec![FakeDevice::healthy(
+            "GPU-aaaa",
+            "NVIDIA GeForce RTX 4070",
+            None,
+        )
+        .with_temperature(Ok(81))]);
+
+        let discovered = nvml_descriptors(&nvml).expect("no error");
+        let capabilities = &discovered[0].descriptor.capabilities;
+
+        assert!(capabilities.temperature_core.is_available());
+        assert_eq!(capabilities.temperature_hotspot.status_str(), "unsupported");
+        assert_eq!(capabilities.temperature_memory.status_str(), "unsupported");
+
+        let Availability::Unsupported { reason } = &capabilities.temperature_hotspot else {
+            panic!("expected an unsupported hotspot");
+        };
+        assert!(reason.contains("separate sensor"));
+    }
+
+    #[test]
+    fn a_library_without_any_temperature_entry_point_costs_only_that_metric() {
+        // Neither `nvmlDeviceGetTemperatureV` nor the legacy call: the real
+        // shape of an NVML too old, or too stripped, to answer.
+        let nvml = FakeNvml::with_devices(vec![FakeDevice::healthy(
+            "GPU-aaaa",
+            "NVIDIA GeForce RTX 4070",
+            None,
+        )
+        .with_temperature(Err(NvmlError::Unavailable(
+            "the installed NVIDIA management library exports no temperature query".into(),
+        )))]);
+
+        let discovered = nvml_descriptors(&nvml).expect("no error");
+        let capabilities = &discovered[0].descriptor.capabilities;
+
+        assert_eq!(capabilities.temperature_core.status_str(), "unsupported");
+        // Everything Phase 4 published keeps working.
+        assert!(capabilities.usage_core.is_available());
+        assert!(capabilities.memory_total.is_available());
+        assert!(capabilities.frequency_core.is_available());
+        assert!(capabilities.frequency_memory.is_available());
+
+        let telemetry = nvml_telemetry(&nvml, 0);
+        assert_eq!(telemetry.temperature_core_c, None);
+        assert_eq!(telemetry.usage_core, Some(17.0));
+    }
+
+    #[test]
+    fn each_thermal_failure_keeps_its_own_meaning() {
+        let cases = [
+            (NvmlError::NotSupported, "unsupported"),
+            (NvmlError::NoPermission, "permissionDenied"),
+            (NvmlError::GpuIsLost, "temporarilyUnavailable"),
+            (NvmlError::NotFound, "notDetected"),
+        ];
+
+        for (error, expected) in cases {
+            let nvml = FakeNvml::with_devices(vec![FakeDevice::healthy(
+                "GPU-aaaa",
+                "NVIDIA GeForce RTX 4070",
+                None,
+            )
+            .with_temperature(Err(error.clone()))]);
+
+            let discovered = nvml_descriptors(&nvml).expect("no error");
+
+            assert_eq!(
+                discovered[0]
+                    .descriptor
+                    .capabilities
+                    .temperature_core
+                    .status_str(),
+                expected,
+                "for {error:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn an_implausible_temperature_never_reaches_the_catalog_as_a_value() {
+        // The library layer refuses these before they get here; the shape is
+        // pinned anyway, because a `-1` republished as a temperature would be
+        // indistinguishable from a cold GPU on a chart.
+        let nvml = FakeNvml::with_devices(vec![FakeDevice::healthy(
+            "GPU-aaaa",
+            "NVIDIA GeForce RTX 4070",
+            None,
+        )
+        .with_temperature(Err(NvmlError::Unavailable(
+            "the driver reported an implausible temperature of -1 °C".into(),
+        )))]);
+
+        assert_eq!(nvml_telemetry(&nvml, 0).temperature_core_c, None);
+    }
+
+    #[test]
+    fn a_card_with_no_fan_sensor_says_so_instead_of_reporting_zero() {
+        // A passively cooled board is a design, not a stopped fan.
+        let nvml =
+            FakeNvml::with_devices(vec![FakeDevice::healthy("GPU-aaaa", "NVIDIA A40", None)
+                .with_fan_rpm(Err(NvmlError::Unavailable(
+                    "this adapter reports no fan".into(),
+                )))]);
+
+        let discovered = nvml_descriptors(&nvml).expect("no error");
+
+        assert_eq!(
+            discovered[0].descriptor.capabilities.fan_speed.status_str(),
+            "unsupported"
+        );
+        assert_eq!(nvml_telemetry(&nvml, 0).fan_rpm, None);
+    }
+
+    #[test]
+    fn a_stopped_fan_is_published_as_zero_rpm() {
+        // The other half of the same distinction: a card below its zero-RPM
+        // threshold really is turning at 0, and that is a measurement.
+        let nvml = FakeNvml::with_devices(vec![FakeDevice::healthy(
+            "GPU-aaaa",
+            "NVIDIA GeForce RTX 4070",
+            None,
+        )
+        .with_fan_rpm(Ok(crate::platform::nvml::NvmlFanRpm(0)))]);
+
+        let discovered = nvml_descriptors(&nvml).expect("no error");
+
+        assert!(discovered[0]
+            .descriptor
+            .capabilities
+            .fan_speed
+            .is_available());
+        assert_eq!(nvml_telemetry(&nvml, 0).fan_rpm, Some(0.0));
+    }
+
+    #[test]
+    fn a_multi_fan_board_publishes_no_single_fan_speed() {
+        // PULSE's contract has one fan per GPU. Reporting fan 0 of three as
+        // "the" fan speed would answer a different question, silently.
+        let nvml = FakeNvml::with_devices(vec![FakeDevice::healthy(
+            "GPU-aaaa",
+            "NVIDIA GeForce RTX 4090",
+            None,
+        )
+        .with_fan_rpm(Err(NvmlError::Unavailable(
+            "this adapter has 3 independently reported fans, and PULSE publishes a single \
+             fan speed per GPU"
+                .into(),
+        )))]);
+
+        let discovered = nvml_descriptors(&nvml).expect("no error");
+        let Availability::Unsupported { reason } = &discovered[0].descriptor.capabilities.fan_speed
+        else {
+            panic!("expected an unsupported fan speed");
+        };
+
+        assert!(reason.contains("single fan speed per GPU"));
+        assert_eq!(nvml_telemetry(&nvml, 0).fan_rpm, None);
+    }
+
+    #[test]
+    fn a_thermal_failure_never_costs_the_phase_four_metrics() {
+        // The rule this whole optional-symbol design exists for: an absent
+        // temperature is one metric, never the NVIDIA backend.
+        let nvml = FakeNvml::with_devices(vec![FakeDevice::healthy(
+            "GPU-aaaa",
+            "NVIDIA GeForce RTX 4070",
+            None,
+        )
+        .with_temperature(Err(NvmlError::NotSupported))
+        .with_fan_rpm(Err(NvmlError::NotSupported))]);
+
+        let telemetry = nvml_telemetry(&nvml, 0);
+
+        assert_eq!(telemetry.usage_core, Some(17.0));
+        assert!(telemetry.memory.is_some());
+        assert_eq!(telemetry.frequency_core_hz, Some(2_100_000_000));
+        assert_eq!(telemetry.frequency_memory_hz, Some(8_001_000_000));
+        assert_eq!(telemetry.temperature_core_c, None);
+        assert_eq!(telemetry.fan_rpm, None);
+    }
+
     #[test]
     fn no_devices_is_an_empty_inventory_not_a_failure() {
         let nvml = FakeNvml::with_devices(Vec::new());
@@ -554,7 +831,14 @@ mod tests {
         );
         assert_eq!(gpu.display_name, "NVIDIA GeForce RTX 4070");
         assert_eq!(gpu.backend, "nvml");
-        assert_eq!(gpu.capabilities.available_count(), 7);
+        // Everything the vendor library answers for. The hotspot and memory
+        // sensors are not among them: NVML exposes no documented source, and
+        // PULSE will not derive one from the die temperature.
+        assert_eq!(gpu.capabilities.available_count(), 9);
+        assert!(gpu.capabilities.temperature_core.is_available());
+        assert!(gpu.capabilities.fan_speed.is_available());
+        assert!(!gpu.capabilities.temperature_hotspot.is_available());
+        assert!(!gpu.capabilities.temperature_memory.is_available());
         assert!(matches!(gpu.identity, GpuIdentity::NvmlUuid(_)));
     }
 
@@ -638,7 +922,7 @@ mod tests {
             gpu.capabilities.frequency_memory.status_str(),
             "unsupported"
         );
-        assert_eq!(gpu.capabilities.available_count(), 6);
+        assert_eq!(gpu.capabilities.available_count(), 8);
         assert!(gpu.has_telemetry());
     }
 

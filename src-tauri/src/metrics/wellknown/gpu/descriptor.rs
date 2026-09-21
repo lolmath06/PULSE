@@ -316,6 +316,10 @@ pub struct GpuCapabilities {
     pub memory_usage_percent: Availability,
     pub frequency_core: Availability,
     pub frequency_memory: Availability,
+    pub temperature_core: Availability,
+    pub temperature_hotspot: Availability,
+    pub temperature_memory: Availability,
+    pub fan_speed: Availability,
 }
 
 impl GpuCapabilities {
@@ -329,6 +333,10 @@ impl GpuCapabilities {
             memory_usage_percent: Availability::Available,
             frequency_core: Availability::Available,
             frequency_memory: Availability::Available,
+            temperature_core: Availability::Available,
+            temperature_hotspot: Availability::Available,
+            temperature_memory: Availability::Available,
+            fan_speed: Availability::Available,
         }
     }
 
@@ -347,7 +355,24 @@ impl GpuCapabilities {
             memory_usage_percent: reason.clone(),
             frequency_core: reason.clone(),
             frequency_memory: reason.clone(),
+            temperature_core: reason.clone(),
+            temperature_hotspot: reason.clone(),
+            temperature_memory: reason.clone(),
+            fan_speed: reason.clone(),
         }
+    }
+
+    /// Applies one availability to all four thermal and cooling metrics.
+    ///
+    /// Used where a whole sensor interface is absent — no `hwmon` node under
+    /// the card, no thermal entry point in the vendor library — as opposed to
+    /// an interface that exists and offers only some of the four.
+    pub fn with_thermals(mut self, availability: &Availability) -> Self {
+        self.temperature_core = availability.clone();
+        self.temperature_hotspot = availability.clone();
+        self.temperature_memory = availability.clone();
+        self.fan_speed = availability.clone();
+        self
     }
 
     /// Applies one availability to all four memory metrics at once.
@@ -366,8 +391,35 @@ impl GpuCapabilities {
         self
     }
 
-    /// How many of the seven are currently sampleable.
+    /// How many of the eleven are currently sampleable.
     pub fn available_count(&self) -> usize {
+        self.all().iter().filter(|a| a.is_available()).count()
+    }
+
+    /// Every capability, in [`super::PER_GPU_KEYS`] order.
+    fn all(&self) -> [&Availability; 11] {
+        [
+            &self.usage_core,
+            &self.memory_total,
+            &self.memory_used,
+            &self.memory_free,
+            &self.memory_usage_percent,
+            &self.frequency_core,
+            &self.frequency_memory,
+            &self.temperature_core,
+            &self.temperature_hotspot,
+            &self.temperature_memory,
+            &self.fan_speed,
+        ]
+    }
+
+    /// Whether any performance figure can be read.
+    ///
+    /// Deliberately separate from [`GpuCapabilities::has_thermals`]: the two
+    /// halves fail independently, and an adapter with a working temperature
+    /// sensor and no counters is a common, explainable state rather than a
+    /// broken GPU.
+    pub fn has_performance(&self) -> bool {
         [
             &self.usage_core,
             &self.memory_total,
@@ -378,8 +430,19 @@ impl GpuCapabilities {
             &self.frequency_memory,
         ]
         .iter()
-        .filter(|availability| availability.is_available())
-        .count()
+        .any(|availability| availability.is_available())
+    }
+
+    /// Whether any temperature or fan figure can be read.
+    pub fn has_thermals(&self) -> bool {
+        [
+            &self.temperature_core,
+            &self.temperature_hotspot,
+            &self.temperature_memory,
+            &self.fan_speed,
+        ]
+        .iter()
+        .any(|availability| availability.is_available())
     }
 }
 
@@ -615,7 +678,13 @@ mod tests {
         assert!(capabilities.memory_total.is_available());
         assert!(!capabilities.frequency_core.is_available());
         assert!(!capabilities.frequency_memory.is_available());
-        assert_eq!(capabilities.available_count(), 5);
+        assert_eq!(
+            capabilities.available_count(),
+            super::super::PER_GPU_KEYS.len() - 2,
+            "two clocks lost, and nothing else"
+        );
+        assert!(capabilities.has_performance());
+        assert!(capabilities.has_thermals());
     }
 
     #[test]

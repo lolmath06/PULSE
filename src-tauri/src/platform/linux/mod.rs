@@ -6,7 +6,9 @@
 pub mod cpu;
 pub mod cpu_list;
 pub mod cpu_sysfs;
+pub mod cpu_thermal;
 pub mod gpu;
+pub mod hwmon;
 pub mod memory;
 mod os_release;
 

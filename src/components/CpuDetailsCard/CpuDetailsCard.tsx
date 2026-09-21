@@ -6,13 +6,14 @@ import {
   CPU_COUNT_PHYSICAL,
   CPU_FREQUENCY_CURRENT_KEY,
   CPU_FREQUENCY_MAX_KEY,
+  CPU_TEMPERATURE_PACKAGE_KEY,
   CPU_USAGE_LOGICAL_KEY,
 } from '@/types/wellknown';
 import { useCpuDetails } from '@/hooks/useCpuDetails';
 import type { LogicalProcessor } from '@/utils/cpu';
-import { numberOf, processorMetric, sampleOf } from '@/utils/cpu';
+import { numberOf, packageMetric, processorMetric, sampleOf } from '@/utils/cpu';
 import { describeAvailability } from '@/utils/metrics';
-import { formatHertz, formatPercent, formatSampleTime } from '@/utils/units';
+import { formatCelsius, formatHertz, formatPercent, formatSampleTime } from '@/utils/units';
 
 /**
  * Real per-processor CPU detail, sampled on demand.
@@ -49,14 +50,14 @@ import { formatHertz, formatPercent, formatSampleTime } from '@/utils/units';
 export const PROCESSOR_DISPLAY_LIMIT = 64;
 
 export function CpuDetailsCard() {
-  const { status, processors, samples, message, refreshing, refresh } = useCpuDetails();
+  const { status, processors, packages, samples, message, refreshing, refresh } = useCpuDetails();
   const [showAllProcessors, setShowAllProcessors] = useState(false);
 
   const count = (metric: typeof CPU_COUNT_LOGICAL) => numberOf(samples, metric);
 
   const logical = count(CPU_COUNT_LOGICAL);
   const physical = count(CPU_COUNT_PHYSICAL);
-  const packages = count(CPU_COUNT_PACKAGE);
+  const packageCount = count(CPU_COUNT_PACKAGE);
 
   const timestamp = samples.values().next().value?.timestamp;
 
@@ -93,9 +94,27 @@ export function CpuDetailsCard() {
             <div className="kv__row">
               <dt>Packages</dt>
               <dd>
-                <CountValue value={packages} sample={sampleOf(samples, CPU_COUNT_PACKAGE)} />
+                <CountValue value={packageCount} sample={sampleOf(samples, CPU_COUNT_PACKAGE)} />
               </dd>
             </div>
+
+            {packages.length === 1 ? (
+              <div className="kv__row">
+                <dt>Package temperature</dt>
+                <dd>
+                  <PackageTemperature index={packages[0]!.index} samples={samples} />
+                </dd>
+              </div>
+            ) : (
+              packages.map((cpuPackage) => (
+                <div className="kv__row" key={cpuPackage.sourceId}>
+                  <dt>{`${cpuPackage.label} temperature`}</dt>
+                  <dd>
+                    <PackageTemperature index={cpuPackage.index} samples={samples} />
+                  </dd>
+                </div>
+              ))
+            )}
           </dl>
 
           {processors.length > 0 ? (
@@ -139,7 +158,8 @@ export function CpuDetailsCard() {
 
           <p className="card__note">
             One physical core can carry several logical processors, so usage is reported per logical
-            processor. Frequencies are what the operating system reports.
+            processor. Frequencies are what the operating system reports. The package temperature is
+            the processor&apos;s own sensor, never an average of its cores.
           </p>
         </>
       )}
@@ -204,6 +224,29 @@ function ProcessorRow({
       </span>
     </li>
   );
+}
+
+/**
+ * One package's temperature, or the reason there is none.
+ *
+ * Whole degrees: a sensor is accurate to about a degree, and a decimal that
+ * changes on every refresh shows precision the hardware does not have.
+ */
+function PackageTemperature({
+  index,
+  samples,
+}: {
+  readonly index: number;
+  readonly samples: ReadonlyMap<string, MetricSample>;
+}) {
+  const metric = packageMetric(index, CPU_TEMPERATURE_PACKAGE_KEY);
+  const celsius = numberOf(samples, metric);
+
+  if (celsius === null) {
+    return <Unavailable sample={sampleOf(samples, metric)} short="—" />;
+  }
+
+  return <>{formatCelsius(celsius)}</>;
 }
 
 /** Renders a topology count, or the reason it is missing. */

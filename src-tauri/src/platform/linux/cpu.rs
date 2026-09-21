@@ -7,6 +7,15 @@
 //!
 //! # One read feeds every usage metric
 //!
+//! # Where the package temperature comes from
+//!
+//! `hwmon`, not `/proc`: `cpu.temperature.package` is mapped once at startup by
+//! [`super::cpu_thermal`], which decides *which channel of which driver* is the
+//! package's own current temperature — and, just as importantly, which channels
+//! are core sensors, control targets and thermal limits that must never be
+//! published as one. The mapped file is re-read at sample time; nothing
+//! rescans `/sys/class/hwmon`.
+//!
 //! `/proc/stat` contains the aggregate `cpu` line *and* a `cpuN` line for
 //! every online logical processor. A refresh therefore reads it **once** and
 //! derives `cpu.usage.total` and all N `cpu.usage.logical` values from that
@@ -27,10 +36,11 @@ use crate::metrics::providers::MetricProvider;
 use crate::metrics::wellknown::availability_for;
 use crate::metrics::wellknown::cpu::{
     self, CpuCounters, CpuSnapshot, CpuTopology, CpuUsage, CpuUsageReport, CpuUsageTracker,
-    LogicalId, LogicalProcessor,
+    LogicalId, LogicalProcessor, PackageId,
 };
 
-use super::cpu_sysfs;
+use super::cpu_thermal::CpuPackageSensors;
+use super::{cpu_sysfs, cpu_thermal, hwmon};
 
 const PROC_STAT: &str = "/proc/stat";
 
@@ -262,6 +272,11 @@ struct CpuInventory {
     topology: CpuTopology,
     /// Hardware maxima in hertz, for the processors that expose one.
     max_frequency_hz: BTreeMap<LogicalId, u64>,
+    /// Which `hwmon` file each package's temperature is read from.
+    ///
+    /// Resolved once: a driver does not change which channel means what while
+    /// the machine runs, even though the value changes constantly.
+    package_sensors: CpuPackageSensors,
 }
 
 impl CpuInventory {
@@ -272,7 +287,19 @@ impl CpuInventory {
     /// and frequency; no `cpufreq` still yields usage.
     fn discover() -> Self {
         let online = Self::online_processors();
-        let (physical_core_count, package_count) = cpu_sysfs::read_topology_counts(&online);
+        let locations = cpu_sysfs::read_processor_locations(&online);
+        let (physical_core_count, package_count) = cpu_sysfs::count_cores_and_packages(&locations);
+
+        // One walk of `/sys/class/hwmon`, at startup, shared by every package.
+        let package_sensors = cpu_thermal::map_sensors(&hwmon::discover(), package_count);
+
+        // Every package the kernel names gets a definition, whether or not a
+        // sensor was found for it: a dashboard built on a machine that reports
+        // one must still resolve on a machine that does not.
+        let packages: Vec<cpu::CpuPackage> = cpu_sysfs::package_ids(&locations)
+            .into_iter()
+            .map(|index| package_sensors.describe(PackageId::new(index)))
+            .collect();
 
         let mut max_frequency_hz = BTreeMap::new();
         let mut processors = Vec::with_capacity(online.len());
@@ -302,8 +329,10 @@ impl CpuInventory {
         }
 
         Self {
-            topology: CpuTopology::new(processors, physical_core_count, package_count),
+            topology: CpuTopology::new(processors, physical_core_count, package_count)
+                .with_packages(packages),
             max_frequency_hz,
+            package_sensors,
         }
     }
 
@@ -389,6 +418,46 @@ impl LinuxCpuProvider {
                     ),
                 },
             ),
+        }
+    }
+
+    /// Answers one `cpu.temperature.package` reference.
+    ///
+    /// The file was chosen at startup; this reads it and nothing else. A node
+    /// that has since vanished — a driver reload, a suspend — becomes a
+    /// temporary unavailability rather than a panic or a fabricated zero.
+    fn package_temperature_sample(&self, reference: &MetricRef) -> MetricSample {
+        let Some(id) = PackageId::from_source(&reference.source_id) else {
+            return MetricSample::unavailable(
+                reference.clone(),
+                Availability::not_registered(format!(
+                    "'{reference}' does not name a processor package"
+                )),
+            );
+        };
+
+        let Some(input) = self.inventory.package_sensors.sensor(id) else {
+            return MetricSample::unavailable(
+                reference.clone(),
+                self.inventory
+                    .topology
+                    .packages()
+                    .iter()
+                    .find(|package| package.id == id)
+                    .map(|package| package.temperature.clone())
+                    .unwrap_or_else(|| {
+                        Availability::not_registered(format!(
+                            "'{reference}' does not name a package this provider described"
+                        ))
+                    }),
+            );
+        };
+
+        match hwmon::read_temperature_celsius(input) {
+            Ok(celsius) => MetricSample::number(reference.clone(), celsius),
+            Err(error) => {
+                MetricSample::unavailable(reference.clone(), hwmon::availability_for_sensor(&error))
+            }
         }
     }
 
@@ -487,6 +556,9 @@ impl MetricProvider for LinuxCpuProvider {
                             ),
                         }
                     }
+
+                    // Re-read every time, from the file mapped at startup.
+                    (cpu::TEMPERATURE_PACKAGE, _) => self.package_temperature_sample(reference),
 
                     // Static: read once at startup, served from memory.
                     (cpu::FREQUENCY_MAX, Some(id)) => {
@@ -991,14 +1063,62 @@ cpu11 100 0 0 100
 
     #[cfg(target_os = "linux")]
     #[test]
-    fn the_provider_declares_four_plus_three_n_metrics_on_this_host() {
+    fn the_provider_declares_four_plus_three_n_plus_p_metrics_on_this_host() {
         let provider = LinuxCpuProvider::new();
         let definitions = provider.describe().expect("describe");
         let logical_count = provider.topology().logical_count() as usize;
+        let package_count = provider.topology().packages().len();
 
         assert!(logical_count > 0);
-        assert_eq!(definitions.len(), 4 + 3 * logical_count);
+        assert_eq!(definitions.len(), 4 + 3 * logical_count + package_count);
         assert_eq!(provider.id().as_str(), "linux.cpu");
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn every_package_this_host_names_is_addressable_and_answered() {
+        // Whether or not a sensor was found: the definition exists, and the
+        // sample either carries a plausible temperature or explains itself.
+        let provider = LinuxCpuProvider::new();
+
+        for package in provider.topology().packages() {
+            let reference = cpu::temperature_package_ref(package.id);
+            let samples = provider
+                .sample(std::slice::from_ref(&reference))
+                .expect("sample");
+
+            assert_eq!(samples.len(), 1);
+            match samples[0]
+                .value
+                .as_ref()
+                .and_then(|value| value.as_number())
+            {
+                Some(celsius) => {
+                    assert!(
+                        (-50.0..=150.0).contains(&celsius),
+                        "{reference} reported an implausible {celsius} °C"
+                    );
+                    assert!(samples[0].availability.is_available());
+                }
+                None => assert!(
+                    !samples[0].availability.is_available(),
+                    "{reference} carried no value and no explanation"
+                ),
+            }
+        }
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn the_package_numbering_is_the_topologys_own() {
+        // Not a second, thermal-only numbering: the packages PULSE can address
+        // never outnumber the packages it counted.
+        let provider = LinuxCpuProvider::new();
+        let topology = provider.topology();
+
+        if let Some(count) = topology.package_count {
+            assert_eq!(topology.packages().len(), count as usize);
+        }
     }
 
     #[cfg(target_os = "linux")]

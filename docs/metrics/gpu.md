@@ -48,6 +48,15 @@ Per GPU, on that GPU's own source:
 | `gpu.memory.usage.percent` | `percent` | gauge     | number     |
 | `gpu.frequency.core`       | `hertz`   | gauge     | number     |
 | `gpu.frequency.memory`     | `hertz`   | gauge     | number     |
+| `gpu.temperature.core`     | `celsius` | gauge     | number     |
+| `gpu.temperature.hotspot`  | `celsius` | gauge     | number     |
+| `gpu.temperature.memory`   | `celsius` | gauge     | number     |
+| `gpu.fan.speed`            | `rpm`     | gauge     | number     |
+
+The four thermal metrics arrived in Phase 5 and have their own document —
+[`thermals.md`](thermals.md) — because what makes them hard is not reading a
+number but refusing the wrong ones: a hotspot is not a die temperature, a fan
+control percentage is not an RPM, and a thermal limit is not a measurement.
 
 `gpu.count` and `gpu.memory.total` are **states, not gauges**, for the same
 reason `cpu.count.*` is: installed VRAM and the number of cards are hardware
@@ -58,17 +67,17 @@ produce "1.4 GPUs" or "7.3 GiB of installed VRAM" by construction.
 ## The catalog is sized by the machine
 
 ```text
-1 + 7G      for G discovered GPUs
+1 + 11G     for G discovered GPUs
 ```
 
 added to the CPU and memory families. On the development machine:
 
 ```text
-100   CPU    (8 + 3 × 32 logical processors)
+101   CPU    (8 + 3 × 32 logical processors + 1 package temperature)
   4   memory
-  8   GPU    (1 + 7 × 1)
+ 12   GPU    (1 + 11 × 1)
 ────
-112   total
+117   total
 ```
 
 Nothing hardcodes `G`. A headless server publishes just `gpu.count` reporting

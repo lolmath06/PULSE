@@ -152,7 +152,7 @@ describe('discoverGpus', () => {
 });
 
 describe('gpuMetrics', () => {
-  it('requests exactly seven references per device', () => {
+  it('requests exactly one reference per metric per device', () => {
     const devices = discoverGpus(
       catalogFor([
         { sourceId: 'gpu:nvidia-aaaa', label: 'A' },
@@ -161,8 +161,11 @@ describe('gpuMetrics', () => {
     );
     const metrics = gpuMetrics(devices);
 
-    expect(metrics).toHaveLength(14);
-    expect(new Set(metrics.map((metric) => `${metric.key}@${metric.sourceId}`)).size).toBe(14);
+    const expected = 2 * GPU_PER_DEVICE_KEYS.length;
+    expect(metrics).toHaveLength(expected);
+    expect(new Set(metrics.map((metric) => `${metric.key}@${metric.sourceId}`)).size).toBe(
+      expected,
+    );
   });
 
   it('requests only the devices it was given', () => {

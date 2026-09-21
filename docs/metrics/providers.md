@@ -178,18 +178,25 @@ cross-platform answer.
 
 | Provider         | Platform         | Data source                                                                                                  | Status          |
 | ---------------- | ---------------- | ------------------------------------------------------------------------------------------------------------ | --------------- |
-| `linux.cpu`      | Fedora           | `/proc/stat`, `/sys/devices/system/cpu`                                                                      | **Implemented** |
+| `linux.cpu`      | Fedora           | `/proc/stat`, `/sys/devices/system/cpu`, `hwmon` (package temperature)                                       | **Implemented** |
 | `linux.memory`   | Fedora           | `/proc/meminfo`                                                                                              | **Implemented** |
-| `linux.gpu`      | Fedora           | `/sys/class/drm`, NVML, `amdgpu` sysfs                                                                       | **Implemented** |
+| `linux.gpu`      | Fedora           | `/sys/class/drm`, NVML, `amdgpu` sysfs, the card's own `hwmon` node                                          | **Implemented** |
 | `windows.cpu`    | Windows          | `GetSystemTimes`, `NtQuerySystemInformationEx`, `CallNtPowerInformation`, `GetLogicalProcessorInformationEx` | **Implemented** |
 | `windows.memory` | Windows          | `GlobalMemoryStatusEx`                                                                                       | **Implemented** |
 | `windows.gpu`    | Windows          | DXGI, NVML                                                                                                   | **Implemented** |
-| `linux.hwmon`    | Fedora           | `/sys/class/hwmon`                                                                                           | Planned         |
 | `windows.pdh`    | Windows          | Performance counters                                                                                         | Planned         |
 | `storage.smart`  | both, privileged | SMART                                                                                                        | Later           |
 
-See [`cpu-memory.md`](cpu-memory.md), [`cpu-advanced.md`](cpu-advanced.md) and
-[`gpu.md`](gpu.md) for how the implemented ones work, and
+There is deliberately **no `linux.hwmon` provider**. A CPU's thermal sensors and
+its usage counters describe the same `cpu:*` sources, and a GPU's sensors and its
+counters describe the same device — two providers would claim the same
+`MetricRef` and the engine would reject one of them by design. `hwmon` is a
+_capability_ of the CPU and GPU providers, not an owner of metrics, which is the
+same reason NVML is not registered separately. See
+[`thermals.md`](thermals.md).
+
+See [`cpu-memory.md`](cpu-memory.md), [`cpu-advanced.md`](cpu-advanced.md),
+[`gpu.md`](gpu.md) and [`thermals.md`](thermals.md) for how the implemented ones work, and
 [`../platforms/fedora.md`](../platforms/fedora.md) /
 [`../platforms/windows.md`](../platforms/windows.md) for the data sources and
 their constraints.

@@ -39,9 +39,12 @@
 //!   metric semantics on PULSE's behalf, and bundle vendor headers PULSE has no
 //!   business shipping.
 //!
-//! Only the symbols this phase needs are resolved. Temperature, power, fan and
-//! encoder entry points exist in NVML and are deliberately **not** bound —
-//! they belong to the sensors phase.
+//! Only the symbols PULSE needs are resolved, and the thermal ones are resolved
+//! **optionally**: `nvmlDeviceGetTemperatureV` is recent, the legacy
+//! `nvmlDeviceGetTemperature` it replaces is not present forever either, and an
+//! NVML exporting neither must cost `gpu.temperature.core` and nothing else.
+//! Power, voltage and encoder entry points exist and remain deliberately
+//! unbound — they belong to later phases.
 //!
 //! # Testability
 //!
@@ -56,5 +59,6 @@ pub mod library;
 pub mod search;
 
 pub use backend::{
-    availability_for_nvml, NvmlBackend, NvmlClock, NvmlDeviceInfo, NvmlError, NvmlMemory,
+    availability_for_nvml, NvmlBackend, NvmlClock, NvmlDeviceInfo, NvmlError, NvmlFanRpm,
+    NvmlMemory, NvmlTemperatureSensor,
 };

@@ -28,6 +28,11 @@ Fedora Linux is a **first-class PULSE platform**, on equal footing with Windows.
 | `gpu.count` | `/sys/class/drm` | Hardware adapters, excluding virtual devices |
 | `gpu.usage.core` | NVML, or `gpu_busy_percent` | Per adapter; vendor-dependent |
 | `gpu.memory.*` | NVML, or `mem_info_vram_{total,used}` | Dedicated VRAM only |
+| `cpu.temperature.package` | `hwmon`: `coretemp` / `k10temp` / `peci_cputemp` | Millidegrees → Celsius; package channel only, never a core average |
+| `gpu.temperature.core` | NVML, or the card's `hwmon` node | `amdgpu` `edge`, or a single unlabelled channel |
+| `gpu.temperature.hotspot` | `amdgpu` `junction` | A separate sensor, never derived from the die temperature |
+| `gpu.temperature.memory` | `amdgpu` `mem` | Likewise its own sensor |
+| `gpu.fan.speed` | NVML RPM query, or `fanN_input` | RPM only; a control percentage is never republished as a speed |
 | `gpu.frequency.*` | NVML, or `pp_dpm_{sclk,mclk}` | MHz → Hz in the platform layer |
 
 The per-processor metrics exist once per logical processor and the GPU metrics
@@ -86,13 +91,18 @@ Telemetry comes from whichever backend serves the card: **NVML** for NVIDIA
 (loaded at runtime via `dlopen("libnvidia-ml.so.1")`, absent without the
 proprietary driver), or the **`amdgpu`** driver's sysfs attributes. A card
 served by neither — an NVIDIA GPU running `nouveau`, for instance — is still
-inventoried, named and identified, with all seven metrics honestly
+inventoried, named and identified, with its performance metrics honestly
 `unsupported`. It never disappears.
+
+A card served by no telemetry backend still reports its temperature when it has
+a sensor: the performance and thermal halves are independent, and the interface
+says so rather than describing the whole GPU as unavailable.
 
 Full formulas and edge cases:
 [`../metrics/cpu-memory.md`](../metrics/cpu-memory.md),
-[`../metrics/cpu-advanced.md`](../metrics/cpu-advanced.md) and
-[`../metrics/gpu.md`](../metrics/gpu.md).
+[`../metrics/cpu-advanced.md`](../metrics/cpu-advanced.md),
+[`../metrics/gpu.md`](../metrics/gpu.md) and
+[`../metrics/thermals.md`](../metrics/thermals.md).
 
 ## What Phase 0 already does on Fedora
 
@@ -151,29 +161,47 @@ None of this is implemented yet; it is the map for later phases.
 
 ### Temperatures and fans — `hwmon`
 
+**Implemented for the CPU package and for GPUs** — see
+[`../metrics/thermals.md`](../metrics/thermals.md) for the full mapping, the
+millidegree conversion and the readings PULSE refuses.
+
 `/sys/class/hwmon/hwmon*/` is the interface, with `name`, `tempN_input`
-(millidegrees Celsius), `tempN_label`, `fanN_input` (RPM).
+(millidegrees Celsius), `tempN_label`, `fanN_input` (RPM). PULSE reads only
+`*_input` channels: `tempN_crit`, `tempN_max` and the `pwm*` control files are
+never read, and nothing is ever written.
 
-This is the messiest area on Linux and deserves care:
+What is implemented, and the rules it follows:
 
-- Sensor naming is **not** stable across kernel versions, hardware, or even
-  reboots. Never key configuration on `hwmonN`; key it on the `name` attribute
-  plus the label.
-- Which sensors exist depends on loaded kernel modules. `coretemp` (Intel) and
-  `k10temp` (AMD) are usually present; motherboard sensors typically need
-  `nct6775` or similar, often requiring `acpi_enforce_resources=lax`, which PULSE
-  must **never** ask users to set silently.
-- `lm_sensors` may need `sensors-detect` to have been run.
-- A missing sensor is a normal state, not an error. The UI must say
-  "not available on this system" rather than showing zero.
+- Sensor numbering is **not** stable across kernel versions, hardware or
+  reboots, so nothing is keyed on `hwmonN`. Identity comes from the driver
+  `name`, the `device` symlink's target and the channel label.
+- `coretemp`'s `Package id N` maps to `cpu:package-N` using the kernel's own
+  package numbering. `Core N` is never used, and never averaged into a package
+  temperature.
+- `k10temp` publishes only from `Tdie`; `Tctl` is an offset control value and
+  `Tccd*` are chiplet sensors.
+- `peci_cputemp` publishes only from `Die`; `Tjmax`, `Tthrottle`, `Tcontrol` and
+  `DTS` are limits and offsets, not the current temperature.
+- A GPU's sensors are found under the card's own `<device>/hwmon/`, which is what
+  ties them to that card rather than to a numbering coincidence.
+- A missing sensor is a normal state, not an error: the metric keeps its
+  definition and says why it has no value, and never shows a zero.
+
+**Still not implemented**: motherboard and chipset sensors, which typically need
+`nct6775` or similar and often `acpi_enforce_resources=lax` — something PULSE
+must never ask a user to set silently. `lm_sensors` and `sensors-detect` are not
+involved at any point; PULSE reads `sysfs` directly.
 
 ### GPU
 
 - **AMD** — `/sys/class/drm/card*/device/` exposes `gpu_busy_percent`,
-  `mem_info_vram_used`, and hwmon entries for temperature and power. No root
-  needed. The best-supported case on Fedora.
+  `mem_info_vram_used`, and hwmon entries for temperature and fan speed. No root
+  needed. The best-supported case on Fedora. Power draw remains unread.
 - **NVIDIA** — NVML via the proprietary driver. Fedora users may be on nouveau,
-  which exposes far less. PULSE must detect and degrade rather than assume.
+  which exposes far less: on the development machine's RTX 4070, `nouveau`
+  publishes **no** hwmon node at all, so the card is correctly inventoried with
+  every performance and thermal metric honestly unsupported. PULSE detects and
+  degrades rather than assuming.
 - **Intel** — `/sys/class/drm/card*/`, plus `intel_gpu_top`'s interfaces, which
   may require `CAP_PERFMON`.
 

@@ -3,6 +3,7 @@ import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { Availability, MetricDefinition, MetricRef, MetricSample } from '@/types/metrics';
 import {
+  GPU_FAN_SPEED_KEY,
   GPU_FREQUENCY_CORE_KEY,
   GPU_FREQUENCY_MEMORY_KEY,
   GPU_MEMORY_FREE_KEY,
@@ -10,6 +11,9 @@ import {
   GPU_MEMORY_USAGE_PERCENT_KEY,
   GPU_MEMORY_USED_KEY,
   GPU_PER_DEVICE_KEYS,
+  GPU_TEMPERATURE_CORE_KEY,
+  GPU_TEMPERATURE_HOTSPOT_KEY,
+  GPU_TEMPERATURE_MEMORY_KEY,
   GPU_USAGE_CORE_KEY,
 } from '@/types/wellknown';
 import { GpuDetailsCard } from '@/components/GpuDetailsCard/GpuDetailsCard';
@@ -32,9 +36,13 @@ function definition(key: string, sourceId: string, sourceLabel: string): MetricD
     category: 'gpu',
     unit: key.startsWith('gpu.frequency')
       ? 'hertz'
-      : key.startsWith('gpu.memory.usage') || key === GPU_USAGE_CORE_KEY
-        ? 'percent'
-        : 'bytes',
+      : key.startsWith('gpu.temperature')
+        ? 'celsius'
+        : key === GPU_FAN_SPEED_KEY
+          ? 'rpm'
+          : key.startsWith('gpu.memory.usage') || key === GPU_USAGE_CORE_KEY
+            ? 'percent'
+            : 'bytes',
     valueType: 'number',
     kind: 'gauge',
     availability: AVAILABLE,
@@ -92,6 +100,14 @@ function healthy(metric: MetricRef, gpuCount: number): number | Availability {
       return 2_100_000_000;
     case GPU_FREQUENCY_MEMORY_KEY:
       return 8_001_000_000;
+    case GPU_TEMPERATURE_CORE_KEY:
+      return 64;
+    case GPU_TEMPERATURE_HOTSPOT_KEY:
+      return 78.5;
+    case GPU_TEMPERATURE_MEMORY_KEY:
+      return 70;
+    case GPU_FAN_SPEED_KEY:
+      return 2187;
     default:
       return { status: 'notRegistered', reason: 'unexpected' };
   }
@@ -330,8 +346,8 @@ describe('GpuDetailsCard', () => {
     await entries();
 
     const requested = sample.mock.calls[0]?.[0] ?? [];
-    // One count plus seven metrics for the single GPU.
-    expect(requested).toHaveLength(8);
+    // One count plus every per-device metric for the single GPU.
+    expect(requested).toHaveLength(1 + GPU_PER_DEVICE_KEYS.length);
     expect(requested.some((metric) => metric.key.startsWith('cpu.'))).toBe(false);
   });
 
@@ -406,5 +422,110 @@ describe('GpuDetailsCard', () => {
     await entries();
 
     expect(card).toHaveTextContent(/dedicated video memory/);
+  });
+});
+
+describe('GpuDetailsCard thermals', () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.useRealTimers();
+  });
+
+  it('shows temperatures and fan speed in their own units', async () => {
+    mockBackend([NVIDIA]);
+
+    render(<GpuDetailsCard />);
+
+    const only = entry(await entries(), 0);
+    expect(only).toHaveTextContent('64 °C');
+    expect(only).toHaveTextContent('79 °C');
+    expect(only).toHaveTextContent('70 °C');
+    // Grouped by the viewer's locale, whatever separator that uses.
+    expect(only).toHaveTextContent(/2.?187\s?RPM/);
+  });
+
+  it('keeps the hotspot and memory sensors distinct from the GPU temperature', async () => {
+    // Three different sensors. A card that reports one and not the others must
+    // show one and not the others.
+    mockBackend([NVIDIA], (metric) =>
+      metric.key === GPU_TEMPERATURE_HOTSPOT_KEY || metric.key === GPU_TEMPERATURE_MEMORY_KEY
+        ? { status: 'unsupported', reason: 'this driver exposes no such sensor' }
+        : healthy(metric, 1),
+    );
+
+    render(<GpuDetailsCard />);
+
+    const only = entry(await entries(), 0);
+    const rowFor = (label: string) => within(only).getByText(label).parentElement;
+
+    expect(rowFor('Temperature')).toHaveTextContent('64 °C');
+    expect(rowFor('Hotspot')).toHaveTextContent('—');
+    expect(rowFor('Memory temperature')).toHaveTextContent('—');
+    // And never the die temperature repeated under another name.
+    expect(rowFor('Hotspot')).not.toHaveTextContent('64');
+  });
+
+  it('shows a stopped fan as 0 RPM and an unmeasured one as a dash', async () => {
+    // The distinction the whole contract rests on. A GPU below its zero-RPM
+    // threshold really is turning at 0.
+    mockBackend([NVIDIA], (metric) => (metric.key === GPU_FAN_SPEED_KEY ? 0 : healthy(metric, 1)));
+
+    render(<GpuDetailsCard />);
+
+    const stopped = entry(await entries(), 0);
+    expect(within(stopped).getByText('Fan').parentElement).toHaveTextContent('0 RPM');
+
+    vi.restoreAllMocks();
+    mockBackend([NVIDIA], (metric) =>
+      metric.key === GPU_FAN_SPEED_KEY
+        ? { status: 'unsupported', reason: 'the driver reports only a fan control percentage' }
+        : healthy(metric, 1),
+    );
+
+    const { unmount } = render(<GpuDetailsCard />);
+    const cards = await screen.findAllByLabelText('GPU details');
+    const second = within(cards[cards.length - 1]!).getByText('Fan').parentElement;
+
+    expect(second).toHaveTextContent('—');
+    expect(second).not.toHaveTextContent('0 RPM');
+    expect(within(second!).getByTitle(/fan control percentage/)).toBeInTheDocument();
+    unmount();
+  });
+
+  it('says thermals still work when only the performance half is missing', async () => {
+    // The `nouveau` shape Phase 5 exists to describe honestly: no counters, a
+    // real temperature.
+    mockBackend([NVIDIA], (metric) => {
+      if (metric.key === 'gpu.count') return 1;
+      if (metric.key === GPU_TEMPERATURE_CORE_KEY) return 46;
+      return { status: 'unsupported', reason: 'NVIDIA telemetry is unavailable with nouveau' };
+    });
+
+    render(<GpuDetailsCard />);
+
+    const only = entry(await entries(), 0);
+    const notice = within(only).getByRole('note');
+
+    expect(notice).toHaveTextContent('Performance telemetry unavailable');
+    expect(notice).toHaveTextContent('Thermal sensors remain available.');
+    expect(only).toHaveTextContent('46 °C');
+  });
+
+  it('never claims thermals remain available when nothing does', async () => {
+    mockBackend([NVIDIA], (metric) =>
+      metric.key === 'gpu.count'
+        ? 1
+        : { status: 'unsupported', reason: 'this driver exposes nothing' },
+    );
+
+    render(<GpuDetailsCard />);
+
+    const notice = within(entry(await entries(), 0)).getByRole('note');
+    expect(notice).toHaveTextContent('Performance telemetry unavailable');
+    expect(notice).not.toHaveTextContent('Thermal sensors remain available');
   });
 });

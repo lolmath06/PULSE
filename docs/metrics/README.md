@@ -7,19 +7,22 @@
 > memory, on both Fedora and Windows. Phase 3 made the CPU support real —
 > per-logical-processor usage and frequency, plus topology. Phase 4 added the
 > first GPU support: inventory, stable identity, and seven metrics per device
-> across NVIDIA, AMD and Intel. The catalog is now **sized by the machine** —
-> `9 + 3N + 7G` for `N` logical processors and `G` GPUs — and there are three
-> providers per platform.
+> across NVIDIA, AMD and Intel, and Phase 5 added temperatures and fan speeds
+> to both families. The catalog is **sized by the machine** — `9 + 3N + P + 11G`
+> for `N` logical processors, `P` addressable CPU packages and `G` GPUs — and
+> there are three providers per platform.
 
 ## Documents
 
-| Document                             | Contents                                                                                |
-| ------------------------------------ | --------------------------------------------------------------------------------------- |
-| [`model.md`](model.md)               | Definition, sample, value, unit, kind, category, availability, errors, contract version |
-| [`identifiers.md`](identifiers.md)   | `MetricKey`, `SourceId`, stability rules, why labels are not identifiers                |
-| [`providers.md`](providers.md)       | The provider contract, registration, collisions, isolation                              |
-| [`cpu-memory.md`](cpu-memory.md)     | Phase 2: aggregate CPU usage and physical memory                                        |
-| [`cpu-advanced.md`](cpu-advanced.md) | Phase 3: per-logical-processor usage and frequency, CPU topology, processor groups      |
+| Document                             | Contents                                                                                 |
+| ------------------------------------ | ---------------------------------------------------------------------------------------- |
+| [`model.md`](model.md)               | Definition, sample, value, unit, kind, category, availability, errors, contract version  |
+| [`identifiers.md`](identifiers.md)   | `MetricKey`, `SourceId`, stability rules, why labels are not identifiers                 |
+| [`providers.md`](providers.md)       | The provider contract, registration, collisions, isolation                               |
+| [`cpu-memory.md`](cpu-memory.md)     | Phase 2: aggregate CPU usage and physical memory                                         |
+| [`cpu-advanced.md`](cpu-advanced.md) | Phase 3: per-logical-processor usage and frequency, CPU topology, processor groups       |
+| [`gpu.md`](gpu.md)                   | Phase 4: GPU inventory, identity, NVML, DXGI, AMD sysfs                                  |
+| [`thermals.md`](thermals.md)         | Phase 5: temperatures and fan speeds, `hwmon`, and the readings PULSE refuses to publish |
 
 ## Position in the architecture
 

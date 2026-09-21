@@ -60,6 +60,18 @@ Per logical processor, on `cpu:logical-N`:
 | `cpu.frequency.current` | `hertz`   | gauge | number     |
 | `cpu.frequency.max`     | `hertz`   | gauge | number     |
 
+Per processor package, on `cpu:package-N` (Phase 5):
+
+| Metric                    | Unit      | Kind  | Value type |
+| ------------------------- | --------- | ----- | ---------- |
+| `cpu.temperature.package` | `celsius` | gauge | number     |
+
+`cpu.temperature.package` is the package's own sensor — never an average of the
+per-core channels beside it, and never one of the thermal limits. It is
+implemented on Fedora through `hwmon` and `unsupported` on Windows, which has no
+interface for it that does not require a kernel-mode driver. See
+[`thermals.md`](thermals.md).
+
 ### Why the counts are `state` and not `gauge`
 
 A core count does not rise and fall, and averaging one over time is meaningless:
@@ -545,19 +557,21 @@ maxima are static for the life of the process and are read once at construction.
 Three calls on a typical machine. Each API is called only when a metric it
 serves was actually requested.
 
-## Provider count stays at two
+## One CPU provider, whatever it reads
 
 One CPU provider owns **every** CPU metric on the machine; there is no provider
-per processor. Thirty-two providers would each re-read `/proc/stat`, each appear
-in the engine status, and share nothing.
+per processor, and none per data source. Thirty-two providers would each re-read
+`/proc/stat`, each appear in the engine status, and share nothing — and a
+separate `linux.hwmon` provider would claim the same `cpu:package-N` sources the
+CPU provider already owns, which the engine rejects by design.
 
 ```text
-Fedora:   linux.cpu     linux.memory
-Windows:  windows.cpu   windows.memory
+Fedora:   linux.cpu     linux.memory     linux.gpu
+Windows:  windows.cpu   windows.memory   windows.gpu
 ```
 
-`Providers = 2` on both platforms, whatever the CPU. The **metric count** is
-what grows.
+`Providers = 3` on both platforms since Phase 4, whatever the hardware. The
+**metric count** is what grows.
 
 ## Frontend
 

@@ -17,7 +17,9 @@
 //! and would prove nothing.
 
 use crate::metrics::model::{Availability, MetricDefinition, ProviderId};
-use crate::metrics::wellknown::cpu::{self, CpuTopology, LogicalId, LogicalProcessor};
+use crate::metrics::wellknown::cpu::{
+    self, CpuPackage, CpuTopology, LogicalId, LogicalProcessor, PackageId,
+};
 use crate::metrics::wellknown::gpu::{
     self, GpuCapabilities, GpuDescriptor, GpuIdentity, GpuVendor, PciAddress,
 };
@@ -52,6 +54,7 @@ fn synthetic_topology() -> CpuTopology {
         Some(2),
         Some(1),
     )
+    .with_packages(vec![CpuPackage::available(PackageId::new(0))])
 }
 
 /// Every metric reference PULSE ships for [`synthetic_topology`], in catalog
@@ -69,6 +72,8 @@ fn expected_references() -> Vec<String> {
     for ordinal in 0..4 {
         references.push(format!("cpu.frequency.max@cpu:logical-{ordinal}"));
     }
+    references.push("cpu.temperature.package@cpu:package-0".to_string());
+
     for ordinal in 0..4 {
         references.push(format!("cpu.usage.logical@cpu:logical-{ordinal}"));
     }
@@ -128,16 +133,25 @@ fn both_platforms_declare_the_same_gpu_references_for_one_card() {
             .collect()
     };
 
-    let expected = vec![
-        "gpu.count@gpu:system".to_string(),
-        "gpu.frequency.core@gpu:nvidia-11111111-2222-3333-4444-555555555555".to_string(),
-        "gpu.frequency.memory@gpu:nvidia-11111111-2222-3333-4444-555555555555".to_string(),
-        "gpu.memory.free@gpu:nvidia-11111111-2222-3333-4444-555555555555".to_string(),
-        "gpu.memory.total@gpu:nvidia-11111111-2222-3333-4444-555555555555".to_string(),
-        "gpu.memory.usage.percent@gpu:nvidia-11111111-2222-3333-4444-555555555555".to_string(),
-        "gpu.memory.used@gpu:nvidia-11111111-2222-3333-4444-555555555555".to_string(),
-        "gpu.usage.core@gpu:nvidia-11111111-2222-3333-4444-555555555555".to_string(),
-    ];
+    const CARD: &str = "gpu:nvidia-11111111-2222-3333-4444-555555555555";
+
+    let mut expected = vec!["gpu.count@gpu:system".to_string()];
+    expected.extend(
+        [
+            "gpu.fan.speed",
+            "gpu.frequency.core",
+            "gpu.frequency.memory",
+            "gpu.memory.free",
+            "gpu.memory.total",
+            "gpu.memory.usage.percent",
+            "gpu.memory.used",
+            "gpu.temperature.core",
+            "gpu.temperature.hotspot",
+            "gpu.temperature.memory",
+            "gpu.usage.core",
+        ]
+        .map(|key| format!("{key}@{CARD}")),
+    );
 
     assert_eq!(references(linux_gpu_declarations()), expected);
     assert_eq!(references(windows_gpu_declarations()), expected);
@@ -226,7 +240,7 @@ fn the_gpu_catalog_size_follows_the_machine_identically_on_both_platforms() {
             .to_vec();
 
         assert_eq!(sizes[0], sizes[1]);
-        assert_eq!(sizes[0], 1 + 7 * count);
+        assert_eq!(sizes[0], 1 + gpu::PER_GPU_KEYS.len() * count);
     }
 }
 
@@ -245,13 +259,17 @@ fn an_unsupported_gpu_metric_keeps_its_definition_on_both_platforms() {
         let provider = ProviderId::new(id).expect("valid");
         let definitions = gpu::definitions(&provider, &degraded);
 
-        assert_eq!(definitions.len(), 8, "{id} dropped a metric");
+        assert_eq!(
+            definitions.len(),
+            1 + gpu::PER_GPU_KEYS.len(),
+            "{id} dropped a metric"
+        );
         assert_eq!(
             definitions
                 .iter()
                 .filter(|definition| !definition.availability.is_available())
                 .count(),
-            7
+            gpu::PER_GPU_KEYS.len()
         );
     }
 }
@@ -320,8 +338,8 @@ fn windows_declarations() -> Vec<MetricDefinition> {
 
 #[test]
 fn both_platforms_declare_the_same_number_of_metrics_for_one_topology() {
-    // 4 memory + 4 CPU system + 3 per logical processor.
-    let expected = 4 + 4 + 3 * 4;
+    // 4 memory + 4 CPU system + 3 per logical processor + 1 per package.
+    let expected = 4 + 4 + 3 * 4 + 1;
 
     assert_eq!(linux_declarations().len(), expected);
     assert_eq!(windows_declarations().len(), expected);
@@ -399,7 +417,11 @@ fn availability_is_the_only_field_a_platform_may_decide_for_itself() {
                 .collect(),
             Some(2),
             Some(1),
-        ),
+        )
+        .with_packages(vec![CpuPackage::unavailable(
+            PackageId::new(0),
+            Availability::unsupported("no package temperature sensor"),
+        )]),
     );
 
     assert_eq!(permissive.len(), restricted.len());
@@ -417,8 +439,8 @@ fn availability_is_the_only_field_a_platform_may_decide_for_itself() {
         .filter(|definition| !definition.availability.is_available())
         .count();
     assert_eq!(
-        unavailable, 8,
-        "both frequency metrics of all four processors"
+        unavailable, 9,
+        "both frequency metrics of all four processors, plus the package temperature"
     );
 }
 
@@ -535,11 +557,14 @@ fn the_logical_sources_are_stable_identifiers() {
             "{source} should use a canonical source kind"
         );
 
-        // Either the machine-wide instance, or a numbered logical processor —
-        // never anything derived from a product name or a bus address.
+        // Either the machine-wide instance, a numbered logical processor or a
+        // numbered package — never anything derived from a product name or a
+        // bus address.
         let instance = source.instance();
         assert!(
-            instance == "system" || LogicalId::from_source(source).is_some(),
+            instance == "system"
+                || LogicalId::from_source(source).is_some()
+                || PackageId::from_source(source).is_some(),
             "unexpected source instance '{instance}'"
         );
     }
@@ -576,6 +601,173 @@ fn every_logical_processor_declares_all_three_of_its_metrics() {
                         .any(|definition| definition.metric == reference),
                     "{reference} is missing"
                 );
+            }
+        }
+    }
+}
+
+// --- thermal contract -----------------------------------------------------
+
+/// The five metrics Phase 5 added, and the shape each one promises.
+const THERMAL_CONTRACT: &[(&str, crate::metrics::model::MetricUnit)] = &[
+    (
+        cpu::TEMPERATURE_PACKAGE,
+        crate::metrics::model::MetricUnit::Celsius,
+    ),
+    (
+        gpu::TEMPERATURE_CORE,
+        crate::metrics::model::MetricUnit::Celsius,
+    ),
+    (
+        gpu::TEMPERATURE_HOTSPOT,
+        crate::metrics::model::MetricUnit::Celsius,
+    ),
+    (
+        gpu::TEMPERATURE_MEMORY,
+        crate::metrics::model::MetricUnit::Celsius,
+    ),
+    (gpu::FAN_SPEED, crate::metrics::model::MetricUnit::Rpm),
+];
+
+/// Every declaration a platform produces for the synthetic machine.
+fn all_declarations(
+    cpu_provider: &str,
+    memory_provider: &str,
+    gpu_provider: &str,
+) -> Vec<MetricDefinition> {
+    let mut definitions = declarations(cpu_provider, memory_provider);
+    definitions.extend(gpu_declarations(gpu_provider));
+    definitions.sort_by(|left, right| left.metric.cmp(&right.metric));
+    definitions
+}
+
+fn linux_all() -> Vec<MetricDefinition> {
+    all_declarations("linux.cpu", "linux.memory", "linux.gpu")
+}
+
+fn windows_all() -> Vec<MetricDefinition> {
+    all_declarations("windows.cpu", "windows.memory", "windows.gpu")
+}
+
+#[test]
+fn the_thermal_metrics_carry_the_same_contract_on_both_platforms() {
+    // The portability promise for Phase 5: a widget bound to a temperature on
+    // Fedora means the same thing on Windows, whatever each platform can
+    // actually read.
+    for (key, unit) in THERMAL_CONTRACT {
+        let of = |definitions: Vec<MetricDefinition>| -> MetricDefinition {
+            definitions
+                .into_iter()
+                .find(|definition| definition.metric.key.as_str() == *key)
+                .unwrap_or_else(|| panic!("{key} is not declared"))
+        };
+
+        let linux = of(linux_all());
+        let windows = of(windows_all());
+
+        assert_eq!(linux.metric, windows.metric, "reference for {key}");
+        assert_eq!(linux.unit, *unit, "unit for {key}");
+        assert_eq!(windows.unit, *unit, "unit for {key}");
+        assert_eq!(
+            linux.kind,
+            crate::metrics::model::MetricKind::Gauge,
+            "kind for {key}"
+        );
+        assert_eq!(linux.kind, windows.kind, "kind for {key}");
+        assert_eq!(
+            linux.value_type,
+            crate::metrics::model::MetricValueType::Number,
+            "value type for {key}"
+        );
+        assert_eq!(linux.value_type, windows.value_type, "value type for {key}");
+        assert_eq!(
+            linux.display_name, windows.display_name,
+            "display name for {key}"
+        );
+        assert_eq!(
+            linux.source_label, windows.source_label,
+            "source label for {key}"
+        );
+        assert_eq!(
+            linux.description, windows.description,
+            "description for {key}"
+        );
+        assert_eq!(linux.category, windows.category, "category for {key}");
+
+        // Only the provider may differ.
+        assert_ne!(linux.provider_id, windows.provider_id, "provider for {key}");
+    }
+}
+
+#[test]
+fn a_temperature_is_never_declared_in_anything_but_celsius() {
+    // The canonical-unit rule, at the point it is easiest to break: a driver
+    // reporting millidegrees, a vendor library reporting whole degrees, and a
+    // frontend that must never learn either exists.
+    for definition in linux_all().iter().chain(windows_all().iter()) {
+        if definition.metric.key.as_str().contains("temperature") {
+            assert_eq!(
+                definition.unit,
+                crate::metrics::model::MetricUnit::Celsius,
+                "{} must be declared in Celsius",
+                definition.metric
+            );
+        }
+    }
+}
+
+#[test]
+fn a_fan_speed_is_never_declared_in_anything_but_rpm() {
+    // A duty-cycle percentage is not a speed. Declaring the metric in RPM is
+    // what makes republishing one as the other a type-level mistake rather
+    // than a plausible shortcut.
+    for definition in linux_all().iter().chain(windows_all().iter()) {
+        if definition.metric.key.as_str() == gpu::FAN_SPEED {
+            assert_eq!(definition.unit, crate::metrics::model::MetricUnit::Rpm);
+            assert_ne!(definition.unit, crate::metrics::model::MetricUnit::Percent);
+        }
+    }
+}
+
+#[test]
+fn the_thermal_descriptions_say_what_the_sensor_is_not() {
+    // Documentation the user actually sees, pinned: these three sentences are
+    // what stops a hotspot being read as a die temperature, a package
+    // temperature as a core average, and a fan percentage as an RPM.
+    let description = |key: &str| -> String {
+        linux_all()
+            .into_iter()
+            .find(|definition| definition.metric.key.as_str() == key)
+            .expect("declared")
+            .description
+    };
+
+    assert!(description(cpu::TEMPERATURE_PACKAGE).contains("never an average"));
+    assert!(description(gpu::TEMPERATURE_HOTSPOT).contains("separate sensor"));
+    assert!(description(gpu::FAN_SPEED).contains("duty cycle"));
+}
+
+#[test]
+fn every_thermal_source_is_addressable_the_same_way_on_both_platforms() {
+    // A package is `cpu:package-N` and a GPU keeps the identity it already had.
+    // Neither gains a thermal-only source, which would split one device into
+    // two rows in every future dashboard.
+    for definitions in [linux_all(), windows_all()] {
+        for definition in definitions {
+            let key = definition.metric.key.as_str();
+            if !THERMAL_CONTRACT.iter().any(|(name, _)| *name == key) {
+                continue;
+            }
+
+            let source = &definition.metric.source_id;
+            if key == cpu::TEMPERATURE_PACKAGE {
+                assert!(
+                    PackageId::from_source(source).is_some(),
+                    "{source} is not a package source"
+                );
+            } else {
+                assert_eq!(source.kind(), "gpu", "{source} is not a GPU source");
+                assert_ne!(source.as_str(), gpu::SOURCE, "a device, not the aggregate");
             }
         }
     }

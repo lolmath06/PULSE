@@ -134,3 +134,44 @@ export function formatHertz(hertz: number): string {
 
   return `${(hertz / HZ_PER_GHZ).toFixed(2)} GHz`;
 }
+
+/**
+ * Formats a temperature given in degrees Celsius, e.g. `47 °C` or `47.5 °C`.
+ *
+ * **The backend always sends Celsius** (see `docs/metrics/thermals.md`): a
+ * `hwmon` node reports millidegrees and a vendor library whole degrees, and
+ * both are converted at the platform edge so nothing here has to know.
+ *
+ * Whole degrees by default. Sensors report to roughly ±1 °C, so `47.3 °C` shows
+ * a precision the hardware does not have, and a value that jitters in its
+ * decimal on every refresh reads as noise rather than information. A caller
+ * that genuinely wants half-degrees can ask for one digit.
+ *
+ * **Zero is a real temperature here**, unlike a frequency or a byte count — a
+ * machine in a cold room genuinely reports it, and so do sensors that read
+ * below freezing. Only non-finite values and physically impossible ones (below
+ * absolute zero) get the placeholder.
+ */
+export function formatCelsius(celsius: number, fractionDigits = 0): string {
+  if (!Number.isFinite(celsius) || celsius < -273.15) return '—';
+
+  return `${celsius.toFixed(fractionDigits)} °C`;
+}
+
+/**
+ * Formats a fan speed in revolutions per minute, e.g. `2,187 RPM`.
+ *
+ * **Zero is a reading, not an absence.** A GPU below its zero-RPM threshold and
+ * a quiet desktop fan genuinely turn at 0 RPM, and the user wants to see that.
+ * A sensor that reported nothing at all never reaches this function: the
+ * backend publishes it as unavailable and the interface shows `—` with the
+ * reason. Conflating the two is what makes a monitoring tool untrustworthy.
+ *
+ * A negative value is refused — a fan does not turn backwards, so the reading
+ * was not a fan speed.
+ */
+export function formatRpm(rpm: number): string {
+  if (!Number.isFinite(rpm) || rpm < 0) return '—';
+
+  return `${Math.round(rpm).toLocaleString()} RPM`;
+}

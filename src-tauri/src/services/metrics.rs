@@ -87,6 +87,17 @@ mod tests {
             .count()
     }
 
+    /// How many CPU packages this host can be measured per-socket on.
+    ///
+    /// Zero where no package-level sensor was found, which is the normal
+    /// Windows answer and a possible Fedora one.
+    fn package_count(engine: &MetricsEngine) -> usize {
+        catalog(engine)
+            .iter()
+            .filter(|definition| definition.metric.key.as_str() == cpu::TEMPERATURE_PACKAGE)
+            .count()
+    }
+
     #[test]
     fn the_shipped_engine_registers_the_platform_providers() {
         let engine = build_engine();
@@ -106,12 +117,17 @@ mod tests {
         );
         assert_eq!(status.state, crate::metrics::EngineState::Ready);
 
-        // 9 fixed metrics, plus three per logical processor and seven per
-        // GPU — all discovered, never hardcoded.
+        // 9 fixed metrics, plus three per logical processor, one per
+        // addressable CPU package and eleven per GPU — all discovered from the
+        // catalog, never hardcoded.
         let logical = logical_processor_count(&engine);
         let gpus = gpu_count(&engine);
+        let packages = package_count(&engine);
         assert!(logical > 0, "a running machine has logical processors");
-        assert_eq!(status.metric_count, 9 + 3 * logical + 7 * gpus);
+        assert_eq!(
+            status.metric_count,
+            9 + 3 * logical + packages + crate::metrics::wellknown::gpu::PER_GPU_KEYS.len() * gpus
+        );
         assert!(status.available_metric_count <= status.metric_count);
     }
 

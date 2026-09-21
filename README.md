@@ -11,13 +11,14 @@
 
 ## Status
 
-**Phase 4 — GPU Inventory & Core Metrics.** Version `0.1.0-dev`.
+**Phase 5 — Thermals & Cooling.** Version `0.1.0-dev`.
 
 PULSE can now answer, on Fedora and Windows behind exactly the same contract:
 
 > How many physical cores and logical processors does my CPU have, what is each
 > logical processor doing, which GPUs does this machine have, what is their
-> stable identity, and what load, memory and clocks do they report?
+> stable identity, what load, memory and clocks do they report — and how hot are
+> the processor and the graphics card actually running?
 
 On top of the Phase 0 foundation, the Phase 1 metrics contract and the Phase 2
 collectors, it reads **per-logical-processor usage, per-logical-processor
@@ -35,9 +36,18 @@ at runtime, so a missing vendor driver costs metrics rather than preventing
 PULSE from starting**. A card no backend serves is still shown, named and
 identified, with an honest reason on every metric it cannot provide.
 
-The catalog is **sized by the machine**: `9 + 3N + 7G` metrics for `N` logical
-processors and `G` GPUs — 112 on the 32-thread, single-GPU laptop this was built
-on. Nothing anywhere hardcodes those numbers. References stay identical across
+Phase 5 added temperatures and cooling: the CPU package temperature through
+`hwmon` on Fedora, and per GPU a core temperature, a hotspot temperature, a
+memory temperature and a fan speed in genuine revolutions per minute. What makes
+that work is mostly what it refuses — a thermal limit is not a temperature, a
+core average is not a package reading, a fan control percentage is not an RPM,
+and a hotspot is a different sensor from the die. Where a reading is not
+available it says so, with the reason, and **PULSE never writes to a fan
+control, a limit or a power setting**.
+
+The catalog is **sized by the machine**: `9 + 3N + P + 11G` metrics for `N`
+logical processors, `P` addressable CPU packages and `G` GPUs — 117 on the
+32-thread, single-package, single-GPU laptop this was built on. Nothing anywhere hardcodes those numbers. References stay identical across
 operating systems, so a widget bound to `cpu.usage.logical@cpu:logical-3`, or to
 an NVIDIA card's UUID, moves from Fedora to Windows unchanged.
 

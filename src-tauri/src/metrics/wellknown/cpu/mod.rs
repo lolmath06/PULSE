@@ -17,9 +17,14 @@
 //!  N  cpu.usage.logical@cpu:logical-i
 //!  N  cpu.frequency.current@cpu:logical-i
 //!  N  cpu.frequency.max@cpu:logical-i
+//!  P  cpu.temperature.package@cpu:package-i
 //! ─────
-//!  4 + 3N
+//!  4 + 3N + P
 //! ```
+//!
+//! `P` is the number of packages PULSE can address as a measurement source,
+//! which is **not** the same as `cpu.count.package`: a machine can know it has
+//! two sockets while exposing a thermal sensor for neither.
 //!
 //! Nothing anywhere in PULSE hardcodes `N`. The runtime discovers it, and a
 //! four-processor virtual machine and a 128-thread workstation differ only in
@@ -42,7 +47,7 @@ use crate::metrics::model::{
 };
 
 pub use frequency::{kilohertz_to_hertz, megahertz_to_hertz, MaxFrequencySource};
-pub use topology::{CpuTopology, LogicalId, LogicalProcessor};
+pub use topology::{CpuPackage, CpuTopology, LogicalId, LogicalProcessor, PackageId};
 pub use usage::{
     usage_percent, CpuCounters, CpuSnapshot, CpuUsage, CpuUsageReport, CpuUsageTracker,
     NeedsAnotherSample,
@@ -75,6 +80,21 @@ pub const COUNT_PHYSICAL: &str = "cpu.count.physical";
 
 /// `cpu.count.package` — how many processor packages (sockets) exist.
 pub const COUNT_PACKAGE: &str = "cpu.count.package";
+
+/// `cpu.temperature.package` — the temperature of one processor package, in
+/// degrees Celsius.
+///
+/// **The package, not a core, and never an average of cores.** A package sensor
+/// is a real measurement the hardware reports; a mean of per-core readings is a
+/// number PULSE would have invented, and one that reads lower than the truth
+/// exactly when it matters — a single core boosting hard is what throttles a
+/// machine, and averaging it away hides that.
+///
+/// Nor is it a *limit*: `Tjmax`, `Tcontrol` and `Tthrottle` are thresholds the
+/// silicon is designed around, and publishing one as the current temperature
+/// would tell a user their idle laptop is running at 100 °C. See
+/// `docs/metrics/thermals.md`.
+pub const TEMPERATURE_PACKAGE: &str = "cpu.temperature.package";
 
 // --- sources --------------------------------------------------------------
 
@@ -138,6 +158,11 @@ pub fn frequency_max_ref(id: LogicalId) -> MetricRef {
     MetricRef::new(key(FREQUENCY_MAX), id.source_id())
 }
 
+/// Builds the `cpu.temperature.package` reference for one package.
+pub fn temperature_package_ref(id: PackageId) -> MetricRef {
+    MetricRef::new(key(TEMPERATURE_PACKAGE), id.source_id())
+}
+
 // --- declarations ---------------------------------------------------------
 
 /// Declares every CPU metric PULSE ships on a machine with this topology.
@@ -150,7 +175,8 @@ pub fn frequency_max_ref(id: LogicalId) -> MetricRef {
 /// catalog will hold it in, so the output is deterministic for a given
 /// topology regardless of the order the platform enumerated processors.
 pub fn definitions(provider: &ProviderId, topology: &CpuTopology) -> Vec<MetricDefinition> {
-    let mut definitions = Vec::with_capacity(4 + 3 * topology.logical().len());
+    let mut definitions =
+        Vec::with_capacity(4 + 3 * topology.logical().len() + topology.packages().len());
 
     definitions.push(
         gauge(
@@ -214,6 +240,24 @@ pub fn definitions(provider: &ProviderId, topology: &CpuTopology) -> Vec<MetricD
                  published here in its place.",
             )
             .availability(processor.frequency_max.clone())
+            .build(),
+        );
+    }
+
+    for package in topology.packages() {
+        definitions.push(
+            gauge(
+                temperature_package_ref(package.id),
+                provider,
+                MetricUnit::Celsius,
+                &package.id.label(),
+                "Package temperature",
+                "Temperature the processor package reports for itself. It is the \
+                 package's own sensor, never an average of the individual cores, \
+                 and never one of the thermal limits the silicon is designed \
+                 around.",
+            )
+            .availability(package.temperature.clone())
             .build(),
         );
     }

@@ -108,6 +108,25 @@ They are stable by construction: nothing about them can shift with detection
 order, driver updates or hardware changes, and they are identical on Fedora and
 Windows. A logical source is the honest way to say "the aggregate".
 
+### `cpu:package-N` — the kernel's own package numbering
+
+Phase 5 added one source per processor package:
+
+```text
+cpu:package-0
+cpu:package-1
+```
+
+`N` is the platform's own package index — `physical_package_id` on Linux, which
+is exactly what `coretemp` labels its channels with (`Package id 0`) and what
+`cpu.count.package` is counted from. PULSE deliberately does **not** create a
+second, thermal-only numbering: a machine's package 1 must be package 1
+everywhere, or a dual-socket machine eventually attributes one socket's
+temperature to the other.
+
+Like `cpu:logical-N`, it is a slot rather than a serial: it identifies "the
+package this machine calls number N" and means nothing on another machine.
+
 ### `cpu:logical-N` — a slot, not a serial number
 
 Phase 3 added one source per logical processor:

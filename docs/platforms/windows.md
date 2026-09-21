@@ -11,22 +11,25 @@ Windows is a **first-class PULSE platform**, on equal footing with Fedora Linux.
 
 **Implemented (Phase 2).** No administrator rights required.
 
-| Metric                                                                  | API                                                                    | Notes                                   |
-| ----------------------------------------------------------------------- | ---------------------------------------------------------------------- | --------------------------------------- |
-| `cpu.usage.total`                                                       | `GetSystemTimes`                                                       | Delta between two samples               |
-| `cpu.usage.logical`                                                     | `NtQuerySystemInformationEx` / `SystemProcessorPerformanceInformation` | One call per processor group            |
-| `cpu.frequency.current`                                                 | `CallNtPowerInformation(ProcessorInformation)`                         | `CurrentMhz`, MHz → Hz                  |
-| `cpu.frequency.max`                                                     | `CallNtPowerInformation(ProcessorInformation)`                         | `MaxMhz`, typically the **base** clock  |
-| `cpu.count.logical`                                                     | `GetLogicalProcessorInformationEx`                                     | Set bits across core records            |
-| `cpu.count.physical`                                                    | `GetLogicalProcessorInformationEx`                                     | `RelationProcessorCore` **records**     |
-| `cpu.count.package`                                                     | `GetLogicalProcessorInformationEx`                                     | `RelationProcessorPackage` records      |
-| `memory.total`                                                          | `GlobalMemoryStatusEx`                                                 | `ullTotalPhys`                          |
-| `memory.available`                                                      | `GlobalMemoryStatusEx`                                                 | `ullAvailPhys`                          |
-| `memory.used`                                                           | derived                                                                | `total - available`                     |
-| `memory.usage.percent`                                                  | derived                                                                | `used / total * 100`                    |
-| `gpu.count`                                                             | `CreateDXGIFactory1` + `EnumAdapters1`                                 | Hardware adapters; WARP excluded        |
-| `gpu.memory.total`                                                      | `DXGI_ADAPTER_DESC1.DedicatedVideoMemory`, or NVML                     | Installed VRAM capacity                 |
-| `gpu.usage.core`, `gpu.memory.used`/`free`/`percent`, `gpu.frequency.*` | NVML only                                                              | `unsupported` without the NVIDIA driver |
+| Metric                                                                  | API                                                                    | Notes                                                                  |
+| ----------------------------------------------------------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| `cpu.usage.total`                                                       | `GetSystemTimes`                                                       | Delta between two samples                                              |
+| `cpu.usage.logical`                                                     | `NtQuerySystemInformationEx` / `SystemProcessorPerformanceInformation` | One call per processor group                                           |
+| `cpu.frequency.current`                                                 | `CallNtPowerInformation(ProcessorInformation)`                         | `CurrentMhz`, MHz → Hz                                                 |
+| `cpu.frequency.max`                                                     | `CallNtPowerInformation(ProcessorInformation)`                         | `MaxMhz`, typically the **base** clock                                 |
+| `cpu.count.logical`                                                     | `GetLogicalProcessorInformationEx`                                     | Set bits across core records                                           |
+| `cpu.count.physical`                                                    | `GetLogicalProcessorInformationEx`                                     | `RelationProcessorCore` **records**                                    |
+| `cpu.count.package`                                                     | `GetLogicalProcessorInformationEx`                                     | `RelationProcessorPackage` records                                     |
+| `memory.total`                                                          | `GlobalMemoryStatusEx`                                                 | `ullTotalPhys`                                                         |
+| `memory.available`                                                      | `GlobalMemoryStatusEx`                                                 | `ullAvailPhys`                                                         |
+| `memory.used`                                                           | derived                                                                | `total - available`                                                    |
+| `memory.usage.percent`                                                  | derived                                                                | `used / total * 100`                                                   |
+| `gpu.count`                                                             | `CreateDXGIFactory1` + `EnumAdapters1`                                 | Hardware adapters; WARP excluded                                       |
+| `gpu.memory.total`                                                      | `DXGI_ADAPTER_DESC1.DedicatedVideoMemory`, or NVML                     | Installed VRAM capacity                                                |
+| `gpu.usage.core`, `gpu.memory.used`/`free`/`percent`, `gpu.frequency.*` | NVML only                                                              | `unsupported` without the NVIDIA driver                                |
+| `gpu.temperature.core`, `gpu.fan.speed`                                 | NVML only                                                              | RPM only; a fan duty cycle is never republished as a speed             |
+| `gpu.temperature.hotspot`, `gpu.temperature.memory`                     | —                                                                      | `unsupported`: NVML documents no source, and they are separate sensors |
+| `cpu.temperature.package`                                               | —                                                                      | **`unsupported`**: declared, never measured — see below                |
 
 ### GPU
 
@@ -304,32 +307,47 @@ monitoring app cost more CPU than the things it measures.
   `GetDiskFreeSpaceEx` for capacity.
 - SMART requires `DeviceIoControl` with administrator rights.
 
-### Temperatures and sensors — the hard part
+### CPU temperature — declared, and honestly unsupported
 
-Windows has **no general, unprivileged temperature API**.
+**Decided in Phase 5: `cpu.temperature.package` is `unsupported` on Windows.**
 
-- `MSAcpi_ThermalZoneTemperature` (WMI) exists but is frequently unimplemented
-  by OEM firmware, and reports an ACPI thermal zone rather than a CPU package
-  temperature.
-- Real CPU temperature means reading MSRs; real motherboard sensors mean talking
-  to a Super I/O chip. Both need ring-0 access, i.e. a signed kernel driver.
-- Tools like HWiNFO and LibreHardwareMonitor ship exactly such a driver.
+Windows has no general, unprivileged, hardware-independent temperature API.
 
-**This is a deliberate open decision for PULSE**, not an oversight. Shipping a
-kernel driver brings signing costs, security exposure and a support burden. The
-alternatives are to integrate with an existing tool's shared-memory interface
-(e.g. HWiNFO's, which is opt-in and user-installed), or to expose vendor SDK
-temperatures only (NVML for NVIDIA, ADLX for AMD) and be explicit that
-motherboard sensors are unavailable.
+- `MSAcpi_ThermalZoneTemperature` (WMI) and `Win32_TemperatureProbe` exist, are
+  frequently unimplemented by OEM firmware, and report an **ACPI thermal zone** —
+  which may describe the chassis, the mainboard or a platform zone rather than
+  the processor. Publishing whichever one answers as _the CPU's_ temperature
+  would be a confident, unfalsifiable lie, so PULSE publishes neither.
+- Reading the actual package means reading MSRs; real motherboard sensors mean
+  talking to a Super I/O chip. Both need ring-0 access, i.e. a signed kernel
+  driver. HWiNFO, LibreHardwareMonitor, OpenHardwareMonitor and `WinRing0` ship
+  exactly that. **PULSE bundles none of them**, in this phase or as a hidden
+  dependency: signing costs, security exposure and support burden are a decision
+  of their own, not a detail of a sensors phase.
 
-Until that decision is made, Windows temperature support must be treated as
-`Unavailable(reason)` rather than quietly showing zeros.
+The metric is nonetheless **declared**, on `cpu:package-N` sources, with an
+`unsupported` availability carrying that explanation. That is what lets a
+dashboard configured on Fedora open on Windows and explain itself instead of
+silently losing a widget — and the day PULSE gains a supported source, the
+reference it is already publishing starts carrying values.
+
+The package index is the enumeration ordinal from
+`GetLogicalProcessorInformationEx`, which is all Windows offers. Nothing is read
+from it, so nothing can be attributed to the wrong socket.
+
+Open for a later phase, unchanged: integrating with an existing tool's
+opt-in shared-memory interface (HWiNFO's, for instance), or shipping a driver.
+Neither is done quietly.
 
 ### GPU
 
-- **NVIDIA** — NVML, the most complete source.
-- **AMD** — ADLX / ADL.
-- **Intel** — Intel Power Gadget's successors, or DXGI.
+- **NVIDIA** — NVML, the most complete source. Temperature and RPM fan speed are
+  **implemented**; hotspot and memory temperatures are unsupported because the
+  public interface documents no source for them.
+- **AMD** — ADLX / ADL. Not integrated: a large vendor SDK for a temperature is
+  not a trade this phase makes, so AMD GPU thermals are `unsupported` on Windows
+  while being fully supported on Fedora through `amdgpu`'s hwmon node.
+- **Intel** — Intel Power Gadget's successors, or DXGI. Likewise unsupported.
 - **Vendor-neutral baseline** — DXGI adapter info plus the
   `\GPU Engine(*)\Utilization Percentage` PDH counter set, which needs no vendor
   SDK and works for basic utilisation and VRAM.

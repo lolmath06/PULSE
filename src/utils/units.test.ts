@@ -3,8 +3,10 @@ import {
   binaryUnitFor,
   formatBytes,
   formatBytesScaledTo,
+  formatCelsius,
   formatHertz,
   formatPercent,
+  formatRpm,
   formatSampleTime,
 } from '@/utils/units';
 
@@ -127,5 +129,58 @@ describe('formatHertz', () => {
     // A value already scaled to MHz by mistake would be nonsense as hertz;
     // showing "0 MHz" would hide the bug, so it gets the placeholder.
     expect(formatHertz(2_400)).toBe('—');
+  });
+});
+
+describe('formatCelsius', () => {
+  it('shows whole degrees, which is the precision sensors have', () => {
+    expect(formatCelsius(47)).toBe('47 °C');
+    expect(formatCelsius(47.4)).toBe('47 °C');
+    expect(formatCelsius(93.5)).toBe('94 °C');
+  });
+
+  it('shows a decimal only when one is asked for', () => {
+    expect(formatCelsius(47.5, 1)).toBe('47.5 °C');
+  });
+
+  it('treats zero and negative readings as real temperatures', () => {
+    // Unlike a frequency, 0 °C is a measurement: a cold room, a cold sensor.
+    expect(formatCelsius(0)).toBe('0 °C');
+    expect(formatCelsius(-5)).toBe('-5 °C');
+  });
+
+  it('refuses what is not a temperature', () => {
+    expect(formatCelsius(Number.NaN)).toBe('—');
+    expect(formatCelsius(Number.POSITIVE_INFINITY)).toBe('—');
+    // Below absolute zero is a failed read, not a cold machine.
+    expect(formatCelsius(-300)).toBe('—');
+  });
+
+  it('never leaks the unit the backend reads', () => {
+    // hwmon reports 42000 millidegrees; the conversion happens in Rust, and a
+    // raw millidegree value arriving here would be visibly absurd.
+    expect(formatCelsius(42)).toBe('42 °C');
+    expect(formatCelsius(42)).not.toContain('42000');
+  });
+});
+
+describe('formatRpm', () => {
+  it('formats a fan speed with its unit', () => {
+    expect(formatRpm(2187)).toBe(`${(2187).toLocaleString()} RPM`);
+  });
+
+  it('shows a stopped fan as zero rather than as an absence', () => {
+    // A GPU below its zero-RPM threshold really is turning at 0. The absence
+    // of a sensor is shown as "—" by the component, never by this function.
+    expect(formatRpm(0)).toBe('0 RPM');
+  });
+
+  it('rounds to whole revolutions', () => {
+    expect(formatRpm(1200.6)).toBe(`${(1201).toLocaleString()} RPM`);
+  });
+
+  it('refuses what is not a fan speed', () => {
+    expect(formatRpm(-1)).toBe('—');
+    expect(formatRpm(Number.NaN)).toBe('—');
   });
 });

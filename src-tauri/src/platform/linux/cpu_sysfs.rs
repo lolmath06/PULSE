@@ -141,12 +141,30 @@ pub fn read_processor_location(id: LogicalId) -> Result<ProcessorLocation, Metri
 /// correct count of what *is* described, and a machine that describes nothing
 /// yields `(None, None)`.
 pub fn read_topology_counts(processors: &[LogicalId]) -> (Option<u32>, Option<u32>) {
-    let locations: Vec<ProcessorLocation> = processors
+    count_cores_and_packages(&read_processor_locations(processors))
+}
+
+/// Reads every given processor's location, skipping the ones that have none.
+pub fn read_processor_locations(processors: &[LogicalId]) -> Vec<ProcessorLocation> {
+    processors
         .iter()
         .filter_map(|&id| read_processor_location(id).ok())
+        .collect()
+}
+
+/// The distinct package indices these locations name, in ascending order.
+///
+/// **The kernel's own `physical_package_id`**, which is what `coretemp` labels
+/// its channels with and what `cpu.count.package` is counted from. PULSE never
+/// invents a second numbering for thermals: a machine's package 1 is package 1
+/// everywhere, or the two would eventually describe different sockets.
+pub fn package_ids(locations: &[ProcessorLocation]) -> Vec<u32> {
+    let ids: BTreeSet<u32> = locations
+        .iter()
+        .map(|location| location.package_id)
         .collect();
 
-    count_cores_and_packages(&locations)
+    ids.into_iter().collect()
 }
 
 // --- frequency ------------------------------------------------------------
@@ -431,5 +449,53 @@ mod tests {
                 );
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod package_tests {
+    use super::*;
+
+    fn location(package_id: u32, core_id: u32) -> ProcessorLocation {
+        ProcessorLocation {
+            package_id,
+            core_id,
+        }
+    }
+
+    #[test]
+    fn lists_each_package_once_in_ascending_order() {
+        let locations = [
+            location(1, 0),
+            location(0, 0),
+            location(1, 1),
+            location(0, 1),
+            location(0, 0),
+        ];
+
+        assert_eq!(package_ids(&locations), [0, 1]);
+    }
+
+    #[test]
+    fn the_package_ids_are_the_kernel_numbering_not_a_dense_range() {
+        // A machine that numbers its sockets 0 and 2 keeps those numbers: a
+        // thermal reading labelled "Package id 2" must match the source
+        // `cpu:package-2`, not a renumbered `cpu:package-1`.
+        let locations = [location(0, 0), location(2, 0)];
+
+        assert_eq!(package_ids(&locations), [0, 2]);
+    }
+
+    #[test]
+    fn no_locations_means_no_packages_rather_than_one_assumed_package() {
+        assert!(package_ids(&[]).is_empty());
+    }
+
+    #[test]
+    fn the_package_list_and_the_package_count_agree() {
+        let locations = [location(0, 0), location(0, 1), location(1, 0)];
+        let (_, count) = count_cores_and_packages(&locations);
+
+        assert_eq!(count, Some(package_ids(&locations).len() as u32));
     }
 }

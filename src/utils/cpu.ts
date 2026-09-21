@@ -2,9 +2,12 @@ import type { MetricDefinition, MetricRef, MetricSample } from '@/types/metrics'
 import {
   CPU_FREQUENCY_CURRENT_KEY,
   CPU_FREQUENCY_MAX_KEY,
+  CPU_TEMPERATURE_PACKAGE_KEY,
   CPU_USAGE_LOGICAL_KEY,
   cpuLogicalOrdinal,
   cpuLogicalSourceId,
+  cpuPackageIndex,
+  cpuPackageSourceId,
   metricRefId,
 } from '@/types/wellknown';
 
@@ -113,4 +116,58 @@ export function sampleOf(
 /** Builds a per-processor reference. */
 export function processorMetric(ordinal: number, key: string): MetricRef {
   return { key, sourceId: cpuLogicalSourceId(ordinal) };
+}
+
+// --- packages ---------------------------------------------------------------
+
+/** One processor package discovered in the catalog. */
+export interface CpuPackage {
+  /** The index the platform gave it, e.g. `0` for `cpu:package-0`. */
+  readonly index: number;
+  /** Its canonical source identifier. */
+  readonly sourceId: string;
+  /** The label the backend gave it, e.g. `Package 0`. */
+  readonly label: string;
+}
+
+/**
+ * Finds every processor package the catalog describes.
+ *
+ * Sorted numerically, like the processors and for the same reason. A package is
+ * listed whether or not its temperature can be read: the definition exists
+ * either way, and a machine that reports no sensor still has sockets — the row
+ * then shows `—` with the reason rather than disappearing, which is what keeps
+ * the card's shape the same on Fedora and on Windows.
+ */
+export function discoverCpuPackages(catalog: readonly MetricDefinition[]): CpuPackage[] {
+  const found = new Map<number, CpuPackage>();
+
+  for (const definition of catalog) {
+    if (definition.metric.key !== CPU_TEMPERATURE_PACKAGE_KEY) continue;
+
+    const index = cpuPackageIndex(definition.metric.sourceId);
+    if (index === null || found.has(index)) continue;
+
+    found.set(index, {
+      index,
+      sourceId: definition.metric.sourceId,
+      // The backend owns the label, so the two can never disagree.
+      label: definition.sourceLabel,
+    });
+  }
+
+  return [...found.values()].sort((left, right) => left.index - right.index);
+}
+
+/** The metrics to request for a set of packages. */
+export function cpuPackageMetrics(packages: readonly CpuPackage[]): MetricRef[] {
+  return packages.map((cpuPackage) => ({
+    key: CPU_TEMPERATURE_PACKAGE_KEY,
+    sourceId: cpuPackageSourceId(cpuPackage.index),
+  }));
+}
+
+/** Builds a per-package reference. */
+export function packageMetric(index: number, key: string): MetricRef {
+  return { key, sourceId: cpuPackageSourceId(index) };
 }

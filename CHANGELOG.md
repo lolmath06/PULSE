@@ -7,6 +7,69 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added — Phase 5: Thermals & Cooling
+
+Temperatures and fan speeds on both platforms, built around a single rule: PULSE
+publishes a reading it can name a source for, and explains every one it cannot.
+
+- **`cpu.temperature.package`** (`cpu:package-N`, celsius, gauge) — the
+  processor package's own sensor. On Fedora through `hwmon`: `coretemp`'s
+  `Package id N`, `k10temp`'s `Tdie`, or `peci_cputemp`'s `Die`. **Unsupported on
+  Windows**, which offers no interface for it that does not require a
+  kernel-mode driver — the metric is still declared, with the reason, so a
+  dashboard built on Fedora resolves and explains itself there.
+- **Four metrics per GPU** — `gpu.temperature.core`, `gpu.temperature.hotspot`,
+  `gpu.temperature.memory` (celsius) and `gpu.fan.speed` (**rpm**), from NVML or
+  from the card's own `hwmon` node (`amdgpu` `edge`/`junction`/`mem`, a
+  `nouveau` single channel, `fanN_input`).
+- **A catalog still sized by the machine** — `9 + 3N + P + 11G`, where `P` is the
+  number of packages PULSE can address as a measurement source. 117 metrics on
+  the 32-thread, single-package, single-GPU reference machine. Nothing hardcodes
+  `N`, `P` or `G`.
+- **New sources `cpu:package-N`**, numbered with the kernel's own
+  `physical_package_id` — the same numbering `cpu.count.package` is counted from,
+  never a second thermal-only one.
+- **Provider count unchanged at 3.** `hwmon` is a capability of the CPU and GPU
+  providers, not a provider of its own: a `linux.hwmon` provider would claim the
+  same sources they already own, and the engine would reject one of them.
+
+What it deliberately refuses to publish, each enforced by a test:
+
+- a **thermal limit** as a temperature — `Tjmax`, `Tcontrol`, `Tthrottle` and
+  `tempN_crit` are never read as measurements (this is what makes other tools
+  report an idle laptop at 100 °C);
+- an **average of per-core sensors** as a package temperature — it reads lower
+  than the truth exactly when a single boosting core is throttling the machine;
+- AMD's **`Tctl`** as a die temperature — it carries a deliberate offset on many
+  parts, so a CPU exposing only `Tctl` publishes nothing;
+- a **GPU die temperature** as a hotspot or a memory temperature — three
+  distinct sensors, never derived from one another;
+- a **fan control percentage** as an RPM — a duty cycle is not a speed, and a
+  multi-fan board publishes no single speed rather than picking one;
+- **`0` for anything absent** — while a genuine `0 RPM` from a stopped fan is
+  published as the reading it is.
+
+Also in this phase:
+
+- **Read-only, without exception.** No `pwm`, no fan curve, no temperature or
+  power limit, no overclock or undervolt is ever written — and the control files
+  are never opened at all.
+- **`hwmonN` is never an identity.** Sensors are found by driver name, by the
+  hardware their `device` symlink resolves to, and by channel label, so a probe
+  order change or a driver reload cannot silently re-point a metric.
+- **Millidegrees are converted once**, at the platform edge. The contract carries
+  Celsius; nothing above the platform layer knows another unit exists.
+- **NVML thermal symbols are optional**, resolved at runtime:
+  `nvmlDeviceGetTemperatureV` preferred, `nvmlDeviceGetTemperature` as a
+  fallback on any failure of it, and `nvmlDeviceGetFanSpeedRPM` alongside
+  `nvmlDeviceGetNumFans`. A library exporting none of them costs one metric and
+  leaves every Phase 4 figure working.
+- **UI** — the CPU card shows a package temperature row per package, and each GPU
+  gains temperature, hotspot, memory temperature and fan rows. Still one sample
+  on mount and one per click of Refresh: no polling, no scheduler, no
+  subscription.
+- **Documentation** — [`docs/metrics/thermals.md`](docs/metrics/thermals.md).
+
 ### Fixed — monitoring UX and Windows GPU discovery
 
 - **CPU Details shows every processor.** The card used to scroll inside itself

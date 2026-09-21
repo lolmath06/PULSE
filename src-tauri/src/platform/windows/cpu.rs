@@ -27,7 +27,9 @@
 use std::collections::BTreeMap;
 
 use crate::metrics::model::Availability;
-use crate::metrics::wellknown::cpu::{CpuCounters, CpuTopology, LogicalId, LogicalProcessor};
+use crate::metrics::wellknown::cpu::{
+    CpuCounters, CpuPackage, CpuTopology, LogicalId, LogicalProcessor, PackageId,
+};
 
 use super::cpu_freq::ProcessorFrequencies;
 use super::cpu_topology::ProcessorMap;
@@ -120,6 +122,44 @@ pub fn describe_topology(
         .collect();
 
     CpuTopology::new(processors, map.physical_core_count(), map.package_count())
+        .with_packages(packages(map.package_count()))
+}
+
+/// The packages Windows can address, all of them thermally unsupported.
+///
+/// # Why the definitions exist at all
+///
+/// Windows offers **no documented, hardware-independent way to read a CPU
+/// package temperature**. `MSAcpi_ThermalZoneTemperature` and
+/// `Win32_TemperatureProbe` exist and are not it: an ACPI thermal zone may
+/// describe the chassis, the mainboard or a platform zone, and publishing
+/// whichever one happens to answer as *the CPU's* temperature would be a
+/// confident, unfalsifiable lie. Everything that does read the package — the
+/// well-known open-source monitors among them — ships a kernel driver to reach
+/// the model-specific registers, which PULSE will not bundle. See
+/// `docs/platforms/windows.md`.
+///
+/// So the metric is declared and reported `unsupported`, with the reason. The
+/// declaration matters: a dashboard configured on Fedora against
+/// `cpu.temperature.package@cpu:package-0` still *resolves* on Windows and
+/// explains itself, rather than silently losing a widget — and the day PULSE
+/// gains a supported source, the reference it was already publishing starts
+/// carrying values.
+///
+/// The package index is the enumeration ordinal, which is all the Windows
+/// topology API offers. Nothing is read from it, so nothing can be attributed
+/// to the wrong socket.
+fn packages(package_count: Option<u32>) -> Vec<CpuPackage> {
+    let reason = Availability::unsupported(
+        "Windows exposes no documented interface for a processor package temperature that \
+         does not require a kernel-mode driver; the ACPI thermal zones it does expose may \
+         describe the chassis or the mainboard rather than the processor, and PULSE will \
+         not publish one as the CPU's temperature",
+    );
+
+    (0..package_count.unwrap_or(0))
+        .map(|index| CpuPackage::unavailable(PackageId::new(index), reason.clone()))
+        .collect()
 }
 
 /// The parts that call into the Windows API.
@@ -472,6 +512,26 @@ mod imp {
                             "this system exposes no CPU package topology",
                         ),
 
+                        // Declared, never measured: see `packages`.
+                        (cpu::TEMPERATURE_PACKAGE, _) => MetricSample::unavailable(
+                            reference.clone(),
+                            self.inventory
+                                .topology
+                                .packages()
+                                .iter()
+                                .find(|package| {
+                                    cpu::PackageId::from_source(&reference.source_id)
+                                        == Some(package.id)
+                                })
+                                .map(|package| package.temperature.clone())
+                                .unwrap_or_else(|| {
+                                    Availability::not_registered(format!(
+                                        "'{reference}' does not name a package this provider \
+                                         described"
+                                    ))
+                                }),
+                        ),
+
                         (cpu::FREQUENCY_CURRENT, Some(id)) => self.frequency_sample(
                             reference,
                             frequency_of(id).current_hz,
@@ -678,8 +738,8 @@ mod tests {
         assert_eq!(references(&healthy), references(&degraded));
         assert_eq!(
             references(&healthy).len(),
-            4 + 3 * 4,
-            "4 machine-wide metrics plus three per logical processor"
+            4 + 3 * 4 + 1,
+            "4 machine-wide metrics, three per logical processor, one per package"
         );
     }
 
@@ -736,9 +796,52 @@ mod tests {
             &working_frequencies(),
         );
 
+        // Every metric this platform can measure. The package temperature is
+        // the deliberate exception: Windows offers no supported source for it,
+        // which is a platform limitation rather than a degraded capability.
         assert!(definitions_for(&topology)
             .iter()
+            .filter(|definition| definition.metric.key.as_str() != cpu::TEMPERATURE_PACKAGE)
             .all(|definition| definition.availability.is_available()));
+    }
+
+    #[test]
+    fn the_package_temperature_is_declared_and_honestly_unsupported() {
+        // Declared so a dashboard configured on Fedora still resolves here and
+        // explains itself; unsupported because Windows exposes no interface
+        // that reads a processor package without a kernel-mode driver.
+        let topology = describe_topology(
+            &map_with_smt(),
+            &Availability::Available,
+            &working_frequencies(),
+        );
+
+        let declared: Vec<_> = definitions_for(&topology)
+            .into_iter()
+            .filter(|definition| definition.metric.key.as_str() == cpu::TEMPERATURE_PACKAGE)
+            .collect();
+
+        assert_eq!(declared.len(), 1, "one package, one declaration");
+        assert_eq!(
+            declared[0].metric.source_id.as_str(),
+            "cpu:package-0",
+            "the same source a Fedora machine publishes"
+        );
+        assert_eq!(declared[0].unit, crate::metrics::model::MetricUnit::Celsius);
+
+        let Availability::Unsupported { reason } = &declared[0].availability else {
+            panic!("expected an unsupported package temperature");
+        };
+        // And the reason says why, rather than blaming the hardware.
+        assert!(reason.contains("kernel-mode driver"));
+        assert!(reason.contains("ACPI thermal zones"));
+    }
+
+    #[test]
+    fn a_machine_whose_package_count_is_unknown_declares_no_package_sources() {
+        // No count, no addressable package: PULSE does not assume one socket.
+        assert!(packages(None).is_empty());
+        assert_eq!(packages(Some(2)).len(), 2);
     }
 
     #[test]

@@ -5,8 +5,10 @@ import type { Availability, MetricDefinition, MetricRef, MetricSample } from '@/
 import {
   CPU_FREQUENCY_CURRENT_KEY,
   CPU_FREQUENCY_MAX_KEY,
+  CPU_TEMPERATURE_PACKAGE_KEY,
   CPU_USAGE_LOGICAL_KEY,
   cpuLogicalSourceId,
+  cpuPackageSourceId,
 } from '@/types/wellknown';
 import {
   CpuDetailsCard,
@@ -23,7 +25,11 @@ function definition(key: string, sourceId: string, sourceLabel: string): MetricD
     displayName: key,
     description: '',
     category: 'cpu',
-    unit: key.startsWith('cpu.frequency') ? 'hertz' : 'percent',
+    unit: key.startsWith('cpu.frequency')
+      ? 'hertz'
+      : key === CPU_TEMPERATURE_PACKAGE_KEY
+        ? 'celsius'
+        : 'percent',
     valueType: 'number',
     kind: key.startsWith('cpu.count') ? 'state' : 'gauge',
     availability: AVAILABLE,
@@ -32,12 +38,18 @@ function definition(key: string, sourceId: string, sourceLabel: string): MetricD
 }
 
 /** A catalog for `count` logical processors, in the backend's own order. */
-function catalogFor(count: number): MetricDefinition[] {
+function catalogFor(count: number, packages = 1): MetricDefinition[] {
   const entries = [...Array(count).keys()].flatMap((ordinal) =>
     [CPU_USAGE_LOGICAL_KEY, CPU_FREQUENCY_CURRENT_KEY, CPU_FREQUENCY_MAX_KEY].map((key) =>
       definition(key, cpuLogicalSourceId(ordinal), `CPU ${ordinal}`),
     ),
   );
+
+  for (const index of [...Array(packages).keys()]) {
+    entries.push(
+      definition(CPU_TEMPERATURE_PACKAGE_KEY, cpuPackageSourceId(index), `Package ${index}`),
+    );
+  }
 
   for (const key of ['cpu.count.logical', 'cpu.count.physical', 'cpu.count.package']) {
     entries.push(definition(key, 'cpu:system', 'System CPU'));
@@ -92,6 +104,8 @@ function defaultValue(metric: MetricRef): number | Availability {
       return 3_200_000_000;
     case CPU_FREQUENCY_MAX_KEY:
       return 4_800_000_000;
+    case CPU_TEMPERATURE_PACKAGE_KEY:
+      return 47.2;
     default:
       return { status: 'notRegistered', reason: 'unexpected' };
   }
@@ -100,8 +114,11 @@ function defaultValue(metric: MetricRef): number | Availability {
 function mockBackend(
   count = 4,
   value: (metric: MetricRef) => number | Availability = defaultValue,
+  packages = 1,
 ) {
-  const catalog = vi.spyOn(metricsService, 'getMetricCatalog').mockResolvedValue(catalogFor(count));
+  const catalog = vi
+    .spyOn(metricsService, 'getMetricCatalog')
+    .mockResolvedValue(catalogFor(count, packages));
   const sample = vi
     .spyOn(metricsService, 'sampleMetrics')
     .mockImplementation((requested) => Promise.resolve(respond(requested, value)));
@@ -292,8 +309,9 @@ describe('CpuDetailsCard', () => {
     await rows();
 
     const requested = sample.mock.calls[0]?.[0] ?? [];
-    // 3 topology counts + 3 metrics for each of 4 processors.
-    expect(requested).toHaveLength(15);
+    // 3 topology counts + 1 package temperature + 3 metrics for each of the
+    // 4 processors.
+    expect(requested).toHaveLength(16);
     expect(requested.some((metric) => metric.key.startsWith('memory.'))).toBe(false);
   });
 
@@ -360,5 +378,97 @@ describe('CpuDetailsCard', () => {
     expect(card).toHaveTextContent('Physical cores');
     expect(card).toHaveTextContent('Logical processors');
     expect(card).toHaveTextContent(/several logical processors/);
+  });
+});
+
+describe('CpuDetailsCard package temperature', () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.useRealTimers();
+  });
+
+  it('shows the package temperature beside the topology counts', async () => {
+    mockBackend();
+
+    render(<CpuDetailsCard />);
+
+    const row = await screen.findByText('Package temperature');
+    // Whole degrees: a sensor is accurate to about one, and a decimal that
+    // jitters on every refresh shows precision the hardware does not have.
+    expect(row.parentElement).toHaveTextContent('47 °C');
+    expect(row.parentElement).not.toHaveTextContent('47.2');
+  });
+
+  it('names each package when a machine has several', async () => {
+    mockBackend(
+      8,
+      (metric) =>
+        metric.key === CPU_TEMPERATURE_PACKAGE_KEY
+          ? metric.sourceId.endsWith('-0')
+            ? 47
+            : 51
+          : defaultValue(metric),
+      2,
+    );
+
+    render(<CpuDetailsCard />);
+
+    expect((await screen.findByText('Package 0 temperature')).parentElement).toHaveTextContent(
+      '47 °C',
+    );
+    expect(screen.getByText('Package 1 temperature').parentElement).toHaveTextContent('51 °C');
+    // And no unqualified row that would leave the user guessing which socket.
+    expect(screen.queryByText('Package temperature')).not.toBeInTheDocument();
+  });
+
+  it('explains an unsupported package temperature instead of showing a zero', async () => {
+    // The Windows case, and the Fedora case on a machine with no CPU thermal
+    // driver: the row exists, says nothing false, and carries the reason.
+    mockBackend(4, (metric) =>
+      metric.key === CPU_TEMPERATURE_PACKAGE_KEY
+        ? {
+            status: 'unsupported',
+            reason: 'Windows exposes no documented interface for a package temperature',
+          }
+        : defaultValue(metric),
+    );
+
+    render(<CpuDetailsCard />);
+
+    const row = await screen.findByText('Package temperature');
+    expect(row.parentElement).toHaveTextContent('—');
+    expect(row.parentElement).not.toHaveTextContent('0 °C');
+    expect(within(row.parentElement!).getByTitle(/no documented interface/)).toBeInTheDocument();
+  });
+
+  it('requests one temperature per package and no more', async () => {
+    const { sample } = mockBackend(4, defaultValue, 2);
+
+    render(<CpuDetailsCard />);
+    await screen.findByText('Package 0 temperature');
+
+    const requested = sample.mock.calls[0]?.[0] ?? [];
+    const temperatures = requested.filter((metric) => metric.key === CPU_TEMPERATURE_PACKAGE_KEY);
+
+    expect(temperatures).toHaveLength(2);
+    expect(temperatures.map((metric) => metric.sourceId)).toEqual([
+      'cpu:package-0',
+      'cpu:package-1',
+    ]);
+  });
+
+  it('shows no temperature row on a machine that names no package', async () => {
+    // A hypervisor that hides the topology: no package source, no row, and
+    // nothing invented in its place.
+    mockBackend(4, defaultValue, 0);
+
+    render(<CpuDetailsCard />);
+    await screen.findByLabelText('Logical processors');
+
+    expect(screen.queryByText(/Package.*temperature/)).not.toBeInTheDocument();
   });
 });

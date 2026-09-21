@@ -1,11 +1,15 @@
 import type { MetricSample } from '@/types/metrics';
 import {
   GPU_COUNT,
+  GPU_FAN_SPEED_KEY,
   GPU_FREQUENCY_CORE_KEY,
   GPU_FREQUENCY_MEMORY_KEY,
   GPU_MEMORY_TOTAL_KEY,
   GPU_MEMORY_USAGE_PERCENT_KEY,
   GPU_MEMORY_USED_KEY,
+  GPU_TEMPERATURE_CORE_KEY,
+  GPU_TEMPERATURE_HOTSPOT_KEY,
+  GPU_TEMPERATURE_MEMORY_KEY,
   GPU_USAGE_CORE_KEY,
   metricRefId,
 } from '@/types/wellknown';
@@ -16,8 +20,10 @@ import { describeAvailability } from '@/utils/metrics';
 import {
   formatBytes,
   formatBytesScaledTo,
+  formatCelsius,
   formatHertz,
   formatPercent,
+  formatRpm,
   formatSampleTime,
 } from '@/utils/units';
 
@@ -97,7 +103,9 @@ export function GpuDetailsCard() {
 
           <p className="card__note">
             VRAM figures describe each adapter&apos;s dedicated video memory. System memory shared
-            with an integrated GPU is not reported as VRAM.
+            with an integrated GPU is not reported as VRAM. Hotspot and memory temperatures are
+            separate sensors, never derived from the GPU temperature, and a fan speed is shown only
+            when the driver reports genuine revolutions per minute.
           </p>
         </>
       )}
@@ -183,6 +191,22 @@ function GpuEntry({
         <Row label="Memory clock">
           <Frequency sample={sampleOf(GPU_FREQUENCY_MEMORY_KEY)} />
         </Row>
+
+        <Row label="Temperature">
+          <Temperature sample={sampleOf(GPU_TEMPERATURE_CORE_KEY)} />
+        </Row>
+
+        <Row label="Hotspot">
+          <Temperature sample={sampleOf(GPU_TEMPERATURE_HOTSPOT_KEY)} />
+        </Row>
+
+        <Row label="Memory temperature">
+          <Temperature sample={sampleOf(GPU_TEMPERATURE_MEMORY_KEY)} />
+        </Row>
+
+        <Row label="Fan">
+          <FanSpeed sample={sampleOf(GPU_FAN_SPEED_KEY)} />
+        </Row>
       </dl>
 
       {total !== null && used === null && (
@@ -228,6 +252,30 @@ function Row({ label, children }: { readonly label: string; readonly children: R
       <dd>{children}</dd>
     </div>
   );
+}
+
+/** A temperature in Celsius — or the reason there is none. */
+function Temperature({ sample }: { readonly sample: MetricSample | undefined }) {
+  if (sample && sample.value !== null && sample.value.type === 'number') {
+    return <>{formatCelsius(sample.value.value)}</>;
+  }
+
+  return <Unavailable sample={sample} />;
+}
+
+/**
+ * A fan speed in RPM — or the reason there is none.
+ *
+ * `0 RPM` and `—` mean different things and are shown differently: the first is
+ * a fan the driver reports as stopped, which is how a GPU below its zero-RPM
+ * threshold behaves; the second is a fan speed nothing measured.
+ */
+function FanSpeed({ sample }: { readonly sample: MetricSample | undefined }) {
+  if (sample && sample.value !== null && sample.value.type === 'number') {
+    return <>{formatRpm(sample.value.value)}</>;
+  }
+
+  return <Unavailable sample={sample} />;
 }
 
 /** A clock in hertz, rendered in GHz/MHz — or the reason it is absent. */

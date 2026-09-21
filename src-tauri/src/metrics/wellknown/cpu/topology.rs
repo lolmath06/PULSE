@@ -25,6 +25,9 @@ use crate::metrics::model::{Availability, SourceId};
 /// Prefix of a logical processor's source instance: `cpu:logical-0`.
 pub const LOGICAL_INSTANCE_PREFIX: &str = "logical-";
 
+/// Prefix of a processor package's source instance: `cpu:package-0`.
+pub const PACKAGE_INSTANCE_PREFIX: &str = "package-";
+
 /// The ordinal of one logical processor, as PULSE numbers them.
 ///
 /// **This is a slot number, not a hardware serial.** It identifies "the
@@ -83,6 +86,89 @@ impl LogicalId {
 impl fmt::Display for LogicalId {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.0)
+    }
+}
+
+/// The index of one processor package, as the platform numbers them.
+///
+/// **The same numbering as `cpu.count.package`, and deliberately not a second
+/// one.** On Linux it is the kernel's `physical_package_id`, which is what
+/// `coretemp` also labels its channels with (`Package id 0`), so the thermal
+/// reading and the topology count cannot come to describe different things.
+/// Inventing a thermal-only package numbering — "the first hwmon device is
+/// package 0" — is how a dual-socket machine ends up attributing one socket's
+/// temperature to the other.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct PackageId(u32);
+
+impl PackageId {
+    pub const fn new(index: u32) -> Self {
+        Self(index)
+    }
+
+    pub const fn get(self) -> u32 {
+        self.0
+    }
+
+    /// The canonical source identifier, e.g. `cpu:package-0`.
+    pub fn source_id(self) -> SourceId {
+        SourceId::new(format!("cpu:{PACKAGE_INSTANCE_PREFIX}{}", self.0))
+            .expect("a package source built from an integer is always valid")
+    }
+
+    /// The user-facing label, e.g. `Package 0`.
+    pub fn label(self) -> String {
+        format!("Package {}", self.0)
+    }
+
+    /// Recovers an index from a `cpu:package-N` source identifier.
+    ///
+    /// Returns `None` for any other source, including `cpu:system` and
+    /// `cpu:logical-0`.
+    pub fn from_source(source: &SourceId) -> Option<Self> {
+        if source.kind() != "cpu" {
+            return None;
+        }
+
+        source
+            .instance()
+            .strip_prefix(PACKAGE_INSTANCE_PREFIX)
+            .and_then(|index| index.parse::<u32>().ok())
+            .map(Self::new)
+    }
+}
+
+impl fmt::Display for PackageId {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+/// One processor package, and what can be measured on it.
+///
+/// Separate from the *count* of packages because the two answer different
+/// questions: a machine can know it has two sockets and be able to read a
+/// temperature from only one of them, and publishing a package with no sensor
+/// as absent-from-the-catalog would make a dashboard silently lose a widget.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct CpuPackage {
+    pub id: PackageId,
+    /// Whether `cpu.temperature.package` can be sampled here.
+    pub temperature: Availability,
+}
+
+impl CpuPackage {
+    /// A package whose temperature is readable.
+    pub fn available(id: PackageId) -> Self {
+        Self {
+            id,
+            temperature: Availability::Available,
+        }
+    }
+
+    /// A package whose temperature is not readable, and why.
+    pub fn unavailable(id: PackageId, temperature: Availability) -> Self {
+        Self { id, temperature }
     }
 }
 
@@ -151,6 +237,13 @@ pub struct CpuTopology {
     pub physical_core_count: Option<u32>,
     /// Distinct processor packages, when the platform could count them.
     pub package_count: Option<u32>,
+    /// The packages PULSE can name individually, **sorted by index** and
+    /// without duplicates.
+    ///
+    /// Empty on a platform that exposes no package topology, and empty is not
+    /// the same as `package_count == Some(0)`: a machine can know it has one
+    /// socket without PULSE being able to address it as a measurement source.
+    packages: Vec<CpuPackage>,
 }
 
 impl CpuTopology {
@@ -172,7 +265,30 @@ impl CpuTopology {
             logical,
             physical_core_count,
             package_count,
+            packages: Vec::new(),
         }
+    }
+
+    /// Attaches the packages this machine can be measured per-socket on.
+    ///
+    /// Kept out of [`CpuTopology::new`] so that adding a per-package
+    /// measurement never changes the signature every platform already calls,
+    /// and so a platform with no package-level sensor simply does not call it.
+    ///
+    /// Sorted and deduplicated here rather than trusted from the caller: a
+    /// duplicate index would reach the engine as a colliding metric reference
+    /// and get the whole provider rejected.
+    pub fn with_packages(mut self, mut packages: Vec<CpuPackage>) -> Self {
+        packages.sort_by_key(|package| package.id);
+        packages.dedup_by_key(|package| package.id);
+
+        self.packages = packages;
+        self
+    }
+
+    /// The packages that can be addressed individually, in ascending order.
+    pub fn packages(&self) -> &[CpuPackage] {
+        &self.packages
     }
 
     /// The logical processors, in ascending ordinal order.

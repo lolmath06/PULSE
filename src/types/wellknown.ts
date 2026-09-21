@@ -29,6 +29,8 @@ export const CPU_COUNT_LOGICAL_KEY = 'cpu.count.logical';
 export const CPU_COUNT_PHYSICAL_KEY = 'cpu.count.physical';
 /** Number of processor packages (sockets). */
 export const CPU_COUNT_PACKAGE_KEY = 'cpu.count.package';
+/** Temperature of one processor package, in degrees Celsius. */
+export const CPU_TEMPERATURE_PACKAGE_KEY = 'cpu.temperature.package';
 
 // --- sources --------------------------------------------------------------
 
@@ -63,6 +65,34 @@ export function cpuLogicalOrdinal(sourceId: SourceId): number | null {
 
   const ordinal = Number(suffix);
   return Number.isSafeInteger(ordinal) ? ordinal : null;
+}
+
+/** Prefix of a processor package's source instance: `cpu:package-0`. */
+const CPU_PACKAGE_PREFIX = 'cpu:package-';
+
+/**
+ * Builds the canonical source of one processor package, e.g. `cpu:package-0`.
+ *
+ * Mirrors `metrics::wellknown::cpu::topology::PackageId::source_id`.
+ */
+export function cpuPackageSourceId(index: number): SourceId {
+  return `${CPU_PACKAGE_PREFIX}${index}`;
+}
+
+/**
+ * Recovers a package's index from its source identifier.
+ *
+ * Strict for the same reason as {@link cpuLogicalOrdinal}: a malformed
+ * identifier must never be folded onto a real package's row.
+ */
+export function cpuPackageIndex(sourceId: SourceId): number | null {
+  if (!sourceId.startsWith(CPU_PACKAGE_PREFIX)) return null;
+
+  const suffix = sourceId.slice(CPU_PACKAGE_PREFIX.length);
+  if (!/^(0|[1-9][0-9]*)$/.test(suffix)) return null;
+
+  const index = Number(suffix);
+  return Number.isSafeInteger(index) ? index : null;
 }
 
 /** Aggregate CPU utilisation, 0–100 percent. */
@@ -183,7 +213,10 @@ export const GPU_THERMAL_KEYS: readonly string[] = [
  * Mirrors `metrics::wellknown::gpu::PER_GPU_KEYS`. The frontend never assumes
  * how many GPUs exist — it discovers their sources from the catalog.
  */
-export const GPU_PER_DEVICE_KEYS: readonly string[] = [...GPU_PERFORMANCE_KEYS] as const;
+export const GPU_PER_DEVICE_KEYS: readonly string[] = [
+  ...GPU_PERFORMANCE_KEYS,
+  ...GPU_THERMAL_KEYS,
+] as const;
 
 /** How many hardware GPUs this machine has. */
 export const GPU_COUNT: MetricRef = {

@@ -89,8 +89,14 @@ mod tests {
             };
             let logical = count_of(crate::metrics::wellknown::cpu::USAGE_LOGICAL);
             let gpus = count_of(crate::metrics::wellknown::gpu::USAGE_CORE);
+            let packages = count_of(crate::metrics::wellknown::cpu::TEMPERATURE_PACKAGE);
             assert!(logical > 0);
-            assert_eq!(status.metric_count, 9 + 3 * logical + 7 * gpus);
+            assert_eq!(
+                status.metric_count,
+                9 + 3 * logical
+                    + packages
+                    + crate::metrics::wellknown::gpu::PER_GPU_KEYS.len() * gpus
+            );
         } else {
             assert_eq!(status.provider_count, 0);
         }

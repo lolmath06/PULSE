@@ -6,9 +6,15 @@
 //! ```text
 //! linux.gpu
 //!  ├── generic inventory   /sys/class/drm        every adapter, every vendor
-//!  ├── NVIDIA capability   NVML (runtime-loaded) usage, VRAM, clocks
+//!  ├── thermal capability  <card>/device/hwmon   temperatures, fan
+//!  ├── NVIDIA capability   NVML (runtime-loaded) usage, VRAM, clocks, temperature
 //!  └── AMD capability      amdgpu sysfs          usage, VRAM, clocks
 //! ```
+//!
+//! The thermal layer is deliberately **not** a `linux.hwmon` provider of its
+//! own. A GPU's sensors and its counters describe the same device, so two
+//! providers would claim the same `SourceId` and the engine would reject one of
+//! them — the same reason NVML is not registered separately.
 //!
 //! Registering `linux.gpu`, `nvidia.nvml` and `amd.sysfs` as three separate
 //! providers would be the obvious alternative and is wrong: an NVIDIA card is
@@ -31,6 +37,7 @@
 
 pub mod amdgpu;
 pub mod drm;
+pub mod thermal;
 
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -41,6 +48,7 @@ use crate::metrics::model::{
 use crate::metrics::providers::MetricProvider;
 use crate::metrics::wellknown::gpu::{self, GpuDescriptor, GpuTelemetry, GpuVendor};
 use crate::platform::gpu::{self as shared, InventoriedGpu};
+use crate::platform::linux::hwmon;
 use crate::platform::nvml::NvmlBackend;
 
 /// Identifier of the Linux GPU provider.
@@ -57,11 +65,17 @@ enum Telemetry {
     None,
 }
 
-/// One device, with the backend that measures it.
+/// One device, with the backends that measure it.
 #[derive(Debug)]
 struct Device {
     descriptor: GpuDescriptor,
     telemetry: Telemetry,
+    /// Where this card's temperatures and fan speed are read from.
+    ///
+    /// Independent of [`Device::telemetry`] on purpose: a card whose driver
+    /// offers no counters at all can still have a working thermal sensor, and
+    /// that is exactly the `nouveau` case.
+    thermal: thermal::GpuThermalSources,
 }
 
 /// What the provider discovered at startup.
@@ -131,44 +145,67 @@ impl GpuInventory {
     /// Decides which backend measures a merged device, and refines its
     /// capabilities from what that backend actually reports.
     fn attach_telemetry(entry: InventoriedGpu, cards: &[drm::DrmCard]) -> Device {
-        if let Some(index) = entry.nvml_index {
-            // NVML already probed its own capabilities during discovery.
-            return Device {
-                descriptor: entry.descriptor,
-                telemetry: Telemetry::Nvml(index),
-            };
-        }
-
         let card = entry
             .descriptor
             .pci
             .and_then(|pci| cards.iter().find(|card| card.pci == pci));
 
-        let is_amdgpu = card
+        let driver = card
             .and_then(|card| card.driver.as_deref())
-            .is_some_and(|driver| driver == amdgpu::DRIVER);
+            .unwrap_or("graphics");
 
-        if let (true, Some(card)) = (is_amdgpu, card) {
-            let device_path = card.device_path(std::path::Path::new(drm::DRM_ROOT));
+        // Sensors first, and for every card whatever serves its counters: the
+        // two halves are independent, and a card with no telemetry backend may
+        // still report a temperature.
+        let device_path = card.map(|card| card.device_path(std::path::Path::new(drm::DRM_ROOT)));
+        let thermal = device_path
+            .as_deref()
+            .map(thermal::discover)
+            .unwrap_or_default();
+
+        if let Some(index) = entry.nvml_index {
+            // NVML already probed its own capabilities during discovery,
+            // thermals included: on a card NVML serves, its reading is the
+            // vendor's own and is preferred over a hwmon node.
+            return Device {
+                descriptor: entry.descriptor,
+                telemetry: Telemetry::Nvml(index),
+                thermal: thermal::GpuThermalSources::default(),
+            };
+        }
+
+        let is_amdgpu = driver == amdgpu::DRIVER;
+
+        if let (true, Some(device_path)) = (is_amdgpu, device_path.clone()) {
             let reading = amdgpu::read_device(&device_path);
             let mut descriptor = entry.descriptor;
             descriptor.backend = "amdgpu";
-            descriptor.capabilities = amd_capabilities(&reading);
+            descriptor.capabilities = thermal.apply(amd_capabilities(&reading), driver);
 
             return Device {
                 descriptor,
                 telemetry: Telemetry::Amdgpu(device_path),
+                thermal,
             };
         }
 
+        let mut descriptor = entry.descriptor;
+        descriptor.capabilities = thermal.apply(descriptor.capabilities, driver);
+        if !thermal.is_empty() {
+            // The card is inventoried by DRM and measured — thermally — through
+            // its own hwmon node, which is worth saying in diagnostics.
+            descriptor.backend = "hwmon";
+        }
+
         Device {
-            descriptor: entry.descriptor,
+            descriptor,
             telemetry: Telemetry::None,
+            thermal,
         }
     }
 
     fn telemetry_for(&self, device: &Device, nvml: Option<&dyn NvmlBackend>) -> GpuTelemetry {
-        match &device.telemetry {
+        let mut telemetry = match &device.telemetry {
             Telemetry::Nvml(index) => match nvml {
                 Some(nvml) => shared::nvml_telemetry(nvml, *index),
                 None => GpuTelemetry::default(),
@@ -181,10 +218,46 @@ impl GpuInventory {
                     memory: reading.memory,
                     frequency_core_hz: reading.core_clock_hz,
                     frequency_memory_hz: reading.memory_clock_hz,
+                    ..GpuTelemetry::default()
                 }
             }
             Telemetry::None => GpuTelemetry::default(),
-        }
+        };
+
+        read_thermals(&device.thermal, &mut telemetry);
+        telemetry
+    }
+}
+
+/// Reads this card's sensors into the telemetry, leaving what it has alone.
+///
+/// One read per sensor file per sample — four small files at most, and only for
+/// the sensors this card actually has. Nothing rescans `/sys`: the paths were
+/// resolved at startup.
+///
+/// A value the backend already provided (NVML's own temperature) is kept: the
+/// vendor library and a hwmon node describe the same sensor, and reading it
+/// twice would only add a way for the two to disagree.
+fn read_thermals(sources: &thermal::GpuThermalSources, telemetry: &mut GpuTelemetry) {
+    let temperature = |path: &Option<std::path::PathBuf>| {
+        path.as_deref()
+            .and_then(|path| hwmon::read_temperature_celsius(path).ok())
+    };
+
+    if telemetry.temperature_core_c.is_none() {
+        telemetry.temperature_core_c = temperature(&sources.temperature_core);
+    }
+    if telemetry.temperature_hotspot_c.is_none() {
+        telemetry.temperature_hotspot_c = temperature(&sources.temperature_hotspot);
+    }
+    if telemetry.temperature_memory_c.is_none() {
+        telemetry.temperature_memory_c = temperature(&sources.temperature_memory);
+    }
+    if telemetry.fan_rpm.is_none() {
+        telemetry.fan_rpm = sources
+            .fan
+            .as_deref()
+            .and_then(|path| hwmon::read_fan_rpm(path).ok());
     }
 }
 
@@ -241,6 +314,12 @@ fn amd_capabilities(reading: &amdgpu::AmdgpuReading) -> gpu::GpuCapabilities {
             Some(_) => Availability::Available,
             None => missing("active memory clock state"),
         },
+        // Replaced by `GpuThermalSources::apply`, which decides each of the
+        // four from the sensors this card actually exposes.
+        temperature_core: missing("temperature sensor"),
+        temperature_hotspot: missing("hotspot temperature sensor"),
+        temperature_memory: missing("memory temperature sensor"),
+        fan_speed: missing("fan speed sensor"),
     }
 }
 
@@ -302,8 +381,9 @@ impl MetricProvider for LinuxGpuProvider {
 
 /// Answers a request from freshly read telemetry.
 ///
-/// Each device is read **at most once per request**, however many of its seven
-/// metrics were asked for — one NVML round trip or one sysfs pass, not seven.
+/// Each device is read **at most once per request**, however many of its eleven
+/// metrics were asked for — one NVML round trip or one sysfs pass plus its
+/// sensor files, not eleven.
 fn samples_from(
     requested: &[MetricRef],
     devices: &[Device],
@@ -379,6 +459,10 @@ fn capability_for(device: &Device, key: &str) -> Availability {
         gpu::MEMORY_USAGE_PERCENT => &capabilities.memory_usage_percent,
         gpu::FREQUENCY_CORE => &capabilities.frequency_core,
         gpu::FREQUENCY_MEMORY => &capabilities.frequency_memory,
+        gpu::TEMPERATURE_CORE => &capabilities.temperature_core,
+        gpu::TEMPERATURE_HOTSPOT => &capabilities.temperature_hotspot,
+        gpu::TEMPERATURE_MEMORY => &capabilities.temperature_memory,
+        gpu::FAN_SPEED => &capabilities.fan_speed,
         _ => {
             return Availability::not_registered(format!("'{key}' is not a GPU metric"));
         }
@@ -419,6 +503,7 @@ mod tests {
                 capabilities,
             },
             telemetry: Telemetry::None,
+            thermal: thermal::GpuThermalSources::default(),
         }
     }
 
@@ -449,7 +534,7 @@ mod tests {
 
     #[test]
     fn each_device_is_read_once_however_many_of_its_metrics_are_requested() {
-        // The performance promise: seven metrics, one round trip.
+        // The performance promise: every metric of a device, one round trip.
         let devices = vec![device(1, GpuCapabilities::all_available())];
         let source = devices[0].descriptor.source_id.clone();
         let requested: Vec<MetricRef> = gpu::PER_GPU_KEYS
@@ -471,8 +556,8 @@ mod tests {
             devices.len(),
         );
 
-        assert_eq!(reads, 1, "one read served all seven metrics");
-        assert_eq!(samples.len(), 7);
+        assert_eq!(reads, 1, "one read served every metric of the device");
+        assert_eq!(samples.len(), gpu::PER_GPU_KEYS.len());
     }
 
     #[test]
@@ -621,7 +706,7 @@ mod tests {
     }
 
     #[test]
-    fn a_card_exposing_nothing_declares_all_seven_unavailable() {
+    fn a_card_exposing_nothing_declares_every_metric_unavailable() {
         let capabilities = amd_capabilities(&amdgpu::AmdgpuReading::default());
 
         assert_eq!(capabilities.available_count(), 0);
@@ -660,7 +745,10 @@ mod tests {
         let descriptors = provider.descriptors();
         let definitions = provider.describe().expect("describe");
 
-        assert_eq!(definitions.len(), 1 + 7 * descriptors.len());
+        assert_eq!(
+            definitions.len(),
+            1 + gpu::PER_GPU_KEYS.len() * descriptors.len()
+        );
         assert_eq!(provider.id().as_str(), "linux.gpu");
 
         // Every device has a unique, valid identity.

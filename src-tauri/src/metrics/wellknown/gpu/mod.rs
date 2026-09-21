@@ -11,8 +11,8 @@
 //! For `G` discovered GPUs:
 //!
 //! ```text
-//! 1   gpu.count@gpu:system
-//! 7G  seven metrics per GPU
+//! 1    gpu.count@gpu:system
+//! 11G  eleven metrics per GPU
 //! ```
 //!
 //! Nothing hardcodes `G`. A laptop with one card, a workstation with four, and
@@ -63,6 +63,30 @@ pub const FREQUENCY_CORE: &str = "gpu.frequency.core";
 /// `gpu.frequency.memory` — current memory clock, in hertz.
 pub const FREQUENCY_MEMORY: &str = "gpu.frequency.memory";
 
+/// `gpu.temperature.core` — the GPU die's own temperature, in degrees Celsius.
+pub const TEMPERATURE_CORE: &str = "gpu.temperature.core";
+/// `gpu.temperature.hotspot` — the hottest point on the GPU package, in degrees
+/// Celsius.
+///
+/// **A different sensor, never derived from the die temperature.** Vendors call
+/// it the junction or hotspot reading and it runs well above the die figure
+/// under load; computing one from the other would produce a number that looks
+/// right and tracks nothing.
+pub const TEMPERATURE_HOTSPOT: &str = "gpu.temperature.hotspot";
+/// `gpu.temperature.memory` — the video memory's temperature, in degrees
+/// Celsius.
+///
+/// Another distinct sensor. GDDR6X modules in particular run far hotter than
+/// the die, which is the entire reason this metric exists separately.
+pub const TEMPERATURE_MEMORY: &str = "gpu.temperature.memory";
+/// `gpu.fan.speed` — fan speed, in revolutions per minute.
+///
+/// **RPM, and only RPM.** Several interfaces report a fan's *duty cycle* as a
+/// percentage instead; that is a control setting, not a speed, and the two are
+/// not convertible — a fan at 40 % duty may be stopped, spinning up, or held at
+/// a curve point. A percentage is never republished here as an RPM.
+pub const FAN_SPEED: &str = "gpu.fan.speed";
+
 /// Every per-GPU key, in declaration order.
 pub const PER_GPU_KEYS: &[&str] = &[
     USAGE_CORE,
@@ -72,6 +96,34 @@ pub const PER_GPU_KEYS: &[&str] = &[
     MEMORY_USAGE_PERCENT,
     FREQUENCY_CORE,
     FREQUENCY_MEMORY,
+    TEMPERATURE_CORE,
+    TEMPERATURE_HOTSPOT,
+    TEMPERATURE_MEMORY,
+    FAN_SPEED,
+];
+
+/// The per-GPU keys describing **performance**: what the engine is doing.
+///
+/// Kept apart from [`THERMAL_KEYS`] because the two fail independently. An
+/// open-source driver commonly exposes a temperature and no utilisation
+/// counter, and a user told "GPU telemetry unavailable" in that situation is
+/// being told something false twice over.
+pub const PERFORMANCE_KEYS: &[&str] = &[
+    USAGE_CORE,
+    MEMORY_TOTAL,
+    MEMORY_USED,
+    MEMORY_FREE,
+    MEMORY_USAGE_PERCENT,
+    FREQUENCY_CORE,
+    FREQUENCY_MEMORY,
+];
+
+/// The per-GPU keys describing **temperature and cooling**.
+pub const THERMAL_KEYS: &[&str] = &[
+    TEMPERATURE_CORE,
+    TEMPERATURE_HOTSPOT,
+    TEMPERATURE_MEMORY,
+    FAN_SPEED,
 ];
 
 // --- sources --------------------------------------------------------------
@@ -132,6 +184,22 @@ pub fn frequency_memory_ref(source: &SourceId) -> MetricRef {
     gpu_ref(FREQUENCY_MEMORY, source)
 }
 
+pub fn temperature_core_ref(source: &SourceId) -> MetricRef {
+    gpu_ref(TEMPERATURE_CORE, source)
+}
+
+pub fn temperature_hotspot_ref(source: &SourceId) -> MetricRef {
+    gpu_ref(TEMPERATURE_HOTSPOT, source)
+}
+
+pub fn temperature_memory_ref(source: &SourceId) -> MetricRef {
+    gpu_ref(TEMPERATURE_MEMORY, source)
+}
+
+pub fn fan_speed_ref(source: &SourceId) -> MetricRef {
+    gpu_ref(FAN_SPEED, source)
+}
+
 // --- declarations ---------------------------------------------------------
 
 /// Declares every GPU metric PULSE ships for a discovered device list.
@@ -176,7 +244,7 @@ pub fn definitions(provider: &ProviderId, gpus: &[GpuDescriptor]) -> Vec<MetricD
     definitions
 }
 
-/// The seven metrics of one device.
+/// The eleven metrics of one device.
 fn per_gpu_definitions(provider: &ProviderId, gpu: &GpuDescriptor) -> Vec<MetricDefinition> {
     let label = gpu.display_name.as_str();
     let capabilities = &gpu.capabilities;
@@ -257,6 +325,42 @@ fn per_gpu_definitions(provider: &ProviderId, gpu: &GpuDescriptor) -> Vec<Metric
             "Current video memory clock the driver reports.",
             &capabilities.frequency_memory,
         ),
+        build(
+            temperature_core_ref(&gpu.source_id),
+            MetricUnit::Celsius,
+            MetricKind::Gauge,
+            "Temperature",
+            "Temperature of the graphics processor die, as its own sensor reports it.",
+            &capabilities.temperature_core,
+        ),
+        build(
+            temperature_hotspot_ref(&gpu.source_id),
+            MetricUnit::Celsius,
+            MetricKind::Gauge,
+            "Hotspot",
+            "Hottest point measured on the graphics processor package. A separate \
+             sensor from the die temperature, typically reading higher under load, \
+             and never derived from it.",
+            &capabilities.temperature_hotspot,
+        ),
+        build(
+            temperature_memory_ref(&gpu.source_id),
+            MetricUnit::Celsius,
+            MetricKind::Gauge,
+            "Memory temperature",
+            "Temperature of the dedicated video memory, from its own sensor.",
+            &capabilities.temperature_memory,
+        ),
+        build(
+            fan_speed_ref(&gpu.source_id),
+            MetricUnit::Rpm,
+            MetricKind::Gauge,
+            "Fan",
+            "Speed the adapter's fan is turning at, in revolutions per minute. A \
+             fan control percentage is a duty cycle rather than a speed, and is \
+             never published in its place.",
+            &capabilities.fan_speed,
+        ),
     ]
 }
 
@@ -273,6 +377,15 @@ pub struct GpuTelemetry {
     pub frequency_core_hz: Option<u64>,
     /// Memory clock in hertz.
     pub frequency_memory_hz: Option<u64>,
+    /// GPU die temperature, in degrees Celsius.
+    pub temperature_core_c: Option<f64>,
+    /// Package hotspot temperature, in degrees Celsius. **Never copied from
+    /// [`GpuTelemetry::temperature_core_c`]** — a different sensor.
+    pub temperature_hotspot_c: Option<f64>,
+    /// Video memory temperature, in degrees Celsius. Likewise its own sensor.
+    pub temperature_memory_c: Option<f64>,
+    /// Fan speed in revolutions per minute. Never converted from a duty cycle.
+    pub fan_rpm: Option<f64>,
 }
 
 impl GpuTelemetry {
@@ -286,6 +399,10 @@ impl GpuTelemetry {
             MEMORY_USAGE_PERCENT => self.memory.map(|memory| memory.usage_percent()),
             FREQUENCY_CORE => self.frequency_core_hz.map(|hz| hz as f64),
             FREQUENCY_MEMORY => self.frequency_memory_hz.map(|hz| hz as f64),
+            TEMPERATURE_CORE => self.temperature_core_c,
+            TEMPERATURE_HOTSPOT => self.temperature_hotspot_c,
+            TEMPERATURE_MEMORY => self.temperature_memory_c,
+            FAN_SPEED => self.fan_rpm,
             _ => None,
         }
     }
@@ -359,7 +476,7 @@ mod tests {
 
             assert_eq!(
                 definitions(&provider(), &gpus).len(),
-                1 + 7 * count,
+                1 + PER_GPU_KEYS.len() * count,
                 "wrong catalog size for {count} GPUs"
             );
         }
@@ -469,7 +586,11 @@ mod tests {
 
         let definitions = definitions(&provider(), std::slice::from_ref(&gpu));
 
-        assert_eq!(definitions.len(), 8, "still one count plus seven metrics");
+        assert_eq!(
+            definitions.len(),
+            1 + PER_GPU_KEYS.len(),
+            "still one count plus every device metric"
+        );
 
         let clock = definitions
             .iter()
@@ -486,35 +607,36 @@ mod tests {
     }
 
     #[test]
-    fn a_gpu_with_no_telemetry_backend_still_declares_all_seven() {
+    fn a_gpu_with_no_telemetry_backend_still_declares_every_metric() {
         let reason = Availability::unsupported("no telemetry backend for this device");
         let mut gpu = nvidia("GPU-1111", "NVIDIA GeForce RTX 4070");
         gpu.capabilities = GpuCapabilities::none_available(&reason);
 
         let definitions = definitions(&provider(), std::slice::from_ref(&gpu));
 
-        assert_eq!(definitions.len(), 8);
+        assert_eq!(definitions.len(), 1 + PER_GPU_KEYS.len());
         assert_eq!(
             definitions
                 .iter()
                 .filter(|definition| !definition.availability.is_available())
                 .count(),
-            7,
-            "the seven device metrics are unavailable; the count is not"
+            PER_GPU_KEYS.len(),
+            "every device metric is unavailable; the count is not"
         );
     }
 
     #[test]
     fn two_identical_cards_produce_distinct_non_colliding_references() {
         // The identity rule, at catalog level: same model, same name, two
-        // different UUIDs — and therefore fourteen distinct references.
+        // different UUIDs — and therefore two full, distinct sets of
+        // references.
         let gpus = vec![
             nvidia("GPU-aaaaaaaa-0000", "NVIDIA GeForce RTX 4090"),
             nvidia("GPU-bbbbbbbb-0000", "NVIDIA GeForce RTX 4090"),
         ];
         let definitions = definitions(&provider(), &gpus);
 
-        assert_eq!(definitions.len(), 1 + 14);
+        assert_eq!(definitions.len(), 1 + 2 * PER_GPU_KEYS.len());
 
         let mut references: Vec<String> = definitions
             .iter()
@@ -555,6 +677,10 @@ mod tests {
             memory: Some(GpuMemoryReading::from_total_and_used(8 * GIB, 2 * GIB).expect("valid")),
             frequency_core_hz: Some(2_100_000_000),
             frequency_memory_hz: Some(8_001_000_000),
+            temperature_core_c: Some(64.0),
+            temperature_hotspot_c: Some(78.0),
+            temperature_memory_c: Some(70.0),
+            fan_rpm: Some(2_187.0),
         };
 
         assert_eq!(telemetry.value_for(USAGE_CORE), Some(17.0));
@@ -567,6 +693,35 @@ mod tests {
             telemetry.value_for(FREQUENCY_MEMORY),
             Some(8_001_000_000_f64)
         );
+        assert_eq!(telemetry.value_for(TEMPERATURE_CORE), Some(64.0));
+        assert_eq!(telemetry.value_for(TEMPERATURE_HOTSPOT), Some(78.0));
+        assert_eq!(telemetry.value_for(TEMPERATURE_MEMORY), Some(70.0));
+        assert_eq!(telemetry.value_for(FAN_SPEED), Some(2_187.0));
+    }
+
+    #[test]
+    fn a_hotspot_is_never_answered_from_the_die_temperature() {
+        // Two different sensors. A card that reports one and not the other must
+        // publish one and not the other.
+        let telemetry = GpuTelemetry {
+            temperature_core_c: Some(64.0),
+            ..GpuTelemetry::default()
+        };
+
+        assert_eq!(telemetry.value_for(TEMPERATURE_CORE), Some(64.0));
+        assert_eq!(telemetry.value_for(TEMPERATURE_HOTSPOT), None);
+        assert_eq!(telemetry.value_for(TEMPERATURE_MEMORY), None);
+    }
+
+    #[test]
+    fn a_stopped_fan_is_a_reading_and_an_absent_one_is_not() {
+        let stopped = GpuTelemetry {
+            fan_rpm: Some(0.0),
+            ..GpuTelemetry::default()
+        };
+
+        assert_eq!(stopped.value_for(FAN_SPEED), Some(0.0));
+        assert_eq!(GpuTelemetry::default().value_for(FAN_SPEED), None);
     }
 
     #[test]
@@ -584,10 +739,7 @@ mod tests {
 
     #[test]
     fn an_unknown_key_resolves_to_nothing() {
-        assert_eq!(
-            GpuTelemetry::default().value_for("gpu.temperature.core"),
-            None
-        );
+        assert_eq!(GpuTelemetry::default().value_for("gpu.power.draw"), None);
     }
 
     #[test]
@@ -598,6 +750,10 @@ mod tests {
             memory: Some(GpuMemoryReading::from_total_and_used(GIB, 0).expect("valid")),
             frequency_core_hz: Some(1),
             frequency_memory_hz: Some(1),
+            temperature_core_c: Some(1.0),
+            temperature_hotspot_c: Some(1.0),
+            temperature_memory_c: Some(1.0),
+            fan_rpm: Some(1.0),
         };
 
         for key in PER_GPU_KEYS {

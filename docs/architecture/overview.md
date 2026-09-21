@@ -116,10 +116,11 @@ Two conventions matter already:
 Phase 2 added the first native collectors — CPU usage and physical memory, on
 both Fedora and Windows; Phase 3 grew the CPU support to per-logical-processor
 usage and frequency plus topology; Phase 4 added GPU inventory, identity and
-core telemetry across NVIDIA, AMD and Intel. The engine did not change to
-accommodate any of them, which was the point of building it first — including
-when the catalog stopped being a fixed list and became `9 + 3N + 7G` entries
-sized by the host's processor and adapter count.
+core telemetry across NVIDIA, AMD and Intel; Phase 5 added temperatures and fan
+speeds to both families. The engine did not change to accommodate any of them,
+which was the point of building it first — including when the catalog stopped
+being a fixed list and became `9 + 3N + P + 11G` entries sized by the host's
+processors, packages and adapters.
 
 The engine is the second boundary in PULSE, after the platform layer, and it
 exists to make one sentence true:
