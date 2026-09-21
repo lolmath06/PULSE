@@ -118,16 +118,21 @@ both Fedora and Windows; Phase 3 grew the CPU support to per-logical-processor
 usage and frequency plus topology; Phase 4 added GPU inventory, identity and
 core telemetry across NVIDIA, AMD and Intel; Phase 5 added temperatures and fan
 speeds to both families; Phase 6 added storage — physical devices, mounted
-filesystems, delta-based I/O rates and the standardised NVMe health log. The
-engine did not change to accommodate any of them, which was the point of
-building it first — including when the catalog stopped being a fixed list and
-became `11 + 3N + P + 11G + 13D + 4V` entries sized by the host's processors,
-packages, adapters, disks and volumes.
+filesystems, delta-based I/O rates and the standardised NVMe health log; and
+Phase 7 added networking — interfaces, their identity, delta-based traffic
+rates, link speeds and Wi-Fi link quality. The engine did not change to
+accommodate any of them, which was the point of building it first — including
+when the catalog stopped being a fixed list and became
+`13 + 3N + P + 11G + 13D + 4V + 11I + 4W` entries sized by the host's
+processors, packages, adapters, disks, volumes and network interfaces.
 
-Phase 6 is the first to have needed anything of the _contract_, and only two
-small, well-justified additions: two units (`operationsPerSecond`, `hours`) so
-a rate is never published as a quantity, and a `volume:` source kind so a
-filesystem can never be confused with the disk it lives on.
+Phases 6 and 7 are the only two to have needed anything of the _contract_, and
+only small, well-justified additions: five units, so a rate is never published
+as a quantity (`operationsPerSecond`, `packetsPerSecond`), a link capacity
+never as observed traffic (`bitsPerSecond`), a duration never with invented
+precision (`hours`) and a logarithmic signal never as a bare number
+(`decibelMilliwatts`); and one source kind, `volume:`, so a filesystem can
+never be confused with the disk it lives on.
 
 The engine is the second boundary in PULSE, after the platform layer, and it
 exists to make one sentence true:
@@ -180,18 +185,22 @@ metric's key, unit, kind, user-facing text and arithmetic. Platform providers
 supply only raw counters and the topology they discovered. For metric families
 whose size depends on the machine, `wellknown` exposes a **generator** —
 `cpu::definitions(provider, topology)`, `gpu::definitions(provider, devices)`,
-`storage::definitions(provider, devices, volumes)` — rather than a constant
-list, so neither platform invents its own per-processor or per-device keys and
-labels.
+`storage::definitions(provider, devices, volumes)`,
+`network::definitions(provider, interfaces)` — rather than a constant list, so
+neither platform invents its own per-processor or per-device keys and labels.
+The generator is also where a shared _filter_ belongs: loopback is excluded
+from the network catalog there, so neither platform has to remember it and the
+two cannot disagree.
 
 A provider owns a whole metric _family_, not a device: `linux.gpu` hosts the DRM
 inventory, the NVML capability and the AMDGPU capability together, and
 `linux.storage` hosts the block inventory, the mount table, `statvfs`, the I/O
-counters and the NVMe health log. Splitting either would make two providers
-claim the same `MetricRef` for a device both can see, which the engine rejects
-by design. A supported platform therefore registers **four** providers — CPU,
-memory, GPU, storage — whatever the machine holds; it is the metric count that
-scales.
+counters and the NVMe health log, and `linux.network` hosts `rtnetlink`,
+`nl80211`, the address dump and the link-speed read. Splitting any of them
+would make two providers claim the same `MetricRef` for a device both can see,
+which the engine rejects by design. A supported platform therefore registers
+**five** providers — CPU, memory, GPU, storage, network — whatever the machine
+holds; it is the metric count that scales.
 
 Contract tests assert that the Linux and Windows declarations, generated for the
 same synthetic topology, differ in `providerId` and nothing else — that is the
@@ -206,8 +215,9 @@ history and its ring buffer. The interaction model is still
 See [`../metrics/README.md`](../metrics/README.md),
 [`../metrics/model.md`](../metrics/model.md),
 [`../metrics/identifiers.md`](../metrics/identifiers.md),
-[`../metrics/providers.md`](../metrics/providers.md) and
-[`../metrics/storage.md`](../metrics/storage.md).
+[`../metrics/providers.md`](../metrics/providers.md),
+[`../metrics/storage.md`](../metrics/storage.md) and
+[`../metrics/network.md`](../metrics/network.md).
 
 ## 5. Widgets (future)
 

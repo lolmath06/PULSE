@@ -56,6 +56,8 @@ windows = { version = "0.61", features = ["Win32_Graphics_Dxgi"] }
 #   Storage_FileSystem  CreateFileW, the volume enumeration, GetDiskFreeSpaceExW
 #   System_Ioctl        the storage and disk control codes' own declarations
 #   Devices_…Installation  SetupDi* — enumerating the disks that are present
+#   NetworkManagement_IpHelper  GetIfTable2, FreeMibTable
+#   NetworkManagement_WiFi      WlanOpenHandle, WlanEnumInterfaces, WlanQueryInterface
 windows-sys = { version = "0.61", features = [
     "Win32_Foundation",
     "Win32_System_Threading",
@@ -72,6 +74,10 @@ windows-sys = { version = "0.61", features = [
     "Win32_Devices_DeviceAndDriverInstallation",
     "Win32_Security",
     "Win32_System_SystemServices",
+    "Win32_NetworkManagement_IpHelper",
+    "Win32_NetworkManagement_Ndis",
+    "Win32_NetworkManagement_WiFi",
+    "Win32_Networking_WinSock",
 ] }
 
 [profile.release]

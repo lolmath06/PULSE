@@ -24,6 +24,7 @@ pub mod cpu_perf;
 pub mod cpu_topology;
 pub mod gpu;
 pub mod memory;
+pub mod network;
 pub mod ntdll;
 pub mod storage;
 
@@ -70,6 +71,7 @@ impl HostPlatform for WindowsPlatform {
             memory::provider(),
             gpu::provider(),
             storage::provider(),
+            network::provider(),
         ]
     }
 

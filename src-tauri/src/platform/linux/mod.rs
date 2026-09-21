@@ -10,6 +10,7 @@ pub mod cpu_thermal;
 pub mod gpu;
 pub mod hwmon;
 pub mod memory;
+pub mod network;
 mod os_release;
 pub mod storage;
 
@@ -45,7 +46,7 @@ impl HostPlatform for LinuxPlatform {
     /// CPU from `/proc/stat` and `/sys/devices/system/cpu/`, memory from
     /// `/proc/meminfo`, GPUs from `/sys/class/drm` and NVML, storage from
     /// `/sys/class/block`, `/proc/diskstats`, `/proc/self/mountinfo` and
-    /// `statvfs`.
+    /// `statvfs`, network from `rtnetlink`, `nl80211` and `/sys/class/net`.
     ///
     /// All are world-readable, so none needs root. The one interface that
     /// does — the NVMe health log — is read opportunistically by the storage
@@ -57,6 +58,7 @@ impl HostPlatform for LinuxPlatform {
             memory::provider(),
             gpu::provider(),
             storage::provider(),
+            network::provider(),
         ]
     }
 

@@ -7,6 +7,153 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added — Phase 7: Network interfaces, traffic & Wi-Fi quality
+
+Network interfaces, their identity, delta-based traffic rates and Wi-Fi link
+quality, on both platforms. This phase is deliberately **passive**: it reads
+counters the operating system was already keeping and sends not one packet.
+
+- **Two machine-wide metrics** — `network.interface.count` (count, state) and
+  `network.interface.up_count` (count, gauge), on `network:system`.
+- **Eleven metrics per interface** — `network.receive`/`transmit` for
+  `.bytes_per_second`, `.packets_per_second`, `.errors_per_second` and
+  `.dropped_per_second`; `network.link.receive_speed` and `.transmit_speed`;
+  and `network.mtu`.
+- **Four metrics per Wi-Fi interface** — `network.wifi.signal.quality`,
+  `.signal.rssi`, `.link.receive_rate` and `.link.transmit_rate`, declared
+  **only** on wireless interfaces.
+- **A catalog still sized by the machine** — `2 + 11I + 4W` network metrics for
+  `I` published interfaces and `W` radios, bringing the total to
+  `13 + 3N + P + 11G + 13D + 4V + 11I + 4W`: **307** on the reference machine
+  (32 threads, 1 package, 1 GPU, 2 disks, 6 filesystems, 12 interfaces, 1
+  radio). Nothing hardcodes any of them.
+- **Provider count goes to 5.** `linux.network` and `windows.network` each own
+  five backends. Wi-Fi is a **capability**, never a `linux.wifi` beside it: a
+  radio is one interface with one identity, and a second provider publishing
+  about it would claim the same `SourceId` and be rejected by the engine.
+
+Three additions to the shared contract, each preventing a specific confusion:
+
+- **`packetsPerSecond`**, deliberately not `operationsPerSecond`. A disk
+  operation and a network packet come from different subsystems and differ by
+  orders of magnitude on the same machine; sharing an axis would invite
+  comparing 900 IOPS with 900 packets/s as if they meant the same thing.
+- **`bitsPerSecond`** for link capacity. A 1 Gbit/s link carrying 12 MiB/s is
+  one number in bits and one in bytes, and conflating them is a factor-of-eight
+  error that looks entirely plausible. The card renders capacity with decimal
+  prefixes and traffic with binary ones, because that is what networking and
+  storage each actually use.
+- **`decibelMilliwatts`** for signal strength. A logarithmic, negative scale
+  that must never be averaged arithmetically or rendered from zero.
+
+Where the numbers come from:
+
+| Layer            | Fedora                                 | Windows                              |
+| ---------------- | -------------------------------------- | ------------------------------------ |
+| Inventory        | `rtnetlink` `RTM_GETLINK`              | `GetIfTable2` / `MIB_IF_ROW2`        |
+| Identity         | `IFLA_PERM_ADDRESS`                    | `PermanentPhysicalAddress`, `InterfaceGuid` |
+| Traffic counters | `IFLA_STATS64`, in the same dump       | the same table                       |
+| Link speed       | `/sys/class/net/<iface>/speed`         | `ReceiveLinkSpeed`, `TransmitLinkSpeed` |
+| Addresses        | `rtnetlink` `RTM_GETADDR`              | not read in this phase               |
+| Which are Wi-Fi  | `nl80211` `GET_INTERFACE`              | `NDIS_PHYSICAL_MEDIUM`               |
+| Wi-Fi link       | `nl80211` `GET_STATION`                | WLAN realtime connection quality     |
+
+What it deliberately refuses to publish, each enforced by a test:
+
+- **`0 B/s` before a baseline exists.** Traffic is a rate: the first sample has
+  nothing to difference against and says so, rather than reporting an
+  unmeasured interface as idle. Over a real interval, `0 B/s` and `0 pkt/s`
+  *are* published, because they are measurements.
+- **A spike after a counter reset.** An interface bounced down and up, a driver
+  reset, a recreated virtual interface or Windows's 32-bit packet counters
+  wrapping all make a total go down; any single field regressing restarts the
+  baseline.
+- **A quality percentage derived from dBm.** Every common formula is arbitrary:
+  the usual one reads an ordinary −55 dBm link as 90 % and a marginal −85 dBm
+  link as 30 %, and Windows's own mapping differs again. PULSE publishes a
+  percentage only where the platform computes one — so Windows has it and
+  Fedora reports `unsupported` with that reason, alongside a real RSSI.
+- **An averaged multi-link RSSI, or `links[0]`.** dBm is logarithmic, so the
+  mean of −50 and −90 is not −70; PULSE publishes the **strongest active
+  link's** reading and says so.
+- **`0 bit/s` as a link speed.** Fedora reports `-1`/`EINVAL` and Windows `0`
+  and sometimes `u64::MAX` to mean "nothing negotiated"; none is published,
+  because a link speed of zero claims a connection with no capacity.
+- **Only the unicast half of a Windows packet count.** `InUcastPkts` alone
+  silently drops every broadcast and multicast frame; the total is
+  `Ucast + NUcast`, with checked arithmetic.
+- **A drop counter presented as packet loss.** `rx_dropped` counts frames this
+  machine discarded *after receiving them*, and says nothing about packets lost
+  on the Internet. Errors and drops are also kept apart: a broken frame and an
+  intact one nobody wanted are different counters.
+- **A kind guessed from a name.** Every Wi-Fi station reports `ARPHRD_ETHER` on
+  Linux and frequently `IF_TYPE_ETHERNET` on Windows, exactly like a wired NIC.
+  PULSE asks `nl80211` and `NDIS_PHYSICAL_MEDIUM` instead.
+- **Loopback as a user interface.** Always present, only ever carrying traffic
+  that never left the machine. Excluded in the *shared* declaration code, so
+  neither platform can forget and the two cannot disagree.
+
+Also in this phase:
+
+- **Identity survives MAC randomisation.** Both NetworkManager and Windows
+  randomise a Wi-Fi interface's current MAC per network by default, so an
+  identity built on it would change every time the user moved between home and
+  the office. PULSE prefers the **permanent** address — `IFLA_PERM_ADDRESS`,
+  `PermanentPhysicalAddress` — which is six bytes burned into the adapter and
+  **identical on both operating systems**, so the same radio yields
+  `network:mac-9009df3e97f2` on Fedora and on Windows. A contract test asserts
+  it. `eth0`, an interface index, and an IP address are never identities; an
+  all-zero permanent address, which every tunnel reports, is refused rather
+  than collapsing every VPN onto one identifier.
+- **No SSID, no BSSID, no location permission.** On Windows the obvious source
+  for a signal reading also returns the network's identity, which makes the
+  call subject to the machine's location permission. PULSE uses
+  `wlan_intf_opcode_realtime_connection_quality`, which carries neither — and
+  **does not fall back** to the location-gated call when an older Windows lacks
+  it, because a monitoring tool should not reach for a location interface
+  behind the user's back to get a number it just said it could not get.
+- **Read-only, and no subprocesses.** The netlink socket joins no multicast
+  group and can express only `RTM_GETLINK`, `RTM_GETADDR` and two `nl80211`
+  reads. No `ip`, `ifconfig`, `ethtool`, `iw`, `iwconfig`, `nmcli`,
+  `networkctl`, `PowerShell`, `netsh`, `wmic` or `ipconfig`, anywhere. Nothing
+  configures an address, changes a link, joins a network or sends a packet.
+- **Netlink is parsed in PULSE, with every bound checked.** The alternative
+  crates are large, asynchronous, or a stack of five; what PULSE needs is one
+  attribute iterator and two header structs, shared by both families. The
+  payoff is that the fuzz-shaped cases are unit tests: a zero-length attribute
+  that would hang a naive walker, one claiming more than the buffer holds, a
+  truncated message, a multipart reply that never terminates, a stale reply
+  from a previous request. A malformed message becomes a `MetricError`, never a
+  crash.
+- **One transaction per refresh, not one per metric.** On the reference machine
+  a refresh is **three netlink round trips and one file read** for thirteen
+  interfaces; the `/sys/class/net/*/statistics/` shape would be 104 file opens
+  at 104 different instants — and rates need one instant.
+- **Windows memory is freed through RAII guards.** `FreeMibTable` and
+  `WlanFreeMemory` run on every path out, including the error ones, and the
+  interface rows are copied out before the table is released so no raw pointer
+  leaves the FFI.
+- **Windows parsing is tested on Fedora.** `MIB_IF_ROW2` is declared as a
+  `#[repr(C)]` struct with a compile-time assertion pinning its documented
+  1352-byte size — the compiler computes the offsets — and the kind mapping,
+  state mapping, counter arithmetic, WLAN response parsing and identity rules
+  are all pure functions over synthetic structures.
+- **UI** — a new *Network details* card: interface and connected counts, then a
+  compact grid of adapters with their kind, state, MTU, addresses, eight
+  traffic rows and, for a radio, four Wi-Fi rows. Bridges and container links
+  are collapsed behind *Show all (N)* so a machine running containers does not
+  bury its two real adapters — collapsed, never hidden. Before a baseline
+  exists the card says *Waiting for another sample* rather than showing zeros,
+  and fires no hidden second request. Still one sample on mount and one per
+  Refresh: no polling.
+- **Documentation** — [`docs/metrics/network.md`](docs/metrics/network.md).
+
+**Deliberately out of scope**, and stated as such: ping, round-trip latency,
+jitter, Internet packet loss, DNS timing, throughput capacity tests, public-IP
+lookup and geolocation. Each needs an active probe against a chosen target,
+with a cadence and a privacy decision attached. Keeping them out is what lets
+the passive foundation ship without one.
+
 ### Added — Phase 6: Storage inventory, I/O, volumes & NVMe health
 
 Physical storage devices, mounted filesystems, real I/O rates and the

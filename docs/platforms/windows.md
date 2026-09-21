@@ -36,6 +36,10 @@ Windows is a **first-class PULSE platform**, on equal footing with Fedora Linux.
 | `storage.io.*`                                                          | `IOCTL_DISK_PERFORMANCE`                                               | Per device, by handle; 100 ns → ms; delta between two samples          |
 | `storage.health.*`                                                      | `IOCTL_STORAGE_QUERY_PROPERTY` + `ProtocolTypeNvme` log `0x02`         | NVMe only; ATA SMART deferred                                          |
 | `storage.volume.capacity.*`                                             | `GetDiskFreeSpaceExW`                                                  | `used = total - free`, `available = free to this caller`               |
+| `network.interface.count`                                               | `GetIfTable2` / `MIB_IF_ROW2`                                          | Loopback excluded; one call returns identity, state and counters       |
+| `network.receive.*`, `network.transmit.*`                               | the same table                                                         | Packets are `Ucast + NUcast`; discards are drops, not errors           |
+| `network.link.*_speed`                                                  | `ReceiveLinkSpeed`, `TransmitLinkSpeed`                                | Already bits/s; `0` and `u64::MAX` both mean unknown                   |
+| `network.wifi.*`                                                        | WLAN `realtime_connection_quality`                                     | No SSID, no BSSID, no location permission — see below                  |
 
 ### GPU
 
@@ -271,10 +275,11 @@ pnpm rust:windows:lint   # cargo clippy --target x86_64-pc-windows-msvc -D warni
 The harness pins the same `rust-version = 1.77.2` as the application, so it
 refuses anything PULSE itself could not compile.
 
-It proves the Windows CPU, memory, GPU and storage providers, the DXGI and
-`D3DKMT` layers, the SetupAPI disk enumeration, the storage and volume device
-controls, the NVMe health path, the NVML loader and every metric declaration
-compile and type check for Windows. It proves **nothing about runtime
+It proves the Windows CPU, memory, GPU, storage and network providers, the DXGI
+and `D3DKMT` layers, the SetupAPI disk enumeration, the storage and volume
+device controls, the NVMe health path, `GetIfTable2`, the WLAN realtime-quality
+path, the NVML loader and every metric declaration compile and type check for
+Windows. It proves **nothing about runtime
 behaviour** — nothing here executes on Windows. CI's `windows-latest` job builds
 and runs the whole crate; a physical machine is still the only real validation.
 
@@ -356,9 +361,61 @@ What is used instead, all by handle and all read-only:
 read access, no write access, only the informational controls above. Nothing in
 PULSE can modify a disk.
 
-### Network
+### Network — implemented in Phase 7
 
-- PDH counters (`\Network Interface(*)`), or `GetIfTable2`.
+Not PDH. `\Network Interface(*)\Bytes Received/sec` is the obvious source and
+is not used, for the same reason `\PhysicalDisk` was not used for storage: its
+instance names are presentation strings derived from the adapter description,
+they are localised, they are mangled — parentheses and slashes are rewritten —
+and correlating one back to a `MIB_IF_ROW2` means matching munged text.
+
+What is used instead:
+
+- **`GetIfTable2`** — one call returning every interface's LUID, GUID,
+  description, alias, both hardware addresses, MTU, type, physical medium,
+  operational status, media connect state, both link speeds **and** twenty
+  counters. Freed with `FreeMibTable` through an RAII guard, and the rows are
+  copied out before the table is released, so no raw pointer leaves the FFI.
+- **`PermanentPhysicalAddress`** for identity, falling back to
+  `InterfaceGuid` for a virtual adapter that has none. **Never
+  `InterfaceIndex`**, which Microsoft documents as changing when adapters are
+  added or removed.
+- **`NDIS_PHYSICAL_MEDIUM`** to recognise a wireless adapter. Not `Type`: a
+  great many wireless drivers report `IF_TYPE_ETHERNET` for compatibility,
+  exactly as a Linux Wi-Fi station reports `ARPHRD_ETHER`.
+- **The `HardwareInterface` flag** to tell a real Ethernet port from a Hyper-V
+  switch or a VPN adapter, both of which report Ethernet without being
+  hardware.
+- **`WlanOpenHandle` / `WlanEnumInterfaces` / `WlanQueryInterface`** with
+  `wlan_intf_opcode_realtime_connection_quality`. Buffers freed with
+  `WlanFreeMemory`, through the same guard pattern.
+
+`MIB_IF_ROW2` is declared in PULSE as a `#[repr(C)]` struct rather than taken
+from a binding crate, with a compile-time assertion pinning its documented
+1352-byte size. The compiler computes the offsets — there are no hand-counted
+byte positions — and every field read is a pure function, so it is unit-tested
+on Fedora against synthetic rows.
+
+### Wi-Fi without location permission
+
+The obvious source for a signal strength is
+`wlan_intf_opcode_current_connection`, which returns signal quality, rates,
+**and the SSID and BSSID**. On recent Windows those last two make the call
+subject to the machine's **location permission**, because a BSSID is a
+geolocation primitive.
+
+PULSE wants _how good is this link_, not _which network is this and where_, so
+it asks the realtime-quality opcode, which carries no network identity at all.
+Nothing in the Windows network layer requests, parses, stores or displays an
+SSID or a BSSID.
+
+That opcode is recent. On a Windows build that does not implement it, the query
+fails and the four Wi-Fi metrics report as unavailable with that reason —
+PULSE does **not** fall back to the location-gated call. Falling back would
+work, and would mean a monitoring tool silently reaching for a location-gated
+interface behind the user's back. The generic interface metrics are unaffected
+either way, which is the point of keeping Wi-Fi as a capability rather than a
+precondition.
 
 ### CPU temperature — declared, and honestly unsupported
 
@@ -410,6 +467,11 @@ Neither is done quietly.
 Same principle as Fedora: **PULSE must be useful without administrator
 rights.** Elevation-requiring data (MSR-based temperatures, some PDH counter
 sets) is an optional, clearly labelled enhancement.
+
+`GetIfTable2` and the WLAN queries PULSE uses need no elevation. Where the WLAN
+service is stopped, the machine has no wireless hardware, or the Windows build
+predates the realtime-quality opcode, the Wi-Fi metrics report as unavailable
+and every generic network metric keeps working.
 
 The storage layer is designed around this: `dwDesiredAccess = 0` is what lets an
 unelevated process issue the device queries at all. Where Windows still refuses

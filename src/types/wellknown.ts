@@ -390,3 +390,126 @@ export function isStorageDeviceSource(sourceId: SourceId): boolean {
 export function isStorageVolumeSource(sourceId: SourceId): boolean {
   return sourceId.startsWith('volume:');
 }
+
+// --- network --------------------------------------------------------------
+//
+// Mirrors `metrics::wellknown::network`. Two things to keep straight:
+//
+// - **Direction is from the machine's point of view.** `receive` is inbound
+//   and renders as *Download*; `transmit` is outbound and renders as *Upload*.
+// - **Traffic is in bytes, link capacity in bits.** A 1 Gbit/s link carrying
+//   12 MiB/s is two different units, and mixing them is a factor-of-eight
+//   error that looks entirely plausible.
+
+/** Number of network interfaces PULSE monitors. Loopback is excluded. */
+export const NETWORK_INTERFACE_COUNT_KEY = 'network.interface.count';
+/** How many of those currently carry a link. */
+export const NETWORK_INTERFACE_UP_COUNT_KEY = 'network.interface.up_count';
+
+/** Bytes arriving at this machine per second. Rendered as **Download**. */
+export const NETWORK_RECEIVE_BYTES_KEY = 'network.receive.bytes_per_second';
+/** Bytes leaving this machine per second. Rendered as **Upload**. */
+export const NETWORK_TRANSMIT_BYTES_KEY = 'network.transmit.bytes_per_second';
+/** Packets arriving per second. */
+export const NETWORK_RECEIVE_PACKETS_KEY = 'network.receive.packets_per_second';
+/** Packets leaving per second. */
+export const NETWORK_TRANSMIT_PACKETS_KEY = 'network.transmit.packets_per_second';
+/** Malformed inbound frames rejected per second. */
+export const NETWORK_RECEIVE_ERRORS_KEY = 'network.receive.errors_per_second';
+/** Outbound frames that failed to transmit, per second. */
+export const NETWORK_TRANSMIT_ERRORS_KEY = 'network.transmit.errors_per_second';
+/** Intact inbound frames discarded per second. **Not Internet packet loss.** */
+export const NETWORK_RECEIVE_DROPPED_KEY = 'network.receive.dropped_per_second';
+/** Outbound frames discarded before transmission, per second. */
+export const NETWORK_TRANSMIT_DROPPED_KEY = 'network.transmit.dropped_per_second';
+
+/** The link's negotiated inbound capacity, in bits per second. */
+export const NETWORK_LINK_RECEIVE_SPEED_KEY = 'network.link.receive_speed';
+/** The link's negotiated outbound capacity, in bits per second. */
+export const NETWORK_LINK_TRANSMIT_SPEED_KEY = 'network.link.transmit_speed';
+/** The largest payload this interface carries in one frame, in bytes. */
+export const NETWORK_MTU_KEY = 'network.mtu';
+
+/** A 0–100 link quality figure, only where the platform computes one. */
+export const NETWORK_WIFI_SIGNAL_QUALITY_KEY = 'network.wifi.signal.quality';
+/** Received signal strength, in dBm. */
+export const NETWORK_WIFI_SIGNAL_RSSI_KEY = 'network.wifi.signal.rssi';
+/** Negotiated inbound Wi-Fi rate, in bits per second. */
+export const NETWORK_WIFI_LINK_RECEIVE_RATE_KEY = 'network.wifi.link.receive_rate';
+/** Negotiated outbound Wi-Fi rate, in bits per second. */
+export const NETWORK_WIFI_LINK_TRANSMIT_RATE_KEY = 'network.wifi.link.transmit_rate';
+
+/** The machine-wide network source. */
+export const NETWORK_SYSTEM_SOURCE: SourceId = 'network:system';
+
+/**
+ * The per-interface metrics describing **traffic**.
+ *
+ * All eight need two samples to exist at all, which is why they are grouped:
+ * before a baseline exists they are absent together, and the card says so once
+ * rather than eight times.
+ */
+export const NETWORK_TRAFFIC_KEYS: readonly string[] = [
+  NETWORK_RECEIVE_BYTES_KEY,
+  NETWORK_TRANSMIT_BYTES_KEY,
+  NETWORK_RECEIVE_PACKETS_KEY,
+  NETWORK_TRANSMIT_PACKETS_KEY,
+  NETWORK_RECEIVE_ERRORS_KEY,
+  NETWORK_TRANSMIT_ERRORS_KEY,
+  NETWORK_RECEIVE_DROPPED_KEY,
+  NETWORK_TRANSMIT_DROPPED_KEY,
+] as const;
+
+/** The per-interface metrics describing the **link** itself. */
+export const NETWORK_LINK_KEYS: readonly string[] = [
+  NETWORK_LINK_RECEIVE_SPEED_KEY,
+  NETWORK_LINK_TRANSMIT_SPEED_KEY,
+  NETWORK_MTU_KEY,
+] as const;
+
+/**
+ * Every metric PULSE publishes per interface.
+ *
+ * Mirrors `metrics::wellknown::network::PER_INTERFACE_KEYS`.
+ */
+export const NETWORK_PER_INTERFACE_KEYS: readonly string[] = [
+  ...NETWORK_TRAFFIC_KEYS,
+  ...NETWORK_LINK_KEYS,
+] as const;
+
+/**
+ * Every metric PULSE publishes per Wi-Fi interface.
+ *
+ * Declared **only** on wireless interfaces: an RSSI on an Ethernet port is not
+ * a missing measurement, there is no radio.
+ */
+export const NETWORK_PER_WIFI_KEYS: readonly string[] = [
+  NETWORK_WIFI_SIGNAL_QUALITY_KEY,
+  NETWORK_WIFI_SIGNAL_RSSI_KEY,
+  NETWORK_WIFI_LINK_RECEIVE_RATE_KEY,
+  NETWORK_WIFI_LINK_TRANSMIT_RATE_KEY,
+] as const;
+
+/** How many interfaces PULSE monitors. */
+export const NETWORK_INTERFACE_COUNT: MetricRef = {
+  key: NETWORK_INTERFACE_COUNT_KEY,
+  sourceId: NETWORK_SYSTEM_SOURCE,
+};
+
+/** How many of them currently carry a link. */
+export const NETWORK_INTERFACE_UP_COUNT: MetricRef = {
+  key: NETWORK_INTERFACE_UP_COUNT_KEY,
+  sourceId: NETWORK_SYSTEM_SOURCE,
+};
+
+/**
+ * Whether a source identifies one network interface.
+ *
+ * Every interface source is `network:<instance>`; `network:system` is the
+ * machine-wide aggregate and is deliberately excluded. Nothing here parses the
+ * instance — whether it encodes a permanent MAC, a Windows GUID or an
+ * interface name is the backend's business.
+ */
+export function isNetworkInterfaceSource(sourceId: SourceId): boolean {
+  return sourceId.startsWith('network:') && sourceId !== NETWORK_SYSTEM_SOURCE;
+}

@@ -11,16 +11,18 @@
 
 ## Status
 
-**Phase 6 — Storage inventory, I/O, volumes & NVMe health.** Version `0.1.0-dev`.
+**Phase 7 — Network interfaces, traffic & Wi-Fi quality.** Version `0.1.0-dev`.
 
 PULSE can now answer, on Fedora and Windows behind exactly the same contract:
 
 > How many physical cores and logical processors does my CPU have, what is each
 > logical processor doing, which GPUs does this machine have, what is their
 > stable identity, what load, memory and clocks do they report, how hot are the
-> processor and the graphics card actually running — and which storage devices
-> does this machine have, how full are its filesystems, how much is it really
-> reading and writing, and what does an NVMe controller say about its own wear?
+> processor and the graphics card actually running, which storage devices does
+> this machine have, how full are its filesystems, how much is it really
+> reading and writing, what does an NVMe controller say about its own wear —
+> and which network interfaces does it have, which are connected, how much are
+> they actually carrying, and how good is the Wi-Fi link?
 
 On top of the Phase 0 foundation, the Phase 1 metrics contract and the Phase 2
 collectors, it reads **per-logical-processor usage, per-logical-processor
@@ -57,22 +59,37 @@ work is again mostly what it refuses — a disk is not a filesystem, a mount poi
 is not an identity, `0 ms` is not a latency for a disk that completed no
 operation, and `100 - percentage_used` is not a health score.
 
-The catalog is **sized by the machine**: `11 + 3N + P + 11G + 13D + 4V` metrics
-for `N` logical processors, `P` addressable CPU packages, `G` GPUs, `D` storage
-devices and `V` volumes — 169 on the 32-thread, single-package, single-GPU
-laptop this was built on, with its internal NVMe drive, an external USB disk and
-six mounted filesystems. Nothing anywhere hardcodes those numbers. References
-stay identical across operating systems, so a widget bound to
-`cpu.usage.logical@cpu:logical-3`, to an NVIDIA card's UUID, or to a drive's
-serial number, moves from Fedora to Windows unchanged.
+Phase 7 added networking. Interfaces are inventoried through `rtnetlink` on
+Fedora and `GetIfTable2` on Windows — one transaction returning every
+interface's identity, state and counters at a single instant; traffic, packet
+rates, errors and drops are **rates derived between two samples** rather than
+totals read once; and Wi-Fi link quality comes from `nl80211` or the Windows
+realtime-quality API. What makes that work is again mostly what it refuses — a
+local drop counter is not Internet packet loss, a link capacity in bits is not
+traffic in bytes, and a signal strength in dBm is never converted into a
+made-up quality percentage.
+
+The catalog is **sized by the machine**: `13 + 3N + P + 11G + 13D + 4V + 11I +
+4W` metrics for `N` logical processors, `P` addressable CPU packages, `G` GPUs,
+`D` storage devices, `V` volumes, `I` network interfaces and `W` Wi-Fi radios —
+307 on the 32-thread, single-package, single-GPU laptop this was built on, with
+its internal NVMe drive, an external USB disk, six mounted filesystems, twelve
+published network interfaces and one Wi-Fi radio. Nothing anywhere hardcodes
+those numbers. References stay identical across operating systems, so a widget
+bound to `cpu.usage.logical@cpu:logical-3`, to an NVIDIA card's UUID, to a
+drive's serial number, or to a Wi-Fi radio's permanent MAC address, moves from
+Fedora to Windows unchanged.
 
 PULSE is careful about distinctions other monitors blur: a **physical core** is
 not a **logical processor**, dedicated **VRAM** is not system memory shared with
-an integrated GPU, and a **storage device** is not a **volume** is not a **mount
-point**. It is equally careful about identity — a GPU is never identified by its
-product name, its DRM card number, its NVML index or its DXGI adapter index, and
-a disk is never identified by `nvme0n1`, `sda` or `PhysicalDrive0`, because every
-one of those can change between boots.
+an integrated GPU, a **storage device** is not a **volume** is not a **mount
+point**, and a **dropped frame** is not **packet loss**. It is equally careful
+about identity — a GPU is never identified by its product name, its DRM card
+number, its NVML index or its DXGI adapter index; a disk is never identified by
+`nvme0n1`, `sda` or `PhysicalDrive0`; and a network interface is never
+identified by `eth0`, an interface index, an IP address or the **randomised**
+MAC both operating systems now put on Wi-Fi by default — because every one of
+those can change between boots, or between networks.
 
 There is still no scheduler and no history: the UI samples on demand.
 
@@ -258,7 +275,8 @@ Start at [`docs/README.md`](docs/README.md).
   [identifiers](docs/metrics/identifiers.md), [providers](docs/metrics/providers.md),
   [CPU & memory](docs/metrics/cpu-memory.md),
   [advanced CPU](docs/metrics/cpu-advanced.md), [GPU](docs/metrics/gpu.md),
-  [thermals](docs/metrics/thermals.md), [storage](docs/metrics/storage.md)
+  [thermals](docs/metrics/thermals.md), [storage](docs/metrics/storage.md),
+  [network](docs/metrics/network.md)
 - [Widgets](docs/widgets/README.md)
 
 ## Roadmap
@@ -271,8 +289,9 @@ Start at [`docs/README.md`](docs/README.md).
 | 3     | Advanced CPU: per-logical-processor usage, frequency, topology | Done        |
 | 4     | GPU inventory, identity and core telemetry                     | Done        |
 | 5     | Temperatures and fan speeds                                    | Done        |
-| 6     | Storage devices, volumes, I/O and NVMe health                  | **Current** |
-| 7+    | Network, processes, history, graphs                            | Planned     |
+| 6     | Storage devices, volumes, I/O and NVMe health                  | Done        |
+| 7     | Network interfaces, traffic and Wi-Fi quality                  | **Current** |
+| 8+    | Active network probes, processes, history, graphs              | Planned     |
 | 1+    | Widget engine, configurable dashboards                         | Planned     |
 | 1+    | Mini overlay, Gaming and Development modes                     | Planned     |
 | 1+    | Themes, presets, alerts, tray, autostart                       | Planned     |

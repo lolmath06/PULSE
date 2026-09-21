@@ -5,7 +5,8 @@
 > Phase 3 grew the CPU providers to cover every logical processor. Phase 4 added
 > a GPU provider per platform, each hosting several vendor backends behind one
 > owner. Phase 6 added a storage provider per platform, hosting five backends
-> each. The contract has not had to change once.
+> each, and Phase 7 a network provider hosting five more. The contract has not
+> had to change once.
 
 ## What a provider is
 
@@ -33,6 +34,13 @@ deliberately no `linux.nvme`, `storage.smart` or `filesystem` provider — a
 disk's inventory and its health describe the same device, so two providers would
 claim the same `SourceId` and the engine would refuse whichever registered
 second.
+
+`linux.network` and `windows.network` complete the pattern. Wi-Fi is a
+**capability** of the network provider, not a `linux.wifi` beside it: a Wi-Fi
+adapter is one interface with one identity, and a second provider publishing
+about it would claim the same `SourceId`. It is also never a precondition —
+no wireless hardware, a stopped WLAN service or an older Windows all leave the
+full generic catalog publishing normally.
 
 ```text
 linux.cpu      /proc/stat, /sys/devices/system/cpu

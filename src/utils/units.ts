@@ -286,3 +286,84 @@ export function formatCount(count: number): string {
 
   return Math.round(count).toLocaleString();
 }
+
+const DECIMAL_BIT_UNITS = ['bit/s', 'Kbit/s', 'Mbit/s', 'Gbit/s', 'Tbit/s'] as const;
+const DECIMAL_STEP = 1000;
+
+/**
+ * Formats a link capacity given in bits per second, e.g. `1.0 Gbit/s`.
+ *
+ * # Decimal prefixes, unlike every other rate in PULSE
+ *
+ * Networking counts in powers of ten and always has: a "gigabit" link is
+ * 1 000 000 000 bits per second, not 1 073 741 824, and every switch, driver
+ * and datasheet agrees. Rendering it with binary prefixes would show a
+ * perfectly ordinary gigabit link as `0.93 Gibit/s`, which matches nothing the
+ * user has ever seen.
+ *
+ * This is the one place PULSE deliberately uses a different convention from
+ * {@link formatBytes} and {@link formatThroughput}, and the reason the two
+ * units are kept apart in the contract: **link capacity is bits, observed
+ * traffic is bytes.** Mixing them is a factor-of-eight error that looks
+ * entirely plausible on screen.
+ *
+ * Zero and negative values return the placeholder. **Zero is not a link
+ * speed**: the platforms use it to mean "nothing negotiated", and the backend
+ * already reports that as unavailable, so a zero arriving here is a fault.
+ */
+export function formatBitsPerSecond(bitsPerSecond: number): string {
+  if (!Number.isFinite(bitsPerSecond) || bitsPerSecond <= 0) return '—';
+
+  let value = bitsPerSecond;
+  let unitIndex = 0;
+
+  while (value >= DECIMAL_STEP && unitIndex < DECIMAL_BIT_UNITS.length - 1) {
+    value /= DECIMAL_STEP;
+    unitIndex += 1;
+  }
+
+  // Whole bits and kilobits; one decimal above, because the difference between
+  // 866.7 Mbit/s and 867 Mbit/s is a real Wi-Fi rate distinction.
+  const digits = unitIndex <= 1 ? 0 : 1;
+  return `${value.toFixed(digits)} ${DECIMAL_BIT_UNITS[unitIndex]}`;
+}
+
+/**
+ * Formats a packet rate, e.g. `8.4k/s` or `142/s`.
+ *
+ * Abbreviated above a thousand because packet rates reach six figures on a
+ * busy link and `142,857/s` is harder to read at a glance than `143k/s` —
+ * and the precision is not information, since the figure moves on every
+ * refresh.
+ *
+ * **Zero is a real measurement**: no packet arrived during the interval.
+ */
+export function formatPacketRate(packetsPerSecond: number): string {
+  if (!Number.isFinite(packetsPerSecond) || packetsPerSecond < 0) return '—';
+
+  if (packetsPerSecond >= 1_000_000) {
+    return `${(packetsPerSecond / 1_000_000).toFixed(1)}M/s`;
+  }
+  if (packetsPerSecond >= 1_000) {
+    return `${(packetsPerSecond / 1_000).toFixed(1)}k/s`;
+  }
+
+  return `${Math.round(packetsPerSecond)}/s`;
+}
+
+/**
+ * Formats a signal strength in dBm, e.g. `-68 dBm`.
+ *
+ * Whole decibels. A radio's reading moves by a decibel or two between
+ * consecutive samples anyway, so `-68.4 dBm` shows a precision the
+ * measurement does not have and jitters in its decimal on every refresh.
+ *
+ * **Positive values are refused.** A received Wi-Fi signal is negative — 0 dBm
+ * is a milliwatt arriving at the antenna, which does not happen — so a
+ * positive figure here is a misread rather than an extremely strong link.
+ */
+export function formatDbm(dbm: number): string {
+  if (!Number.isFinite(dbm) || dbm > 0) return '—';
+
+  return `${Math.round(dbm)} dBm`;
+}

@@ -75,11 +75,11 @@ mod tests {
         let status = state.metrics().status();
 
         if crate::platform::PlatformKind::current().is_supported() {
-            assert_eq!(status.provider_count, 4);
-            // The catalog is sized by the machine: 11 fixed metrics, plus
+            assert_eq!(status.provider_count, 5);
+            // The catalog is sized by the machine: 13 fixed metrics, plus
             // three per logical processor, eleven per GPU, thirteen per
-            // storage device and four per volume. Nothing here may assume a
-            // number.
+            // storage device, four per volume, eleven per network interface
+            // and four per Wi-Fi interface. Nothing here may assume a number.
             let count_of = |key: &str| {
                 state
                     .metrics()
@@ -93,14 +93,18 @@ mod tests {
             let packages = count_of(crate::metrics::wellknown::cpu::TEMPERATURE_PACKAGE);
             let devices = count_of(crate::metrics::wellknown::storage::CAPACITY_TOTAL);
             let volumes = count_of(crate::metrics::wellknown::storage::VOLUME_CAPACITY_TOTAL);
+            let interfaces = count_of(crate::metrics::wellknown::network::MTU);
+            let wireless = count_of(crate::metrics::wellknown::network::WIFI_SIGNAL_RSSI);
             assert!(logical > 0);
             assert_eq!(
                 status.metric_count,
-                11 + 3 * logical
+                13 + 3 * logical
                     + packages
                     + crate::metrics::wellknown::gpu::PER_GPU_KEYS.len() * gpus
                     + crate::metrics::wellknown::storage::PER_DEVICE_KEYS.len() * devices
                     + crate::metrics::wellknown::storage::PER_VOLUME_KEYS.len() * volumes
+                    + crate::metrics::wellknown::network::PER_INTERFACE_KEYS.len() * interfaces
+                    + crate::metrics::wellknown::network::PER_WIFI_KEYS.len() * wireless
             );
         } else {
             assert_eq!(status.provider_count, 0);

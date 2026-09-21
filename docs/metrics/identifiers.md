@@ -97,7 +97,8 @@ storage:wwid-eui.002538b331b36d03
 storage:serial-s677nx0w
 volume:wwid-eui.002538b331b36d03-p8
 volume:guid-volume-d2b1f8e0-1111-2222-3333-100000000000
-network:enp5s0
+network:mac-9009df3e97f2
+network:sys-6c5a1b2d-1111-2222-3333-444444444444
 battery:bat0
 ```
 
@@ -269,7 +270,20 @@ Since Phase 6 the storage descriptors go one step further and **record which
 mechanism was used**: `IdentityStability` distinguishes `Hardware`,
 `SystemAssigned`, `DerivedFromParent` and `Session`, so a weak identity is
 inspectable rather than assumed. A `storage:dev-…` or `volume:mm-…` source is
-session-scoped by construction, and the prefix says so.
+session-scoped by construction, and the prefix says so. Phase 7 carries the
+same idea on network interfaces, with one addition: the stability also records
+whether an identity **survives moving to another operating system**, which only
+a hardware identifier does.
+
+### The MAC randomisation trap
+
+A network interface deserves its own warning, because the obvious hardware
+identifier is the one that moves. **Both NetworkManager and Windows randomise a
+Wi-Fi interface's current MAC per network by default**, so an identity built on
+it changes every time the user moves between home and the office. PULSE prefers
+the _permanent_ address — `IFLA_PERM_ADDRESS`, `PermanentPhysicalAddress` —
+which is burned into the adapter, identical on both operating systems, and
+unaffected. See [`network.md`](network.md#identity).
 
 This is expanded in [`../platforms/fedora.md`](../platforms/fedora.md).
 

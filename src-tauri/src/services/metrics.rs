@@ -51,7 +51,7 @@ pub fn sample(engine: &MetricsEngine, requested: &[MetricRef]) -> Vec<MetricSamp
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::metrics::wellknown::{cpu, gpu, memory, storage};
+    use crate::metrics::wellknown::{cpu, gpu, memory, network, storage};
 
     /// The metric references PULSE ships on **every** machine, whatever its
     /// CPU. The per-processor references are added to these at runtime.
@@ -68,6 +68,8 @@ mod tests {
             memory::used_ref(),
             storage::device_count_ref(),
             storage::volume_count_ref(),
+            network::interface_count_ref(),
+            network::interface_up_count_ref(),
         ]
     }
 
@@ -109,6 +111,22 @@ mod tests {
             .count()
     }
 
+    /// How many network interfaces this host publishes, via the catalog.
+    fn network_interface_count(engine: &MetricsEngine) -> usize {
+        catalog(engine)
+            .iter()
+            .filter(|definition| definition.metric.key.as_str() == network::MTU)
+            .count()
+    }
+
+    /// How many of those are Wi-Fi, via the catalog.
+    fn wifi_interface_count(engine: &MetricsEngine) -> usize {
+        catalog(engine)
+            .iter()
+            .filter(|definition| definition.metric.key.as_str() == network::WIFI_SIGNAL_RSSI)
+            .count()
+    }
+
     fn package_count(engine: &MetricsEngine) -> usize {
         catalog(engine)
             .iter()
@@ -127,32 +145,36 @@ mod tests {
             return;
         }
 
-        // Four providers, whatever the machine: each owns a whole metric
-        // family rather than there being one per processor, one per GPU or one
-        // per disk.
+        // Five providers, whatever the machine: each owns a whole metric
+        // family rather than there being one per processor, one per GPU, one
+        // per disk or one per interface.
         assert_eq!(
-            status.provider_count, 4,
-            "one CPU, one memory, one GPU and one storage provider"
+            status.provider_count, 5,
+            "one CPU, one memory, one GPU, one storage and one network provider"
         );
         assert_eq!(status.state, crate::metrics::EngineState::Ready);
 
-        // 11 fixed metrics, plus three per logical processor, one per
-        // addressable CPU package, eleven per GPU, thirteen per storage device
-        // and four per volume — all discovered from the catalog, never
-        // hardcoded.
+        // 13 fixed metrics, plus three per logical processor, one per
+        // addressable CPU package, eleven per GPU, thirteen per storage
+        // device, four per volume, eleven per network interface and four per
+        // Wi-Fi interface — all discovered from the catalog, never hardcoded.
         let logical = logical_processor_count(&engine);
         let gpus = gpu_count(&engine);
         let packages = package_count(&engine);
         let devices = storage_device_count(&engine);
         let volumes = storage_volume_count(&engine);
+        let interfaces = network_interface_count(&engine);
+        let wireless = wifi_interface_count(&engine);
         assert!(logical > 0, "a running machine has logical processors");
         assert_eq!(
             status.metric_count,
-            11 + 3 * logical
+            13 + 3 * logical
                 + packages
                 + crate::metrics::wellknown::gpu::PER_GPU_KEYS.len() * gpus
                 + storage::PER_DEVICE_KEYS.len() * devices
                 + storage::PER_VOLUME_KEYS.len() * volumes
+                + network::PER_INTERFACE_KEYS.len() * interfaces
+                + network::PER_WIFI_KEYS.len() * wireless
         );
         assert!(status.available_metric_count <= status.metric_count);
     }
@@ -216,14 +238,19 @@ mod tests {
             .collect();
 
         let expected = match platform::PlatformKind::current() {
-            platform::PlatformKind::Linux => {
-                ["linux.cpu", "linux.memory", "linux.gpu", "linux.storage"]
-            }
+            platform::PlatformKind::Linux => [
+                "linux.cpu",
+                "linux.memory",
+                "linux.gpu",
+                "linux.storage",
+                "linux.network",
+            ],
             platform::PlatformKind::Windows => [
                 "windows.cpu",
                 "windows.memory",
                 "windows.gpu",
                 "windows.storage",
+                "windows.network",
             ],
             platform::PlatformKind::Unsupported => unreachable!("guarded above"),
         };

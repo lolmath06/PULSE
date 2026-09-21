@@ -1,6 +1,6 @@
 # PULSE Metrics Engine
 
-> **Phase 6 — storage inventory, I/O, volumes and NVMe health.**
+> **Phase 7 — network interfaces, traffic and Wi-Fi quality.**
 >
 > The model, the provider contract, the engine and the frontend API were built
 > in Phase 1. Phase 2 added the first native collectors: CPU usage and physical
@@ -9,10 +9,13 @@
 > first GPU support: inventory, stable identity, and seven metrics per device
 > across NVIDIA, AMD and Intel; Phase 5 added temperatures and fan speeds to
 > both families. Phase 6 added storage: physical devices, mounted filesystems,
-> delta-based I/O rates and the standardised NVMe health log. The catalog is
-> **sized by the machine** — `11 + 3N + P + 11G + 13D + 4V` for `N` logical
-> processors, `P` addressable CPU packages, `G` GPUs, `D` storage devices and
-> `V` volumes — and there are four providers per platform.
+> delta-based I/O rates and the standardised NVMe health log. Phase 7 added
+> networking: interfaces, their identity, delta-based traffic rates, link
+> speeds and Wi-Fi link quality. The catalog is **sized by the machine** —
+> `13 + 3N + P + 11G + 13D + 4V + 11I + 4W` for `N` logical processors, `P`
+> addressable CPU packages, `G` GPUs, `D` storage devices, `V` volumes, `I`
+> network interfaces and `W` Wi-Fi radios — and there are five providers per
+> platform.
 
 ## Documents
 
@@ -26,6 +29,7 @@
 | [`gpu.md`](gpu.md)                   | Phase 4: GPU inventory, identity, NVML, DXGI, AMD sysfs                                  |
 | [`thermals.md`](thermals.md)         | Phase 5: temperatures and fan speeds, `hwmon`, and the readings PULSE refuses to publish |
 | [`storage.md`](storage.md)           | Phase 6: devices vs volumes, identity, I/O deltas, `statvfs`, NVMe SMART/Health          |
+| [`network.md`](network.md)           | Phase 7: interfaces, permanent vs randomised MAC, rtnetlink, nl80211, Wi-Fi quality      |
 
 ## Position in the architecture
 
@@ -136,7 +140,9 @@ adaptive sampling, no subscriptions, no events. The interaction model remains
 This is why a first CPU sample may report `temporarilyUnavailable`: usage is a
 rate, and without a sampler there may be no usable delta yet. PULSE says so
 rather than reporting `0%`. The same applies to every `storage.io.*` metric —
-see [`storage.md`](storage.md#activity-is-measured-not-read).
+see [`storage.md`](storage.md#activity-is-measured-not-read) — and to every
+`network.receive.*` and `network.transmit.*` metric, see
+[`network.md`](network.md#traffic-is-measured-not-read).
 
 Planned for later phases:
 

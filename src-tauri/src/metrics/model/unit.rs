@@ -38,12 +38,36 @@ pub enum MetricUnit {
     /// rate of operations are not the same measurement, and only one of them
     /// depends on the interval it was measured over.
     OperationsPerSecond,
+    /// Network packets per second.
+    ///
+    /// Deliberately **not** [`MetricUnit::OperationsPerSecond`]. A disk
+    /// operation and a network packet are different things measured by
+    /// different subsystems, and a dashboard that let them share an axis would
+    /// invite comparing 900 IOPS against 900 packets/s as if the numbers meant
+    /// the same. They also differ in scale by orders of magnitude on the same
+    /// machine.
+    PacketsPerSecond,
+    /// Bits per second.
+    ///
+    /// The unit of **link capacity**, never of observed traffic. A 1 Gbit/s
+    /// Ethernet link carrying 12 MiB/s is one number in bits and one in bytes,
+    /// and conflating them is a factor-of-eight error that looks plausible.
+    /// See `docs/metrics/network.md`.
+    BitsPerSecond,
     Watts,
     Volts,
     /// Revolutions per minute.
     Rpm,
     Milliseconds,
     Seconds,
+    /// Decibel-milliwatts — the unit radio signal strength is reported in.
+    ///
+    /// A **logarithmic** scale, and always negative in practice for a received
+    /// Wi-Fi signal: −40 dBm is strong, −90 dBm is barely usable. It has its
+    /// own unit rather than [`MetricUnit::None`] because it must never be
+    /// averaged arithmetically with another dBm figure, and because a widget
+    /// needs to know not to render it on a 0-based scale.
+    DecibelMilliwatts,
     /// Hours.
     ///
     /// Used for durations a device reports in whole hours — an NVMe
@@ -72,11 +96,14 @@ impl MetricUnit {
             MetricUnit::Bytes => "B",
             MetricUnit::BytesPerSecond => "B/s",
             MetricUnit::OperationsPerSecond => "IOPS",
+            MetricUnit::PacketsPerSecond => "pkt/s",
+            MetricUnit::BitsPerSecond => "bit/s",
             MetricUnit::Watts => "W",
             MetricUnit::Volts => "V",
             MetricUnit::Rpm => "RPM",
             MetricUnit::Milliseconds => "ms",
             MetricUnit::Seconds => "s",
+            MetricUnit::DecibelMilliwatts => "dBm",
             MetricUnit::Hours => "h",
             MetricUnit::Count => "",
             MetricUnit::None => "",
@@ -97,11 +124,14 @@ impl MetricUnit {
         MetricUnit::Bytes,
         MetricUnit::BytesPerSecond,
         MetricUnit::OperationsPerSecond,
+        MetricUnit::PacketsPerSecond,
+        MetricUnit::BitsPerSecond,
         MetricUnit::Watts,
         MetricUnit::Volts,
         MetricUnit::Rpm,
         MetricUnit::Milliseconds,
         MetricUnit::Seconds,
+        MetricUnit::DecibelMilliwatts,
         MetricUnit::Hours,
         MetricUnit::Count,
         MetricUnit::None,
@@ -122,11 +152,14 @@ mod tests {
             (MetricUnit::Bytes, "\"bytes\""),
             (MetricUnit::BytesPerSecond, "\"bytesPerSecond\""),
             (MetricUnit::OperationsPerSecond, "\"operationsPerSecond\""),
+            (MetricUnit::PacketsPerSecond, "\"packetsPerSecond\""),
+            (MetricUnit::BitsPerSecond, "\"bitsPerSecond\""),
             (MetricUnit::Watts, "\"watts\""),
             (MetricUnit::Volts, "\"volts\""),
             (MetricUnit::Rpm, "\"rpm\""),
             (MetricUnit::Milliseconds, "\"milliseconds\""),
             (MetricUnit::Seconds, "\"seconds\""),
+            (MetricUnit::DecibelMilliwatts, "\"decibelMilliwatts\""),
             (MetricUnit::Hours, "\"hours\""),
             (MetricUnit::Count, "\"count\""),
             (MetricUnit::None, "\"none\""),
@@ -139,7 +172,7 @@ mod tests {
 
     #[test]
     fn every_variant_is_covered_by_all_and_round_trips() {
-        assert_eq!(MetricUnit::ALL.len(), 15);
+        assert_eq!(MetricUnit::ALL.len(), 18);
 
         for unit in MetricUnit::ALL {
             let json = serde_json::to_string(unit).expect("serialise");
@@ -166,6 +199,34 @@ mod tests {
         assert_ne!(MetricUnit::OperationsPerSecond, MetricUnit::Count);
         assert_ne!(MetricUnit::Hours, MetricUnit::Seconds);
         assert_ne!(MetricUnit::Milliseconds, MetricUnit::Seconds);
+        assert_ne!(MetricUnit::PacketsPerSecond, MetricUnit::Count);
+    }
+
+    #[test]
+    fn a_disk_operation_and_a_network_packet_are_not_one_unit() {
+        // Both are "things per second", and that is where the resemblance
+        // ends: they come from different subsystems, differ by orders of
+        // magnitude on the same machine, and must never share an axis.
+        assert_ne!(
+            MetricUnit::PacketsPerSecond,
+            MetricUnit::OperationsPerSecond
+        );
+    }
+
+    #[test]
+    fn link_capacity_and_observed_traffic_are_not_one_unit() {
+        // A 1 Gbit/s link carrying 12 MiB/s is one number in bits and one in
+        // bytes. Conflating them is a factor-of-eight error that looks
+        // entirely plausible on screen.
+        assert_ne!(MetricUnit::BitsPerSecond, MetricUnit::BytesPerSecond);
+    }
+
+    #[test]
+    fn a_signal_strength_is_not_a_unitless_number() {
+        // dBm is logarithmic and negative. Publishing it as `None` would let a
+        // widget average two readings arithmetically, or scale it from zero.
+        assert_ne!(MetricUnit::DecibelMilliwatts, MetricUnit::None);
+        assert!(!MetricUnit::DecibelMilliwatts.is_bounded_fraction());
     }
 
     #[test]
@@ -174,6 +235,9 @@ mod tests {
         assert_eq!(MetricUnit::Hertz.symbol(), "Hz");
         assert_eq!(MetricUnit::BytesPerSecond.symbol(), "B/s");
         assert_eq!(MetricUnit::OperationsPerSecond.symbol(), "IOPS");
+        assert_eq!(MetricUnit::PacketsPerSecond.symbol(), "pkt/s");
+        assert_eq!(MetricUnit::BitsPerSecond.symbol(), "bit/s");
+        assert_eq!(MetricUnit::DecibelMilliwatts.symbol(), "dBm");
         assert_eq!(MetricUnit::Hours.symbol(), "h");
         assert_eq!(MetricUnit::None.symbol(), "");
     }

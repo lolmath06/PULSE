@@ -41,11 +41,19 @@ Fedora Linux is a **first-class PULSE platform**, on equal footing with Windows.
 | `storage.health.temperature` | `nvme` `hwmon` `Composite`, else the health log | Found by label, never by taking `temp1_input` positionally |
 | `storage.health.*` (other) | `NVME_IOCTL_ADMIN_CMD`, log page `0x02` | Needs privilege; `permissionDenied` when refused |
 | `storage.volume.capacity.*` | `statvfs(3)` | `used = total - free`, `available = user-available` |
+| `network.interface.count` | `rtnetlink` `RTM_GETLINK` | Loopback excluded; every other interface published |
+| `network.receive.*`, `network.transmit.*` | `IFLA_STATS64`, in the same dump | Delta between two samples; errors and drops are separate counters |
+| `network.link.*_speed` | `/sys/class/net/<iface>/speed` | Megabits → bits; `-1` and `EINVAL` mean unknown, never zero |
+| `network.mtu` | `IFLA_MTU` | |
+| `network.wifi.signal.rssi` | `nl80211` `NL80211_STA_INFO_SIGNAL` | A **signed** byte in dBm; strongest link when several |
+| `network.wifi.signal.quality` | — | **Unsupported**: `cfg80211` reports dBm and no percentage, and PULSE does not invent one |
+| `network.wifi.link.*_rate` | `nl80211` `RATE_INFO_BITRATE32` | Units of 100 kbit/s → bits |
 
 The per-processor metrics exist once per logical processor, the GPU metrics once
 per adapter, and the storage metrics once per device and per volume, so the
-catalog holds `11 + 3N + P + 11G + 13D + 4V` metrics — 169 on this 32-thread,
-single-GPU machine with two disks and six mounted filesystems.
+catalog holds `13 + 3N + P + 11G + 13D + 4V + 11I + 4W` metrics — 307 on this
+32-thread, single-GPU machine with two disks, six mounted filesystems, twelve
+published network interfaces and one Wi-Fi radio.
 
 Three details that the implementation gets right and that are easy to get wrong:
 
@@ -175,9 +183,34 @@ None of this is implemented yet; it is the map for later phases.
   normalising them wrongly would publish confident but false claims about a
   user's disk. See [`../metrics/storage.md`](../metrics/storage.md#health-nvme-only-for-now).
 
-### Network
+### Network — implemented in Phase 7
 
-- `/proc/net/dev` or `/sys/class/net/*/statistics/` — byte and packet counters.
+- **`rtnetlink` `RTM_GETLINK`** — the whole interface inventory _and_ every
+  counter in one transaction: name, MTU, operational state, both hardware
+  addresses, the virtual device kind, and `IFLA_STATS64`. Not
+  `/sys/class/net/*/statistics/`, which is one file per counter per interface:
+  on this machine that is 104 file opens at 104 slightly different instants,
+  and rates need one instant.
+- **`IFLA_PERM_ADDRESS`** for identity. It is what survives MAC randomisation,
+  which NetworkManager does per network by default, and what makes an
+  interface's `SourceId` match the one Windows derives for the same card.
+- **`rtnetlink` `RTM_GETADDR`** — local addresses, for display only.
+- **`nl80211`** — which interfaces are actually wireless, and their signal and
+  negotiated rates. Asking the family is the only reliable way: every Wi-Fi
+  station reports `ARPHRD_ETHER` exactly like a wired NIC, and `wlan0` is a
+  naming convention nothing enforces.
+- **`/sys/class/net/<iface>/speed`** — Ethernet link speed, one small read per
+  wired interface. The structured alternative, `ETHTOOL_MSG_LINKMODES_GET`,
+  would mean a third netlink family and a third attribute mapping for one
+  number.
+- **No `ip`, `ifconfig`, `ethtool`, `iw`, `iwconfig`, `nmcli` or `networkctl`**,
+  and no subprocess of any kind.
+
+The netlink framing is parsed in PULSE rather than through a crate, so every
+bound check — truncated headers, attributes claiming more than the buffer
+holds, the zero-length attribute that hangs a naive walker — is a unit test
+rather than a hope. See
+[`../metrics/network.md`](../metrics/network.md#parsing-netlink-safely).
 
 ### Temperatures and fans — `hwmon`
 
@@ -249,6 +282,10 @@ Storage is the worked example of the principle. `/dev/nvme0` is
 Everything else keeps working, and the five refused values say the OS refused
 rather than claiming the drive has no health data — a distinction the
 availability contract exists to preserve.
+
+Networking needs no privilege at all: `AF_NETLINK` is open to any process,
+`RTM_GETLINK` and `RTM_GETADDR` are unprivileged dumps, `nl80211`'s station
+query works for any user, and `/sys/class/net` is world-readable.
 
 ## Wayland and X11
 

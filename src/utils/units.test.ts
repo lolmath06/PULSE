@@ -3,12 +3,15 @@ import {
   binaryUnitFor,
   formatBytes,
   formatBytesScaledTo,
+  formatBitsPerSecond,
   formatCelsius,
   formatCount,
+  formatDbm,
   formatHertz,
   formatHours,
   formatIops,
   formatLatency,
+  formatPacketRate,
   formatPercent,
   formatRpm,
   formatSampleTime,
@@ -316,5 +319,102 @@ describe('formatCount', () => {
   it('refuses a negative or non-finite count', () => {
     expect(formatCount(-1)).toBe('—');
     expect(formatCount(Number.NaN)).toBe('—');
+  });
+});
+
+describe('formatBitsPerSecond', () => {
+  it('uses decimal prefixes, as networking always has', () => {
+    // A "gigabit" link is 1 000 000 000 bits per second, not 1 073 741 824,
+    // and every switch, driver and datasheet agrees. Binary prefixes would
+    // render an ordinary gigabit link as `0.93 Gibit/s`.
+    expect(formatBitsPerSecond(1_000_000_000)).toBe('1.0 Gbit/s');
+    expect(formatBitsPerSecond(2_500_000_000)).toBe('2.5 Gbit/s');
+    expect(formatBitsPerSecond(10_000_000_000)).toBe('10.0 Gbit/s');
+    expect(formatBitsPerSecond(100_000_000)).toBe('100.0 Mbit/s');
+  });
+
+  it('keeps a decimal where Wi-Fi rates need one', () => {
+    // 866.7 Mbit/s and 867 Mbit/s are different negotiated rates.
+    expect(formatBitsPerSecond(866_700_000)).toBe('866.7 Mbit/s');
+    expect(formatBitsPerSecond(175_500_000)).toBe('175.5 Mbit/s');
+    expect(formatBitsPerSecond(390_000_000)).toBe('390.0 Mbit/s');
+  });
+
+  it('shows whole bits and kilobits', () => {
+    expect(formatBitsPerSecond(512)).toBe('512 bit/s');
+    expect(formatBitsPerSecond(64_000)).toBe('64 Kbit/s');
+  });
+
+  it('refuses zero, because zero is not a link speed', () => {
+    // Both platforms use it to mean "nothing negotiated", and the backend
+    // already reports that as unavailable — so a zero arriving here is a
+    // fault, and `0 bit/s` would claim a connection with no capacity.
+    expect(formatBitsPerSecond(0)).toBe('—');
+    expect(formatBitsPerSecond(-1)).toBe('—');
+    expect(formatBitsPerSecond(Number.NaN)).toBe('—');
+    expect(formatBitsPerSecond(Number.POSITIVE_INFINITY)).toBe('—');
+  });
+
+  it('is a different unit from observed traffic', () => {
+    // The factor-of-eight trap: one gigabit per second is 125 MiB/s-ish, and
+    // rendering both in one unit looks entirely plausible on screen.
+    expect(formatBitsPerSecond(1_000_000_000)).toContain('bit/s');
+    expect(formatThroughput(1_000_000_000)).toContain('iB/s');
+    expect(formatBitsPerSecond(1_000_000_000)).not.toBe(formatThroughput(1_000_000_000));
+  });
+});
+
+describe('formatPacketRate', () => {
+  it('shows whole packets below a thousand', () => {
+    expect(formatPacketRate(142)).toBe('142/s');
+    expect(formatPacketRate(10.956)).toBe('11/s');
+    expect(formatPacketRate(999)).toBe('999/s');
+  });
+
+  it('abbreviates above a thousand', () => {
+    // `142,857/s` is harder to read at a glance than `142.9k/s`, and the extra
+    // digits are not information on a figure that moves every refresh.
+    expect(formatPacketRate(8400)).toBe('8.4k/s');
+    expect(formatPacketRate(142_857)).toBe('142.9k/s');
+    expect(formatPacketRate(2_500_000)).toBe('2.5M/s');
+  });
+
+  it('treats zero as a measurement', () => {
+    expect(formatPacketRate(0)).toBe('0/s');
+    expect(formatPacketRate(0)).not.toBe('—');
+  });
+
+  it('refuses a negative or non-finite rate', () => {
+    expect(formatPacketRate(-1)).toBe('—');
+    expect(formatPacketRate(Number.NaN)).toBe('—');
+  });
+});
+
+describe('formatDbm', () => {
+  it('shows whole decibels', () => {
+    // A radio's reading moves by a decibel or two between samples anyway, so a
+    // decimal shows precision the measurement does not have.
+    expect(formatDbm(-68)).toBe('-68 dBm');
+    expect(formatDbm(-68.4)).toBe('-68 dBm');
+    expect(formatDbm(-45)).toBe('-45 dBm');
+    expect(formatDbm(-90)).toBe('-90 dBm');
+  });
+
+  it('accepts the whole range a Wi-Fi radio reports', () => {
+    expect(formatDbm(-30)).toBe('-30 dBm');
+    expect(formatDbm(-100)).toBe('-100 dBm');
+    expect(formatDbm(0)).toBe('0 dBm');
+  });
+
+  it('refuses a positive reading', () => {
+    // 0 dBm is a milliwatt arriving at the antenna, which does not happen, so
+    // anything above it is a misread rather than an extremely strong link.
+    expect(formatDbm(10)).toBe('—');
+    expect(formatDbm(Number.NaN)).toBe('—');
+    expect(formatDbm(Number.NEGATIVE_INFINITY)).toBe('—');
+  });
+
+  it('matches a real measurement from the development machine', () => {
+    expect(formatDbm(-70)).toBe('-70 dBm');
   });
 });
