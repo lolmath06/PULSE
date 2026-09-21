@@ -25,6 +25,7 @@ pub mod cpu_topology;
 pub mod gpu;
 pub mod memory;
 pub mod ntdll;
+pub mod storage;
 
 /// Windows implementation of [`HostPlatform`].
 #[cfg(target_os = "windows")]
@@ -55,11 +56,21 @@ impl HostPlatform for WindowsPlatform {
 
     /// CPU from `GetSystemTimes`, `NtQuerySystemInformationEx`,
     /// `CallNtPowerInformation` and `GetLogicalProcessorInformationEx`; memory
-    /// from `GlobalMemoryStatusEx`.
+    /// from `GlobalMemoryStatusEx`; GPUs from DXGI, D3DKMT and NVML; storage
+    /// from SetupAPI, the storage and disk device controls, and the volume
+    /// API.
     ///
-    /// All are available to any process, so none needs administrator rights.
+    /// All are expected to work for any process. Where one does not — the
+    /// NVMe health log behind a driver that requires elevation is the known
+    /// case — the affected metrics report `permissionDenied` and nothing else
+    /// is lost.
     fn metric_providers(&self) -> Vec<Arc<dyn MetricProvider>> {
-        vec![cpu::provider(), memory::provider(), gpu::provider()]
+        vec![
+            cpu::provider(),
+            memory::provider(),
+            gpu::provider(),
+            storage::provider(),
+        ]
     }
 
     /// Windows has a single compositor (DWM), so there is nothing analogous to

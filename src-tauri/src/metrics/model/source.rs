@@ -23,8 +23,15 @@ const SEPARATOR: char = ':';
 /// Kept as documented string prefixes rather than a closed enum so that a new
 /// hardware class does not require changing the contract. The *shape* is
 /// validated; the vocabulary is a convention.
+/// The source kinds PULSE ships.
+///
+/// `storage` names a **physical device**; `volume` names a **filesystem**.
+/// They are deliberately two kinds rather than one, because they are two
+/// different things that happen to be related: a disk can hold many volumes, a
+/// volume can span several disks, and a widget bound to one must never
+/// silently resolve to the other. See `docs/metrics/storage.md`.
 pub const CANONICAL_SOURCE_KINDS: &[&str] = &[
-    "system", "cpu", "gpu", "memory", "storage", "network", "battery", "fan", "power",
+    "system", "cpu", "gpu", "memory", "storage", "volume", "network", "battery", "fan", "power",
 ];
 
 /// A stable `kind:instance` identifier for a measured component.
@@ -138,7 +145,10 @@ mod tests {
             "cpu:package0",
             "gpu:pci-0000-01-00-0",
             "storage:nvme0n1",
+            "storage:wwid-eui.002538b331b36d03",
             "storage:ata-samsung_ssd_870",
+            "volume:wwid-eui.002538b331b36d03-p8",
+            "volume:mm-259-7",
             "network:enp5s0",
             "network:wlp3s0",
             "battery:bat0",
@@ -184,6 +194,21 @@ mod tests {
     fn from_parts_matches_the_parsed_form() {
         let built = SourceId::from_parts("storage", "nvme0n1").expect("valid");
         assert_eq!(built, SourceId::new("storage:nvme0n1").expect("valid"));
+    }
+
+    #[test]
+    fn a_physical_device_and_a_filesystem_are_different_kinds_of_source() {
+        // A disk holds volumes; a volume can span disks. Folding them into one
+        // kind would let a widget bound to "the SSD" silently resolve to a
+        // filesystem that happens to live on it.
+        let device = SourceId::new("storage:wwid-eui.002538b331b36d03").expect("valid");
+        let volume = SourceId::new("volume:wwid-eui.002538b331b36d03-p8").expect("valid");
+
+        assert_eq!(device.kind(), "storage");
+        assert_eq!(volume.kind(), "volume");
+        assert_ne!(device, volume);
+        assert!(device.has_canonical_kind());
+        assert!(volume.has_canonical_kind());
     }
 
     #[test]

@@ -26,13 +26,31 @@ pub enum MetricUnit {
     /// Bytes (not KB, MB or GB).
     Bytes,
     /// Bytes per second.
+    ///
+    /// A *rate*, never a quantity. Publishing a throughput as
+    /// [`MetricUnit::Bytes`] would make a 125 MB/s disk read indistinguishable
+    /// from a 125 MB file, and would let history average the two together.
     BytesPerSecond,
+    /// Completed I/O operations per second — IOPS.
+    ///
+    /// Distinct from [`MetricUnit::Count`] for the same reason
+    /// `BytesPerSecond` is distinct from `Bytes`: a count of operations and a
+    /// rate of operations are not the same measurement, and only one of them
+    /// depends on the interval it was measured over.
+    OperationsPerSecond,
     Watts,
     Volts,
     /// Revolutions per minute.
     Rpm,
     Milliseconds,
     Seconds,
+    /// Hours.
+    ///
+    /// Used for durations a device reports in whole hours — an NVMe
+    /// controller's power-on time is specified that way, and converting it to
+    /// seconds would invent five orders of magnitude of precision the counter
+    /// does not have.
+    Hours,
     /// A dimensionless count of things.
     Count,
     /// No unit — for boolean and text metrics.
@@ -53,11 +71,13 @@ impl MetricUnit {
             MetricUnit::Hertz => "Hz",
             MetricUnit::Bytes => "B",
             MetricUnit::BytesPerSecond => "B/s",
+            MetricUnit::OperationsPerSecond => "IOPS",
             MetricUnit::Watts => "W",
             MetricUnit::Volts => "V",
             MetricUnit::Rpm => "RPM",
             MetricUnit::Milliseconds => "ms",
             MetricUnit::Seconds => "s",
+            MetricUnit::Hours => "h",
             MetricUnit::Count => "",
             MetricUnit::None => "",
         }
@@ -76,11 +96,13 @@ impl MetricUnit {
         MetricUnit::Hertz,
         MetricUnit::Bytes,
         MetricUnit::BytesPerSecond,
+        MetricUnit::OperationsPerSecond,
         MetricUnit::Watts,
         MetricUnit::Volts,
         MetricUnit::Rpm,
         MetricUnit::Milliseconds,
         MetricUnit::Seconds,
+        MetricUnit::Hours,
         MetricUnit::Count,
         MetricUnit::None,
     ];
@@ -99,11 +121,13 @@ mod tests {
             (MetricUnit::Hertz, "\"hertz\""),
             (MetricUnit::Bytes, "\"bytes\""),
             (MetricUnit::BytesPerSecond, "\"bytesPerSecond\""),
+            (MetricUnit::OperationsPerSecond, "\"operationsPerSecond\""),
             (MetricUnit::Watts, "\"watts\""),
             (MetricUnit::Volts, "\"volts\""),
             (MetricUnit::Rpm, "\"rpm\""),
             (MetricUnit::Milliseconds, "\"milliseconds\""),
             (MetricUnit::Seconds, "\"seconds\""),
+            (MetricUnit::Hours, "\"hours\""),
             (MetricUnit::Count, "\"count\""),
             (MetricUnit::None, "\"none\""),
         ];
@@ -115,7 +139,7 @@ mod tests {
 
     #[test]
     fn every_variant_is_covered_by_all_and_round_trips() {
-        assert_eq!(MetricUnit::ALL.len(), 13);
+        assert_eq!(MetricUnit::ALL.len(), 15);
 
         for unit in MetricUnit::ALL {
             let json = serde_json::to_string(unit).expect("serialise");
@@ -134,10 +158,23 @@ mod tests {
     }
 
     #[test]
+    fn a_rate_is_never_the_same_unit_as_the_quantity_it_counts() {
+        // Storage throughput and IOPS only mean anything relative to the
+        // interval they were measured over. Reusing `Bytes` or `Count` for
+        // them would let a chart average a rate with a total.
+        assert_ne!(MetricUnit::BytesPerSecond, MetricUnit::Bytes);
+        assert_ne!(MetricUnit::OperationsPerSecond, MetricUnit::Count);
+        assert_ne!(MetricUnit::Hours, MetricUnit::Seconds);
+        assert_ne!(MetricUnit::Milliseconds, MetricUnit::Seconds);
+    }
+
+    #[test]
     fn symbols_match_the_canonical_units() {
         assert_eq!(MetricUnit::Celsius.symbol(), "°C");
         assert_eq!(MetricUnit::Hertz.symbol(), "Hz");
         assert_eq!(MetricUnit::BytesPerSecond.symbol(), "B/s");
+        assert_eq!(MetricUnit::OperationsPerSecond.symbol(), "IOPS");
+        assert_eq!(MetricUnit::Hours.symbol(), "h");
         assert_eq!(MetricUnit::None.symbol(), "");
     }
 }

@@ -175,3 +175,114 @@ export function formatRpm(rpm: number): string {
 
   return `${Math.round(rpm).toLocaleString()} RPM`;
 }
+
+const DECIMAL_HOUR_GROUPING = 1000;
+
+/**
+ * Formats a throughput given in bytes per second, e.g. `125 MiB/s`.
+ *
+ * Binary prefixes, consistently with {@link formatBytes}: a monitor that
+ * showed a 2 TiB disk transferring at 125 MB/s would be mixing two
+ * conventions in one card.
+ *
+ * **Zero is a real measurement here**, unlike a frequency: a disk with no I/O
+ * during the interval genuinely transferred `0 B/s`, and the user wants to see
+ * that rather than a dash. A device with no baseline yet never reaches this
+ * function — the backend reports it as unavailable and the interface shows `—`
+ * with the reason. Conflating "idle" with "not measured" is what makes a
+ * monitor untrustworthy.
+ *
+ * A negative rate is refused: bytes do not flow backwards, so the reading was
+ * not a throughput.
+ */
+export function formatThroughput(bytesPerSecond: number): string {
+  if (!Number.isFinite(bytesPerSecond) || bytesPerSecond < 0) return '—';
+  if (bytesPerSecond < BINARY_STEP) return `${Math.round(bytesPerSecond)} B/s`;
+
+  let value = bytesPerSecond;
+  let unitIndex = 0;
+
+  while (value >= BINARY_STEP && unitIndex < BINARY_UNITS.length - 1) {
+    value /= BINARY_STEP;
+    unitIndex += 1;
+  }
+
+  // One decimal below 100, none above: `1.5 GiB/s` is worth the digit and
+  // `847.3 MiB/s` is false precision on a figure that moves every refresh.
+  const digits = value < 100 ? 1 : 0;
+  return `${value.toFixed(digits)} ${BINARY_UNITS[unitIndex]}/s`;
+}
+
+/**
+ * Formats completed operations per second, e.g. `940 IOPS`.
+ *
+ * **Zero is a real measurement**, for the same reason as throughput: no
+ * operation completed during the interval.
+ *
+ * Whole operations: a disk does not complete 940.7 of them, and the fractional
+ * part is an artefact of dividing by an interval that is not exactly one
+ * second. Below 10 the figure is shown to one decimal, because the difference
+ * between 0.4 and 2 IOPS is real and rounding both to `0` and `2` would hide
+ * a trickle of activity entirely.
+ */
+export function formatIops(operationsPerSecond: number): string {
+  if (!Number.isFinite(operationsPerSecond) || operationsPerSecond < 0) return '—';
+
+  if (operationsPerSecond > 0 && operationsPerSecond < 10) {
+    return `${operationsPerSecond.toFixed(1)} IOPS`;
+  }
+
+  return `${Math.round(operationsPerSecond).toLocaleString()} IOPS`;
+}
+
+/**
+ * Formats a latency given in milliseconds, e.g. `0.73 ms`, `3.2 ms`, `18 ms`.
+ *
+ * Precision scales with magnitude, because the hardware's does. An NVMe read
+ * answering in 0.73 ms needs two decimals to be distinguishable from 0.71; a
+ * spinning disk at 18 ms does not, and `18.24 ms` would claim a resolution the
+ * operating system's millisecond accounting does not have.
+ *
+ * **Zero is a real measurement**: operations completed, and the OS accounted
+ * less than its rounding unit of time to them, which is normal on a fast SSD.
+ * An interval in which *no* operation completed never reaches this function —
+ * there is no mean to take, so the backend reports no value at all.
+ */
+export function formatLatency(milliseconds: number): string {
+  if (!Number.isFinite(milliseconds) || milliseconds < 0) return '—';
+
+  if (milliseconds < 1) return `${milliseconds.toFixed(2)} ms`;
+  if (milliseconds < 10) return `${milliseconds.toFixed(1)} ms`;
+
+  return `${Math.round(milliseconds).toLocaleString()} ms`;
+}
+
+/**
+ * Formats a duration given in whole hours, e.g. `421 h`.
+ *
+ * Kept in hours rather than converted to days or years. An NVMe controller
+ * counts power-on time in whole hours, and rendering 8 760 of them as "1 year"
+ * would round away the figure a user compares against a warranty.
+ *
+ * Grouped above a thousand, because `12 847 h` is readable and `12847 h` is
+ * not.
+ */
+export function formatHours(hours: number): string {
+  if (!Number.isFinite(hours) || hours < 0) return '—';
+
+  const whole = Math.round(hours);
+  return whole >= DECIMAL_HOUR_GROUPING ? `${whole.toLocaleString()} h` : `${whole} h`;
+}
+
+/**
+ * Formats a plain count, e.g. `0` or `1 284`.
+ *
+ * Used for the storage health counters — unsafe shutdowns, media errors —
+ * where **zero is the answer a user hopes for** and must be shown as a
+ * measurement rather than a dash.
+ */
+export function formatCount(count: number): string {
+  if (!Number.isFinite(count) || count < 0) return '—';
+
+  return Math.round(count).toLocaleString();
+}

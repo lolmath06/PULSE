@@ -430,6 +430,163 @@ code,
   }
 }
 
+/* ---------- storage ----------
+ *
+ * The same card/grid shape as the GPU list, for the same reason: a machine
+ * with one NVMe drive, one SATA SSD, one hard disk and a USB disk has to stay
+ * readable, and four compact cards do that where one long column does not.
+ * No nested scrollbar — the page's own scrollbar handles the overflow.
+ */
+
+.storage-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 18px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.storage-grid__item {
+  padding: 12px 14px;
+  background: var(--pulse-bg-sunken);
+  border: 1px solid var(--pulse-border);
+  border-radius: var(--pulse-radius-sm);
+  min-width: 0;
+}
+
+.storage-grid__name {
+  margin: 0;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--pulse-text);
+  overflow-wrap: anywhere;
+}
+
+.storage-grid__capacity {
+  margin: 2px 0 10px;
+  color: var(--pulse-text-muted);
+  font-family: var(--pulse-font-mono);
+  font-size: 11.5px;
+}
+
+.storage-grid__subtitle {
+  margin: 14px 0 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--pulse-text-faint);
+}
+
+/* Same treatment as the GPU telemetry notice, and for the same reason: a user
+ * whose drive reports no health log, or whose first sample has no baseline
+ * yet, must read why without discovering that the dashes carry tooltips. */
+.storage-grid__notice {
+  margin: 10px 0;
+  padding: 7px 9px;
+  border-left: 2px solid var(--pulse-border-strong);
+  border-radius: 0 var(--pulse-radius-sm) var(--pulse-radius-sm) 0;
+  background: var(--pulse-bg);
+  color: var(--pulse-text-muted);
+  font-size: 11.5px;
+  line-height: 1.45;
+}
+
+.storage-grid__notice strong {
+  display: block;
+  color: var(--pulse-text);
+  font-weight: 600;
+}
+
+/* Volumes PULSE could not tie to any inventoried disk. */
+.storage-other {
+  margin-top: 18px;
+}
+
+.storage-other__title {
+  margin: 0 0 4px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--pulse-text);
+}
+
+.storage-volumes {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.storage-volumes__item {
+  min-width: 0;
+}
+
+.storage-volumes__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.storage-volumes__name {
+  font-family: var(--pulse-font-mono);
+  font-size: 12px;
+  color: var(--pulse-text);
+  overflow-wrap: anywhere;
+}
+
+.storage-volumes__usage {
+  font-family: var(--pulse-font-mono);
+  font-size: 12px;
+  color: var(--pulse-text-muted);
+  white-space: nowrap;
+}
+
+.storage-volumes__size {
+  margin: 2px 0 4px;
+  font-family: var(--pulse-font-mono);
+  font-size: 11.5px;
+  color: var(--pulse-text-muted);
+}
+
+.storage-volumes__available {
+  color: var(--pulse-text-faint);
+}
+
+/* A snapshot of how full a filesystem is. Deliberately not a chart: PULSE has
+ * no history yet, and a bar that cannot move over time must not look like one
+ * that can. */
+.usage-bar {
+  height: 5px;
+  border-radius: 3px;
+  background: var(--pulse-bg);
+  overflow: hidden;
+}
+
+.usage-bar__fill {
+  display: block;
+  height: 100%;
+  background: var(--pulse-accent-dim);
+  transition: width 140ms ease;
+}
+
+/* A used-endurance figure above 100 %. The NVMe specification permits it once
+ * a drive has passed its rated endurance, and it is exactly the reading a user
+ * must not scroll past. Marked, never clamped and never turned into a score. */
+.value--exceeded {
+  color: var(--pulse-warning-text);
+  font-weight: 600;
+}
+
+@media (max-width: 560px) {
+  .storage-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ---------- status bar ---------- */
 
 .status-bar {

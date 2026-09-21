@@ -7,6 +7,146 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added — Phase 6: Storage inventory, I/O, volumes & NVMe health
+
+Physical storage devices, mounted filesystems, real I/O rates and the
+standardised NVMe health log, on both platforms, built around one distinction:
+**a device is not a volume, and a volume is not a mount point.**
+
+- **Two machine-wide metrics** — `storage.device.count` and
+  `storage.volume.count` (`storage:system`, count, state).
+- **Thirteen metrics per physical device** — `storage.capacity.total` (bytes);
+  `storage.io.read`/`write.bytes_per_second`, `.iops` and `.latency`; and the
+  six `storage.health.*` values: temperature, used endurance, available spare,
+  power-on hours, unsafe shutdowns and media errors.
+- **Four metrics per volume** — `storage.volume.capacity.total`, `.used`,
+  `.available` and `storage.volume.usage.percent`.
+- **A catalog still sized by the machine** — `2 + 13D + 4V` storage metrics for
+  `D` devices and `V` volumes, bringing the total to
+  `11 + 3N + P + 11G + 13D + 4V`: **169** on the reference machine (32 threads,
+  1 package, 1 GPU, 2 disks, 6 filesystems). Nothing hardcodes any of them, and
+  the tests derive the expected size from the catalog.
+- **Provider count goes to 4.** `linux.storage` and `windows.storage` each own
+  five backends — inventory, volumes, filesystem usage, I/O counters and NVMe
+  health. There is deliberately no `linux.nvme`, `storage.smart` or `filesystem`
+  provider: a disk's inventory and its health describe the same device, so two
+  providers would claim the same `SourceId` and the engine would reject one.
+
+Two small, deliberate additions to the shared contract, the first this project
+has needed since Phase 1:
+
+- **Units `operationsPerSecond` and `hours`.** A *rate* of operations is not a
+  `count` of them — only one depends on the interval it was measured over — and
+  an NVMe controller counts power-on time in whole hours, so expressing it in
+  `seconds` would invent five orders of magnitude of precision. A contract test
+  asserts no `storage.io.*` metric carries a quantity unit.
+- **Source kind `volume:`.** A disk holds many filesystems, a filesystem can
+  span disks, and one filesystem is often reachable at several paths at once.
+  `storage:` names hardware and `volume:` names a filesystem, so a widget bound
+  to one can never resolve to the other.
+
+Where the numbers come from:
+
+| Layer            | Fedora                                           | Windows                                                        |
+| ---------------- | ------------------------------------------------ | -------------------------------------------------------------- |
+| Inventory        | `/sys/class/block`                               | SetupAPI `GUID_DEVINTERFACE_DISK` + `IOCTL_STORAGE_QUERY_PROPERTY` |
+| Capacity         | `/sys/block/<dev>/size`                          | `IOCTL_DISK_GET_DRIVE_GEOMETRY_EX`                              |
+| I/O counters     | `/proc/diskstats`, one read for every device     | `IOCTL_DISK_PERFORMANCE`, per device by handle                  |
+| Volumes          | `/proc/self/mountinfo`                           | `FindFirstVolumeW` + `GetVolumePathNamesForVolumeNameW`         |
+| Volume usage     | `statvfs(3)`                                     | `GetDiskFreeSpaceExW`                                           |
+| Volume → device  | the mount's device number, via `/proc/diskstats` | `IOCTL_VOLUME_GET_VOLUME_DISK_EXTENTS`                          |
+| NVMe health      | `nvme` `hwmon` + `NVME_IOCTL_ADMIN_CMD`          | `IOCTL_STORAGE_QUERY_PROPERTY` + `ProtocolTypeNvme` log `0x02`  |
+
+What it deliberately refuses to publish, each enforced by a test:
+
+- **`0 B/s` or `0 IOPS` before a baseline exists.** Activity is a rate: the
+  first sample has nothing to difference against and says so, rather than
+  reporting an unmeasured disk as idle.
+- **`0 ms` as a latency when no operation completed.** A latency is a mean over
+  completed operations; an interval with none has no mean. `0 B/s` and `0 IOPS`
+  over a real interval *are* published, because they are measurements.
+- **A spike after a counter reset.** A suspend/resume, a reconnected USB disk or
+  Windows's 32-bit operation counters wrapping make a total go down; any single
+  field regressing restarts the baseline rather than publishing a delta of four
+  billion.
+- **`size × logical_block_size` as a capacity, or as a throughput.** Kernel
+  block statistics count fixed 512-byte sectors whatever the device's logical
+  block size; the other formula reports **eight times** the real figure on a 4Kn
+  drive. Explicit tests pin the correct constant.
+- **`used = total - available`.** Unix filesystems reserve blocks for the
+  superuser, so `used` is `total - free` and `available` is what this user can
+  actually write — matching `df` byte for byte. The other formula shows several
+  gigabytes of phantom usage on every ext4 volume.
+- **A clamped `percentage_used`, or `100 - percentage_used` as a health score.**
+  The NVMe specification permits values above 100 once a drive passes its rated
+  endurance, which is exactly the reading a user must see. PULSE publishes no
+  verdict, no score and no grade — a test asserts no storage key contains
+  `score` or `status`.
+- **`available_spare` presented as free space.** It is the controller's reserve
+  of replacement blocks; a completely full drive normally still reports 100 %.
+- **A per-die NVMe sensor as the device temperature.** The composite channel is
+  found by **label**, never by taking `temp1_input` positionally — on the
+  reference machine the per-die sensors read 52.85 °C and 57.85 °C against a
+  composite of 52.85 °C.
+- **A guessed parent for a volume.** Attribution comes from the mount's device
+  number or the volume's disk extents, never from a name; a volume that cannot
+  be correlated is shown separately rather than attached to the wrong disk.
+- **Partitions, loop devices, `zram` and device-mapper volumes as disks.** One
+  NVMe drive with eight partitions counts as one device, and the eight `loop`
+  devices Fedora creates for snaps count as none. A `virtio` disk *is* counted:
+  the filter is about whether an entry is a usable block device, not about
+  whether silicon is involved.
+- **One filesystem as several volumes.** Fedora mounts the same btrfs filesystem
+  at `/` and `/home`; a bind mount adds a third path. They are one volume with
+  three mount points, not three volumes with the machine's capacity counted
+  three times.
+
+Also in this phase:
+
+- **Read-only, without exception.** Nothing mounts, unmounts, partitions,
+  formats, trims or repairs. The only NVMe command PULSE can express is
+  `Get Log Page 0x02` — the opcode is a constant, never a parameter — and every
+  Windows device handle is opened with `dwDesiredAccess = 0`, which grants
+  neither read nor write access to a single sector.
+- **No subprocesses.** No `lsblk`, `blkid`, `df`, `udevadm`, `smartctl`, `nvme`,
+  `PowerShell`, `wmic`, `diskpart`, `fsutil`, `Get-PhysicalDisk` or `Get-Disk`,
+  anywhere.
+- **PULSE still does not need root.** `/dev/nvme0` is root-only on Fedora, so an
+  unprivileged run gets the inventory, the volumes, the I/O counters and the
+  composite temperature — and reports the other five health values as
+  `permissionDenied`, never as `unsupported`, because "the OS refused" and "your
+  drive has no health data" are different statements.
+- **ATA SMART is deferred, not refused.** Its attributes are vendor-defined, and
+  normalising them wrongly would publish confident but false claims about a
+  user's disk. A SATA or USB device keeps all six `storage.health.*` definitions
+  in the catalog with a reason that says PULSE has no backend yet.
+- **Identity is recorded, not assumed.** `nvme0n1`, `sda`, `PhysicalDrive0`,
+  `C:`, `/` and `major:minor` are never identities. PULSE prefers a WWN, NGUID,
+  EUI-64 or T10 identifier, then a serial, then an OS-assigned stable id, and
+  carries an `IdentityStability` saying which it used — so a session-scoped
+  fallback is inspectable rather than silently fragile. A drive's serial is the
+  same string on both platforms, so **the same disk gets the same `SourceId`**
+  on Fedora and Windows, and a contract test asserts it.
+- **USB placeholder serials are refused.** Many bridges ship every unit with
+  `0123456789ABCDEF`; two disks in two identical enclosures would otherwise
+  collapse onto one identity.
+- **A USB disk is named by its enclosure** when the bridge answers the SCSI
+  inquiry with a protocol name — the reference machine's external disk reads
+  `Intenso USB3.0 Device` rather than `Intenso SCSI`.
+- **Windows parsing is tested on Fedora.** The `STORAGE_DEVICE_DESCRIPTOR`
+  string offsets, the bus-type mapping, the NVMe log-page extraction, the
+  `DISK_PERFORMANCE` 100 ns → ms conversion, the disk-extent parsing and the
+  identity rules are all pure functions over byte slices, unit-tested against
+  synthetic buffers with no Windows machine involved.
+- **UI** — a new *Storage details* card: a compact grid of devices, each with its
+  capacity, six activity rows and six health rows, and its volumes nested
+  underneath with a usage bar. A volume PULSE could not attribute appears under
+  *Other volumes*. Before a baseline exists the card says *Waiting for another
+  sample* rather than showing zeros, and it does **not** fire a hidden second
+  request to paper over it. Still one sample on mount and one per click of
+  Refresh: no polling, no scheduler, no subscription.
+- **Documentation** — [`docs/metrics/storage.md`](docs/metrics/storage.md).
+
 ### Added — Phase 5: Thermals & Cooling
 
 Temperatures and fan speeds on both platforms, built around a single rule: PULSE

@@ -24,6 +24,7 @@ use crate::metrics::wellknown::gpu::{
     self, GpuCapabilities, GpuDescriptor, GpuIdentity, GpuVendor, PciAddress,
 };
 use crate::metrics::wellknown::memory;
+use crate::metrics::wellknown::storage;
 
 /// The NVIDIA card both platforms are asked to describe.
 ///
@@ -771,4 +772,339 @@ fn every_thermal_source_is_addressable_the_same_way_on_both_platforms() {
             }
         }
     }
+}
+
+// --- storage contract -----------------------------------------------------
+//
+// The same promise as for GPUs, on harder ground: a disk is identified by
+// entirely different operating-system machinery on each platform — sysfs
+// attributes on Fedora, SetupAPI and device controls on Windows — and the
+// serial number is the one thing both of them read off the same hardware.
+// These tests pin that the *same drive* therefore produces the *same*
+// `SourceId`, and that everything built on top of it is identical apart from
+// the provider's name.
+
+/// The drive both platforms are asked to describe.
+///
+/// Identified by its serial number, which is what Fedora finds in
+/// `/sys/block/<dev>/device/serial` and Windows in the device descriptor's
+/// serial field. Same string, same hardware, same identifier.
+const SYNTHETIC_SERIAL: &str = "S677NX0W";
+
+fn synthetic_storage() -> (
+    Vec<storage::StorageDeviceDescriptor>,
+    Vec<storage::StorageVolumeDescriptor>,
+) {
+    let (source_id, identity) =
+        storage::device_identity(None, Some(SYNTHETIC_SERIAL), None, "nvme0n1")
+            .expect("identified");
+
+    let device = storage::StorageDeviceDescriptor {
+        source_id: source_id.clone(),
+        display_name: "SAMSUNG MZVL22T0HBLB-00B00".to_string(),
+        os_name: "nvme0n1".to_string(),
+        identity,
+        bus: storage::StorageBus::Nvme,
+        capacity_bytes: Some(2_048_408_248_320),
+        rotational: Some(false),
+        removable: Some(false),
+        backend: "synthetic",
+        capabilities: storage::StorageCapabilities::all_available(),
+    };
+
+    let volume_source =
+        storage::partition_volume_source_id(&source_id, 1).expect("valid volume source");
+
+    let volume = storage::StorageVolumeDescriptor {
+        source_id: volume_source,
+        display_name: "/".to_string(),
+        identity: storage::VolumeIdentity::Partition {
+            device: source_id,
+            partition: 1,
+        },
+        filesystem: Some("btrfs".to_string()),
+        mount_points: vec!["/".to_string(), "/home".to_string()],
+        device: None,
+        read_only: false,
+        backend: "synthetic",
+        capabilities: storage::VolumeCapabilities::all_available(),
+    };
+
+    (vec![device], vec![volume])
+}
+
+fn storage_declarations(provider: &str) -> Vec<MetricDefinition> {
+    let id = ProviderId::new(provider).expect("valid provider id");
+    let (devices, volumes) = synthetic_storage();
+
+    let mut definitions = storage::definitions(&id, &devices, &volumes);
+    definitions.sort_by(|left, right| left.metric.cmp(&right.metric));
+    definitions
+}
+
+fn linux_storage() -> Vec<MetricDefinition> {
+    storage_declarations(crate::platform::linux::storage::PROVIDER_ID)
+}
+
+fn windows_storage() -> Vec<MetricDefinition> {
+    storage_declarations(crate::platform::windows::storage::PROVIDER_ID)
+}
+
+#[test]
+fn both_platforms_declare_the_same_storage_references_for_one_drive() {
+    let references = |definitions: Vec<MetricDefinition>| -> Vec<String> {
+        definitions
+            .iter()
+            .map(|definition| definition.metric.to_string())
+            .collect()
+    };
+
+    const DISK: &str = "storage:serial-s677nx0w";
+    const VOLUME: &str = "volume:serial-s677nx0w-p1";
+
+    let mut expected: Vec<String> = vec![
+        "storage.capacity.total".to_string(),
+        "storage.device.count".to_string(),
+        "storage.health.available_spare".to_string(),
+        "storage.health.media_errors".to_string(),
+        "storage.health.percentage_used".to_string(),
+        "storage.health.power_on_hours".to_string(),
+        "storage.health.temperature".to_string(),
+        "storage.health.unsafe_shutdowns".to_string(),
+        "storage.io.read.bytes_per_second".to_string(),
+        "storage.io.read.iops".to_string(),
+        "storage.io.read.latency".to_string(),
+        "storage.io.write.bytes_per_second".to_string(),
+        "storage.io.write.iops".to_string(),
+        "storage.io.write.latency".to_string(),
+        "storage.volume.capacity.available".to_string(),
+        "storage.volume.capacity.total".to_string(),
+        "storage.volume.capacity.used".to_string(),
+        "storage.volume.count".to_string(),
+        "storage.volume.usage.percent".to_string(),
+    ]
+    .into_iter()
+    .map(|key| {
+        let source = if key == "storage.device.count" || key == "storage.volume.count" {
+            storage::SOURCE
+        } else if key.starts_with("storage.volume.") {
+            VOLUME
+        } else {
+            DISK
+        };
+        format!("{key}@{source}")
+    })
+    .collect();
+    expected.sort();
+
+    assert_eq!(references(linux_storage()), expected);
+    assert_eq!(references(windows_storage()), expected);
+}
+
+#[test]
+fn a_drive_keeps_one_identity_across_operating_systems() {
+    // The portability promise for storage. Fedora reads the serial from sysfs
+    // and Windows from the device descriptor — it is the same hardware string,
+    // so a widget bound to this drive works on either OS unchanged.
+    let source = |definitions: Vec<MetricDefinition>| -> String {
+        definitions
+            .iter()
+            .find(|definition| definition.metric.key.as_str() == storage::CAPACITY_TOTAL)
+            .expect("declared")
+            .metric
+            .source_id
+            .as_str()
+            .to_string()
+    };
+
+    assert_eq!(source(linux_storage()), source(windows_storage()));
+
+    // And the Windows identity layer, which has its own serial-plausibility
+    // rule, arrives at the same answer for the same drive.
+    let windows_side = crate::platform::windows::storage::identity::disk_identity(
+        Some(SYNTHETIC_SERIAL),
+        Some(r"SCSI\Disk&Ven_NVMe\5&2a"),
+        "PhysicalDrive0",
+    )
+    .expect("identified")
+    .0;
+
+    assert_eq!(windows_side.as_str(), "storage:serial-s677nx0w");
+}
+
+#[test]
+fn only_the_provider_id_differs_between_the_platforms_for_storage() {
+    for (linux, windows) in linux_storage().iter().zip(windows_storage().iter()) {
+        let reference = &linux.metric;
+
+        assert_eq!(linux.metric, windows.metric, "metric ref for {reference}");
+        assert_eq!(linux.unit, windows.unit, "unit for {reference}");
+        assert_eq!(linux.kind, windows.kind, "kind for {reference}");
+        assert_eq!(
+            linux.value_type, windows.value_type,
+            "value type for {reference}"
+        );
+        assert_eq!(linux.category, windows.category, "category for {reference}");
+        assert_eq!(
+            linux.display_name, windows.display_name,
+            "display name for {reference}"
+        );
+        assert_eq!(
+            linux.source_label, windows.source_label,
+            "source label for {reference}"
+        );
+        assert_eq!(
+            linux.description, windows.description,
+            "description for {reference}"
+        );
+
+        assert_ne!(
+            linux.provider_id, windows.provider_id,
+            "provider id should identify the platform for {reference}"
+        );
+    }
+}
+
+#[test]
+fn the_storage_catalog_size_follows_the_machine_identically_on_both_platforms() {
+    for devices in 0..=3_usize {
+        for volumes in 0..=3_usize {
+            let inventory: Vec<storage::StorageDeviceDescriptor> = (0..devices)
+                .map(|index| {
+                    let serial = format!("SERIAL{index:04}");
+                    let (source_id, identity) =
+                        storage::device_identity(None, Some(&serial), None, "disk")
+                            .expect("identified");
+
+                    storage::StorageDeviceDescriptor {
+                        source_id,
+                        display_name: "Test SSD".to_string(),
+                        os_name: "disk".to_string(),
+                        identity,
+                        bus: storage::StorageBus::Nvme,
+                        capacity_bytes: Some(1024),
+                        rotational: Some(false),
+                        removable: Some(false),
+                        backend: "synthetic",
+                        capabilities: storage::StorageCapabilities::all_available(),
+                    }
+                })
+                .collect();
+
+            let mounted: Vec<storage::StorageVolumeDescriptor> = (0..volumes)
+                .map(|index| storage::StorageVolumeDescriptor {
+                    source_id: storage::device_number_volume_source_id(8, index as u32)
+                        .expect("valid"),
+                    display_name: format!("/mnt/{index}"),
+                    identity: storage::VolumeIdentity::DeviceNumber {
+                        major: 8,
+                        minor: index as u32,
+                    },
+                    filesystem: Some("ext4".to_string()),
+                    mount_points: vec![format!("/mnt/{index}")],
+                    device: None,
+                    read_only: false,
+                    backend: "synthetic",
+                    capabilities: storage::VolumeCapabilities::all_available(),
+                })
+                .collect();
+
+            let sizes: Vec<usize> = ["linux.storage", "windows.storage"]
+                .map(|id| {
+                    let provider = ProviderId::new(id).expect("valid");
+                    storage::definitions(&provider, &inventory, &mounted).len()
+                })
+                .to_vec();
+
+            assert_eq!(sizes[0], sizes[1]);
+            assert_eq!(
+                sizes[0],
+                2 + storage::PER_DEVICE_KEYS.len() * devices
+                    + storage::PER_VOLUME_KEYS.len() * volumes
+            );
+        }
+    }
+}
+
+#[test]
+fn a_device_and_a_volume_are_never_the_same_source() {
+    // The mistake this whole model exists to prevent. A disk and a filesystem
+    // on it are related, not interchangeable, and a widget bound to one must
+    // not resolve to the other.
+    for definition in linux_storage() {
+        let key = definition.metric.key.as_str();
+        let source = &definition.metric.source_id;
+
+        if key == storage::DEVICE_COUNT || key == storage::VOLUME_COUNT {
+            assert_eq!(source.as_str(), storage::SOURCE);
+            continue;
+        }
+
+        let expected = if storage::PER_VOLUME_KEYS.contains(&key) {
+            "volume"
+        } else {
+            "storage"
+        };
+
+        assert_eq!(source.kind(), expected, "wrong source kind for {key}");
+        assert!(source.has_canonical_kind(), "{source} is not a known kind");
+    }
+}
+
+#[test]
+fn a_rate_is_never_declared_with_a_quantity_unit() {
+    // Throughput, IOPS and latency only exist relative to an interval.
+    // Declaring one as `Bytes` or `Count` would let history average a rate
+    // with a total.
+    use crate::metrics::model::MetricUnit;
+
+    let unit_of = |key: &str| {
+        linux_storage()
+            .into_iter()
+            .find(|definition| definition.metric.key.as_str() == key)
+            .unwrap_or_else(|| panic!("'{key}' declared"))
+            .unit
+    };
+
+    assert_eq!(unit_of(storage::IO_READ_BYTES), MetricUnit::BytesPerSecond);
+    assert_eq!(unit_of(storage::IO_WRITE_BYTES), MetricUnit::BytesPerSecond);
+    assert_eq!(
+        unit_of(storage::IO_READ_IOPS),
+        MetricUnit::OperationsPerSecond
+    );
+    assert_eq!(
+        unit_of(storage::IO_WRITE_IOPS),
+        MetricUnit::OperationsPerSecond
+    );
+    assert_eq!(unit_of(storage::IO_READ_LATENCY), MetricUnit::Milliseconds);
+    assert_eq!(unit_of(storage::IO_WRITE_LATENCY), MetricUnit::Milliseconds);
+
+    // …and the quantities keep quantity units.
+    assert_eq!(unit_of(storage::CAPACITY_TOTAL), MetricUnit::Bytes);
+    assert_eq!(unit_of(storage::VOLUME_CAPACITY_USED), MetricUnit::Bytes);
+    assert_eq!(unit_of(storage::HEALTH_POWER_ON_HOURS), MetricUnit::Hours);
+    assert_eq!(unit_of(storage::HEALTH_MEDIA_ERRORS), MetricUnit::Count);
+}
+
+#[test]
+fn the_health_descriptions_say_what_each_value_is_not() {
+    // The three storage figures a user is most likely to misread, and the
+    // sentence in each description that stops them.
+    let description = |key: &str| -> String {
+        linux_storage()
+            .into_iter()
+            .find(|definition| definition.metric.key.as_str() == key)
+            .expect("declared")
+            .description
+    };
+
+    // Available spare is not free space.
+    assert!(description(storage::HEALTH_AVAILABLE_SPARE).contains("not free space"));
+    // Used endurance is not a health score, and may exceed 100.
+    assert!(description(storage::HEALTH_PERCENTAGE_USED).contains("above 100"));
+    assert!(description(storage::HEALTH_PERCENTAGE_USED).contains("health score"));
+    // Latency is the host's view, and absent rather than zero when idle.
+    assert!(description(storage::IO_READ_LATENCY).contains("rather than zero"));
+    // A volume's size is not its disk's capacity.
+    assert!(description(storage::VOLUME_CAPACITY_TOTAL).contains("may span devices"));
 }

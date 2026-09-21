@@ -9,7 +9,7 @@ Windows is a **first-class PULSE platform**, on equal footing with Fedora Linux.
 
 ## What PULSE reads on Windows today
 
-**Implemented (Phase 2).** No administrator rights required.
+**Implemented (Phases 2–6).** No administrator rights required.
 
 | Metric                                                                  | API                                                                    | Notes                                                                  |
 | ----------------------------------------------------------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------------------- |
@@ -30,6 +30,12 @@ Windows is a **first-class PULSE platform**, on equal footing with Fedora Linux.
 | `gpu.temperature.core`, `gpu.fan.speed`                                 | NVML only                                                              | RPM only; a fan duty cycle is never republished as a speed             |
 | `gpu.temperature.hotspot`, `gpu.temperature.memory`                     | —                                                                      | `unsupported`: NVML documents no source, and they are separate sensors |
 | `cpu.temperature.package`                                               | —                                                                      | **`unsupported`**: declared, never measured — see below                |
+| `storage.device.count`                                                  | SetupAPI `GUID_DEVINTERFACE_DISK`                                      | Present disk interfaces, not a `PhysicalDriveN` loop                   |
+| `storage.volume.count`                                                  | `FindFirstVolumeW` / `FindNextVolumeW`                                 | Volume GUID paths, not drive letters                                   |
+| `storage.capacity.total`                                                | `IOCTL_DISK_GET_DRIVE_GEOMETRY_EX`                                     | `DiskSize`, not the reported CHS geometry                              |
+| `storage.io.*`                                                          | `IOCTL_DISK_PERFORMANCE`                                               | Per device, by handle; 100 ns → ms; delta between two samples          |
+| `storage.health.*`                                                      | `IOCTL_STORAGE_QUERY_PROPERTY` + `ProtocolTypeNvme` log `0x02`         | NVMe only; ATA SMART deferred                                          |
+| `storage.volume.capacity.*`                                             | `GetDiskFreeSpaceExW`                                                  | `used = total - free`, `available = free to this caller`               |
 
 ### GPU
 
@@ -265,11 +271,20 @@ pnpm rust:windows:lint   # cargo clippy --target x86_64-pc-windows-msvc -D warni
 The harness pins the same `rust-version = 1.77.2` as the application, so it
 refuses anything PULSE itself could not compile.
 
-It proves the Windows CPU, memory and GPU providers, the DXGI and `D3DKMT`
-layers, the NVML loader and every metric declaration compile and type check for
-Windows. It proves **nothing about runtime behaviour** — nothing here executes on
-Windows. CI's `windows-latest` job builds and runs the whole crate; a physical
-machine is still the only real validation.
+It proves the Windows CPU, memory, GPU and storage providers, the DXGI and
+`D3DKMT` layers, the SetupAPI disk enumeration, the storage and volume device
+controls, the NVMe health path, the NVML loader and every metric declaration
+compile and type check for Windows. It proves **nothing about runtime
+behaviour** — nothing here executes on Windows. CI's `windows-latest` job builds
+and runs the whole crate; a physical machine is still the only real validation.
+
+The harness is deliberately not the only guard. Everything in the Windows
+storage layer that is _pure_ — the `STORAGE_DEVICE_DESCRIPTOR` string offsets,
+the bus-type mapping, the NVMe log-page extraction, the `DISK_PERFORMANCE` unit
+conversion, the disk-extent parsing, the identity rules — takes a byte slice or
+a string and returns a value, so it is **unit-tested on Fedora** against
+synthetic buffers. Getting a structure offset wrong is exactly the kind of bug
+that would otherwise surface only on a machine PULSE has not run on yet.
 
 ## Planned data sources
 
@@ -301,11 +316,49 @@ monitoring app cost more CPU than the things it measures.
 - `GlobalMemoryStatusEx` for physical totals — **implemented**.
 - `GetPerformanceInfo` for commit charge and page-file detail, a later phase.
 
-### Storage and network
+### Storage — implemented in Phase 6
 
-- PDH counters (`\LogicalDisk(*)`, `\Network Interface(*)`), plus
-  `GetDiskFreeSpaceEx` for capacity.
-- SMART requires `DeviceIoControl` with administrator rights.
+Not PDH. `\PhysicalDisk(0 C:)\Disk Reads/sec` is the obvious source and is not
+used: its instance names are presentation strings built from a disk number and
+whichever drive letters happen to sit on it, they change when a letter is
+reassigned, they are localised on some systems, and a disk holding several
+volumes produces a name PULSE would have to parse to attribute anything.
+Correlating that back to a device descriptor would be a guess dressed as a
+measurement.
+
+What is used instead, all by handle and all read-only:
+
+- **SetupAPI** over `GUID_DEVINTERFACE_DISK` for enumeration — not a loop over
+  `\\.\PhysicalDrive0`, `1`, … until one fails, which is wrong in both
+  directions: the numbers are not contiguous, and a number that fails for a
+  permissions reason ends the loop early and hides every disk after it. SetupAPI
+  also supplies the **device instance ID**, the stable Windows identifier.
+- `IOCTL_STORAGE_QUERY_PROPERTY` for the device descriptor — vendor, product,
+  revision, serial, bus type, removable media.
+- `IOCTL_STORAGE_GET_DEVICE_NUMBER` to learn which `PhysicalDriveN` a handle is,
+  which is how a volume's extents are matched to a disk. A _handle_, never an
+  identity.
+- `IOCTL_DISK_GET_DRIVE_GEOMETRY_EX` for capacity.
+- `IOCTL_DISK_PERFORMANCE` for cumulative I/O counters.
+- `FindFirstVolumeW` / `FindNextVolumeW` and
+  `GetVolumePathNamesForVolumeNameW` for volumes and the paths they are
+  reachable at. Enumerating drive letters instead would miss the EFI system
+  partition, the recovery partition and any volume mounted into a folder.
+- `IOCTL_VOLUME_GET_VOLUME_DISK_EXTENTS` to map a volume onto the disks it
+  occupies — several, for a striped or spanned volume, which PULSE reads rather
+  than assuming one.
+- `GetDiskFreeSpaceExW` for filesystem usage.
+- `IOCTL_STORAGE_QUERY_PROPERTY` with `StorageDeviceProtocolSpecificProperty`,
+  `ProtocolTypeNvme` and `NVMeDataTypeLogPage` for the NVMe SMART / Health log.
+
+**No `PowerShell`, `wmic`, `diskpart`, `fsutil`, `Get-PhysicalDisk` or
+`Get-Disk`, anywhere.** Every handle is opened with `dwDesiredAccess = 0`: no
+read access, no write access, only the informational controls above. Nothing in
+PULSE can modify a disk.
+
+### Network
+
+- PDH counters (`\Network Interface(*)`), or `GetIfTable2`.
 
 ### CPU temperature — declared, and honestly unsupported
 
@@ -355,8 +408,20 @@ Neither is done quietly.
 ## Privileges
 
 Same principle as Fedora: **PULSE must be useful without administrator
-rights.** Elevation-requiring data (SMART, MSR-based temperatures, some PDH
-counter sets) is an optional, clearly labelled enhancement.
+rights.** Elevation-requiring data (MSR-based temperatures, some PDH counter
+sets) is an optional, clearly labelled enhancement.
+
+The storage layer is designed around this: `dwDesiredAccess = 0` is what lets an
+unelevated process issue the device queries at all. Where Windows still refuses
+— a driver that will not answer the NVMe log page without elevation is the
+expected case — the affected metrics report `permissionDenied`, never
+`unsupported`, so the user is told the OS refused rather than that their drive
+has no health data.
+
+`IOCTL_DISK_PERFORMANCE` depends on the disk performance counters being
+collected. They are enabled by default for physical disks on every supported
+Windows version; where they are not, the control fails and the six
+`storage.io.*` metrics report `unsupported` rather than being invented.
 
 ## Windows-specific behaviours to design for
 

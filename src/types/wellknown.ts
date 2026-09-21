@@ -249,3 +249,144 @@ export const LIVE_SAMPLE_METRICS: readonly MetricRef[] = [
 export function metricRefId(metric: MetricRef): string {
   return `${metric.key}@${metric.sourceId}`;
 }
+
+// --- storage --------------------------------------------------------------
+//
+// Mirrors `metrics::wellknown::storage`. Two source kinds, deliberately:
+// `storage:` names a **physical device** and `volume:` names a **filesystem**.
+// They are related and not interchangeable — a disk holds many filesystems, a
+// filesystem can span disks, and a widget bound to one must never resolve to
+// the other.
+
+/** Number of physical storage devices inventoried. */
+export const STORAGE_DEVICE_COUNT_KEY = 'storage.device.count';
+/** Number of mounted filesystems inventoried. */
+export const STORAGE_VOLUME_COUNT_KEY = 'storage.volume.count';
+
+/** Total addressable capacity of a physical device, in bytes. */
+export const STORAGE_CAPACITY_TOTAL_KEY = 'storage.capacity.total';
+
+/** Bytes read from a device per second. */
+export const STORAGE_IO_READ_BYTES_KEY = 'storage.io.read.bytes_per_second';
+/** Bytes written to a device per second. */
+export const STORAGE_IO_WRITE_BYTES_KEY = 'storage.io.write.bytes_per_second';
+/** Read operations completing per second. */
+export const STORAGE_IO_READ_IOPS_KEY = 'storage.io.read.iops';
+/** Write operations completing per second. */
+export const STORAGE_IO_WRITE_IOPS_KEY = 'storage.io.write.iops';
+/** Mean time a read took, in milliseconds. */
+export const STORAGE_IO_READ_LATENCY_KEY = 'storage.io.read.latency';
+/** Mean time a write took, in milliseconds. */
+export const STORAGE_IO_WRITE_LATENCY_KEY = 'storage.io.write.latency';
+
+/** The controller's composite temperature, in degrees Celsius. */
+export const STORAGE_HEALTH_TEMPERATURE_KEY = 'storage.health.temperature';
+/** Estimated write endurance consumed, as a percentage. May exceed 100. */
+export const STORAGE_HEALTH_PERCENTAGE_USED_KEY = 'storage.health.percentage_used';
+/** Remaining reserve of replacement blocks, as a percentage. Not free space. */
+export const STORAGE_HEALTH_AVAILABLE_SPARE_KEY = 'storage.health.available_spare';
+/** Hours the controller has been powered on. */
+export const STORAGE_HEALTH_POWER_ON_HOURS_KEY = 'storage.health.power_on_hours';
+/** Shutdowns that lost power without notice. */
+export const STORAGE_HEALTH_UNSAFE_SHUTDOWNS_KEY = 'storage.health.unsafe_shutdowns';
+/** Media and data integrity errors the controller detected. */
+export const STORAGE_HEALTH_MEDIA_ERRORS_KEY = 'storage.health.media_errors';
+
+/** Total size of a filesystem, in bytes. */
+export const STORAGE_VOLUME_CAPACITY_TOTAL_KEY = 'storage.volume.capacity.total';
+/** Space on a filesystem that holds data (`total - free`), in bytes. */
+export const STORAGE_VOLUME_CAPACITY_USED_KEY = 'storage.volume.capacity.used';
+/** Space this user can actually write to, in bytes. */
+export const STORAGE_VOLUME_CAPACITY_AVAILABLE_KEY = 'storage.volume.capacity.available';
+/** Share of a filesystem that holds data, 0–100 percent. */
+export const STORAGE_VOLUME_USAGE_PERCENT_KEY = 'storage.volume.usage.percent';
+
+/** The machine-wide storage source. */
+export const STORAGE_SYSTEM_SOURCE: SourceId = 'storage:system';
+
+/**
+ * The per-device metrics describing **activity**.
+ *
+ * All six need two samples to exist at all, which is why they are grouped:
+ * before a baseline exists they are absent together, and the card says so once
+ * rather than six times.
+ */
+export const STORAGE_IO_KEYS: readonly string[] = [
+  STORAGE_IO_READ_BYTES_KEY,
+  STORAGE_IO_WRITE_BYTES_KEY,
+  STORAGE_IO_READ_IOPS_KEY,
+  STORAGE_IO_WRITE_IOPS_KEY,
+  STORAGE_IO_READ_LATENCY_KEY,
+  STORAGE_IO_WRITE_LATENCY_KEY,
+] as const;
+
+/**
+ * The per-device metrics describing **the controller's own health reporting**.
+ *
+ * Kept apart from the I/O set because the two fail for entirely different
+ * reasons: a USB disk has working counters and unreachable SMART data, while a
+ * permission problem removes health alone from an NVMe drive whose counters
+ * keep working.
+ */
+export const STORAGE_HEALTH_KEYS: readonly string[] = [
+  STORAGE_HEALTH_TEMPERATURE_KEY,
+  STORAGE_HEALTH_PERCENTAGE_USED_KEY,
+  STORAGE_HEALTH_AVAILABLE_SPARE_KEY,
+  STORAGE_HEALTH_POWER_ON_HOURS_KEY,
+  STORAGE_HEALTH_UNSAFE_SHUTDOWNS_KEY,
+  STORAGE_HEALTH_MEDIA_ERRORS_KEY,
+] as const;
+
+/**
+ * Every metric PULSE publishes per physical storage device.
+ *
+ * Mirrors `metrics::wellknown::storage::PER_DEVICE_KEYS`. The frontend never
+ * assumes how many disks exist — it discovers their sources from the catalog.
+ */
+export const STORAGE_PER_DEVICE_KEYS: readonly string[] = [
+  STORAGE_CAPACITY_TOTAL_KEY,
+  ...STORAGE_IO_KEYS,
+  ...STORAGE_HEALTH_KEYS,
+] as const;
+
+/** Every metric PULSE publishes per volume. */
+export const STORAGE_PER_VOLUME_KEYS: readonly string[] = [
+  STORAGE_VOLUME_CAPACITY_TOTAL_KEY,
+  STORAGE_VOLUME_CAPACITY_USED_KEY,
+  STORAGE_VOLUME_CAPACITY_AVAILABLE_KEY,
+  STORAGE_VOLUME_USAGE_PERCENT_KEY,
+] as const;
+
+/** How many physical storage devices this machine has. */
+export const STORAGE_DEVICE_COUNT: MetricRef = {
+  key: STORAGE_DEVICE_COUNT_KEY,
+  sourceId: STORAGE_SYSTEM_SOURCE,
+};
+
+/** How many mounted filesystems this machine has. */
+export const STORAGE_VOLUME_COUNT: MetricRef = {
+  key: STORAGE_VOLUME_COUNT_KEY,
+  sourceId: STORAGE_SYSTEM_SOURCE,
+};
+
+/**
+ * Whether a source identifies one physical storage device.
+ *
+ * Every device source is `storage:<instance>`; `storage:system` is the
+ * machine-wide aggregate and is deliberately excluded. Nothing here parses the
+ * instance — whether it encodes a WWN, a serial or a kernel name is the
+ * backend's business, not the interface's.
+ */
+export function isStorageDeviceSource(sourceId: SourceId): boolean {
+  return sourceId.startsWith('storage:') && sourceId !== STORAGE_SYSTEM_SOURCE;
+}
+
+/**
+ * Whether a source identifies one filesystem.
+ *
+ * A separate kind from `storage:`, so a device and a volume can never be
+ * confused for one another however their instances happen to be spelled.
+ */
+export function isStorageVolumeSource(sourceId: SourceId): boolean {
+  return sourceId.startsWith('volume:');
+}

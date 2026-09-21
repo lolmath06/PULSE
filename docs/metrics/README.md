@@ -1,16 +1,18 @@
 # PULSE Metrics Engine
 
-> **Phase 4 — GPU inventory and core metrics.**
+> **Phase 6 — storage inventory, I/O, volumes and NVMe health.**
 >
 > The model, the provider contract, the engine and the frontend API were built
 > in Phase 1. Phase 2 added the first native collectors: CPU usage and physical
 > memory, on both Fedora and Windows. Phase 3 made the CPU support real —
 > per-logical-processor usage and frequency, plus topology. Phase 4 added the
 > first GPU support: inventory, stable identity, and seven metrics per device
-> across NVIDIA, AMD and Intel, and Phase 5 added temperatures and fan speeds
-> to both families. The catalog is **sized by the machine** — `9 + 3N + P + 11G`
-> for `N` logical processors, `P` addressable CPU packages and `G` GPUs — and
-> there are three providers per platform.
+> across NVIDIA, AMD and Intel; Phase 5 added temperatures and fan speeds to
+> both families. Phase 6 added storage: physical devices, mounted filesystems,
+> delta-based I/O rates and the standardised NVMe health log. The catalog is
+> **sized by the machine** — `11 + 3N + P + 11G + 13D + 4V` for `N` logical
+> processors, `P` addressable CPU packages, `G` GPUs, `D` storage devices and
+> `V` volumes — and there are four providers per platform.
 
 ## Documents
 
@@ -23,6 +25,7 @@
 | [`cpu-advanced.md`](cpu-advanced.md) | Phase 3: per-logical-processor usage and frequency, CPU topology, processor groups       |
 | [`gpu.md`](gpu.md)                   | Phase 4: GPU inventory, identity, NVML, DXGI, AMD sysfs                                  |
 | [`thermals.md`](thermals.md)         | Phase 5: temperatures and fan speeds, `hwmon`, and the readings PULSE refuses to publish |
+| [`storage.md`](storage.md)           | Phase 6: devices vs volumes, identity, I/O deltas, `statvfs`, NVMe SMART/Health          |
 
 ## Position in the architecture
 
@@ -66,6 +69,12 @@ processor, and one `CallNtPowerInformation` returns the whole frequency array.
 The GPU provider follows the same rule: each device is read at most once per
 request, whichever of its seven metrics were asked for — one NVML round trip or
 one sysfs pass, never seven.
+
+The storage provider does it at the widest scale yet: **one `/proc/diskstats`
+read feeds every device's six I/O metrics at once**, which matters for more than
+speed — rates are derived from the interval between two snapshots, so every
+device's counters must be captured at the _same_ instant, or two disks' figures
+describe two slightly different windows.
 
 ### 2. Sample only what is asked for
 
@@ -126,7 +135,8 @@ adaptive sampling, no subscriptions, no events. The interaction model remains
 
 This is why a first CPU sample may report `temporarilyUnavailable`: usage is a
 rate, and without a sampler there may be no usable delta yet. PULSE says so
-rather than reporting `0%`.
+rather than reporting `0%`. The same applies to every `storage.io.*` metric —
+see [`storage.md`](storage.md#activity-is-measured-not-read).
 
 Planned for later phases:
 
@@ -137,19 +147,20 @@ Planned for later phases:
 
 ## Planned metric families
 
-| Family        | Fedora source              | Windows source                                 | Notes                           |
-| ------------- | -------------------------- | ---------------------------------------------- | ------------------------------- |
-| CPU load      | `/proc/stat`               | `GetSystemTimes`, `NtQuerySystemInformationEx` | Delta-based; **done**           |
-| CPU frequency | `cpufreq/scaling_cur_freq` | `CallNtPowerInformation`                       | Per logical processor; **done** |
-| CPU topology  | `cpuN/topology/`           | `GetLogicalProcessorInformationEx`             | **done**                        |
-| Memory        | `/proc/meminfo`            | `GlobalMemoryStatusEx`                         | Use `MemAvailable`              |
-| Storage usage | `statvfs`                  | `GetDiskFreeSpaceEx`                           |                                 |
-| Storage I/O   | `/proc/diskstats`          | PDH `\LogicalDisk`                             | Delta-based                     |
-| Network       | `/proc/net/dev`            | PDH `\Network Interface`                       | Delta-based                     |
-| Temperatures  | `hwmon`                    | **open decision**                              | See platform docs               |
-| Fans          | `hwmon` `fanN_input`       | needs ring-0 driver                            | Often unavailable               |
-| GPU           | `/sys/class/drm`, NVML     | NVML / ADLX / DXGI                             | Vendor-dependent                |
-| Processes     | `/proc/[pid]`              | `NtQuerySystemInformation`                     | Expensive; low cadence          |
+| Family         | Fedora source              | Windows source                                 | Notes                           |
+| -------------- | -------------------------- | ---------------------------------------------- | ------------------------------- |
+| CPU load       | `/proc/stat`               | `GetSystemTimes`, `NtQuerySystemInformationEx` | Delta-based; **done**           |
+| CPU frequency  | `cpufreq/scaling_cur_freq` | `CallNtPowerInformation`                       | Per logical processor; **done** |
+| CPU topology   | `cpuN/topology/`           | `GetLogicalProcessorInformationEx`             | **done**                        |
+| Memory         | `/proc/meminfo`            | `GlobalMemoryStatusEx`                         | Use `MemAvailable`              |
+| Storage usage  | `statvfs`                  | `GetDiskFreeSpaceExW`                          | **done**                        |
+| Storage I/O    | `/proc/diskstats`          | `IOCTL_DISK_PERFORMANCE`                       | Delta-based; **done**           |
+| Storage health | NVMe log via ioctl         | NVMe log via storage property                  | NVMe only; **done**             |
+| Network        | `/proc/net/dev`            | PDH `\Network Interface`                       | Delta-based                     |
+| Temperatures   | `hwmon`                    | **open decision**                              | See platform docs               |
+| Fans           | `hwmon` `fanN_input`       | needs ring-0 driver                            | Often unavailable               |
+| GPU            | `/sys/class/drm`, NVML     | NVML / ADLX / DXGI                             | Vendor-dependent                |
+| Processes      | `/proc/[pid]`              | `NtQuerySystemInformation`                     | Expensive; low cadence          |
 
 The Windows temperature story and the GPU vendor matrix remain the two genuinely
 hard problems; both are documented in

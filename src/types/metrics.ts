@@ -80,11 +80,13 @@ export type MetricUnit =
   | 'hertz'
   | 'bytes'
   | 'bytesPerSecond'
+  | 'operationsPerSecond'
   | 'watts'
   | 'volts'
   | 'rpm'
   | 'milliseconds'
   | 'seconds'
+  | 'hours'
   | 'count'
   | 'none';
 

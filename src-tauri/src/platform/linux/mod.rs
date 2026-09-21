@@ -11,6 +11,7 @@ pub mod gpu;
 pub mod hwmon;
 pub mod memory;
 mod os_release;
+pub mod storage;
 
 use std::sync::Arc;
 
@@ -42,11 +43,21 @@ impl HostPlatform for LinuxPlatform {
     /// different positioning capabilities on each (see
     /// `docs/architecture/mini-overlay.md`).
     /// CPU from `/proc/stat` and `/sys/devices/system/cpu/`, memory from
-    /// `/proc/meminfo`.
+    /// `/proc/meminfo`, GPUs from `/sys/class/drm` and NVML, storage from
+    /// `/sys/class/block`, `/proc/diskstats`, `/proc/self/mountinfo` and
+    /// `statvfs`.
     ///
-    /// All are world-readable, so none needs root.
+    /// All are world-readable, so none needs root. The one interface that
+    /// does — the NVMe health log — is read opportunistically by the storage
+    /// provider and reports `permissionDenied` when it is refused, which
+    /// affects six metrics per NVMe device and nothing else.
     fn metric_providers(&self) -> Vec<Arc<dyn MetricProvider>> {
-        vec![cpu::provider(), memory::provider(), gpu::provider()]
+        vec![
+            cpu::provider(),
+            memory::provider(),
+            gpu::provider(),
+            storage::provider(),
+        ]
     }
 
     fn display_server(&self) -> Option<String> {

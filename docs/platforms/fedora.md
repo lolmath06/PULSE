@@ -34,10 +34,18 @@ Fedora Linux is a **first-class PULSE platform**, on equal footing with Windows.
 | `gpu.temperature.memory` | `amdgpu` `mem` | Likewise its own sensor |
 | `gpu.fan.speed` | NVML RPM query, or `fanN_input` | RPM only; a control percentage is never republished as a speed |
 | `gpu.frequency.*` | NVML, or `pp_dpm_{sclk,mclk}` | MHz → Hz in the platform layer |
+| `storage.device.count` | `/sys/class/block` | Physical disks; loop, zram, dm and partitions excluded |
+| `storage.volume.count` | `/proc/self/mountinfo` | One per filesystem, however many paths it is mounted at |
+| `storage.capacity.total` | `/sys/block/<dev>/size` | **512-byte sectors**, never scaled by the logical block size |
+| `storage.io.*` | `/proc/diskstats` | One read for every device; delta between two samples |
+| `storage.health.temperature` | `nvme` `hwmon` `Composite`, else the health log | Found by label, never by taking `temp1_input` positionally |
+| `storage.health.*` (other) | `NVME_IOCTL_ADMIN_CMD`, log page `0x02` | Needs privilege; `permissionDenied` when refused |
+| `storage.volume.capacity.*` | `statvfs(3)` | `used = total - free`, `available = user-available` |
 
-The per-processor metrics exist once per logical processor and the GPU metrics
-once per adapter, so the catalog holds `9 + 3N + 7G` metrics — 112 on this
-32-thread, single-GPU machine.
+The per-processor metrics exist once per logical processor, the GPU metrics once
+per adapter, and the storage metrics once per device and per volume, so the
+catalog holds `11 + 3N + P + 11G + 13D + 4V` metrics — 169 on this 32-thread,
+single-GPU machine with two disks and six mounted filesystems.
 
 Three details that the implementation gets right and that are easy to get wrong:
 
@@ -148,12 +156,24 @@ None of this is implemented yet; it is the map for later phases.
   a classic and very visible bug.
 - Swap (`SwapTotal`, `SwapFree`) is a later phase.
 
-### Storage
+### Storage — implemented in Phase 6
 
-- `/proc/diskstats` — I/O counters, again as deltas.
-- `statvfs(2)` for filesystem usage.
-- SMART requires `smartctl`, which needs elevated privileges — treat as an
-  optional, permission-gated capability.
+- `/sys/class/block` — the physical inventory: capacity, WWID, serial, model,
+  rotational and removable flags, and the device chain the bus is derived from.
+- `/proc/diskstats` — I/O counters, as deltas, **one read for every device** so
+  their intervals coincide.
+- `/proc/self/mountinfo` — volumes, rather than `/etc/mtab`: it carries the
+  device number that makes two mounts of one filesystem recognisable as one
+  filesystem, the root within the filesystem that tells a bind mount from a
+  separate volume, and octal-escaped paths that a whitespace split would cut in
+  half.
+- `statvfs(3)` for filesystem usage, via `libc` — never by running `df`.
+- NVMe health through the kernel's `nvme` `hwmon` node (composite temperature,
+  unprivileged) and `NVME_IOCTL_ADMIN_CMD` `Get Log Page 0x02` (the rest,
+  privileged). **No `smartctl`, no `nvme`, no subprocess of any kind.**
+- ATA SMART is deliberately **deferred**: its attributes are vendor-defined, and
+  normalising them wrongly would publish confident but false claims about a
+  user's disk. See [`../metrics/storage.md`](../metrics/storage.md#health-nvme-only-for-now).
 
 ### Network
 
@@ -211,9 +231,24 @@ The guiding principle: **PULSE must be useful without root.** Anything needing
 elevation is an optional enhancement, clearly labelled, never a hard
 requirement, and never silently requested.
 
-Known elevation points: SMART attributes, some motherboard sensors, some Intel
-GPU counters, and RAPL energy counters (`/sys/class/powercap/`, restricted since
-CVE-2020-8694).
+Known elevation points: the NVMe health log, some motherboard sensors, some
+Intel GPU counters, and RAPL energy counters (`/sys/class/powercap/`, restricted
+since CVE-2020-8694).
+
+Storage is the worked example of the principle. `/dev/nvme0` is
+`crw------- root:root` on Fedora, so an unprivileged PULSE reports:
+
+| Value                              | Unprivileged | Source                                                |
+| ---------------------------------- | ------------ | ----------------------------------------------------- |
+| Inventory, capacity, bus, identity | yes          | `/sys/class/block`                                    |
+| Volumes and their usage            | yes          | `mountinfo`, `statvfs`                                |
+| I/O counters                       | yes          | `/proc/diskstats`                                     |
+| `storage.health.temperature`       | yes          | the `nvme` `hwmon` node                               |
+| The other five health values       | **no**       | `permissionDenied`, with a reason naming `/dev/nvme0` |
+
+Everything else keeps working, and the five refused values say the OS refused
+rather than claiming the drive has no health data — a distinction the
+availability contract exists to preserve.
 
 ## Wayland and X11
 

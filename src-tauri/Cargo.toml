@@ -27,6 +27,13 @@ serde_json = "1"
 # Each OS pulls only what it needs; neither list is compiled on the other
 # platform, so a Windows-only crate can never break a Fedora build.
 
+[target.'cfg(target_os = "linux")'.dependencies]
+# Raw libc bindings only, for the two Unix interfaces PULSE needs and `std`
+# does not expose: `statvfs` (filesystem space) and `ioctl` (the read-only NVMe
+# admin passthrough). No wrapper layer and no runtime — declaring these by hand
+# would mean hand-rolling `struct statvfs`, whose layout is libc's business.
+libc = "0.2"
+
 [target.'cfg(target_os = "windows")'.dependencies]
 windows-version = "0.100"
 # DXGI adapter enumeration is COM, which `windows-sys` deliberately does not
@@ -45,6 +52,10 @@ windows = { version = "0.61", features = ["Win32_Graphics_Dxgi"] }
 #   UI_Shell            SHGetKnownFolderPath (locating Program Files without
 #                       trusting an inherited environment variable)
 #   System_Com          CoTaskMemFree (freeing what that call allocates)
+#   System_IO           DeviceIoControl (every storage query)
+#   Storage_FileSystem  CreateFileW, the volume enumeration, GetDiskFreeSpaceExW
+#   System_Ioctl        the storage and disk control codes' own declarations
+#   Devices_…Installation  SetupDi* — enumerating the disks that are present
 windows-sys = { version = "0.61", features = [
     "Win32_Foundation",
     "Win32_System_Threading",
@@ -55,6 +66,12 @@ windows-sys = { version = "0.61", features = [
     "Win32_System_Com",
     "Win32_UI_Shell",
     "Wdk_System_SystemInformation",
+    "Win32_System_IO",
+    "Win32_Storage_FileSystem",
+    "Win32_System_Ioctl",
+    "Win32_Devices_DeviceAndDriverInstallation",
+    "Win32_Security",
+    "Win32_System_SystemServices",
 ] }
 
 [profile.release]

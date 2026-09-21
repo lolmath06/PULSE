@@ -81,9 +81,10 @@ Validation lives in `MetricKey::new` and is tested against every example above.
 Format: `kind:instance`.
 
 - `kind` — a lowercase word, one of the documented canonical kinds: `system`,
-  `cpu`, `gpu`, `memory`, `storage`, `network`, `battery`, `fan`, `power`. The
-  list is a convention, not a closed enum, so new hardware classes do not
-  require a contract change; `SourceId::has_canonical_kind()` flags divergence.
+  `cpu`, `gpu`, `memory`, `storage`, `volume`, `network`, `battery`, `fan`,
+  `power`. The list is a convention, not a closed enum, so new hardware classes
+  do not require a contract change; `SourceId::has_canonical_kind()` flags
+  divergence.
 - `instance` — lowercase letters, digits, `-`, `_`, `.`. **May start with a
   digit**, because real device instances often are numbers (`cpu:0`,
   `storage:2`).
@@ -92,11 +93,22 @@ Format: `kind:instance`.
 system:host
 cpu:0
 gpu:pci-0000-01-00-0
-storage:nvme0n1
-storage:ata-samsung_ssd_870
+storage:wwid-eui.002538b331b36d03
+storage:serial-s677nx0w
+volume:wwid-eui.002538b331b36d03-p8
+volume:guid-volume-d2b1f8e0-1111-2222-3333-100000000000
 network:enp5s0
 battery:bat0
 ```
+
+### `storage:` and `volume:` are two kinds on purpose
+
+`storage:` names a **physical device**; `volume:` names a **filesystem**. They
+are related and not interchangeable — a disk holds many filesystems, a
+filesystem can span disks, and one filesystem is often reachable at several
+mount points at once. Folding them into one kind would let a widget bound to
+"the SSD" silently resolve to a filesystem that happens to live on it. See
+[`storage.md`](storage.md#a-device-is-not-a-volume-and-a-volume-is-not-a-mount-point).
 
 ## Logical sources
 
@@ -237,20 +249,27 @@ Windows interface GUID
 
 Applied per class:
 
-| Class       | Fedora / Linux                             | Windows                            |
-| ----------- | ------------------------------------------ | ---------------------------------- |
-| GPU         | PCI BDF from `/sys/class/drm/card*/device` | PCI location path / LUID           |
-| Storage     | `/dev/disk/by-id`, serial or WWN           | device instance ID plus serial     |
-| Network     | MAC, or a systemd-predictable name         | interface GUID                     |
-| CPU package | package index                              | package index                      |
-| Logical CPU | kernel CPU number                          | sorted `(group, index)` ordinal    |
-| GPU         | NVML UUID, else PCI address                | NVML UUID, else device-model tuple |
+| Class       | Fedora / Linux                                   | Windows                            |
+| ----------- | ------------------------------------------------ | ---------------------------------- |
+| GPU         | PCI BDF from `/sys/class/drm/card*/device`       | PCI location path / LUID           |
+| Storage     | `wwid` (WWN/NGUID/EUI/T10), else serial          | serial, else device instance ID    |
+| Volume      | parent device plus partition, else `major:minor` | volume GUID path                   |
+| Network     | MAC, or a systemd-predictable name               | interface GUID                     |
+| CPU package | package index                                    | package index                      |
+| Logical CPU | kernel CPU number                                | sorted `(group, index)` ordinal    |
+| GPU         | NVML UUID, else PCI address                      | NVML UUID, else device-model tuple |
 
 A provider that can only obtain an enumeration name must map it to something
 stable before publishing it — hwmon, for instance, must be keyed on the `name`
 attribute plus a label, never on `hwmon2`. Where nothing stable exists, that
 limitation belongs in the platform documentation, not hidden inside an
 identifier that will silently break a user's dashboard.
+
+Since Phase 6 the storage descriptors go one step further and **record which
+mechanism was used**: `IdentityStability` distinguishes `Hardware`,
+`SystemAssigned`, `DerivedFromParent` and `Session`, so a weak identity is
+inspectable rather than assumed. A `storage:dev-…` or `volume:mm-…` source is
+session-scoped by construction, and the prefix says so.
 
 This is expanded in [`../platforms/fedora.md`](../platforms/fedora.md).
 

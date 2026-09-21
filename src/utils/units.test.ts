@@ -4,10 +4,15 @@ import {
   formatBytes,
   formatBytesScaledTo,
   formatCelsius,
+  formatCount,
   formatHertz,
+  formatHours,
+  formatIops,
+  formatLatency,
   formatPercent,
   formatRpm,
   formatSampleTime,
+  formatThroughput,
 } from '@/utils/units';
 
 describe('formatBytes', () => {
@@ -182,5 +187,134 @@ describe('formatRpm', () => {
   it('refuses what is not a fan speed', () => {
     expect(formatRpm(-1)).toBe('—');
     expect(formatRpm(Number.NaN)).toBe('—');
+  });
+});
+
+describe('formatThroughput', () => {
+  it('uses the same binary prefixes as capacities', () => {
+    // A card that showed a 2 TiB disk transferring at 125 MB/s would be mixing
+    // two conventions in one place.
+    expect(formatThroughput(0)).toBe('0 B/s');
+    expect(formatThroughput(512)).toBe('512 B/s');
+    expect(formatThroughput(1024)).toBe('1.0 KiB/s');
+    expect(formatThroughput(125 * 1024 * 1024)).toBe('125 MiB/s');
+    expect(formatThroughput(1.5 * 1024 ** 3)).toBe('1.5 GiB/s');
+  });
+
+  it('treats zero as a measurement, not an absence', () => {
+    // A disk with no I/O during the interval genuinely transferred nothing,
+    // and that is different from a disk nothing measured.
+    expect(formatThroughput(0)).toBe('0 B/s');
+    expect(formatThroughput(0)).not.toBe('—');
+  });
+
+  it('drops the decimal above a hundred', () => {
+    // `847.3 MiB/s` is false precision on a figure that moves every refresh.
+    expect(formatThroughput(847.3 * 1024 * 1024)).toBe('847 MiB/s');
+    expect(formatThroughput(99.4 * 1024 * 1024)).toBe('99.4 MiB/s');
+  });
+
+  it('refuses a negative or non-finite rate', () => {
+    expect(formatThroughput(-1)).toBe('—');
+    expect(formatThroughput(Number.NaN)).toBe('—');
+    expect(formatThroughput(Number.POSITIVE_INFINITY)).toBe('—');
+  });
+
+  it('matches a real measurement from the development machine', () => {
+    // 17 840 761 B/s, reading PULSE's own build output.
+    expect(formatThroughput(17_840_761.9)).toBe('17.0 MiB/s');
+  });
+});
+
+describe('formatIops', () => {
+  it('shows whole operations above ten', () => {
+    // A disk does not complete 940.7 operations; the fraction is an artefact
+    // of dividing by an interval that is not exactly one second.
+    expect(formatIops(940)).toBe('940 IOPS');
+    expect(formatIops(407.738)).toBe('408 IOPS');
+  });
+
+  it('keeps a decimal for a trickle of activity', () => {
+    // Rounding 0.4 and 2 both to whole numbers would hide the difference
+    // between an almost-idle disk and a genuinely idle one.
+    expect(formatIops(0.4)).toBe('0.4 IOPS');
+    expect(formatIops(2)).toBe('2.0 IOPS');
+  });
+
+  it('treats zero as a measurement', () => {
+    expect(formatIops(0)).toBe('0 IOPS');
+  });
+
+  it('groups large figures', () => {
+    expect(formatIops(125_000)).toBe((125_000).toLocaleString() + ' IOPS');
+  });
+
+  it('refuses a negative or non-finite rate', () => {
+    expect(formatIops(-1)).toBe('—');
+    expect(formatIops(Number.NaN)).toBe('—');
+  });
+});
+
+describe('formatLatency', () => {
+  it('scales its precision to the magnitude', () => {
+    // The hardware's precision scales the same way: two decimals distinguish
+    // 0.73 ms from 0.71 ms on an NVMe drive, and `18.24 ms` on a spinning disk
+    // claims a resolution the OS's millisecond accounting does not have.
+    expect(formatLatency(0.731_827_192)).toBe('0.73 ms');
+    expect(formatLatency(3.24)).toBe('3.2 ms');
+    expect(formatLatency(18.4)).toBe('18 ms');
+  });
+
+  it('never shows false precision', () => {
+    expect(formatLatency(0.731_827_192)).not.toContain('731827');
+  });
+
+  it('treats zero as a measurement', () => {
+    // Operations completed, and the OS accounted less than its rounding unit
+    // of time to them. Normal on a fast SSD.
+    expect(formatLatency(0)).toBe('0.00 ms');
+  });
+
+  it('refuses a negative or non-finite latency', () => {
+    expect(formatLatency(-1)).toBe('—');
+    expect(formatLatency(Number.NaN)).toBe('—');
+  });
+
+  it('matches a real measurement from the development machine', () => {
+    expect(formatLatency(0.259_124_087)).toBe('0.26 ms');
+  });
+});
+
+describe('formatHours', () => {
+  it('keeps hours as hours', () => {
+    // A controller counts power-on time in whole hours, and "1 year" would
+    // round away the figure a user compares against a warranty.
+    expect(formatHours(421)).toBe('421 h');
+    expect(formatHours(0)).toBe('0 h');
+  });
+
+  it('groups above a thousand', () => {
+    expect(formatHours(12_847)).toBe((12_847).toLocaleString() + ' h');
+  });
+
+  it('refuses a negative or non-finite duration', () => {
+    expect(formatHours(-1)).toBe('—');
+    expect(formatHours(Number.NaN)).toBe('—');
+  });
+});
+
+describe('formatCount', () => {
+  it('shows zero as the measurement a user hopes for', () => {
+    expect(formatCount(0)).toBe('0');
+    expect(formatCount(0)).not.toBe('—');
+  });
+
+  it('groups large counts', () => {
+    expect(formatCount(1284)).toBe((1284).toLocaleString());
+  });
+
+  it('refuses a negative or non-finite count', () => {
+    expect(formatCount(-1)).toBe('—');
+    expect(formatCount(Number.NaN)).toBe('—');
   });
 });

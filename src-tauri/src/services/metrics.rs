@@ -51,7 +51,7 @@ pub fn sample(engine: &MetricsEngine, requested: &[MetricRef]) -> Vec<MetricSamp
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::metrics::wellknown::{cpu, gpu, memory};
+    use crate::metrics::wellknown::{cpu, gpu, memory, storage};
 
     /// The metric references PULSE ships on **every** machine, whatever its
     /// CPU. The per-processor references are added to these at runtime.
@@ -66,6 +66,8 @@ mod tests {
             memory::total_ref(),
             memory::usage_percent_ref(),
             memory::used_ref(),
+            storage::device_count_ref(),
+            storage::volume_count_ref(),
         ]
     }
 
@@ -91,6 +93,22 @@ mod tests {
     ///
     /// Zero where no package-level sensor was found, which is the normal
     /// Windows answer and a possible Fedora one.
+    /// How many storage devices this host reports, via the catalog itself.
+    fn storage_device_count(engine: &MetricsEngine) -> usize {
+        catalog(engine)
+            .iter()
+            .filter(|definition| definition.metric.key.as_str() == storage::CAPACITY_TOTAL)
+            .count()
+    }
+
+    /// How many volumes this host reports, via the catalog itself.
+    fn storage_volume_count(engine: &MetricsEngine) -> usize {
+        catalog(engine)
+            .iter()
+            .filter(|definition| definition.metric.key.as_str() == storage::VOLUME_CAPACITY_TOTAL)
+            .count()
+    }
+
     fn package_count(engine: &MetricsEngine) -> usize {
         catalog(engine)
             .iter()
@@ -109,24 +127,32 @@ mod tests {
             return;
         }
 
-        // Three providers, whatever the machine: each owns a whole metric
-        // family rather than there being one per processor or one per GPU.
+        // Four providers, whatever the machine: each owns a whole metric
+        // family rather than there being one per processor, one per GPU or one
+        // per disk.
         assert_eq!(
-            status.provider_count, 3,
-            "one CPU, one memory and one GPU provider"
+            status.provider_count, 4,
+            "one CPU, one memory, one GPU and one storage provider"
         );
         assert_eq!(status.state, crate::metrics::EngineState::Ready);
 
-        // 9 fixed metrics, plus three per logical processor, one per
-        // addressable CPU package and eleven per GPU — all discovered from the
-        // catalog, never hardcoded.
+        // 11 fixed metrics, plus three per logical processor, one per
+        // addressable CPU package, eleven per GPU, thirteen per storage device
+        // and four per volume — all discovered from the catalog, never
+        // hardcoded.
         let logical = logical_processor_count(&engine);
         let gpus = gpu_count(&engine);
         let packages = package_count(&engine);
+        let devices = storage_device_count(&engine);
+        let volumes = storage_volume_count(&engine);
         assert!(logical > 0, "a running machine has logical processors");
         assert_eq!(
             status.metric_count,
-            9 + 3 * logical + packages + crate::metrics::wellknown::gpu::PER_GPU_KEYS.len() * gpus
+            11 + 3 * logical
+                + packages
+                + crate::metrics::wellknown::gpu::PER_GPU_KEYS.len() * gpus
+                + storage::PER_DEVICE_KEYS.len() * devices
+                + storage::PER_VOLUME_KEYS.len() * volumes
         );
         assert!(status.available_metric_count <= status.metric_count);
     }
@@ -190,8 +216,15 @@ mod tests {
             .collect();
 
         let expected = match platform::PlatformKind::current() {
-            platform::PlatformKind::Linux => ["linux.cpu", "linux.memory", "linux.gpu"],
-            platform::PlatformKind::Windows => ["windows.cpu", "windows.memory", "windows.gpu"],
+            platform::PlatformKind::Linux => {
+                ["linux.cpu", "linux.memory", "linux.gpu", "linux.storage"]
+            }
+            platform::PlatformKind::Windows => [
+                "windows.cpu",
+                "windows.memory",
+                "windows.gpu",
+                "windows.storage",
+            ],
             platform::PlatformKind::Unsupported => unreachable!("guarded above"),
         };
 

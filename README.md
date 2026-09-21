@@ -11,14 +11,16 @@
 
 ## Status
 
-**Phase 5 — Thermals & Cooling.** Version `0.1.0-dev`.
+**Phase 6 — Storage inventory, I/O, volumes & NVMe health.** Version `0.1.0-dev`.
 
 PULSE can now answer, on Fedora and Windows behind exactly the same contract:
 
 > How many physical cores and logical processors does my CPU have, what is each
 > logical processor doing, which GPUs does this machine have, what is their
-> stable identity, what load, memory and clocks do they report — and how hot are
-> the processor and the graphics card actually running?
+> stable identity, what load, memory and clocks do they report, how hot are the
+> processor and the graphics card actually running — and which storage devices
+> does this machine have, how full are its filesystems, how much is it really
+> reading and writing, and what does an NVMe controller say about its own wear?
 
 On top of the Phase 0 foundation, the Phase 1 metrics contract and the Phase 2
 collectors, it reads **per-logical-processor usage, per-logical-processor
@@ -45,17 +47,32 @@ and a hotspot is a different sensor from the die. Where a reading is not
 available it says so, with the reason, and **PULSE never writes to a fan
 control, a limit or a power setting**.
 
-The catalog is **sized by the machine**: `9 + 3N + P + 11G` metrics for `N`
-logical processors, `P` addressable CPU packages and `G` GPUs — 117 on the
-32-thread, single-package, single-GPU laptop this was built on. Nothing anywhere hardcodes those numbers. References stay identical across
-operating systems, so a widget bound to `cpu.usage.logical@cpu:logical-3`, or to
-an NVIDIA card's UUID, moves from Fedora to Windows unchanged.
+Phase 6 added storage. Physical devices are inventoried through
+`/sys/class/block` on Fedora and SetupAPI on Windows; filesystems through
+`/proc/self/mountinfo` and the volume GUID API; activity from
+`/proc/diskstats` and `IOCTL_DISK_PERFORMANCE`, as **rates derived between two
+samples** rather than totals read once; and an NVMe controller's standardised
+SMART / Health log through a read-only ioctl on each platform. What makes that
+work is again mostly what it refuses — a disk is not a filesystem, a mount point
+is not an identity, `0 ms` is not a latency for a disk that completed no
+operation, and `100 - percentage_used` is not a health score.
+
+The catalog is **sized by the machine**: `11 + 3N + P + 11G + 13D + 4V` metrics
+for `N` logical processors, `P` addressable CPU packages, `G` GPUs, `D` storage
+devices and `V` volumes — 169 on the 32-thread, single-package, single-GPU
+laptop this was built on, with its internal NVMe drive, an external USB disk and
+six mounted filesystems. Nothing anywhere hardcodes those numbers. References
+stay identical across operating systems, so a widget bound to
+`cpu.usage.logical@cpu:logical-3`, to an NVIDIA card's UUID, or to a drive's
+serial number, moves from Fedora to Windows unchanged.
 
 PULSE is careful about distinctions other monitors blur: a **physical core** is
-not a **logical processor**, and dedicated **VRAM** is not system memory shared
-with an integrated GPU. It is equally careful about identity — a GPU is never
-identified by its product name, its DRM card number, its NVML index or its DXGI
-adapter index, because every one of those can change between boots.
+not a **logical processor**, dedicated **VRAM** is not system memory shared with
+an integrated GPU, and a **storage device** is not a **volume** is not a **mount
+point**. It is equally careful about identity — a GPU is never identified by its
+product name, its DRM card number, its NVML index or its DXGI adapter index, and
+a disk is never identified by `nvme0n1`, `sda` or `PhysicalDrive0`, because every
+one of those can change between boots.
 
 There is still no scheduler and no history: the UI samples on demand.
 
@@ -240,7 +257,8 @@ Start at [`docs/README.md`](docs/README.md).
 - [Metrics engine](docs/metrics/README.md) — [model](docs/metrics/model.md),
   [identifiers](docs/metrics/identifiers.md), [providers](docs/metrics/providers.md),
   [CPU & memory](docs/metrics/cpu-memory.md),
-  [advanced CPU](docs/metrics/cpu-advanced.md), [GPU](docs/metrics/gpu.md)
+  [advanced CPU](docs/metrics/cpu-advanced.md), [GPU](docs/metrics/gpu.md),
+  [thermals](docs/metrics/thermals.md), [storage](docs/metrics/storage.md)
 - [Widgets](docs/widgets/README.md)
 
 ## Roadmap
@@ -250,8 +268,11 @@ Start at [`docs/README.md`](docs/README.md).
 | 0     | Foundation: structure, platform abstraction, shell, docs, CI   | Done        |
 | 1     | Metrics engine: model, contract, catalog, frontend API         | Done        |
 | 2     | First real collectors: aggregate CPU usage, physical memory    | Done        |
-| 3     | Advanced CPU: per-logical-processor usage, frequency, topology | **Current** |
-| 4+    | Temperatures, GPU, storage, network, history, graphs           | Planned     |
+| 3     | Advanced CPU: per-logical-processor usage, frequency, topology | Done        |
+| 4     | GPU inventory, identity and core telemetry                     | Done        |
+| 5     | Temperatures and fan speeds                                    | Done        |
+| 6     | Storage devices, volumes, I/O and NVMe health                  | **Current** |
+| 7+    | Network, processes, history, graphs                            | Planned     |
 | 1+    | Widget engine, configurable dashboards                         | Planned     |
 | 1+    | Mini overlay, Gaming and Development modes                     | Planned     |
 | 1+    | Themes, presets, alerts, tray, autostart                       | Planned     |

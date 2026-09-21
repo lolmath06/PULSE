@@ -4,7 +4,8 @@
 > added the first real providers — CPU and memory, natively on both platforms.
 > Phase 3 grew the CPU providers to cover every logical processor. Phase 4 added
 > a GPU provider per platform, each hosting several vendor backends behind one
-> owner. The contract has not had to change once.
+> owner. Phase 6 added a storage provider per platform, hosting five backends
+> each. The contract has not had to change once.
 
 ## What a provider is
 
@@ -26,6 +27,13 @@ registering `nvidia.nvml` separately would make two providers claim the same
 `MetricRef` and the engine would reject one. Owning the family in one provider
 is what lets the backends be merged before anything is published.
 
+`linux.storage` and `windows.storage` follow it again, over five backends each:
+inventory, volumes, filesystem usage, I/O counters and NVMe health. There is
+deliberately no `linux.nvme`, `storage.smart` or `filesystem` provider — a
+disk's inventory and its health describe the same device, so two providers would
+claim the same `SourceId` and the engine would refuse whichever registered
+second.
+
 ```text
 linux.cpu      /proc/stat, /sys/devices/system/cpu
 linux.hwmon    /sys/class/hwmon
@@ -34,6 +42,12 @@ windows.wmi    WMI queries (inventory only — too slow to poll)
 nvidia.nvml    NVIDIA Management Library
 storage.smart  SMART attributes (privileged)
 ```
+
+> The last two are illustrative of the _shape_ of a data source, not of PULSE's
+> actual provider list. What ships is one provider per family per platform:
+> `linux.cpu`, `linux.memory`, `linux.gpu`, `linux.storage` and their Windows
+> counterparts. NVML lives inside the GPU provider and the NVMe health log
+> inside the storage provider, for the collision reason described above.
 
 The engine knows nothing about any of that. It knows about providers, a catalog
 and references — which is what makes this true:

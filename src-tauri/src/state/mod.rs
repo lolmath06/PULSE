@@ -75,10 +75,11 @@ mod tests {
         let status = state.metrics().status();
 
         if crate::platform::PlatformKind::current().is_supported() {
-            assert_eq!(status.provider_count, 3);
-            // The catalog is sized by the machine: 9 fixed metrics, plus three
-            // per logical processor and seven per GPU. Nothing here may assume
-            // a number.
+            assert_eq!(status.provider_count, 4);
+            // The catalog is sized by the machine: 11 fixed metrics, plus
+            // three per logical processor, eleven per GPU, thirteen per
+            // storage device and four per volume. Nothing here may assume a
+            // number.
             let count_of = |key: &str| {
                 state
                     .metrics()
@@ -90,12 +91,16 @@ mod tests {
             let logical = count_of(crate::metrics::wellknown::cpu::USAGE_LOGICAL);
             let gpus = count_of(crate::metrics::wellknown::gpu::USAGE_CORE);
             let packages = count_of(crate::metrics::wellknown::cpu::TEMPERATURE_PACKAGE);
+            let devices = count_of(crate::metrics::wellknown::storage::CAPACITY_TOTAL);
+            let volumes = count_of(crate::metrics::wellknown::storage::VOLUME_CAPACITY_TOTAL);
             assert!(logical > 0);
             assert_eq!(
                 status.metric_count,
-                9 + 3 * logical
+                11 + 3 * logical
                     + packages
                     + crate::metrics::wellknown::gpu::PER_GPU_KEYS.len() * gpus
+                    + crate::metrics::wellknown::storage::PER_DEVICE_KEYS.len() * devices
+                    + crate::metrics::wellknown::storage::PER_VOLUME_KEYS.len() * volumes
             );
         } else {
             assert_eq!(status.provider_count, 0);

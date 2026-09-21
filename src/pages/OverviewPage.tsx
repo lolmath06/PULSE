@@ -5,6 +5,7 @@ import { MetricsEngineCard } from '@/components/MetricsEngineCard/MetricsEngineC
 import { LiveSampleCard } from '@/components/LiveSampleCard/LiveSampleCard';
 import { CpuDetailsCard } from '@/components/CpuDetailsCard/CpuDetailsCard';
 import { GpuDetailsCard } from '@/components/GpuDetailsCard/GpuDetailsCard';
+import { StorageDetailsCard } from '@/components/StorageDetailsCard/StorageDetailsCard';
 
 export function OverviewPage() {
   const state = usePlatformInfo();
@@ -58,6 +59,7 @@ export function OverviewPage() {
       <LiveSampleCard />
       <CpuDetailsCard />
       <GpuDetailsCard />
+      <StorageDetailsCard />
     </section>
   );
 }
