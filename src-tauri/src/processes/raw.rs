@@ -16,13 +16,15 @@ use super::state::{ProcessClass, ProcessState};
 
 /// Cumulative I/O counters for one process, in bytes since it started.
 ///
-/// **Storage traffic, not syscall traffic.** Linux `read_bytes`/`write_bytes`
-/// from `/proc/<pid>/io` and Windows `ReadTransferCount`/`WriteTransferCount`
-/// both count bytes that actually moved to or from a device. Linux's
-/// `rchar`/`wchar` count bytes passed to `read()`/`write()` — including every
-/// byte served from page cache, from a pipe, from a socket or from `/proc`
-/// itself — and using them would report a process reading a cached file at
-/// gigabytes per second off a disk that never moved.
+/// **Not the same notion on both platforms.** Linux `read_bytes`/`write_bytes`
+/// from `/proc/<pid>/io` count bytes the block layer attributes to the process
+/// — storage-backed traffic. Windows `ReadTransferCount`/`WriteTransferCount`
+/// count the bytes of every read/write I/O operation the process performs, as
+/// Windows accounts them, which is not restricted to a block device. The
+/// columns share a name; `docs/metrics/processes.md` §6 spells out the
+/// difference. On Linux, `rchar`/`wchar` are deliberately not used: they count
+/// every byte passed to `read()`/`write()` — page cache, pipes, sockets,
+/// `/proc` — and would report a cached re-read at gigabytes per second.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub struct RawProcessIo {
     pub read_bytes: u64,

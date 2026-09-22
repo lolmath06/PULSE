@@ -363,6 +363,27 @@ full analysis.
 X11 sessions remain common and are simpler for overlays; PULSE should support
 them where it costs little, without treating X11 as the target.
 
+## Process inspector and controls (Phase 9)
+
+| Need            | Source                                                                  |
+| --------------- | ----------------------------------------------------------------------- |
+| identity, state | `/proc/<pid>/stat` (start ticks = identity token)                       |
+| owner           | `/proc/<pid>/status` real UID → `getpwuid_r`                            |
+| start time      | `/proc/stat` `btime` + start ticks ÷ `_SC_CLK_TCK`                      |
+| executable      | `readlink`/`stat` of `/proc/<pid>/exe` (`(deleted)` detected)           |
+| architecture    | ELF header (20 bytes) of `/proc/<pid>/exe`                              |
+| package         | `rpm -qf -- <path>` — no shell, 5 s timeout, lazy                       |
+| priority        | `getpriority` / `setpriority` per thread                                |
+| affinity        | `sched_getaffinity` / `sched_setaffinity` per thread                    |
+| pin + signals   | `pidfd_open` + `pidfd_send_signal` (SIGTERM, SIGKILL, SIGSTOP, SIGCONT) |
+
+Everything runs with the user's own permissions: other users' processes and
+kernel threads are shown with the reason actions are unavailable; lowering a
+nice value is normally `permissionDenied`. No sudo, no pkexec. Validated on this
+machine with a `sleep` child the tests spawn themselves (see the Phase 9 report
+and `platform/linux/processes/control/runtime_tests.rs`). Details:
+`docs/processes/`.
+
 ## Packaging
 
 Planned targets: `rpm` (primary for Fedora), plus `deb` and `appimage` for

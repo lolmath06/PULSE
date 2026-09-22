@@ -70,6 +70,16 @@ impl HostPlatform for LinuxPlatform {
         Some(processes::collector())
     }
 
+    #[cfg(target_os = "linux")]
+    fn process_inspector(&self) -> Option<Arc<dyn crate::processes::ProcessInspectorBackend>> {
+        Some(processes::control::inspector_backend())
+    }
+
+    #[cfg(target_os = "linux")]
+    fn process_control(&self) -> Option<Arc<dyn crate::processes::ProcessControlBackend>> {
+        Some(processes::control::control_backend())
+    }
+
     fn display_server(&self) -> Option<String> {
         detect_display_server(
             std::env::var("XDG_SESSION_TYPE").ok().as_deref(),

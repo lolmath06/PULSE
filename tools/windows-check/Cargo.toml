@@ -39,6 +39,7 @@ path = "src/lib.rs"
 [dependencies]
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+sha2 = "0.10"
 
 # Kept in step with src-tauri/Cargo.toml. Not used for a Windows target, but
 # declared so the manifests do not drift.
@@ -65,6 +66,11 @@ windows-sys = { version = "0.61", features = [
     "Win32_System_Ioctl",
     "Win32_Devices_DeviceAndDriverInstallation",
     "Win32_Security",
+    "Win32_Security_Authorization",
+    "Win32_Security_Cryptography",
+    "Win32_Security_Cryptography_Catalog",
+    "Win32_Security_Cryptography_Sip",
+    "Win32_Security_WinTrust",
     "Win32_System_SystemServices",
     "Win32_NetworkManagement_IpHelper",
     "Win32_NetworkManagement_Ndis",

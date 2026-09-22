@@ -237,12 +237,21 @@ rather than `NaN` or `Infinity`, and the result is clamped to 100 %.
 
 ---
 
-## 6. Process I/O: storage traffic, not syscall traffic
+## 6. Process I/O: the same columns, two different counters
 
-| Platform | Source                 | Fields                                    |
-| -------- | ---------------------- | ----------------------------------------- |
-| Linux    | `/proc/<pid>/io`       | `read_bytes`, `write_bytes`               |
-| Windows  | `GetProcessIoCounters` | `ReadTransferCount`, `WriteTransferCount` |
+| Platform | Source                 | Fields                                    | What they count                                                                          |
+| -------- | ---------------------- | ----------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Linux    | `/proc/<pid>/io`       | `read_bytes`, `write_bytes`               | bytes the kernel's block layer attributes to the process (storage-backed)                |
+| Windows  | `GetProcessIoCounters` | `ReadTransferCount`, `WriteTransferCount` | bytes transferred by the process's read / write I/O operations, as Windows accounts them |
+
+> **Corrected in Phase 9.** Phase 8 described both platforms as "storage
+> traffic". That is true of Linux `read_bytes`/`write_bytes`, and **not proven**
+> for Windows: Microsoft documents the transfer counts as the bytes of all read
+> and write operations the process performs, which is not restricted to a block
+> device (file reads served from cache and I/O through other device drivers
+> can count). The UI keeps the column names _Read_ and _Write_; the numbers are
+> unchanged; only the claim that they mean the same thing on both platforms is
+> withdrawn. Compare Read/Write across platforms with that in mind.
 
 ### Why not `rchar`/`wchar`
 
@@ -259,7 +268,7 @@ reported at gigabytes per second off a disk whose activity light never blinked
 — and PULSE's own `storage.io.*` metrics, which come from the block layer,
 would disagree with PULSE's own process table on the same screen.
 
-The cost of the honest choice: **a process doing purely cached, tmpfs or
+The rest of this section is about Linux. The cost of the honest choice: **a process doing purely cached, tmpfs or
 network I/O reports `0 B/s`.** That is the correct answer to "what is this
 process doing to my storage". Verified on Fedora: the same 64 MiB write reports
 `0 B/s` on tmpfs and `1750.3 MiB/s` on btrfs.
@@ -448,13 +457,25 @@ key — but it is shown only as a tooltip, never as a column, and never enters a
 
 ---
 
-## 13. Read-only
+## 13. Observation, inspection, control
 
-Phase 8 **observes**. There is no code path that terminates, suspends, resumes,
-renices, reprioritises, debugs, injects into or reads the memory of any
-process. Every interface used is a read: `/proc`,
+The **snapshot** path (this document) observes only: `/proc`,
 `CreateToolhelp32Snapshot`, `GetProcessTimes`, `K32GetProcessMemoryInfo`,
-`GetProcessIoCounters`, `QueryFullProcessImageNameW`.
+`GetProcessIoCounters`, `QueryFullProcessImageNameW`. It never hashes, never
+queries a package or signature, and never changes a process.
+
+Since Phase 9, two separate services sit beside it:
+
+- `ProcessInspectorService` — reads **one** selected process in depth, lazily.
+  See [../processes/inspector.md](../processes/inspector.md) and
+  [../processes/provenance.md](../processes/provenance.md).
+- `ProcessControlService` — suspends, resumes, ends, reprioritises and re-pins
+  **one** process instance, only on an explicit, confirmed click, after
+  re-validating PID and start token. See
+  [../processes/controls.md](../processes/controls.md).
+
+Neither is a metric provider; the catalog does not grow. No code path reads
+process memory, debugs, or injects into a process.
 
 ---
 

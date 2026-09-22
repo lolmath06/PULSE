@@ -23,6 +23,15 @@
   --pulse-warning-bg: #2b2313;
   --pulse-warning-text: #e8c46a;
 
+  /* Destructive process actions only. Used sparingly: an outline or a label
+     colour, never a filled red surface. */
+  --pulse-danger-text: #f0a08f;
+  --pulse-danger-border: #6b3a33;
+  --pulse-danger-bg: #24130f;
+
+  --pulse-success-text: #7fd8a4;
+  --pulse-overlay: rgba(4, 6, 8, 0.62);
+
   --pulse-radius: 10px;
   --pulse-radius-sm: 6px;
 

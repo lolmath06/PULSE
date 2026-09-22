@@ -12,7 +12,9 @@
 //! `docs/metrics/processes.md`.
 
 use crate::platform;
-use crate::processes::{ProcessSnapshot, ProcessSnapshotService};
+use crate::processes::{
+    ProcessControlService, ProcessInspectorService, ProcessSnapshot, ProcessSnapshotService,
+};
 
 /// Builds the process snapshot service PULSE runs with.
 ///
@@ -21,6 +23,27 @@ use crate::processes::{ProcessSnapshot, ProcessSnapshotService};
 /// waiting, honestly, rather than inventing zeros.
 pub fn build_service() -> ProcessSnapshotService {
     ProcessSnapshotService::new(platform::host().process_collector())
+}
+
+/// Builds the service that acts on processes, and only when asked.
+///
+/// Separate from the snapshot service by construction: the snapshot service
+/// holds no reference to it, and nothing in the metrics engine does either.
+pub fn build_control() -> ProcessControlService {
+    ProcessControlService::new(platform::host().process_control())
+}
+
+/// Builds the lazy, per-process inspector.
+///
+/// It shares the control service's suspension ledger — read-only — so it can
+/// say whether *Resume* applies to what it is showing.
+pub fn build_inspector(control: &ProcessControlService) -> ProcessInspectorService {
+    ProcessInspectorService::new(
+        platform::host().process_inspector(),
+        control.ledger(),
+        control.self_pid(),
+        control.support(),
+    )
 }
 
 /// Walks the process table once.
@@ -47,6 +70,73 @@ mod tests {
         } else {
             assert!(snapshot.unsupported_reason.is_some());
             assert!(snapshot.processes.is_empty());
+        }
+    }
+
+    #[test]
+    fn inspecting_and_controlling_never_register_anything_in_the_metric_catalog() {
+        let engine = crate::services::metrics::build_engine();
+        let before = engine.status().metric_count;
+
+        let control = build_control();
+        let inspector = build_inspector(&control);
+        let me = crate::processes::ProcessInstanceId::new(std::process::id(), 0);
+        let _ = inspector.details(me);
+        let _ = control.priority(me);
+
+        assert_eq!(engine.status().metric_count, before);
+        if PlatformKind::current().is_supported() {
+            assert_eq!(
+                engine.status().provider_count,
+                6,
+                "inspector and control are not providers"
+            );
+        }
+    }
+
+    #[test]
+    fn inspection_control_and_provenance_contain_no_network_client() {
+        // The inspector, hashing, provenance and control code must never talk
+        // to the network. Only the command layer may hand a URL to the
+        // browser, and only on an explicit click. This scans the sources, so
+        // adding a socket or an HTTP client here fails the build's tests.
+        let sources = [
+            include_str!("../processes/inspector.rs"),
+            include_str!("../processes/control.rs"),
+            include_str!("../processes/hash.rs"),
+            include_str!("../processes/search.rs"),
+            include_str!("../platform/linux/processes/control.rs"),
+            include_str!("../platform/linux/processes/rpm.rs"),
+            include_str!("../platform/windows/processes/control.rs"),
+            include_str!("../platform/windows/processes/authenticode.rs"),
+            include_str!("../platform/windows/processes/version.rs"),
+        ];
+        for source in sources {
+            for forbidden in [
+                "std::net",
+                "TcpStream",
+                "UdpSocket",
+                "reqwest",
+                "hyper::",
+                "ureq",
+                "WinHttp",
+                "URLDownloadToFile",
+                "InternetOpen",
+                "open_url(",
+            ] {
+                assert!(
+                    !source.contains(forbidden),
+                    "process inspection/control code must not use '{forbidden}'"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn both_first_class_platforms_can_inspect_and_control() {
+        if PlatformKind::current().is_supported() {
+            assert!(platform::host().process_inspector().is_some());
+            assert!(platform::host().process_control().is_some());
         }
     }
 

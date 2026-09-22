@@ -85,8 +85,16 @@ against the whole machine on both platforms, so one thread saturating one of 32
 logical processors reads `3.1 %` and the column sums to roughly what the system
 CPU gauge shows — rather than `3200 %` on Fedora and `100 %` on Windows for the
 same work. And what PULSE does **not** collect matters as much: no command
-lines, no arguments, no environment variables, and no ability to kill, suspend
-or reprioritise anything. It observes.
+lines, no arguments, no environment variables.
+
+Since Phase 9, clicking a process opens an **inspector** — owner, start time,
+architecture, executable, Fedora package or Windows signature and publisher,
+SHA-256 on demand — and a right-click menu offers **explicit** controls: suspend
+and resume, end process or process tree, priority and CPU affinity. Every action
+targets the exact process instance (PID + start token, re-validated just before
+acting), destructive ones are confirmed, nothing ever runs automatically, and
+PULSE never elevates. Provenance is shown as evidence, never as a verdict. See
+[`docs/processes/`](docs/processes/inspector.md).
 
 The catalog is **sized by the machine**: `16 + 3N + P + 11G + 13D + 4V + 11I +
 4W` metrics for `N` logical processors, `P` addressable CPU packages, `G` GPUs,

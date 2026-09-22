@@ -40,8 +40,14 @@ export interface ProcessField<T> {
  */
 export type ProcessState = 'running' | 'sleepingOrWaiting' | 'stopped' | 'zombie' | 'other';
 
-/** What kind of thing a process is. `unknown` where no reliable signal exists. */
-export type ProcessClassification = 'userApplication' | 'systemProcess' | 'unknown';
+/**
+ * What kind of thing a process is. `unknown` where no reliable signal exists.
+ *
+ * `kernelThread` is set only from the kernel's own `PF_KTHREAD` flag on
+ * Linux — never guessed from a name.
+ */
+export type ProcessClassification =
+  'userApplication' | 'systemProcess' | 'kernelThread' | 'unknown';
 
 /** How confident an application grouping is. */
 export type ApplicationIdentity = 'executable' | 'name';
@@ -108,4 +114,156 @@ export interface ProcessSnapshot {
   readonly applications: readonly ApplicationEntry[];
   /** Set when the platform has no process collector at all. */
   readonly unsupportedReason: string | null;
+}
+
+// --- Phase 9: inspector and controls -----------------------------------------
+//
+// Mirrors `src-tauri/src/processes/{action,control,inspector,hash}.rs`.
+
+/** What happened to one requested action. Distinct because the next step is. */
+export type ProcessActionStatus =
+  | 'success'
+  | 'permissionDenied'
+  | 'staleProcess'
+  | 'processGone'
+  | 'unsupported'
+  | 'partialFailure'
+  | 'invalidRequest'
+  | 'platformError';
+
+/** Per-target tally of an *End process tree*. Buckets sum to `requested`. */
+export interface TreeTerminationSummary {
+  readonly requested: number;
+  readonly terminated: number;
+  readonly alreadyGone: number;
+  readonly permissionDenied: number;
+  readonly staleSkipped: number;
+  readonly skippedSelf: number;
+  readonly failed: number;
+}
+
+export interface ProcessActionResult {
+  readonly status: ProcessActionStatus;
+  readonly reason: string;
+  readonly affectedCount: number | null;
+  readonly failedCount: number | null;
+  readonly tree: TreeTerminationSummary | null;
+}
+
+/** A read-only query's answer: a value when the identity held, else a reason. */
+export interface ProcessQuery<T> {
+  readonly outcome: ProcessActionResult;
+  readonly value: T | null;
+}
+
+export type WindowsPriorityClass =
+  'idle' | 'belowNormal' | 'normal' | 'aboveNormal' | 'high' | 'realtime';
+
+/** A priority in the platform's own terms — never normalised onto one scale. */
+export type ProcessPriority =
+  | { readonly kind: 'nice'; readonly value: number }
+  | { readonly kind: 'windowsClass'; readonly class: WindowsPriorityClass };
+
+export interface ProcessAffinity {
+  readonly cpus: readonly number[];
+  readonly available: readonly number[];
+  readonly limitation: string | null;
+}
+
+export interface Capability {
+  readonly allowed: boolean;
+  readonly reason: string | null;
+}
+
+export interface ProcessCapabilities {
+  readonly terminate: Capability;
+  readonly terminateTree: Capability;
+  readonly forceKill: Capability;
+  readonly suspend: Capability;
+  readonly resume: Capability;
+  readonly setPriority: Capability;
+  readonly setAffinity: Capability;
+  readonly openLocation: Capability;
+  readonly computeHash: Capability;
+}
+
+export interface ExecutableInfo {
+  readonly path: string;
+  readonly fileName: string;
+  readonly sizeBytes: ProcessField<number>;
+  readonly modifiedAt: ProcessField<number>;
+  /** Linux: the file was deleted or replaced on disk after the process started. */
+  readonly replacedOnDisk: boolean;
+}
+
+export interface ProcessOwner {
+  /** Linux UID or Windows SID. */
+  readonly id: string;
+  readonly name: string | null;
+}
+
+/** Windows version resource. Self-declared: description, never evidence. */
+export interface VersionInfo {
+  readonly fileDescription: string | null;
+  readonly productName: string | null;
+  readonly companyName: string | null;
+  readonly fileVersion: string | null;
+  readonly productVersion: string | null;
+}
+
+export interface ProcessDetails {
+  readonly instanceId: string;
+  readonly pid: number;
+  readonly parentPid: number | null;
+  readonly parentName: ProcessField<string>;
+  readonly name: string;
+  readonly state: ProcessState;
+  readonly stateAvailability: Availability;
+  readonly category: ProcessClassification;
+  /** Wall-clock start, epoch ms. The identity token lives in `instanceId`. */
+  readonly startedAt: ProcessField<number>;
+  readonly executable: ProcessField<ExecutableInfo>;
+  readonly owner: ProcessField<ProcessOwner>;
+  readonly architecture: ProcessField<string>;
+  readonly priority: ProcessField<ProcessPriority>;
+  readonly affinity: ProcessField<ProcessAffinity>;
+  readonly versionInfo: ProcessField<VersionInfo>;
+  readonly capabilities: ProcessCapabilities;
+  readonly isSelf: boolean;
+  readonly suspendedByPulse: boolean;
+  readonly priorityKind: 'nice' | 'windowsClass' | null;
+  readonly forceKillSupported: boolean;
+}
+
+export interface PackageRef {
+  readonly name: string;
+  readonly version: string;
+  readonly arch: string;
+}
+
+export type TrustStatus =
+  'trusted' | 'signedButUntrusted' | 'invalid' | 'unsigned' | 'unavailable' | 'permissionDenied';
+
+export interface SignatureInfo {
+  readonly trust: TrustStatus;
+  readonly source: 'embedded' | 'catalog' | null;
+  readonly publisher: string | null;
+  readonly detail: string;
+}
+
+/** Where an executable comes from. Evidence, never a verdict. */
+export type Provenance =
+  | { readonly kind: 'rpmPackage'; readonly packages: readonly PackageRef[] }
+  | { readonly kind: 'notPackaged'; readonly location: 'userHome' | 'localInstall' | 'other' }
+  | { readonly kind: 'signature'; readonly signature: SignatureInfo }
+  | { readonly kind: 'unavailable'; readonly reason: string };
+
+export type HashStatus =
+  'computed' | 'changedWhileHashing' | 'permissionDenied' | 'notFound' | 'notAFile' | 'readError';
+
+export interface FileHash {
+  readonly status: HashStatus;
+  readonly sha256: string | null;
+  readonly sizeBytes: number | null;
+  readonly reason: string | null;
 }

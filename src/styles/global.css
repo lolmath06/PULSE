@@ -747,7 +747,7 @@ code,
  * Deliberately **no internal scrollbar**. The page scroll stays the one
  * vertical scroll in the window; a nested one would trap the wheel and hide
  * the rest of the card. The table shows twenty rows until the user asks for
- * all of them. */
+ * all of them — the Phase 8 behaviour, kept unchanged. */
 
 .process-controls {
   display: flex;
@@ -871,5 +871,498 @@ code,
 
   .process-search {
     max-width: none;
+  }
+}
+
+/* --- process rows, sorting and notices (Phase 9) --------------------------- */
+
+.process-table__row {
+  cursor: default;
+}
+
+.process-table__row:hover {
+  background: var(--pulse-bg-sunken);
+}
+
+.process-table__row:focus-visible {
+  outline: 2px solid var(--pulse-accent);
+  outline-offset: -2px;
+}
+
+.process-table__row--selected,
+.process-table__row--selected:hover {
+  background: var(--pulse-bg-sunken);
+  box-shadow: inset 2px 0 0 var(--pulse-accent);
+}
+
+.process-table tbody .process-table__row {
+  cursor: pointer;
+}
+
+.process-sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.process-sort__arrow {
+  display: inline-block;
+  min-width: 0.7em;
+  font-size: 11px;
+}
+
+.process-notice {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 7px 10px;
+  border: 1px solid var(--pulse-border);
+  border-radius: var(--pulse-radius-sm);
+  font-size: 12.5px;
+  user-select: text;
+}
+
+.process-notice--success {
+  color: var(--pulse-success-text);
+}
+
+.process-notice--warning {
+  color: var(--pulse-warning-text);
+  background: var(--pulse-warning-bg);
+}
+
+.process-notice--error {
+  color: var(--pulse-danger-text);
+  border-color: var(--pulse-danger-border);
+}
+
+.process-notice__dismiss {
+  padding: 0 4px;
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+/* --- process inspector ------------------------------------------------------
+ *
+ * A drawer over the right edge of the window, so the table stays visible and
+ * clickable beside it. It scrolls on its own because it is a separate panel,
+ * not a region nested inside the page scroll. */
+
+.inspector {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: var(--pulse-status-height);
+  z-index: 40;
+  width: min(440px, 100vw);
+  overflow-y: auto;
+  padding: 16px 18px 24px;
+  background: var(--pulse-bg-elevated);
+  border-left: 1px solid var(--pulse-border-strong);
+  box-shadow: -12px 0 32px rgba(0, 0, 0, 0.35);
+  user-select: text;
+}
+
+.inspector:focus {
+  outline: none;
+}
+
+.inspector__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.inspector__heading {
+  min-width: 0;
+}
+
+.inspector__title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.inspector__subtitle {
+  color: var(--pulse-text-muted);
+  font-size: 12px;
+}
+
+.inspector__close {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  font-size: 18px;
+  line-height: 1;
+  color: var(--pulse-text-muted);
+  background: transparent;
+  border: 1px solid var(--pulse-border);
+  border-radius: var(--pulse-radius-sm);
+  cursor: pointer;
+}
+
+.inspector__close:hover,
+.inspector__close:focus-visible {
+  color: var(--pulse-text);
+  border-color: var(--pulse-accent-dim);
+}
+
+.inspector__banner {
+  margin: 12px 0 0;
+  padding: 7px 10px;
+  font-size: 12.5px;
+  color: var(--pulse-text-muted);
+  border: 1px solid var(--pulse-border);
+  border-radius: var(--pulse-radius-sm);
+}
+
+.inspector__banner--warning {
+  color: var(--pulse-warning-text);
+  background: var(--pulse-warning-bg);
+  border-color: transparent;
+}
+
+.inspector__banner--gone {
+  color: var(--pulse-text);
+  border-color: var(--pulse-border-strong);
+}
+
+.inspector__actions,
+.inspector__inline-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.inspector__section {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--pulse-border);
+}
+
+.inspector__section--danger {
+  margin-top: 20px;
+  padding: 12px;
+  border: 1px solid var(--pulse-danger-border);
+  border-radius: var(--pulse-radius-sm);
+}
+
+.inspector__section-title {
+  margin: 0 0 8px;
+  font-size: 11.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--pulse-text-muted);
+}
+
+.inspector__row {
+  display: grid;
+  grid-template-columns: 110px minmax(0, 1fr);
+  gap: 10px;
+  padding: 3px 0;
+  font-size: 12.5px;
+}
+
+.inspector__label {
+  color: var(--pulse-text-muted);
+}
+
+.inspector__value {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.inspector__mono {
+  font-family: var(--pulse-font-mono);
+  font-size: 11.5px;
+}
+
+.inspector__path,
+.inspector__hash {
+  word-break: break-all;
+}
+
+.inspector__package {
+  display: block;
+}
+
+.inspector__reason {
+  display: block;
+  color: var(--pulse-text-faint);
+  font-size: 11px;
+  font-style: normal;
+}
+
+.inspector__note {
+  margin: 8px 0 0;
+  color: var(--pulse-text-faint);
+  font-size: 11.5px;
+}
+
+.inspector__select {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0;
+  font-size: 12.5px;
+}
+
+.inspector__select select {
+  padding: 3px 6px;
+  font: inherit;
+  color: var(--pulse-text);
+  background: var(--pulse-bg-sunken);
+  border: 1px solid var(--pulse-border-strong);
+  border-radius: var(--pulse-radius-sm);
+}
+
+.inspector__control-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px;
+}
+
+.inspector__control {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.trust--trusted {
+  color: var(--pulse-success-text);
+}
+
+.trust--signedButUntrusted,
+.trust--invalid {
+  color: var(--pulse-warning-text);
+}
+
+.button--danger {
+  color: var(--pulse-danger-text);
+  border-color: var(--pulse-danger-border);
+  background: var(--pulse-danger-bg);
+}
+
+.button--danger-quiet {
+  padding: 3px 9px;
+  font-size: 11.5px;
+  color: var(--pulse-danger-text);
+  background: transparent;
+  border-color: var(--pulse-danger-border);
+}
+
+.button--warning {
+  color: var(--pulse-warning-text);
+  background: var(--pulse-warning-bg);
+}
+
+/* --- context menu ----------------------------------------------------------- */
+
+.context-menu {
+  position: fixed;
+  z-index: 60;
+}
+
+.context-menu__list {
+  min-width: 210px;
+  max-width: min(320px, calc(100vw - 16px));
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  background: var(--pulse-bg-elevated);
+  border: 1px solid var(--pulse-border-strong);
+  border-radius: var(--pulse-radius-sm);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+}
+
+.context-menu__entry {
+  position: relative;
+}
+
+.context-menu__entry--separated {
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px solid var(--pulse-border);
+}
+
+.context-menu__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  width: 100%;
+  padding: 5px 8px;
+  font: inherit;
+  font-size: 12.5px;
+  text-align: left;
+  color: var(--pulse-text);
+  background: transparent;
+  border: 0;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.context-menu__item:hover,
+.context-menu__item:focus-visible {
+  background: var(--pulse-bg-sunken);
+  outline: none;
+}
+
+.context-menu__item--danger .context-menu__label {
+  color: var(--pulse-danger-text);
+}
+
+.context-menu__item--disabled {
+  cursor: default;
+}
+
+.context-menu__item--disabled .context-menu__label {
+  color: var(--pulse-text-faint);
+}
+
+.context-menu__check {
+  width: 1em;
+  flex: none;
+  color: var(--pulse-accent);
+}
+
+.context-menu__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.context-menu__reason {
+  color: var(--pulse-text-faint);
+  font-size: 11px;
+}
+
+.context-menu__arrow {
+  color: var(--pulse-text-muted);
+}
+
+.context-menu__submenu {
+  position: absolute;
+  top: -5px;
+  left: 100%;
+  padding-left: 2px;
+}
+
+.context-menu__list--flip .context-menu__submenu,
+.context-menu__submenu:has(.context-menu__list--flip) {
+  right: 100%;
+  left: auto;
+  padding-right: 2px;
+  padding-left: 0;
+}
+
+/* --- dialogs -------------------------------------------------------------- */
+
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: var(--pulse-overlay);
+}
+
+.dialog {
+  width: min(460px, 100%);
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+  padding: 18px;
+  background: var(--pulse-bg-elevated);
+  border: 1px solid var(--pulse-border-strong);
+  border-radius: var(--pulse-radius);
+}
+
+.dialog--danger {
+  border-color: var(--pulse-danger-border);
+}
+
+.dialog__title {
+  margin: 0 0 10px;
+  font-size: 15px;
+}
+
+.dialog__text {
+  margin: 0 0 8px;
+  color: var(--pulse-text-muted);
+  font-size: 13px;
+}
+
+.dialog__text--warning {
+  color: var(--pulse-warning-text);
+  font-size: 12px;
+}
+
+.dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.affinity-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+  gap: 4px 10px;
+  max-height: 240px;
+  overflow-y: auto;
+  padding: 6px 0;
+  font-size: 12.5px;
+}
+
+.affinity-grid__cpu {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.affinity-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.nice-input {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.nice-input input {
+  width: 90px;
+  padding: 4px 6px;
+  font: inherit;
+  color: var(--pulse-text);
+  background: var(--pulse-bg-sunken);
+  border: 1px solid var(--pulse-border-strong);
+  border-radius: var(--pulse-radius-sm);
+}
+
+@media (max-width: 720px) {
+  .inspector {
+    width: 100vw;
+    border-left: 0;
+  }
+
+  .inspector__row {
+    grid-template-columns: 92px minmax(0, 1fr);
   }
 }

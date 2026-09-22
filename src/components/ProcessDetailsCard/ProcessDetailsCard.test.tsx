@@ -101,6 +101,10 @@ async function renderCard(...snapshots: readonly ProcessSnapshot[]) {
   return spy;
 }
 
+function viewButton(name: 'Processes' | 'Applications') {
+  return within(screen.getByRole('group', { name: 'Process view' })).getByRole('button', { name });
+}
+
 beforeEach(() => {
   vi.restoreAllMocks();
 });
@@ -127,10 +131,7 @@ describe('ProcessDetailsCard', () => {
   it('opens on the Applications view', async () => {
     await renderCard(snapshot());
 
-    expect(screen.getByRole('button', { name: 'Applications' })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    );
+    expect(viewButton('Applications')).toHaveAttribute('aria-pressed', 'true');
     expect(screen.getByLabelText('Applications')).toBeInTheDocument();
     expect(screen.queryByLabelText('Processes')).not.toBeInTheDocument();
   });
@@ -139,10 +140,10 @@ describe('ProcessDetailsCard', () => {
     const user = userEvent.setup();
     await renderCard(snapshot());
 
-    await user.click(screen.getByRole('button', { name: 'Processes' }));
+    await user.click(viewButton('Processes'));
     expect(screen.getByLabelText('Processes')).toBeInTheDocument();
 
-    await user.click(screen.getByRole('button', { name: 'Applications' }));
+    await user.click(viewButton('Applications'));
     expect(screen.getByLabelText('Applications')).toBeInTheDocument();
   });
 
@@ -167,7 +168,7 @@ describe('ProcessDetailsCard', () => {
     const user = userEvent.setup();
     await renderCard(snapshot({ processes: [process({ pid: 7, name: 'alone' })] }));
 
-    await user.click(screen.getByRole('button', { name: 'Processes' }));
+    await user.click(viewButton('Processes'));
     const table = screen.getByLabelText('Processes');
     expect(within(table).getByText('alone')).toBeInTheDocument();
     expect(within(table).getByText('7')).toBeInTheDocument();
@@ -217,7 +218,7 @@ describe('ProcessDetailsCard', () => {
       }),
     );
 
-    await user.click(screen.getByRole('button', { name: 'Processes' }));
+    await user.click(viewButton('Processes'));
     const row = screen.getByRole('row', { name: /new/ });
     const dashes = within(row).getAllByText('—');
 
@@ -243,7 +244,7 @@ describe('ProcessDetailsCard', () => {
       }),
     );
 
-    await user.click(screen.getByRole('button', { name: 'Processes' }));
+    await user.click(viewButton('Processes'));
     const row = screen.getByRole('row', { name: /new/ });
     expect(within(row).getByText('512.0 MiB')).toBeInTheDocument();
     expect(within(row).getByText('112')).toBeInTheDocument();
@@ -284,7 +285,7 @@ describe('ProcessDetailsCard', () => {
       }),
     );
 
-    await user.click(screen.getByRole('button', { name: 'Processes' }));
+    await user.click(viewButton('Processes'));
     const row = screen.getByRole('row', { name: /idle/ });
 
     expect(within(row).queryByText('—')).not.toBeInTheDocument();
@@ -308,7 +309,7 @@ describe('ProcessDetailsCard', () => {
       }),
     );
 
-    await user.click(screen.getByRole('button', { name: 'Processes' }));
+    await user.click(viewButton('Processes'));
     const row = screen.getByRole('row', { name: /guarded/ });
 
     expect(within(row).getByText('812')).toBeInTheDocument();
@@ -324,11 +325,10 @@ describe('ProcessDetailsCard', () => {
   // --- sorting -----------------------------------------------------------
 
   it.each([
-    ['CPU', 'cpuPercent', ['heavy', 'light']],
-    ['Memory', 'residentMemoryBytes', ['heavy', 'light']],
-    ['Read', 'readBytesPerSecond', ['heavy', 'light']],
-    ['Write', 'writeBytesPerSecond', ['heavy', 'light']],
-  ] as const)('sorts the process table by %s', async (label, field, expected) => {
+    ['Memory', 'residentMemoryBytes'],
+    ['Read', 'readBytesPerSecond'],
+    ['Write', 'writeBytesPerSecond'],
+  ] as const)('opens the %s column largest first', async (label, field) => {
     const user = userEvent.setup();
     await renderCard(
       snapshot({
@@ -339,15 +339,16 @@ describe('ProcessDetailsCard', () => {
       }),
     );
 
-    await user.click(screen.getByRole('button', { name: 'Processes' }));
+    await user.click(viewButton('Processes'));
     await user.click(
       within(screen.getByLabelText('Processes')).getByRole('button', { name: label }),
     );
 
     const rows = within(screen.getByLabelText('Processes')).getAllByRole('row').slice(1);
-    expect(rows.map((row) => within(row).getAllByRole('rowheader')[0]?.textContent)).toEqual(
-      expected,
-    );
+    expect(rows.map((row) => within(row).getAllByRole('rowheader')[0]?.textContent)).toEqual([
+      'heavy',
+      'light',
+    ]);
   });
 
   it('sorts by name when the Process column is chosen', async () => {
@@ -361,7 +362,7 @@ describe('ProcessDetailsCard', () => {
       }),
     );
 
-    await user.click(screen.getByRole('button', { name: 'Processes' }));
+    await user.click(viewButton('Processes'));
     await user.click(
       within(screen.getByLabelText('Processes')).getByRole('button', { name: 'Process' }),
     );
@@ -405,8 +406,8 @@ describe('ProcessDetailsCard', () => {
       }),
     );
 
-    await user.click(screen.getByRole('button', { name: 'Processes' }));
-    await user.type(screen.getByLabelText('Search processes'), 'fire');
+    await user.click(viewButton('Processes'));
+    await user.type(screen.getByLabelText('Search processes by name or PID'), 'fire');
 
     const table = screen.getByLabelText('Processes');
     expect(within(table).getByText('firefox')).toBeInTheDocument();
@@ -421,8 +422,8 @@ describe('ProcessDetailsCard', () => {
       }),
     );
 
-    await user.click(screen.getByRole('button', { name: 'Processes' }));
-    await user.type(screen.getByLabelText('Search processes'), '4242');
+    await user.click(viewButton('Processes'));
+    await user.type(screen.getByLabelText('Search processes by name or PID'), '4242');
 
     const table = screen.getByLabelText('Processes');
     expect(within(table).getByText('firefox')).toBeInTheDocument();
@@ -433,7 +434,10 @@ describe('ProcessDetailsCard', () => {
     const user = userEvent.setup();
     await renderCard(snapshot());
 
-    await user.type(screen.getByLabelText('Search processes'), 'nothing-matches-this');
+    await user.type(
+      screen.getByLabelText('Search processes by name or PID'),
+      'nothing-matches-this',
+    );
 
     expect(screen.getByText('No application matches this search.')).toBeInTheDocument();
   });
@@ -447,7 +451,7 @@ describe('ProcessDetailsCard', () => {
     );
     await renderCard(snapshot({ processes: many }));
 
-    await user.click(screen.getByRole('button', { name: 'Processes' }));
+    await user.click(viewButton('Processes'));
     expect(within(screen.getByLabelText('Processes')).getAllByRole('row')).toHaveLength(21);
 
     await user.click(screen.getByRole('button', { name: 'Show all 57 processes' }));
@@ -459,7 +463,7 @@ describe('ProcessDetailsCard', () => {
     const user = userEvent.setup();
     await renderCard(snapshot());
 
-    await user.click(screen.getByRole('button', { name: 'Processes' }));
+    await user.click(viewButton('Processes'));
     expect(screen.queryByRole('button', { name: /Show all/ })).not.toBeInTheDocument();
   });
 
@@ -470,7 +474,7 @@ describe('ProcessDetailsCard', () => {
     const long = 'a-process-with-an-extremely-long-name-'.repeat(6);
     await renderCard(snapshot({ processes: [process({ pid: 9, name: long })] }));
 
-    await user.click(screen.getByRole('button', { name: 'Processes' }));
+    await user.click(viewButton('Processes'));
     const label = screen.getByText(long);
 
     // The truncation is CSS, and the class carrying it is what this asserts:
@@ -500,7 +504,7 @@ describe('ProcessDetailsCard', () => {
       }),
     );
 
-    await user.click(screen.getByRole('button', { name: 'Processes' }));
+    await user.click(viewButton('Processes'));
     const table = screen.getByLabelText('Processes');
 
     expect(within(table).getByText('firefox')).toHaveAttribute(

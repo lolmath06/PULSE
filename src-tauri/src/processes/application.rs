@@ -224,7 +224,16 @@ fn classify(processes: &[&ProcessEntry]) -> ProcessClass {
     } else if !processes.is_empty()
         && processes
             .iter()
-            .all(|process| process.classification == ProcessClass::SystemProcess)
+            .all(|process| process.classification == ProcessClass::KernelThread)
+    {
+        ProcessClass::KernelThread
+    } else if !processes.is_empty()
+        && processes.iter().all(|process| {
+            matches!(
+                process.classification,
+                ProcessClass::SystemProcess | ProcessClass::KernelThread
+            )
+        })
     {
         ProcessClass::SystemProcess
     } else {

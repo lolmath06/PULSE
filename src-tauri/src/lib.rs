@@ -36,6 +36,20 @@ pub fn run() {
             commands::metrics::get_metric_catalog,
             commands::metrics::sample_metrics,
             commands::processes::get_process_snapshot,
+            commands::process_control::get_process_details,
+            commands::process_control::get_process_provenance,
+            commands::process_control::compute_process_sha256,
+            commands::process_control::get_process_priority,
+            commands::process_control::get_process_affinity,
+            commands::process_control::suspend_process,
+            commands::process_control::resume_process,
+            commands::process_control::terminate_process,
+            commands::process_control::terminate_process_tree,
+            commands::process_control::set_process_priority,
+            commands::process_control::set_process_affinity,
+            commands::process_control::open_process_location,
+            commands::process_control::open_web_search,
+            commands::process_control::open_hash_lookup,
         ])
         .run(tauri::generate_context!())
         .expect("error while running PULSE");

@@ -56,8 +56,12 @@
 //! own user, so another user's processes report `permissionDenied` on their
 //! I/O and executable path while keeping every other column. The row stays.
 
+pub mod control;
+pub mod elf;
 pub mod io;
+pub mod rpm;
 pub mod stat;
+pub mod status;
 
 use std::sync::Arc;
 
@@ -333,14 +337,15 @@ mod sys {
 
     /// Classifies one process.
     ///
-    /// Three reliable signals, in order: the kernel's own `PF_KTHREAD` flag,
+    /// Three reliable signals, in order: the kernel's own `PF_KTHREAD` flag
+    /// (a [`ProcessClass::KernelThread`], never guessed from a `k` prefix),
     /// ownership by root, and ownership by the user PULSE runs as. Anything
     /// else — a process belonging to a third user, or a directory PULSE
     /// cannot stat — is [`ProcessClass::Unknown`] rather than a guess from the
     /// process's name.
     fn classify(directory: &str, kernel_thread: bool, uid: u32) -> ProcessClass {
         if kernel_thread {
-            return ProcessClass::SystemProcess;
+            return ProcessClass::KernelThread;
         }
 
         let Ok(metadata) = fs::metadata(Path::new(directory)) else {
@@ -562,7 +567,7 @@ mod tests {
 
     #[cfg(target_os = "linux")]
     #[test]
-    fn kernel_threads_are_classified_as_system_processes() {
+    fn kernel_threads_are_classified_as_kernel_threads() {
         let scan = scan(Depth::Full);
 
         // PID 2 is `kthreadd`, the parent of every kernel thread, on every
@@ -572,7 +577,7 @@ mod tests {
             .iter()
             .find(|process| process.instance.pid == 2)
         {
-            assert_eq!(kthreadd.class, ProcessClass::SystemProcess);
+            assert_eq!(kthreadd.class, ProcessClass::KernelThread);
             assert!(kthreadd.executable_path.is_none());
             assert!(kthreadd.io.is_none());
             assert!(

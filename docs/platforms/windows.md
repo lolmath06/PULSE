@@ -412,15 +412,15 @@ parse back.
 
 Two tiers, because protected processes exist:
 
-| Tier         | API                                                                     | Yields                                                       |
-| ------------ | ----------------------------------------------------------------------- | ------------------------------------------------------------ |
-| Inventory    | `CreateToolhelp32Snapshot` + `Process32FirstW`/`Process32NextW`         | PID, parent PID, thread count, image name — no handle needed |
-| Per process  | `OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION)`                        | a short-lived handle for everything below                    |
-|              | `GetProcessTimes`                                                       | kernel + user CPU time, **and** the creation-time identity   |
-|              | `K32GetProcessMemoryInfo`                                               | `WorkingSetSize`                                             |
-|              | `GetProcessIoCounters`                                                  | `ReadTransferCount` / `WriteTransferCount`                   |
-|              | `QueryFullProcessImageNameW`                                            | the executable, for grouping and classification              |
-| Denominators | `GetActiveProcessorCount(ALL_PROCESSOR_GROUPS)`, `GlobalMemoryStatusEx` | the CPU and memory percentage divisors                       |
+| Tier         | API                                                                     | Yields                                                                                                 |
+| ------------ | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Inventory    | `CreateToolhelp32Snapshot` + `Process32FirstW`/`Process32NextW`         | PID, parent PID, thread count, image name — no handle needed                                           |
+| Per process  | `OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION)`                        | a short-lived handle for everything below                                                              |
+|              | `GetProcessTimes`                                                       | kernel + user CPU time, **and** the creation-time identity                                             |
+|              | `K32GetProcessMemoryInfo`                                               | `WorkingSetSize`                                                                                       |
+|              | `GetProcessIoCounters`                                                  | `ReadTransferCount` / `WriteTransferCount` (all read/write I/O, not block-level — see processes.md §6) |
+|              | `QueryFullProcessImageNameW`                                            | the executable, for grouping and classification                                                        |
+| Denominators | `GetActiveProcessorCount(ALL_PROCESSOR_GROUPS)`, `GlobalMemoryStatusEx` | the CPU and memory percentage divisors                                                                 |
 
 `GetActiveProcessorCount(ALL_PROCESSOR_GROUPS)` rather than `GetSystemInfo`:
 the latter reports only the calling thread's processor group and would say 64
@@ -450,6 +450,56 @@ there is a test asserting the two halves genuinely differ.
 
 See [`../metrics/processes.md`](../metrics/processes.md) for the CPU
 normalisation, the PID-reuse identity and the application grouping.
+
+### Process inspector and controls — implemented in Phase 9, NOT physically executed
+
+Compiled for `x86_64-pc-windows-msvc` (`pnpm rust:windows`,
+`pnpm rust:windows:lint`) and its pure logic (trust mapping, version-resource
+parsing, machine types, FILETIME → date, priority classes, affinity masks, SID
+categories) is unit-tested on Fedora. **None of it has run on Windows yet.**
+
+| Need                  | API                                                                                                                                                           |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| pin + identity        | `OpenProcess` (minimum rights) → `GetProcessTimes` on that handle, `GetExitCodeProcess`                                                                       |
+| owner                 | `OpenProcessToken` → `GetTokenInformation(TokenUser)` → `LookupAccountSidW`, `ConvertSidToStringSidW`                                                         |
+| architecture          | `IsWow64Process2` (resolved at run time), fallback `IsWow64Process` + `GetNativeSystemInfo`                                                                   |
+| version resource      | `GetFileVersionInfoSizeW`, `GetFileVersionInfoW`, `VerQueryValueW`                                                                                            |
+| signature + publisher | `WinVerifyTrust` (embedded, then catalog via `CryptCATAdmin*`), `WTHelper*`, `CertGetNameStringW` — revocation off, cache-only                                |
+| end                   | `TerminateProcess` (`PROCESS_TERMINATE`)                                                                                                                      |
+| suspend / resume      | `CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD)`, `Thread32First/Next`, `OpenThread`, `SuspendThread`, `ResumeThread` — only threads PULSE suspended are resumed |
+| priority              | `GetPriorityClass`, `SetPriorityClass` (read back: Realtime without privilege becomes High and is reported)                                                   |
+| affinity              | `GetProcessAffinityMask`, `SetProcessAffinityMask`; > 64 logical processors: read-only, documented                                                            |
+
+No PowerShell, no `signtool`, no WMI, no `NtSuspendProcess`, no
+`PROCESS_ALL_ACCESS`, no elevation. See `docs/processes/`.
+
+#### Manual test protocol — Windows · NOT EXECUTED
+
+To run on a real Windows 10/11 machine, comparing against Task Manager:
+
+1. Inspector on `explorer.exe`, `notepad.exe`, a browser, a third-party app:
+   path, owner, start time, architecture, priority, affinity vs Task Manager's
+   _Details_ tab.
+2. Signature: `notepad.exe` (catalog-signed → _Trusted_, source catalog), a
+   signed third-party app (_Trusted_, publisher), an unsigned build
+   (_Unsigned_). No network traffic while verifying (e.g. Resource Monitor).
+3. Version resource: product/company/version match the file's _Properties →
+   Details_.
+4. SHA-256 vs `certutil -hashfile <exe> SHA256`.
+5. Search online / Search hash online / VirusTotal: browser opens; URL has no
+   `C:\Users\…`, no user name, no PID.
+6. Open file location: Explorer opens with the file selected.
+7. On a `ping -t localhost` or `notepad` started for the test **only**:
+   Suspend (Task Manager shows _Suspended_), Resume, End process, End process
+   tree (a `cmd` → child `cmd` → `ping` tree), priority Below normal / High,
+   Realtime confirmation (and the High fallback without privilege), affinity.
+8. Protected process (`csrss.exe`, an anti-malware service): actions disabled
+   or `permissionDenied`, never an elevation prompt.
+9. PID reuse: note an instance ID, end that test process, start new ones until
+   the PID is reused if feasible, act from the stale inspector → _staleProcess_.
+10. Context menu (right click, Shift+F10, Escape), sorting toggle on every
+    column in both views, Refresh keeps the sort.
+11. Close PULSE; relaunch; no PULSE process left in Task Manager.
 
 ### Wi-Fi without location permission
 

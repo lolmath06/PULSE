@@ -2,7 +2,18 @@ import { describe, expect, it } from 'vitest';
 import type { Availability } from '@/types/metrics';
 import type { ApplicationEntry, ProcessEntry, ProcessField } from '@/types/processes';
 import {
-  DEFAULT_SORT,
+  DEFAULT_APPLICATION_SORT,
+  DEFAULT_PROCESS_SORT,
+  basename,
+  descendantCount,
+  describeProvenance,
+  formatAffinity,
+  formatCategory,
+  formatCpuList,
+  formatPriority,
+  matchesCategory,
+  nextSort,
+  searchTerms,
   TOP_PROCESS_COUNT,
   applicationMatches,
   applicationNames,
@@ -15,6 +26,14 @@ import {
 } from '@/utils/processes';
 
 const AVAILABLE: Availability = { status: 'available' };
+
+function desc<Column extends string>(column: Column) {
+  return { column, direction: 'desc' as const };
+}
+
+function asc<Column extends string>(column: Column) {
+  return { column, direction: 'asc' as const };
+}
 const WAITING: Availability = {
   status: 'temporarilyUnavailable',
   reason: 'waiting for another sample',
@@ -72,7 +91,8 @@ function application(overrides: Partial<ApplicationEntry> = {}): ApplicationEntr
 
 describe('sortProcesses', () => {
   it('opens on CPU, busiest first', () => {
-    expect(DEFAULT_SORT).toBe('cpu');
+    expect(DEFAULT_PROCESS_SORT).toEqual({ column: 'cpu', direction: 'desc' });
+    expect(DEFAULT_APPLICATION_SORT).toEqual({ column: 'cpu', direction: 'desc' });
 
     const sorted = sortProcesses(
       [
@@ -80,7 +100,7 @@ describe('sortProcesses', () => {
         process({ pid: 2, name: 'busy', cpuPercent: value(9.5) }),
         process({ pid: 3, name: 'some', cpuPercent: value(1.25) }),
       ],
-      'cpu',
+      desc('cpu'),
     );
 
     expect(sorted.map((entry) => entry.name)).toEqual(['busy', 'some', 'idle']);
@@ -97,7 +117,7 @@ describe('sortProcesses', () => {
         process({ pid: 2, name: 'large', [field]: value(1000) }),
         process({ pid: 3, name: 'medium', [field]: value(500) }),
       ],
-      column,
+      desc(column),
     );
 
     expect(sorted.map((entry) => entry.name)).toEqual(['large', 'medium', 'small']);
@@ -109,7 +129,7 @@ describe('sortProcesses', () => {
         process({ pid: 1, name: 'zsh', cpuPercent: value(90) }),
         process({ pid: 2, name: 'awk', cpuPercent: value(0) }),
       ],
-      'name',
+      asc('name'),
     );
 
     expect(sorted.map((entry) => entry.name)).toEqual(['awk', 'zsh']);
@@ -124,8 +144,8 @@ describe('sortProcesses', () => {
       process({ pid: 50, name: 'beta', cpuPercent: value(0) }),
     ];
 
-    const first = sortProcesses(rows, 'cpu');
-    const second = sortProcesses([...rows].reverse(), 'cpu');
+    const first = sortProcesses(rows, desc('cpu'));
+    const second = sortProcesses([...rows].reverse(), desc('cpu'));
 
     expect(first.map((entry) => entry.pid)).toEqual([100, 50, 900]);
     expect(second.map((entry) => entry.pid)).toEqual(first.map((entry) => entry.pid));
@@ -140,7 +160,7 @@ describe('sortProcesses', () => {
         process({ pid: 2, name: 'idle', cpuPercent: value(0) }),
         process({ pid: 3, name: 'refused', cpuPercent: denied() }),
       ],
-      'cpu',
+      desc('cpu'),
     );
 
     expect(sorted[0]?.name).toBe('idle');
@@ -154,14 +174,14 @@ describe('sortProcesses', () => {
     ];
     const before = rows.map((entry) => entry.pid);
 
-    sortProcesses(rows, 'cpu');
+    sortProcesses(rows, desc('cpu'));
 
     expect(rows.map((entry) => entry.pid)).toEqual(before);
   });
 
   it('handles zero and one process', () => {
-    expect(sortProcesses([], 'cpu')).toEqual([]);
-    expect(sortProcesses([process()], 'cpu')).toHaveLength(1);
+    expect(sortProcesses([], desc('cpu'))).toEqual([]);
+    expect(sortProcesses([process()], desc('cpu'))).toHaveLength(1);
   });
 
   it('handles several hundred processes', () => {
@@ -174,7 +194,7 @@ describe('sortProcesses', () => {
       }),
     );
 
-    const sorted = sortProcesses(many, 'cpu');
+    const sorted = sortProcesses(many, desc('cpu'));
 
     expect(sorted).toHaveLength(600);
     expect(sorted[0]?.cpuPercent.value).toBe(6);
@@ -189,7 +209,7 @@ describe('sortApplications', () => {
         application({ key: 'exe:/a', displayName: 'alpha', cpuPercent: value(1) }),
         application({ key: 'exe:/c', displayName: 'busy', cpuPercent: value(9) }),
       ],
-      'cpu',
+      desc('cpu'),
     );
 
     expect(sorted.map((entry) => entry.displayName)).toEqual(['busy', 'alpha', 'zeta']);
@@ -213,10 +233,10 @@ describe('sortApplications', () => {
       }),
     ];
 
-    expect(sortApplications(rows, 'memory')[0]?.displayName).toBe('b');
-    expect(sortApplications(rows, 'read')[0]?.displayName).toBe('a');
-    expect(sortApplications(rows, 'write')[0]?.displayName).toBe('b');
-    expect(sortApplications(rows, 'name')[0]?.displayName).toBe('a');
+    expect(sortApplications(rows, desc('memory'))[0]?.displayName).toBe('b');
+    expect(sortApplications(rows, desc('read'))[0]?.displayName).toBe('a');
+    expect(sortApplications(rows, desc('write'))[0]?.displayName).toBe('b');
+    expect(sortApplications(rows, asc('name'))[0]?.displayName).toBe('a');
   });
 });
 
@@ -295,5 +315,183 @@ describe('isWaitingForBaseline', () => {
 
   it('is false with no processes at all', () => {
     expect(isWaitingForBaseline([])).toBe(false);
+  });
+});
+
+describe('bidirectional sorting', () => {
+  it('opens numeric columns descending and text ascending', () => {
+    expect(nextSort(DEFAULT_PROCESS_SORT, 'memory')).toEqual({
+      column: 'memory',
+      direction: 'desc',
+    });
+    expect(nextSort(DEFAULT_PROCESS_SORT, 'pid')).toEqual({ column: 'pid', direction: 'desc' });
+    expect(nextSort(DEFAULT_PROCESS_SORT, 'name')).toEqual({ column: 'name', direction: 'asc' });
+    expect(nextSort(DEFAULT_APPLICATION_SORT, 'processes')).toEqual({
+      column: 'processes',
+      direction: 'desc',
+    });
+  });
+
+  it('flips the active column on every click', () => {
+    const once = nextSort(DEFAULT_PROCESS_SORT, 'cpu');
+    const twice = nextSort(once, 'cpu');
+    const thrice = nextSort(twice, 'cpu');
+
+    expect(once.direction).toBe('asc');
+    expect(twice.direction).toBe('desc');
+    expect(thrice.direction).toBe('asc');
+  });
+
+  it('keeps unmeasured values last in both directions', () => {
+    const rows = [
+      process({ pid: 1, name: 'unknown', cpuPercent: waiting() }),
+      process({ pid: 2, name: 'busy', cpuPercent: value(10) }),
+      process({ pid: 3, name: 'idle', cpuPercent: value(0) }),
+    ];
+
+    expect(sortProcesses(rows, desc('cpu')).map((row) => row.name)).toEqual([
+      'busy',
+      'idle',
+      'unknown',
+    ]);
+    expect(sortProcesses(rows, asc('cpu')).map((row) => row.name)).toEqual([
+      'idle',
+      'busy',
+      'unknown',
+    ]);
+  });
+
+  it('sorts names Z → A when descending and PIDs both ways', () => {
+    const rows = [
+      process({ pid: 30, name: 'bash' }),
+      process({ pid: 10, name: 'zsh' }),
+      process({ pid: 20, name: 'awk' }),
+    ];
+
+    expect(sortProcesses(rows, desc('name')).map((row) => row.name)).toEqual([
+      'zsh',
+      'bash',
+      'awk',
+    ]);
+    expect(sortProcesses(rows, asc('pid')).map((row) => row.pid)).toEqual([10, 20, 30]);
+    expect(sortProcesses(rows, desc('pid')).map((row) => row.pid)).toEqual([30, 20, 10]);
+  });
+
+  it('sorts threads and application process counts', () => {
+    const rows = [
+      process({ pid: 1, name: 'a', threadCount: value(4) }),
+      process({ pid: 2, name: 'b', threadCount: value(90) }),
+    ];
+    expect(sortProcesses(rows, desc('threads'))[0]?.name).toBe('b');
+    expect(sortProcesses(rows, asc('threads'))[0]?.name).toBe('a');
+
+    const apps = [
+      application({ key: 'exe:/a', displayName: 'a', processCount: 1 }),
+      application({ key: 'exe:/b', displayName: 'b', processCount: 13 }),
+    ];
+    expect(sortApplications(apps, desc('processes'))[0]?.displayName).toBe('b');
+    expect(sortApplications(apps, asc('processes'))[0]?.displayName).toBe('a');
+  });
+});
+
+describe('category filter', () => {
+  it('matches each category and never hides anything under All', () => {
+    expect(matchesCategory('userApplication', 'user')).toBe(true);
+    expect(matchesCategory('systemProcess', 'user')).toBe(false);
+    expect(matchesCategory('systemProcess', 'system')).toBe(true);
+    expect(matchesCategory('kernelThread', 'kernel')).toBe(true);
+    expect(matchesCategory('kernelThread', 'system')).toBe(false);
+    for (const classification of [
+      'userApplication',
+      'systemProcess',
+      'kernelThread',
+      'unknown',
+    ] as const) {
+      expect(matchesCategory(classification, 'all')).toBe(true);
+    }
+    expect(formatCategory('kernelThread')).toBe('Kernel thread');
+  });
+});
+
+describe('search terms', () => {
+  it('uses the file name and never the directory', () => {
+    const terms = searchTerms({
+      name: 'token-app',
+      executablePath: '/home/alice/private/project/token-app',
+    });
+
+    expect(terms).toEqual(['token-app']);
+    expect(terms.join(' ')).not.toContain('/home');
+    expect(terms.join(' ')).not.toContain('alice');
+    expect(terms.join(' ')).not.toContain('private');
+  });
+
+  it('adds the executable name, product and publisher or package', () => {
+    expect(
+      searchTerms({
+        name: '2.1.278',
+        executablePath: 'C:\\Users\\alice\\AppData\\Local\\claude.exe',
+        productName: 'Claude',
+        publisher: 'Anthropic, PBC',
+      }),
+    ).toEqual(['2.1.278', 'claude.exe', 'Claude', 'Anthropic, PBC']);
+
+    expect(
+      searchTerms({ name: 'bash', executablePath: '/usr/bin/bash', packageName: 'bash' }),
+    ).toEqual(['bash']);
+  });
+
+  it('splits paths on both separators', () => {
+    expect(basename('/usr/bin/bash')).toBe('bash');
+    expect(basename('C:\\Windows\\notepad.exe')).toBe('notepad.exe');
+  });
+});
+
+describe('inspector formatting', () => {
+  it('shows the real nice value beside its preset', () => {
+    expect(formatPriority({ kind: 'nice', value: 0 })).toBe('nice 0 (Normal)');
+    expect(formatPriority({ kind: 'nice', value: 3 })).toBe('nice 3');
+    expect(formatPriority({ kind: 'windowsClass', class: 'belowNormal' })).toBe('Below normal');
+  });
+
+  it('compresses CPU lists into ranges', () => {
+    expect(formatCpuList([0, 1, 2, 3, 8, 10, 11])).toBe('0–3, 8, 10–11');
+    expect(formatCpuList([5])).toBe('5');
+    expect(formatCpuList([])).toBe('none');
+    expect(formatAffinity({ cpus: [0, 1], available: [0, 1, 2, 3], limitation: null })).toBe(
+      'CPU 0–1 (2 of 4)',
+    );
+  });
+
+  it('describes provenance without a verdict', () => {
+    expect(
+      describeProvenance({
+        kind: 'rpmPackage',
+        packages: [{ name: 'bash', version: '5.2.26-1.fc39', arch: 'x86_64' }],
+      }),
+    ).toBe('bash-5.2.26-1.fc39.x86_64');
+    expect(describeProvenance({ kind: 'notPackaged', location: 'other' })).toBe(
+      'Package not detected',
+    );
+    for (const text of [
+      describeProvenance({ kind: 'notPackaged', location: 'userHome' }),
+      describeProvenance({
+        kind: 'signature',
+        signature: { trust: 'trusted', source: 'embedded', publisher: 'X', detail: '' },
+      }),
+    ]) {
+      expect(text.toLowerCase()).not.toMatch(/safe|malware|virus/);
+    }
+  });
+
+  it('counts descendants from the snapshot', () => {
+    const rows = [
+      process({ pid: 10, parentPid: 1 }),
+      process({ pid: 11, parentPid: 10 }),
+      process({ pid: 12, parentPid: 11 }),
+      process({ pid: 20, parentPid: 1 }),
+    ];
+    expect(descendantCount(rows, 10)).toBe(2);
+    expect(descendantCount(rows, 20)).toBe(0);
   });
 });

@@ -198,6 +198,23 @@ The engine owns the catalog and routes references to providers via a `HashMap`
 index, samples only what is requested, and isolates provider failures: a GPU
 provider going down does not blank out CPU and network readings.
 
+### Inspecting and controlling processes (Phase 9)
+
+```text
+commands/processes.rs         get_process_snapshot        ── ProcessSnapshotService   (read, every Refresh)
+commands/process_control.rs   get_process_details, …      ── ProcessInspectorService  (read, one process, lazy)
+                              suspend/resume/terminate…   ── ProcessControlService    (act, explicit click)
+                                                                 │
+platform/{linux,windows}/processes/control.rs  ── HostPlatform::process_inspector() / process_control()
+```
+
+The three services are separate objects in `AppState`. The engine, the
+providers and the snapshot service hold no reference to the control service,
+so no metric or heuristic can trigger an action. Every control call names a
+`ProcessInstanceId` and is re-validated (pidfd on Linux, handle on Windows)
+immediately before acting. Neither inspector nor control is a provider: the
+provider count stays 6. See `docs/processes/`.
+
 ### Where providers come from
 
 The engine hosts providers; it never discovers them.

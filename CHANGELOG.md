@@ -7,6 +7,56 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added — Phase 9: Process inspector, provenance, context actions & controls
+
+- **Three services, kept apart.** `ProcessSnapshotService` (the table, every
+  Refresh), `ProcessInspectorService` (one process, lazily) and
+  `ProcessControlService` (explicit actions). None is a metric provider;
+  provider count stays 6 and the catalog does not grow.
+- **Process Inspector** drawer: identity, parent, instance ID, real start time,
+  owner, category (User / System / Kernel thread / Unknown), architecture (ELF
+  header on Linux, `IsWow64Process2` on Windows), executable metadata, priority,
+  affinity, capabilities with reasons.
+- **Provenance**: Fedora RPM owner via a bounded, shell-free `rpm -qf --`;
+  Windows Authenticode via `WinVerifyTrust` (embedded, then catalog), publisher,
+  and version resource. Offline: revocation off, cache-only URL retrieval. No
+  safe/malware verdict anywhere.
+- **SHA-256** on demand only, streamed in 64 KiB chunks through `/proc/<pid>/exe`
+  on Linux, with `changedWhileHashing` when the file changes under the read.
+- **Search online / Search hash online / Check hash on VirusTotal** open the
+  browser on explicit click only, with program names or the digest — never a
+  path, user name, PID or file upload. *Open file location* via
+  `tauri-plugin-opener` (Rust side only).
+- **Context menu** (right click, Shift+F10, Menu key) with Copy, Suspend,
+  Resume, End process, End process tree, Force kill (Linux), Set priority, Set
+  affinity; disabled items show their reason. Application rows get Inspect /
+  Search / Show processes only.
+- **Controls**: Linux pidfd-pinned `SIGTERM`/`SIGKILL`/`SIGSTOP`/`SIGCONT`,
+  per-thread nice and affinity; Windows handle-pinned `TerminateProcess`,
+  per-thread `SuspendThread`/`ResumeThread` limited to PULSE's own suspensions,
+  `SetPriorityClass` (Realtime confirmed and read back), `SetProcessAffinityMask`
+  (> 64 CPUs read-only). **PID-reuse guard**: every action re-validates PID and
+  start token and answers `staleProcess` rather than touching a newcomer.
+  End process tree: deepest first, each member re-validated, bounded single pass.
+- Structured `ProcessActionResult` (`success`, `permissionDenied`,
+  `staleProcess`, `processGone`, `unsupported`, `partialFailure`,
+  `invalidRequest`, `platformError`). Confirmations for End / End tree / Force
+  kill / Realtime. One Refresh after each action, never polling.
+- Category filter (All / User / System / Kernel); search placeholder
+  "Search by name or PID".
+
+### Fixed — Phase 9
+
+- **Sorting now reverses.** Phase 8's headers never toggled direction. Every
+  numeric column opens descending and flips on each click, Name opens A → Z;
+  ↑/↓ and `aria-sort` on the active column; unavailable values stay last in both
+  directions; the choice survives Refresh. PID, Threads and application Processes
+  columns are now sortable. Component tests click real headers three times in
+  both tables.
+- **Windows I/O semantics.** Docs no longer claim `ReadTransferCount` /
+  `WriteTransferCount` equal Linux block-level `read_bytes` / `write_bytes`.
+
+
 ### Added — Phase 8: Processes & applications
 
 What is running on this machine, what it is using, and — the decision this

@@ -80,8 +80,11 @@ impl ProcessState {
 pub enum ProcessClass {
     /// Something the user is plausibly running: their own session's programs.
     UserApplication,
-    /// A kernel thread, a system service, or a process owned by the OS.
+    /// A system service, or a process owned by the OS.
     SystemProcess,
+    /// A Linux kernel thread: no userspace executable, flagged `PF_KTHREAD`
+    /// by the kernel itself. Never inferred from a name.
+    KernelThread,
     /// No reliable signal either way.
     Unknown,
 }
@@ -91,6 +94,7 @@ impl ProcessClass {
         match self {
             ProcessClass::UserApplication => "userApplication",
             ProcessClass::SystemProcess => "systemProcess",
+            ProcessClass::KernelThread => "kernelThread",
             ProcessClass::Unknown => "unknown",
         }
     }
@@ -155,6 +159,7 @@ mod tests {
         for class in [
             ProcessClass::UserApplication,
             ProcessClass::SystemProcess,
+            ProcessClass::KernelThread,
             ProcessClass::Unknown,
         ] {
             let json = serde_json::to_string(&class).expect("serialise");

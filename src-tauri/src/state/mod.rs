@@ -8,9 +8,9 @@
 use std::sync::Arc;
 
 use crate::metrics::MetricsEngine;
-use crate::processes::ProcessSnapshotService;
+use crate::processes::{ProcessControlService, ProcessInspectorService, ProcessSnapshotService};
 use crate::services::metrics::build_engine;
-use crate::services::processes::build_service;
+use crate::services::processes::{build_control, build_inspector, build_service};
 
 /// Root state object managed by Tauri.
 #[derive(Debug)]
@@ -30,13 +30,23 @@ pub struct AppState {
     /// `docs/metrics/processes.md`. Snapshotting takes `&self`; the baselines
     /// are guarded internally.
     processes: Arc<ProcessSnapshotService>,
+
+    /// Reads one process in depth, only when the user selects it.
+    inspector: Arc<ProcessInspectorService>,
+
+    /// Acts on one process, only when the user clicks. Holds the ledger of
+    /// what PULSE itself suspended — never a handle or descriptor.
+    control: Arc<ProcessControlService>,
 }
 
 impl AppState {
     pub fn new() -> Self {
+        let control = build_control();
         Self {
             metrics: Arc::new(build_engine()),
             processes: Arc::new(build_service()),
+            inspector: Arc::new(build_inspector(&control)),
+            control: Arc::new(control),
         }
     }
 
@@ -58,6 +68,16 @@ impl AppState {
     /// A cloneable handle to the process service.
     pub fn processes_handle(&self) -> Arc<ProcessSnapshotService> {
         Arc::clone(&self.processes)
+    }
+
+    /// A cloneable handle to the inspector, for work moved off the UI thread.
+    pub fn inspector_handle(&self) -> Arc<ProcessInspectorService> {
+        Arc::clone(&self.inspector)
+    }
+
+    /// A cloneable handle to the control service.
+    pub fn control_handle(&self) -> Arc<ProcessControlService> {
+        Arc::clone(&self.control)
     }
 }
 

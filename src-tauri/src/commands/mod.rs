@@ -6,4 +6,5 @@
 
 pub mod metrics;
 pub mod platform;
+pub mod process_control;
 pub mod processes;

@@ -22,6 +22,13 @@ tauri-build = { version = "2", features = [] }
 tauri = { version = "2", features = [] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+# The official Tauri opener, used from Rust only (no JavaScript permission is
+# granted): opens the default browser for an explicit *Search online* click and
+# reveals an executable in the file manager.
+tauri-plugin-opener = "2"
+# SHA-256 of an executable, only when the user asks for it (RustCrypto,
+# already in the dependency graph through Tauri).
+sha2 = "0.10"
 
 # --- platform-specific dependencies ---------------------------------------
 # Each OS pulls only what it needs; neither list is compiled on the other
@@ -62,6 +69,12 @@ windows = { version = "0.61", features = ["Win32_Graphics_Dxgi"] }
 #   Devices_…Installation  SetupDi* — enumerating the disks that are present
 #   NetworkManagement_IpHelper  GetIfTable2, FreeMibTable
 #   NetworkManagement_WiFi      WlanOpenHandle, WlanEnumInterfaces, WlanQueryInterface
+#   Security_WinTrust           WinVerifyTrust, WTHelper* (the signer's certificate)
+#   Security_Cryptography(_Catalog, _Sip)  CertGetNameStringW, CryptCATAdmin*,
+#                               and the WTHelper* declarations that need both
+#   Security_Authorization      ConvertSidToStringSidW (the owner's SID)
+# Process control (TerminateProcess, SuspendThread, SetPriorityClass,
+# SetProcessAffinityMask) needs no feature beyond Threading and ToolHelp.
 windows-sys = { version = "0.61", features = [
     "Win32_Foundation",
     "Win32_System_Threading",
@@ -79,6 +92,11 @@ windows-sys = { version = "0.61", features = [
     "Win32_System_Ioctl",
     "Win32_Devices_DeviceAndDriverInstallation",
     "Win32_Security",
+    "Win32_Security_Authorization",
+    "Win32_Security_Cryptography",
+    "Win32_Security_Cryptography_Catalog",
+    "Win32_Security_Cryptography_Sip",
+    "Win32_Security_WinTrust",
     "Win32_System_SystemServices",
     "Win32_NetworkManagement_IpHelper",
     "Win32_NetworkManagement_Ndis",

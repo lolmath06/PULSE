@@ -84,6 +84,16 @@ impl HostPlatform for WindowsPlatform {
         Some(processes::collector())
     }
 
+    #[cfg(target_os = "windows")]
+    fn process_inspector(&self) -> Option<Arc<dyn crate::processes::ProcessInspectorBackend>> {
+        Some(processes::control::inspector_backend())
+    }
+
+    #[cfg(target_os = "windows")]
+    fn process_control(&self) -> Option<Arc<dyn crate::processes::ProcessControlBackend>> {
+        Some(processes::control::control_backend())
+    }
+
     /// Windows has a single compositor (DWM), so there is nothing analogous to
     /// the Wayland/X11 distinction to report.
     fn display_server(&self) -> Option<String> {

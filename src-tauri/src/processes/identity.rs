@@ -70,6 +70,40 @@ impl ProcessInstanceId {
     pub fn canonical_string(&self) -> String {
         format!("process:{}-{}", self.pid, self.start_token)
     }
+
+    /// Parses the canonical `process:<pid>-<token>` form back into an identity.
+    ///
+    /// The frontend hands this string back with every inspector and control
+    /// request, so it is **input** and is validated strictly: the exact
+    /// prefix, two unsigned decimal integers, nothing else. PID 0 is refused
+    /// — it is the Windows Idle pseudo-process and, on Linux, not a process
+    /// at all — so no request can ever address it.
+    pub fn parse(text: &str) -> Result<Self, String> {
+        let rest = text
+            .strip_prefix("process:")
+            .ok_or_else(|| format!("'{text}' is not a process instance identifier"))?;
+        let (pid, token) = rest
+            .split_once('-')
+            .ok_or_else(|| format!("'{text}' has no start token"))?;
+
+        let digits = |part: &str| !part.is_empty() && part.bytes().all(|b| b.is_ascii_digit());
+        if !digits(pid) || !digits(token) {
+            return Err(format!("'{text}' is not of the form process:<pid>-<token>"));
+        }
+
+        let pid: u32 = pid
+            .parse()
+            .map_err(|_| format!("'{text}' carries a PID out of range"))?;
+        let start_token: u64 = token
+            .parse()
+            .map_err(|_| format!("'{text}' carries a start token out of range"))?;
+
+        if pid == 0 {
+            return Err("PID 0 is not a process PULSE can address".to_string());
+        }
+
+        Ok(Self::new(pid, start_token))
+    }
 }
 
 impl fmt::Display for ProcessInstanceId {
@@ -122,6 +156,40 @@ mod tests {
                 .unwrap_or_else(|error| panic!("'{rendered}' must be a valid SourceId: {error}"));
             assert_eq!(source.kind(), "process");
             assert!(source.has_canonical_kind());
+        }
+    }
+
+    #[test]
+    fn parses_its_own_canonical_form() {
+        for id in [
+            ProcessInstanceId::new(1, 0),
+            ProcessInstanceId::new(1234, 9_001),
+            ProcessInstanceId::new(u32::MAX, u64::MAX),
+        ] {
+            assert_eq!(ProcessInstanceId::parse(&id.canonical_string()), Ok(id));
+        }
+    }
+
+    #[test]
+    fn rejects_anything_that_is_not_exactly_the_canonical_form() {
+        for bad in [
+            "",
+            "1234",
+            "process:",
+            "process:1234",
+            "process:1234-",
+            "process:-9001",
+            "process:12a4-9001",
+            "process:1234-9001-7",
+            "process:+1234-9001",
+            "process: 1234-9001",
+            "cpu:1234-9001",
+            "process:0-9001",
+            "process:4294967296-1",
+            "process:1-18446744073709551616",
+            "process:1234-9001; rm -rf /",
+        ] {
+            assert!(ProcessInstanceId::parse(bad).is_err(), "accepted '{bad}'");
         }
     }
 

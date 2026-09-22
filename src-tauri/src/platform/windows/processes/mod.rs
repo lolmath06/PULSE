@@ -47,8 +47,12 @@
 //! its pure logic is unit-tested on Fedora, but it has **not** been run on a
 //! Windows machine. `docs/platforms/windows.md` says so too.
 
+pub mod authenticode;
 pub mod classify;
+pub mod control;
+pub mod facts;
 pub mod times;
+pub mod version;
 
 use std::sync::Arc;
 

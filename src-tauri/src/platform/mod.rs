@@ -28,7 +28,7 @@ use std::sync::Arc;
 use serde::{Deserialize, Serialize};
 
 use crate::metrics::providers::MetricProvider;
-use crate::processes::ProcessCollector;
+use crate::processes::{ProcessCollector, ProcessControlBackend, ProcessInspectorBackend};
 
 // Both platform modules are compiled on every host. Their OS-specific parts
 // (FFI calls, `HostPlatform` implementations) are gated internally, while the
@@ -131,6 +131,22 @@ pub trait HostPlatform: Send + Sync {
     ///
     /// [`ProcessSnapshotService`]: crate::processes::ProcessSnapshotService
     fn process_collector(&self) -> Option<Arc<dyn ProcessCollector>> {
+        None
+    }
+
+    /// The in-depth, read-only reader behind the Process Inspector.
+    ///
+    /// Separate from the collector because it is lazy and per-process: it
+    /// runs when the user selects one row, never on Refresh.
+    fn process_inspector(&self) -> Option<Arc<dyn ProcessInspectorBackend>> {
+        None
+    }
+
+    /// The backend for explicit, user-triggered process actions.
+    ///
+    /// Deliberately a separate seam from both readers above: nothing that
+    /// observes processes can reach anything that changes them.
+    fn process_control(&self) -> Option<Arc<dyn ProcessControlBackend>> {
         None
     }
 }
