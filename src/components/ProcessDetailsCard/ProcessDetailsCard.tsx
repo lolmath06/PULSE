@@ -497,7 +497,13 @@ function rowAnchor(element: HTMLElement): { x: number; y: number } {
   return { x: rect.left + 24, y: rect.bottom };
 }
 
-/** A sortable column header, showing ↑ or ↓ on the active column. */
+/**
+ * A sortable column header, showing ↑ or ↓ on the active column.
+ *
+ * The glyph follows PULSE's convention, not the comparator's: ↓ is the order a
+ * column opens in — largest first for numbers, A → Z for text — and ↑ its
+ * reverse. `aria-sort` stays the literal data order (A → Z is `ascending`).
+ */
 function SortHeader<Column extends string>({
   label,
   column,
@@ -514,7 +520,8 @@ function SortHeader<Column extends string>({
   readonly className?: string;
 }) {
   const active = sort.column === column;
-  const arrow = active ? (sort.direction === 'asc' ? '↑' : '↓') : '';
+  const pointsDown = numeric ? sort.direction === 'desc' : sort.direction === 'asc';
+  const arrow = active ? (pointsDown ? '↓' : '↑') : '';
   const classes = [numeric ? 'process-table__numeric' : '', className ?? '']
     .filter(Boolean)
     .join(' ');

@@ -90,6 +90,7 @@ describe.each([
 
     await user.click(header('Processes', label));
     expect(order('Processes')).toEqual(['ten', 'two', 'zero']);
+    expect(columnHeader('Processes', label)).toHaveAttribute('aria-sort', 'descending');
     expect(header('Processes', label)).toHaveTextContent('↓');
   });
 
@@ -103,12 +104,18 @@ describe.each([
 
     await user.click(header('Applications', label));
     expect(order('Applications')).toEqual(['ten', 'two', 'zero']);
+    expect(columnHeader('Applications', label)).toHaveAttribute('aria-sort', 'descending');
+    expect(header('Applications', label)).toHaveTextContent('↓');
 
     await user.click(header('Applications', label));
     expect(order('Applications')).toEqual(['zero', 'two', 'ten']);
+    expect(columnHeader('Applications', label)).toHaveAttribute('aria-sort', 'ascending');
+    expect(header('Applications', label)).toHaveTextContent('↑');
 
     await user.click(header('Applications', label));
     expect(order('Applications')).toEqual(['ten', 'two', 'zero']);
+    expect(columnHeader('Applications', label)).toHaveAttribute('aria-sort', 'descending');
+    expect(header('Applications', label)).toHaveTextContent('↓');
   });
 });
 
@@ -132,28 +139,67 @@ describe('initial state', () => {
   });
 });
 
+/**
+ * Text columns read ↓ for A → Z and ↑ for Z → A — the arrow points the way
+ * the column opens, as it does for numbers — while `aria-sort` keeps the
+ * literal data order.
+ */
 describe('name column', () => {
-  it('sorts A → Z, then Z → A, in both tables', async () => {
+  const names = ['b', 'c', 'a'];
+
+  it('toggles A/B/C ↓ → C/B/A ↑ → A/B/C ↓ in the Applications table', async () => {
     const user = userEvent.setup();
     mockBackend([
       snapshot({
-        processes: processRows('cpuPercent'),
-        applications: applicationRows('cpuPercent'),
+        applications: names.map((name) => application({ key: `exe:/${name}`, displayName: name })),
       }),
     ]);
     render(<ProcessDetailsCard />);
     await screen.findByRole('table', { name: 'Applications' });
 
     await user.click(header('Applications', 'Application'));
-    expect(order('Applications')).toEqual(['ten', 'two', 'zero']);
-    await user.click(header('Applications', 'Application'));
-    expect(order('Applications')).toEqual(['zero', 'two', 'ten']);
+    expect(order('Applications')).toEqual(['a', 'b', 'c']);
+    expect(header('Applications', 'Application')).toHaveTextContent('↓');
+    expect(columnHeader('Applications', 'Application')).toHaveAttribute('aria-sort', 'ascending');
 
+    await user.click(header('Applications', 'Application'));
+    expect(order('Applications')).toEqual(['c', 'b', 'a']);
+    expect(header('Applications', 'Application')).toHaveTextContent('↑');
+    expect(columnHeader('Applications', 'Application')).toHaveAttribute('aria-sort', 'descending');
+
+    await user.click(header('Applications', 'Application'));
+    expect(order('Applications')).toEqual(['a', 'b', 'c']);
+    expect(header('Applications', 'Application')).toHaveTextContent('↓');
+    expect(columnHeader('Applications', 'Application')).toHaveAttribute('aria-sort', 'ascending');
+  });
+
+  it('toggles A/B/C ↓ → C/B/A ↑ → A/B/C ↓ in the Processes table', async () => {
+    const user = userEvent.setup();
+    mockBackend([
+      snapshot({
+        processes: names.map((name, index) =>
+          process({ pid: index + 1, instanceId: `process:${index + 1}-1`, name }),
+        ),
+      }),
+    ]);
+    render(<ProcessDetailsCard />);
+    await screen.findByRole('table', { name: 'Applications' });
     await showProcesses(user);
+
     await user.click(header('Processes', 'Process'));
-    expect(order('Processes')).toEqual(['ten', 'two', 'zero']);
+    expect(order('Processes')).toEqual(['a', 'b', 'c']);
+    expect(header('Processes', 'Process')).toHaveTextContent('↓');
+    expect(columnHeader('Processes', 'Process')).toHaveAttribute('aria-sort', 'ascending');
+
     await user.click(header('Processes', 'Process'));
-    expect(order('Processes')).toEqual(['zero', 'two', 'ten']);
+    expect(order('Processes')).toEqual(['c', 'b', 'a']);
+    expect(header('Processes', 'Process')).toHaveTextContent('↑');
+    expect(columnHeader('Processes', 'Process')).toHaveAttribute('aria-sort', 'descending');
+
+    await user.click(header('Processes', 'Process'));
+    expect(order('Processes')).toEqual(['a', 'b', 'c']);
+    expect(header('Processes', 'Process')).toHaveTextContent('↓');
+    expect(columnHeader('Processes', 'Process')).toHaveAttribute('aria-sort', 'ascending');
   });
 });
 
