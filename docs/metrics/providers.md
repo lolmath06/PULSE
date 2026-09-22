@@ -5,8 +5,10 @@
 > Phase 3 grew the CPU providers to cover every logical processor. Phase 4 added
 > a GPU provider per platform, each hosting several vendor backends behind one
 > owner. Phase 6 added a storage provider per platform, hosting five backends
-> each, and Phase 7 a network provider hosting five more. The contract has not
-> had to change once.
+> each, and Phase 7 a network provider hosting five more. Phase 8 added a
+> process provider — with the deliberate decision that the _hundreds of
+> processes themselves_ do not go through the engine at all. The contract has
+> not had to change once.
 
 ## What a provider is
 
@@ -35,6 +37,16 @@ disk's inventory and its health describe the same device, so two providers would
 claim the same `SourceId` and the engine would refuse whichever registered
 second.
 
+`linux.processes` and `windows.processes` are the pattern's limit case, and the
+most interesting one. The provider owns **three** metrics — the process count,
+the running count and the total thread count — whether the machine runs 180
+processes or 900. The processes themselves are served by
+[`ProcessSnapshotService`](processes.md#1-the-architectural-decision-two-tiers-not-one)
+through a command of its own, because a `MetricDefinition` is a promise that a
+reference still resolves months later and `process:1234-9001` stops resolving
+the moment that process exits. A provider declaring six metrics per PID would
+add roughly two thousand definitions and replace most of them every refresh.
+
 `linux.network` and `windows.network` complete the pattern. Wi-Fi is a
 **capability** of the network provider, not a `linux.wifi` beside it: a Wi-Fi
 adapter is one interface with one identity, and a second provider publishing
@@ -53,8 +65,8 @@ storage.smart  SMART attributes (privileged)
 
 > The last two are illustrative of the _shape_ of a data source, not of PULSE's
 > actual provider list. What ships is one provider per family per platform:
-> `linux.cpu`, `linux.memory`, `linux.gpu`, `linux.storage` and their Windows
-> counterparts. NVML lives inside the GPU provider and the NVMe health log
+> `linux.cpu`, `linux.memory`, `linux.gpu`, `linux.storage`, `linux.network`,
+> `linux.processes` and their Windows counterparts — six per platform. NVML lives inside the GPU provider and the NVMe health log
 > inside the storage provider, for the collision reason described above.
 
 The engine knows nothing about any of that. It knows about providers, a catalog

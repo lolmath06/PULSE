@@ -17,6 +17,7 @@
 //! and would prove nothing.
 
 use crate::metrics::model::{Availability, MetricDefinition, ProviderId};
+use crate::metrics::providers::MetricProvider;
 use crate::metrics::wellknown::cpu::{
     self, CpuPackage, CpuTopology, LogicalId, LogicalProcessor, PackageId,
 };
@@ -25,6 +26,7 @@ use crate::metrics::wellknown::gpu::{
 };
 use crate::metrics::wellknown::memory;
 use crate::metrics::wellknown::network;
+use crate::metrics::wellknown::process;
 use crate::metrics::wellknown::storage;
 
 /// The NVIDIA card both platforms are asked to describe.
@@ -1501,4 +1503,138 @@ fn every_network_source_is_addressable_the_same_way_on_both_platforms() {
             }
         }
     }
+}
+
+// --- process contract -----------------------------------------------------
+//
+// The process family is the first one where the two platforms genuinely
+// differ in what they can *read*, so the contract tests have two jobs rather
+// than one:
+//
+// 1. the three references, units, kinds and descriptions are identical, as
+//    for every other family;
+// 2. the one figure Windows cannot produce is declared `unsupported` there
+//    rather than omitted from the catalog or filled with a plausible zero.
+//
+// And a third, which is the architectural promise of the phase: neither
+// platform declares anything per process.
+
+fn linux_processes() -> Vec<MetricDefinition> {
+    crate::platform::linux::processes::LinuxProcessProvider::new()
+        .describe()
+        .expect("the Linux process provider always describes")
+}
+
+fn windows_processes() -> Vec<MetricDefinition> {
+    crate::platform::windows::processes::WindowsProcessProvider::new()
+        .describe()
+        .expect("the Windows process provider always describes")
+}
+
+#[test]
+fn both_platforms_declare_the_same_three_process_references() {
+    let references = |definitions: Vec<MetricDefinition>| -> Vec<String> {
+        definitions
+            .iter()
+            .map(|definition| definition.metric.to_string())
+            .collect()
+    };
+
+    let mut expected: Vec<String> = process::MACHINE_KEYS
+        .iter()
+        .map(|key| format!("{key}@{}", process::SOURCE))
+        .collect();
+    expected.sort();
+
+    assert_eq!(references(linux_processes()), expected);
+    assert_eq!(references(windows_processes()), expected);
+}
+
+#[test]
+fn the_process_metrics_carry_the_same_contract_on_both_platforms() {
+    for key in process::MACHINE_KEYS {
+        let of = |definitions: Vec<MetricDefinition>| -> MetricDefinition {
+            definitions
+                .into_iter()
+                .find(|definition| definition.metric.key.as_str() == *key)
+                .unwrap_or_else(|| panic!("{key} is not declared"))
+        };
+
+        let linux = of(linux_processes());
+        let windows = of(windows_processes());
+
+        assert_eq!(linux.metric, windows.metric, "reference for {key}");
+        assert_eq!(
+            linux.unit,
+            crate::metrics::model::MetricUnit::Count,
+            "unit for {key}"
+        );
+        assert_eq!(linux.unit, windows.unit, "unit for {key}");
+        assert_eq!(linux.kind, windows.kind, "kind for {key}");
+        assert_eq!(linux.value_type, windows.value_type, "value type for {key}");
+        assert_eq!(
+            linux.display_name, windows.display_name,
+            "display name for {key}"
+        );
+        assert_eq!(
+            linux.source_label, windows.source_label,
+            "source label for {key}"
+        );
+        assert_eq!(
+            linux.description, windows.description,
+            "description for {key}"
+        );
+        assert_eq!(linux.category, windows.category, "category for {key}");
+
+        // Only the provider may differ.
+        assert_ne!(linux.provider_id, windows.provider_id, "provider for {key}");
+    }
+}
+
+#[test]
+fn the_running_count_is_honestly_unsupported_on_windows_and_real_on_fedora() {
+    let availability = |definitions: Vec<MetricDefinition>| -> Availability {
+        definitions
+            .into_iter()
+            .find(|definition| definition.metric.key.as_str() == process::COUNT_RUNNING)
+            .expect("declared on both platforms")
+            .availability
+    };
+
+    assert!(availability(linux_processes()).is_available());
+    assert_eq!(
+        availability(windows_processes()).status_str(),
+        "unsupported",
+        "Windows has no process-level state, and PULSE says so rather than \
+         inventing one from thread states"
+    );
+}
+
+#[test]
+fn neither_platform_declares_a_metric_for_an_individual_process() {
+    // The architectural promise of the process phase, asserted rather than
+    // merely documented. A per-PID definition here would mean a catalog that
+    // churns thousands of entries a minute and a dashboard reference that can
+    // never resolve again.
+    for definitions in [linux_processes(), windows_processes()] {
+        assert_eq!(definitions.len(), 3);
+
+        for definition in definitions {
+            assert_eq!(
+                definition.metric.source_id.as_str(),
+                process::SOURCE,
+                "the only registered process source is the machine itself"
+            );
+        }
+    }
+}
+
+#[test]
+fn the_process_catalog_does_not_grow_with_the_machine() {
+    // Whatever this machine is running right now, the provider declares three.
+    let before = linux_processes().len();
+    let after = linux_processes().len();
+
+    assert_eq!(before, 3);
+    assert_eq!(after, 3);
 }

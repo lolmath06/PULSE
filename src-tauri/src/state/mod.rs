@@ -8,7 +8,9 @@
 use std::sync::Arc;
 
 use crate::metrics::MetricsEngine;
+use crate::processes::ProcessSnapshotService;
 use crate::services::metrics::build_engine;
+use crate::services::processes::build_service;
 
 /// Root state object managed by Tauri.
 #[derive(Debug)]
@@ -19,12 +21,22 @@ pub struct AppState {
     /// additional windows can hold their own handle without rebuilding the
     /// catalog. Sampling takes `&self`, so no lock is needed on the read path.
     metrics: Arc<MetricsEngine>,
+
+    /// The process snapshot service, built once at startup.
+    ///
+    /// Deliberately **beside** the engine rather than inside it. It holds the
+    /// per-process rate baselines, which are high-cardinality and ephemeral,
+    /// and it publishes through its own command — see
+    /// `docs/metrics/processes.md`. Snapshotting takes `&self`; the baselines
+    /// are guarded internally.
+    processes: Arc<ProcessSnapshotService>,
 }
 
 impl AppState {
     pub fn new() -> Self {
         Self {
             metrics: Arc::new(build_engine()),
+            processes: Arc::new(build_service()),
         }
     }
 
@@ -36,6 +48,16 @@ impl AppState {
     /// A cloneable handle to the engine, for background work and other windows.
     pub fn metrics_handle(&self) -> Arc<MetricsEngine> {
         Arc::clone(&self.metrics)
+    }
+
+    /// The shared process snapshot service.
+    pub fn processes(&self) -> &ProcessSnapshotService {
+        &self.processes
+    }
+
+    /// A cloneable handle to the process service.
+    pub fn processes_handle(&self) -> Arc<ProcessSnapshotService> {
+        Arc::clone(&self.processes)
     }
 }
 
@@ -75,11 +97,13 @@ mod tests {
         let status = state.metrics().status();
 
         if crate::platform::PlatformKind::current().is_supported() {
-            assert_eq!(status.provider_count, 5);
-            // The catalog is sized by the machine: 13 fixed metrics, plus
+            assert_eq!(status.provider_count, 6);
+            // The catalog is sized by the machine: 16 fixed metrics, plus
             // three per logical processor, eleven per GPU, thirteen per
             // storage device, four per volume, eleven per network interface
-            // and four per Wi-Fi interface. Nothing here may assume a number.
+            // and four per Wi-Fi interface. The three process metrics are part
+            // of the fixed sixteen however many processes run: the per-process
+            // rows never enter the catalog. Nothing here may assume a number.
             let count_of = |key: &str| {
                 state
                     .metrics()
@@ -98,7 +122,7 @@ mod tests {
             assert!(logical > 0);
             assert_eq!(
                 status.metric_count,
-                13 + 3 * logical
+                16 + 3 * logical
                     + packages
                     + crate::metrics::wellknown::gpu::PER_GPU_KEYS.len() * gpus
                     + crate::metrics::wellknown::storage::PER_DEVICE_KEYS.len() * devices

@@ -51,7 +51,7 @@ pub fn sample(engine: &MetricsEngine, requested: &[MetricRef]) -> Vec<MetricSamp
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::metrics::wellknown::{cpu, gpu, memory, network, storage};
+    use crate::metrics::wellknown::{cpu, gpu, memory, network, process, storage};
 
     /// The metric references PULSE ships on **every** machine, whatever its
     /// CPU. The per-processor references are added to these at runtime.
@@ -70,6 +70,12 @@ mod tests {
             storage::volume_count_ref(),
             network::interface_count_ref(),
             network::interface_up_count_ref(),
+            // Three, whatever the machine runs. The per-process rows are
+            // deliberately absent from the catalog — see
+            // `docs/metrics/processes.md`.
+            process::count_total_ref(),
+            process::count_running_ref(),
+            process::thread_count_total_ref(),
         ]
     }
 
@@ -145,16 +151,16 @@ mod tests {
             return;
         }
 
-        // Five providers, whatever the machine: each owns a whole metric
+        // Six providers, whatever the machine: each owns a whole metric
         // family rather than there being one per processor, one per GPU, one
-        // per disk or one per interface.
+        // per disk, one per interface or — emphatically — one per process.
         assert_eq!(
-            status.provider_count, 5,
-            "one CPU, one memory, one GPU, one storage and one network provider"
+            status.provider_count, 6,
+            "one CPU, memory, GPU, storage, network and process provider"
         );
         assert_eq!(status.state, crate::metrics::EngineState::Ready);
 
-        // 13 fixed metrics, plus three per logical processor, one per
+        // 16 fixed metrics, plus three per logical processor, one per
         // addressable CPU package, eleven per GPU, thirteen per storage
         // device, four per volume, eleven per network interface and four per
         // Wi-Fi interface — all discovered from the catalog, never hardcoded.
@@ -168,7 +174,7 @@ mod tests {
         assert!(logical > 0, "a running machine has logical processors");
         assert_eq!(
             status.metric_count,
-            13 + 3 * logical
+            16 + 3 * logical
                 + packages
                 + crate::metrics::wellknown::gpu::PER_GPU_KEYS.len() * gpus
                 + storage::PER_DEVICE_KEYS.len() * devices
@@ -244,6 +250,7 @@ mod tests {
                 "linux.gpu",
                 "linux.storage",
                 "linux.network",
+                "linux.processes",
             ],
             platform::PlatformKind::Windows => [
                 "windows.cpu",
@@ -251,6 +258,7 @@ mod tests {
                 "windows.gpu",
                 "windows.storage",
                 "windows.network",
+                "windows.processes",
             ],
             platform::PlatformKind::Unsupported => unreachable!("guarded above"),
         };

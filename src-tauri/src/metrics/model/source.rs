@@ -30,8 +30,13 @@ const SEPARATOR: char = ':';
 /// different things that happen to be related: a disk can hold many volumes, a
 /// volume can span several disks, and a widget bound to one must never
 /// silently resolve to the other. See `docs/metrics/storage.md`.
+/// `process` names one *incarnation* of a process, `pid` plus a start token.
+/// It is a canonical kind because a process is genuinely a measurable source
+/// — but PULSE deliberately registers **no** per-process metric in the
+/// catalog. See `docs/metrics/processes.md`.
 pub const CANONICAL_SOURCE_KINDS: &[&str] = &[
     "system", "cpu", "gpu", "memory", "storage", "volume", "network", "battery", "fan", "power",
+    "process",
 ];
 
 /// A stable `kind:instance` identifier for a measured component.

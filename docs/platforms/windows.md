@@ -1,9 +1,15 @@
 # PULSE on Windows
 
-> Status: Phase 4. CPU (aggregate, per logical processor, frequency, topology),
-> physical memory, and GPU (inventory, identity and core telemetry) are
-> implemented natively. Everything below the
-> "Planned data sources" heading is still design work.
+> Status: Phase 8. CPU (aggregate, per logical processor, frequency, topology),
+> physical memory, GPU, thermals, storage, networking and processes are
+> implemented natively and **compile for `x86_64-pc-windows-msvc`**. Everything
+> below the "Planned data sources" heading is still design work.
+>
+> **None of it has been executed on a physical Windows machine yet.** The pure
+> logic — FILETIME arithmetic, the CPU convention, path classification, the
+> memory convention — is unit-tested on Fedora, and `tools/windows-check`
+> type-checks the real Windows code for the real target. Neither is a
+> substitute for running it.
 
 Windows is a **first-class PULSE platform**, on equal footing with Fedora Linux.
 
@@ -396,6 +402,55 @@ from a binding crate, with a compile-time assertion pinning its documented
 byte positions — and every field read is a pure function, so it is unit-tested
 on Fedora against synthetic rows.
 
+### Processes — implemented in Phase 8
+
+**No `tasklist`, no `wmic`, no PowerShell, no `Get-Process`.** Each spawns a
+process — PowerShell spawns a runtime — to format for a console what these
+calls return as numbers, and on a machine with four hundred processes that is a
+per-refresh cost measured in hundreds of milliseconds plus a text format to
+parse back.
+
+Two tiers, because protected processes exist:
+
+| Tier         | API                                                                     | Yields                                                       |
+| ------------ | ----------------------------------------------------------------------- | ------------------------------------------------------------ |
+| Inventory    | `CreateToolhelp32Snapshot` + `Process32FirstW`/`Process32NextW`         | PID, parent PID, thread count, image name — no handle needed |
+| Per process  | `OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION)`                        | a short-lived handle for everything below                    |
+|              | `GetProcessTimes`                                                       | kernel + user CPU time, **and** the creation-time identity   |
+|              | `K32GetProcessMemoryInfo`                                               | `WorkingSetSize`                                             |
+|              | `GetProcessIoCounters`                                                  | `ReadTransferCount` / `WriteTransferCount`                   |
+|              | `QueryFullProcessImageNameW`                                            | the executable, for grouping and classification              |
+| Denominators | `GetActiveProcessorCount(ALL_PROCESSOR_GROUPS)`, `GlobalMemoryStatusEx` | the CPU and memory percentage divisors                       |
+
+`GetActiveProcessorCount(ALL_PROCESSOR_GROUPS)` rather than `GetSystemInfo`:
+the latter reports only the calling thread's processor group and would say 64
+on a 128-thread workstation, doubling every process's CPU percentage.
+
+**Handles never outlive the call that opened them.** Every one is wrapped in a
+guard that closes it on drop, including on early returns, and the cycle is
+strictly enumerate → open → read → close. The rate baselines hold an identity
+and two integers; keeping four hundred handles open across refreshes would pin
+every one of those processes' kernel objects for as long as PULSE ran.
+
+Two Windows facts PULSE reports rather than papers over:
+
+- **There is no process-level state.** Windows schedules threads; a process is
+  a container. `process.count.running` is declared `unsupported` with a reason
+  rather than synthesised from thread states, because a synthesised figure
+  would make the same column mean two different things on the two platforms.
+- **A protected process refuses `OpenProcess`**, even to an administrator. The
+  Toolhelp row survives with PID, parent, threads and name; CPU, memory, I/O
+  and the executable path report `permissionDenied`. PULSE does not elevate.
+
+`FILETIME` is recombined as `high << 32 | low` and converted from 100 ns
+intervals to nanoseconds, so the delta arithmetic is shared with Linux clock
+ticks. Reading `dwLowDateTime` alone — which looks plausible, because it is
+usually the only half that changes — wraps every seven minutes of CPU time;
+there is a test asserting the two halves genuinely differ.
+
+See [`../metrics/processes.md`](../metrics/processes.md) for the CPU
+normalisation, the PID-reuse identity and the application grouping.
+
 ### Wi-Fi without location permission
 
 The obvious source for a signal strength is
@@ -485,6 +540,11 @@ collected. They are enabled by default for physical disks on every supported
 Windows version; where they are not, the control fails and the six
 `storage.io.*` metrics report `unsupported` rather than being invented.
 
+Processes follow the same rule with a sharper edge: the Toolhelp inventory
+needs no rights at all, so **no process ever disappears from the list**, and
+the four values a handle would have supplied degrade to `permissionDenied` on
+that row alone. PULSE never requests elevation to widen this.
+
 ## Windows-specific behaviours to design for
 
 - **Per-monitor DPI awareness** — mixed-DPI multi-monitor setups are common and
@@ -507,6 +567,12 @@ suffix must be dropped or translated before the first MSI is produced. Installer
 production is a later phase, so this is documented rather than solved now.
 
 ## Testing note
+
+As of Phase 8 the Windows process collector is **compiled, not executed**.
+`pnpm rust:windows` type-checks it for `x86_64-pc-windows-msvc` from Fedora —
+the harness includes `metrics/`, `platform/`, `processes/` and `services/` by
+path, so it is the real source and not a copy — and its pure logic is
+unit-tested on Fedora. Neither proves it works.
 
 CI builds and tests on `windows-latest`, which catches compilation and
 unit-test regressions on the real MSVC toolchain. That is genuine automated

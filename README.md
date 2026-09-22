@@ -11,7 +11,7 @@
 
 ## Status
 
-**Phase 7 — Network interfaces, traffic & Wi-Fi quality.** Version `0.1.0-dev`.
+**Phase 8 — Processes & applications.** Version `0.1.0-dev`.
 
 PULSE can now answer, on Fedora and Windows behind exactly the same contract:
 
@@ -22,7 +22,9 @@ PULSE can now answer, on Fedora and Windows behind exactly the same contract:
 > this machine have, how full are its filesystems, how much is it really
 > reading and writing, what does an NVMe controller say about its own wear —
 > and which network interfaces does it have, which are connected, how much are
-> they actually carrying, and how good is the Wi-Fi link?
+> they actually carrying, how good is the Wi-Fi link — and what is actually
+> running on this machine, which applications are using the processor, the
+> memory and the disk, and how many processes and threads are there?
 
 On top of the Phase 0 foundation, the Phase 1 metrics contract and the Phase 2
 collectors, it reads **per-logical-processor usage, per-logical-processor
@@ -69,13 +71,30 @@ local drop counter is not Internet packet loss, a link capacity in bits is not
 traffic in bytes, and a signal strength in dBm is never converted into a
 made-up quality percentage.
 
-The catalog is **sized by the machine**: `13 + 3N + P + 11G + 13D + 4V + 11I +
+Phase 8 added processes and applications, and with them the first deliberate
+**limit** on the metrics engine. A desktop runs several hundred processes, most
+of them for less than a second; a catalog entry is a promise that a saved
+dashboard reference still resolves months later. Putting six metrics per PID in
+the catalog would add roughly two thousand definitions and replace most of them
+every refresh, so PULSE registers exactly three low-cardinality figures —
+process count, running count, total thread count — and serves the rows through
+a `ProcessSnapshotService` and a command of its own. Processes are identified by
+**PID plus start time**, because a PID is recycled and PULSE refuses to credit
+a new process with its predecessor's CPU time. Process CPU is normalised
+against the whole machine on both platforms, so one thread saturating one of 32
+logical processors reads `3.1 %` and the column sums to roughly what the system
+CPU gauge shows — rather than `3200 %` on Fedora and `100 %` on Windows for the
+same work. And what PULSE does **not** collect matters as much: no command
+lines, no arguments, no environment variables, and no ability to kill, suspend
+or reprioritise anything. It observes.
+
+The catalog is **sized by the machine**: `16 + 3N + P + 11G + 13D + 4V + 11I +
 4W` metrics for `N` logical processors, `P` addressable CPU packages, `G` GPUs,
 `D` storage devices, `V` volumes, `I` network interfaces and `W` Wi-Fi radios —
-307 on the 32-thread, single-package, single-GPU laptop this was built on, with
-its internal NVMe drive, an external USB disk, six mounted filesystems, twelve
-published network interfaces and one Wi-Fi radio. Nothing anywhere hardcodes
-those numbers. References stay identical across operating systems, so a widget
+314 on the 32-thread, single-package, single-GPU laptop this was built on, with
+its internal NVMe drive, an external USB disk, seven mounted filesystems, twelve
+published network interfaces and one Wi-Fi radio — and the same 314 whether it
+is running 180 processes or 900. Nothing anywhere hardcodes those numbers. References stay identical across operating systems, so a widget
 bound to `cpu.usage.logical@cpu:logical-3`, to an NVIDIA card's UUID, to a
 drive's serial number, or to a Wi-Fi radio's permanent MAC address, moves from
 Fedora to Windows unchanged.
@@ -88,8 +107,9 @@ about identity — a GPU is never identified by its product name, its DRM card
 number, its NVML index or its DXGI adapter index; a disk is never identified by
 `nvme0n1`, `sda` or `PhysicalDrive0`; and a network interface is never
 identified by `eth0`, an interface index, an IP address or the **randomised**
-MAC both operating systems now put on Wi-Fi by default — because every one of
-those can change between boots, or between networks.
+MAC both operating systems now put on Wi-Fi by default; and a process is never
+identified by its PID alone — because every one of those can change between
+boots, between networks, or between one process and the next.
 
 There is still no scheduler and no history: the UI samples on demand.
 
@@ -245,6 +265,7 @@ PULSE/
 │       ├── commands/    # Tauri command surface
 │       ├── metrics/     # metrics engine, model, well-known declarations
 │       ├── platform/    # the platform seam
+│       ├── processes/   # process snapshots — high-cardinality, outside the catalog
 │       │   ├── linux/   # /proc, /sys, hwmon, Wayland/X11
 │       │   └── windows/ # WMI, PDH, vendor SDKs
 │       ├── services/    # cross-platform logic
@@ -276,7 +297,7 @@ Start at [`docs/README.md`](docs/README.md).
   [CPU & memory](docs/metrics/cpu-memory.md),
   [advanced CPU](docs/metrics/cpu-advanced.md), [GPU](docs/metrics/gpu.md),
   [thermals](docs/metrics/thermals.md), [storage](docs/metrics/storage.md),
-  [network](docs/metrics/network.md)
+  [network](docs/metrics/network.md), [processes](docs/metrics/processes.md)
 - [Widgets](docs/widgets/README.md)
 
 ## Roadmap
@@ -290,8 +311,9 @@ Start at [`docs/README.md`](docs/README.md).
 | 4     | GPU inventory, identity and core telemetry                     | Done        |
 | 5     | Temperatures and fan speeds                                    | Done        |
 | 6     | Storage devices, volumes, I/O and NVMe health                  | Done        |
-| 7     | Network interfaces, traffic and Wi-Fi quality                  | **Current** |
-| 8+    | Active network probes, processes, history, graphs              | Planned     |
+| 7     | Network interfaces, traffic and Wi-Fi quality                  | Done        |
+| 8     | Processes, applications and their CPU, memory and I/O          | **Current** |
+| 9+    | Active network probes, history, graphs                         | Planned     |
 | 1+    | Widget engine, configurable dashboards                         | Planned     |
 | 1+    | Mini overlay, Gaming and Development modes                     | Planned     |
 | 1+    | Themes, presets, alerts, tray, autostart                       | Planned     |

@@ -33,11 +33,15 @@ by CI and explicitly flagged as awaiting a physical test.
 ┌───────────────────▼─────────────────────────┐
 │ Application core (cross-platform)           │  src-tauri/src/services/
 │ services, metrics engine, state             │  src-tauri/src/metrics/
+│                                             │  src-tauri/src/processes/
 │                                             │  src-tauri/src/state/
-│   MetricsEngine                             │
+│   MetricsEngine        stable sources       │
 │     ├── Provider A ──┐                      │
 │     ├── Provider B ──┼── the only code that │
 │     └── Provider C ──┘   touches hardware   │
+│                                             │
+│   ProcessSnapshotService   ephemeral rows   │
+│     └── ProcessCollector ─┘                 │
 └───────────────────┬─────────────────────────┘
 ┌───────────────────▼─────────────────────────┐
 │ Platform abstraction                        │  src-tauri/src/platform/
@@ -120,11 +124,44 @@ core telemetry across NVIDIA, AMD and Intel; Phase 5 added temperatures and fan
 speeds to both families; Phase 6 added storage — physical devices, mounted
 filesystems, delta-based I/O rates and the standardised NVMe health log; and
 Phase 7 added networking — interfaces, their identity, delta-based traffic
-rates, link speeds and Wi-Fi link quality. The engine did not change to
-accommodate any of them, which was the point of building it first — including
-when the catalog stopped being a fixed list and became
-`13 + 3N + P + 11G + 13D + 4V + 11I + 4W` entries sized by the host's
+rates, link speeds and Wi-Fi link quality; and Phase 8 added processes. The
+engine did not change to accommodate any of them, which was the point of
+building it first — including when the catalog stopped being a fixed list and
+became `16 + 3N + P + 11G + 13D + 4V + 11I + 4W` entries sized by the host's
 processors, packages, adapters, disks, volumes and network interfaces.
+
+### The one family that is deliberately not in the engine
+
+Phase 8 is the first family whose detail was **kept out** of the catalog, and
+the decision is architectural rather than a performance tweak.
+
+The engine is built for sources that are _stable_: a CPU, a GPU, a disk, an
+interface. A `MetricDefinition` is a promise that a saved dashboard reference
+still resolves months later. Processes are the opposite — a machine runs three
+to five hundred, most of them for under a second, and `process:1234-9001` stops
+resolving the moment that process exits. Six metrics per PID would be roughly
+two thousand definitions, replaced wholesale every refresh, and would make
+`metricCount` a number that says nothing about the machine.
+
+So PULSE splits the family in two:
+
+```text
+MetricsEngine              linux.processes / windows.processes
+                             process.count.total
+                             process.count.running
+                             process.thread.count.total
+                           3 metrics, on every machine, forever
+
+ProcessSnapshotService     several hundred rows, renewed each refresh,
+                           served by get_process_snapshot and discarded
+```
+
+The service sits beside the engine in `AppState`, holds its own rate baselines
+keyed on `(pid, start_token)`, and touches the engine not at all. Two tests
+assert the separation rather than trusting the documentation: one takes two
+snapshots and proves the catalog did not grow, the other proves neither
+platform declares a source other than `process:system`. See
+[`../metrics/processes.md`](../metrics/processes.md).
 
 Phases 6 and 7 are the only two to have needed anything of the _contract_, and
 only small, well-justified additions: five units, so a rate is never published
@@ -199,8 +236,9 @@ counters and the NVMe health log, and `linux.network` hosts `rtnetlink`,
 `nl80211`, the address dump and the link-speed read. Splitting any of them
 would make two providers claim the same `MetricRef` for a device both can see,
 which the engine rejects by design. A supported platform therefore registers
-**five** providers — CPU, memory, GPU, storage, network — whatever the machine
-holds; it is the metric count that scales.
+**six** providers — CPU, memory, GPU, storage, network, processes — whatever
+the machine holds; it is the metric count that scales. `linux.processes` is the
+limit case: three metrics whether the machine runs 180 processes or 900.
 
 Contract tests assert that the Linux and Windows declarations, generated for the
 same synthetic topology, differ in `providerId` and nothing else — that is the
@@ -216,8 +254,9 @@ See [`../metrics/README.md`](../metrics/README.md),
 [`../metrics/model.md`](../metrics/model.md),
 [`../metrics/identifiers.md`](../metrics/identifiers.md),
 [`../metrics/providers.md`](../metrics/providers.md),
-[`../metrics/storage.md`](../metrics/storage.md) and
-[`../metrics/network.md`](../metrics/network.md).
+[`../metrics/storage.md`](../metrics/storage.md),
+[`../metrics/network.md`](../metrics/network.md) and
+[`../metrics/processes.md`](../metrics/processes.md).
 
 ## 5. Widgets (future)
 

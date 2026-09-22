@@ -7,6 +7,7 @@ import { CpuDetailsCard } from '@/components/CpuDetailsCard/CpuDetailsCard';
 import { GpuDetailsCard } from '@/components/GpuDetailsCard/GpuDetailsCard';
 import { StorageDetailsCard } from '@/components/StorageDetailsCard/StorageDetailsCard';
 import { NetworkDetailsCard } from '@/components/NetworkDetailsCard/NetworkDetailsCard';
+import { ProcessDetailsCard } from '@/components/ProcessDetailsCard/ProcessDetailsCard';
 
 export function OverviewPage() {
   const state = usePlatformInfo();
@@ -62,6 +63,7 @@ export function OverviewPage() {
       <GpuDetailsCard />
       <StorageDetailsCard />
       <NetworkDetailsCard />
+      <ProcessDetailsCard />
     </section>
   );
 }

@@ -82,7 +82,7 @@ Format: `kind:instance`.
 
 - `kind` — a lowercase word, one of the documented canonical kinds: `system`,
   `cpu`, `gpu`, `memory`, `storage`, `volume`, `network`, `battery`, `fan`,
-  `power`. The list is a convention, not a closed enum, so new hardware classes
+  `power`, `process`. The list is a convention, not a closed enum, so new hardware classes
   do not require a contract change; `SourceId::has_canonical_kind()` flags
   divergence.
 - `instance` — lowercase letters, digits, `-`, `_`, `.`. **May start with a
@@ -100,7 +100,31 @@ volume:guid-volume-d2b1f8e0-1111-2222-3333-100000000000
 network:mac-9009df3e97f2
 network:sys-6c5a1b2d-1111-2222-3333-444444444444
 battery:bat0
+process:system
 ```
+
+### `process:` is a canonical kind with exactly one registered instance
+
+`process:system` — the machine's processes taken together — is the only
+`process:` source that ever enters the catalog.
+
+An individual process _is_ conceptually a measurable component, and PULSE has a
+canonical rendering for one: `process:1234-9001`, the PID plus a start token.
+It obeys this grammar, and a test proves it does. It is nevertheless **never
+registered**, because a `SourceId` in the catalog is a promise that a saved
+dashboard can resolve it later, and a process identity stops resolving the
+moment the process exits — which for most processes is within seconds. Several
+hundred such promises, renewed every refresh, would make the catalog a churn of
+references that can never be kept.
+
+The identity still matters, and is why the start token exists: PIDs are
+recycled, so `(pid, start_token)` is what keeps a new process from inheriting
+its predecessor's CPU baseline. See
+[`processes.md`](processes.md#3-process-identity-a-pid-is-not-an-identity).
+
+Nor does an _application_ get a `SourceId`. Its key is derived from an
+executable path, which may contain a user's home directory and therefore their
+name, and PULSE does not put that in an identifier that outlives the window.
 
 ### `storage:` and `volume:` are two kinds on purpose
 

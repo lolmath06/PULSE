@@ -43,7 +43,11 @@ windows-version = "0.100"
 windows = { version = "0.61", features = ["Win32_Graphics_Dxgi"] }
 # Raw FFI bindings only — no wrapper layer, no runtime. Just the calls PULSE
 # needs, behind exactly the features that declare them:
-#   Threading           GetSystemTimes
+#   Threading           GetSystemTimes, OpenProcess, GetProcessTimes,
+#                       GetProcessIoCounters, QueryFullProcessImageNameW,
+#                       GetActiveProcessorCount
+#   Diagnostics_ToolHelp  CreateToolhelp32Snapshot, Process32FirstW/NextW
+#   ProcessStatus       K32GetProcessMemoryInfo
 #   SystemInformation   GlobalMemoryStatusEx, GetLogicalProcessorInformationEx
 #   LibraryLoader       GetModuleHandleW, GetProcAddress (runtime resolution)
 #   Power               CallNtPowerInformation
@@ -61,6 +65,8 @@ windows = { version = "0.61", features = ["Win32_Graphics_Dxgi"] }
 windows-sys = { version = "0.61", features = [
     "Win32_Foundation",
     "Win32_System_Threading",
+    "Win32_System_Diagnostics_ToolHelp",
+    "Win32_System_ProcessStatus",
     "Win32_System_SystemInformation",
     "Win32_System_LibraryLoader",
     "Win32_System_Power",

@@ -26,6 +26,7 @@ pub mod gpu;
 pub mod memory;
 pub mod network;
 pub mod ntdll;
+pub mod processes;
 pub mod storage;
 
 /// Windows implementation of [`HostPlatform`].
@@ -72,7 +73,15 @@ impl HostPlatform for WindowsPlatform {
             gpu::provider(),
             storage::provider(),
             network::provider(),
+            processes::provider(),
         ]
+    }
+
+    /// Processes from `CreateToolhelp32Snapshot` and a short-lived, minimally
+    /// privileged handle each. PULSE never runs `tasklist`, `wmic` or
+    /// PowerShell.
+    fn process_collector(&self) -> Option<Arc<dyn crate::processes::ProcessCollector>> {
+        Some(processes::collector())
     }
 
     /// Windows has a single compositor (DWM), so there is nothing analogous to

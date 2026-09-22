@@ -513,3 +513,41 @@ export const NETWORK_INTERFACE_UP_COUNT: MetricRef = {
 export function isNetworkInterfaceSource(sourceId: SourceId): boolean {
   return sourceId.startsWith('network:') && sourceId !== NETWORK_SYSTEM_SOURCE;
 }
+
+// --- processes ------------------------------------------------------------
+//
+// Three keys, whatever the machine runs. The per-process rows are deliberately
+// **not** in the catalog and come through `get_process_snapshot` instead — see
+// `docs/metrics/processes.md`.
+
+/** How many processes exist right now. */
+export const PROCESS_COUNT_TOTAL_KEY = 'process.count.total';
+/** How many are on a processor or queued for one. Unavailable on Windows. */
+export const PROCESS_COUNT_RUNNING_KEY = 'process.count.running';
+/** Every thread of every visible process, added up. */
+export const PROCESS_THREAD_COUNT_TOTAL_KEY = 'process.thread.count.total';
+
+/** The machine-wide process source, identical on both platforms. */
+export const PROCESS_SYSTEM_SOURCE: SourceId = 'process:system';
+
+export const PROCESS_COUNT_TOTAL: MetricRef = {
+  key: PROCESS_COUNT_TOTAL_KEY,
+  sourceId: PROCESS_SYSTEM_SOURCE,
+};
+
+export const PROCESS_COUNT_RUNNING: MetricRef = {
+  key: PROCESS_COUNT_RUNNING_KEY,
+  sourceId: PROCESS_SYSTEM_SOURCE,
+};
+
+export const PROCESS_THREAD_COUNT_TOTAL: MetricRef = {
+  key: PROCESS_THREAD_COUNT_TOTAL_KEY,
+  sourceId: PROCESS_SYSTEM_SOURCE,
+};
+
+/** Every machine-wide process metric, in declaration order. */
+export const PROCESS_MACHINE_METRICS: readonly MetricRef[] = [
+  PROCESS_COUNT_TOTAL,
+  PROCESS_COUNT_RUNNING,
+  PROCESS_THREAD_COUNT_TOTAL,
+];

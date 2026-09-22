@@ -5,3 +5,4 @@
 
 pub mod metrics;
 pub mod platform_info;
+pub mod processes;

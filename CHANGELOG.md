@@ -7,6 +7,162 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added — Phase 8: Processes & applications
+
+What is running on this machine, what it is using, and — the decision this
+phase is really about — **which of it belongs in the metric catalog and which
+does not**. PULSE observes processes; it does not control them.
+
+#### The architectural decision
+
+A desktop runs three to five hundred processes, most of them for under a
+second. A `MetricDefinition` is a promise that a saved dashboard reference
+still resolves months later, and `process:1234-9001` stops resolving the moment
+that process exits. Six metrics per PID would be roughly **two thousand
+definitions replaced wholesale every refresh**, would push thousands of
+disposable references through a `sample_metrics` call shaped for tens, and
+would make `metricCount` a number that says nothing about the machine.
+
+So the family is split in two:
+
+- **`linux.processes` / `windows.processes`** publish exactly three
+  low-cardinality metrics on `process:system`: `process.count.total`,
+  `process.count.running` and `process.thread.count.total`. Three, whether the
+  machine runs 180 processes or 900.
+- **`ProcessSnapshotService`** serves the several hundred rows through
+  `get_process_snapshot`, a command of its own, and discards them.
+
+The separation is asserted, not merely documented: one test takes two snapshots
+and proves the catalog did not grow, another proves neither platform declares a
+source other than `process:system`.
+
+- **Provider count goes to 6.** The catalog becomes
+  `16 + 3N + P + 11G + 13D + 4V + 11I + 4W` — **314** on the reference machine,
+  and the same 314 with 900 processes running. Note what is absent from that
+  formula: the number of processes.
+- **`process` becomes a canonical `SourceId` kind**, with exactly one
+  registered instance.
+
+#### Process identity: PID plus start time
+
+PIDs are recycled. PID 1234 can be Firefox with 812 seconds of CPU time at
+10:00:00 and a freshly started `cargo` at 10:00:04; a tracker keyed on the PID
+alone differences 0.2 s against 812 s and either hides real work or invents a
+10 000 % spike.
+
+Identity is therefore `(pid, start_token)` — field 22 of `/proc/<pid>/stat` on
+Fedora, `GetProcessTimes`'s `ftCreationTime` on Windows. The token is never
+interpreted as a time, only compared. Two tests pin the behaviour: a recycled
+PID inherits neither a CPU nor an I/O baseline.
+
+#### One CPU convention on both platforms
+
+`0–100 %` is a share of the machine's **entire** capacity, so one thread
+saturating one of 32 logical processors reads `3.125 %`. This is the only
+convention under which `sum(process CPU) ≈ cpu.usage.total`, which is what
+makes the process list *explain* the system gauge rather than contradict it —
+instead of the usual `3200 %` on Linux and `100 %` on Windows for the same
+work. Measured on Fedora: a spawned `yes` reported **3.1215 %**.
+
+Linux clock ticks and Windows 100 ns `FILETIME` intervals are both converted to
+nanoseconds by their collector, so the delta arithmetic is one shared function.
+`cutime`/`cstime` are excluded: a reaped build's CPU time does not belong to
+the shell that launched it.
+
+#### Per-process data
+
+| Value                                 | Fedora                                    | Windows                       |
+| ------------------------------------- | ----------------------------------------- | ----------------------------- |
+| Inventory, parent, threads, name      | `/proc`, `/proc/<pid>/stat`               | `CreateToolhelp32Snapshot`    |
+| CPU time and start token              | fields 14, 15, 22                         | `GetProcessTimes`             |
+| Resident memory                       | field 24 × page size (RSS)                | `K32GetProcessMemoryInfo` (working set) |
+| Storage I/O                           | `/proc/<pid>/io` `read_bytes`/`write_bytes` | `GetProcessIoCounters` transfer counts |
+| Executable, for grouping              | `/proc/<pid>/exe`                         | `QueryFullProcessImageNameW`  |
+| Classification                        | `PF_KTHREAD`, owner of `/proc/<pid>`      | PID 0/4, `%SystemRoot%`       |
+| State                                 | field 3                                   | **unsupported** — see below   |
+
+- **`read_bytes`, never `rchar`.** `rchar` counts every byte passed to
+  `read(2)`, including page-cache hits, pipes, sockets and `/proc` itself;
+  using it would report gigabytes per second off a disk that never moved, and
+  would contradict PULSE's own `storage.io.*` metrics on the same screen. The
+  price is that purely cached, tmpfs or network I/O reads `0 B/s`, which is the
+  correct answer to "what is this doing to my storage". Verified: the same
+  64 MiB write reports `0 B/s` on tmpfs and `1750.3 MiB/s` on btrfs.
+- **RSS and Working Set are documented as the same *notion*, not the same
+  mechanism**, and neither counts shared pages once — so an application's
+  memory sum over-counts shared libraries, which is stated rather than silently
+  corrected.
+- **`process.count.running` is `unsupported` on Windows.** Windows schedules
+  threads; a process has no state of its own. Synthesising one from thread
+  states would make the same column mean two different things on the two
+  platforms, so PULSE declares the metric with a reason instead of faking it.
+
+#### A `/proc/<pid>/stat` parser that does not lie
+
+Field 2 is `comm`, wrapped in parentheses and **not escaped**: `Web Content`,
+`foo (bar)` and `kworker/3:1H-events` are all real names. A naive
+`split_whitespace` does not fail — it *succeeds* with the wrong columns, giving
+a `starttime` that changes every refresh and a CPU column permanently blank for
+exactly the processes the user cares about. PULSE splits on the **last** `)`,
+and a test asserts the naive approach genuinely disagrees.
+
+#### Application aggregation
+
+Processes are grouped by **executable identity** where a path is readable and
+by process name otherwise, with the lower confidence marked in the interface.
+Grouping by name alone would fold two unrelated `python3` programs into one row
+whose CPU total means nothing. Sums are of what was measured: if two of five
+processes are refused, the total is the three, and if nothing was measured the
+reason is carried up rather than replaced by `0`.
+
+#### Privacy and safety
+
+- **No command lines, arguments or environment variables** are collected. They
+  carry paths, URLs, connection strings and tokens; Phase 8 has no use for
+  them. A test asserts the wire format has no such field.
+- The executable path is collected because it is the only trustworthy grouping
+  key, shown only as a tooltip, and never enters a `SourceId`.
+- **No kill, suspend, resume, renice, debug, memory read or code injection**,
+  and no code path that could.
+- **No elevation.** Unprivileged Fedora loses `/proc/<pid>/io` and
+  `/proc/<pid>/exe` for other users' processes — 125 of 702 on the reference
+  machine — and every one of those rows keeps its other columns.
+- On Windows, every handle is RAII-wrapped and closed before the next process
+  is read. No handle survives a refresh; the baselines hold an identity and two
+  integers.
+
+#### Interface
+
+A **Process details** card under Network, with two views of one snapshot:
+
+- **Applications** (default) — Application, Processes, CPU, Memory, Read, Write.
+- **Processes** — Process, PID, State, CPU, Memory, Threads, Read, Write, with
+  the top 20 shown and a *Show all N processes* control. No nested scrollbar:
+  the page scroll stays the only vertical scroll in the window.
+- Sorting on CPU, Memory, Read, Write or Name, with a deterministic
+  name-then-PID tie-break so the several hundred rows sitting at exactly `0 %`
+  do not reshuffle on every refresh.
+- A local **Search processes…** filter over name, PID and application name.
+- The first snapshot shows `—` and *waiting for another sample* for CPU, Read
+  and Write, and real values for memory and threads; after a baseline, a
+  genuine `0 %` or `0 B/s` is shown as such.
+- **Still no polling**: one snapshot on mount, one per *Refresh*. The service
+  deliberately takes no baseline at startup either, so no number comes from an
+  interval the user never asked for.
+
+#### Measured on Fedora
+
+702 processes, 2 164 threads, **16–26 ms per snapshot** — roughly 1 900
+syscalls, one sequential pass, no subprocess, no thread per process and no
+per-process Tauri call. The snapshot reports its own duration, so a future case
+for parallelism can be made from a measurement.
+
+#### Windows
+
+Compiled for `x86_64-pc-windows-msvc` and pure-tested on Fedora — the
+cross-check harness now includes `processes/` and `services/` by path as well —
+but **not executed on a physical Windows machine.**
+
 ### Added — Phase 7: Network interfaces, traffic & Wi-Fi quality
 
 Network interfaces, their identity, delta-based traffic rates and Wi-Fi link

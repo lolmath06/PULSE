@@ -12,6 +12,7 @@ pub mod hwmon;
 pub mod memory;
 pub mod network;
 mod os_release;
+pub mod processes;
 pub mod storage;
 
 use std::sync::Arc;
@@ -59,7 +60,14 @@ impl HostPlatform for LinuxPlatform {
             gpu::provider(),
             storage::provider(),
             network::provider(),
+            processes::provider(),
         ]
+    }
+
+    /// Processes from `/proc`, read directly. PULSE never runs `ps`, `top`,
+    /// `pgrep` or `pidstat`.
+    fn process_collector(&self) -> Option<Arc<dyn crate::processes::ProcessCollector>> {
+        Some(processes::collector())
     }
 
     fn display_server(&self) -> Option<String> {

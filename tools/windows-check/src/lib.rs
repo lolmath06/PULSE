@@ -14,3 +14,12 @@ pub mod metrics;
 
 #[path = "../../../src-tauri/src/platform/mod.rs"]
 pub mod platform;
+
+// The process snapshot service and its Windows collector are tauri-free too,
+// so the harness type checks them as well: the Toolhelp enumeration, the
+// FILETIME arithmetic, the handle wrappers and the snapshot service itself.
+#[path = "../../../src-tauri/src/processes/mod.rs"]
+pub mod processes;
+
+#[path = "../../../src-tauri/src/services/mod.rs"]
+pub mod services;

@@ -22,6 +22,7 @@
 pub mod commands;
 pub mod metrics;
 pub mod platform;
+pub mod processes;
 pub mod services;
 pub mod state;
 
@@ -34,6 +35,7 @@ pub fn run() {
             commands::metrics::get_metrics_engine_status,
             commands::metrics::get_metric_catalog,
             commands::metrics::sample_metrics,
+            commands::processes::get_process_snapshot,
         ])
         .run(tauri::generate_context!())
         .expect("error while running PULSE");

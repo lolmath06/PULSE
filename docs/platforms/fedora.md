@@ -1,8 +1,8 @@
 # PULSE on Fedora Linux
 
-> Status: Phase 4. CPU (aggregate, per logical processor, frequency, topology),
-> physical memory, and GPU (inventory, identity and core telemetry) are
-> implemented natively. Everything below the
+> Status: Phase 8. CPU (aggregate, per logical processor, frequency, topology),
+> physical memory, GPU, thermals, storage, networking and processes are
+> implemented natively, and validated on real hardware. Everything below the
 > "Planned data sources" heading is still design work.
 
 Fedora Linux is a **first-class PULSE platform**, on equal footing with Windows.
@@ -212,6 +212,52 @@ holds, the zero-length attribute that hangs a naive walker — is a unit test
 rather than a hope. See
 [`../metrics/network.md`](../metrics/network.md#parsing-netlink-safely).
 
+### Processes — implemented in Phase 8
+
+Read directly from `/proc`. **No `ps`, `top`, `htop`, `pidstat`, `pgrep` or
+`cat`, and no subprocess of any kind** — each of those is a program that opens
+the same files PULSE opens, formats the result for a terminal, and hands back
+locale-dependent text that then has to be parsed back into numbers.
+
+Per process, at most:
+
+| Read                | Yields                                                        |
+| ------------------- | ------------------------------------------------------------- |
+| `/proc/<pid>/stat`  | name, state, parent, thread count, CPU time, RSS, start token |
+| `/proc/<pid>/io`    | `read_bytes` / `write_bytes` — block-device traffic only      |
+| `/proc/<pid>/exe`   | the executable, for grouping processes into applications      |
+| `stat(/proc/<pid>)` | the owning user, for classification                           |
+
+plus one `read_dir` of `/proc`, one `/proc/meminfo` and one `/proc/stat` per
+pass. `/proc/<pid>/statm` and `/proc/<pid>/status` are deliberately **not**
+read: `stat` already carries the resident set and the thread count, and adding
+them would be several hundred more opens per refresh for numbers PULSE already
+has.
+
+**Measured on this machine: 702 processes, 2 164 threads, 16–26 ms per
+snapshot.** The walk is sequential; the snapshot reports its own duration so
+the case for parallelism can be made from a measurement rather than a guess.
+
+Two things about `/proc` that this code exists to get right:
+
+- **`/proc/<pid>/stat` field 2 is not escaped.** `comm` is wrapped in
+  parentheses and may contain spaces and parentheses of its own — `Web
+Content`, `foo (bar)`, `kworker/3:1H-events` are all real. A naive
+  `split_whitespace` shifts every later field, which does not fail: it
+  succeeds, with the wrong columns, giving a `starttime` that changes every
+  refresh and a CPU column permanently blank for exactly the processes the user
+  cares about. PULSE splits on the **last** `)`.
+- **Processes vanish while you look at them.** `ENOENT` between `read_dir` and
+  any open, or between two opens, is expected and costs that one process's row.
+  It is not a provider failure and never a panic.
+
+Kernel threads are identified from the kernel's own `PF_KTHREAD` flag in field
+9, not from a bracketed name or a zero resident set — a user program may
+legitimately have both.
+
+See [`../metrics/processes.md`](../metrics/processes.md) for the CPU
+normalisation, the PID-reuse identity and the application grouping.
+
 ### Temperatures and fans — `hwmon`
 
 **Implemented for the CPU package and for GPUs** — see
@@ -286,6 +332,23 @@ availability contract exists to preserve.
 Networking needs no privilege at all: `AF_NETLINK` is open to any process,
 `RTM_GETLINK` and `RTM_GETADDR` are unprivileged dumps, `nl80211`'s station
 query works for any user, and `/sys/class/net` is world-readable.
+
+Processes are the second worked example, and the degradation is per field
+rather than per process. `/proc/<pid>/stat` is world-readable, so every process
+on the machine is listed with its name, PID, parent, state, thread count, CPU
+time and resident memory. `/proc/<pid>/io` and `/proc/<pid>/exe` are owned by
+the process's own user, so another user's processes lose exactly those two:
+
+| Value                             | Another user's process | Source             |
+| --------------------------------- | ---------------------- | ------------------ |
+| Name, PID, parent, state, threads | yes                    | `/proc/<pid>/stat` |
+| CPU time and resident memory      | yes                    | `/proc/<pid>/stat` |
+| Read and write rates              | **no**                 | `permissionDenied` |
+| Executable path                   | **no**                 | `permissionDenied` |
+
+On this machine that is 125 of 702 processes, every one of which keeps its
+other columns. The row is never dropped, and the two refused cells never become
+`0 B/s`.
 
 ## Wayland and X11
 

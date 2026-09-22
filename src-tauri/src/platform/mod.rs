@@ -28,6 +28,7 @@ use std::sync::Arc;
 use serde::{Deserialize, Serialize};
 
 use crate::metrics::providers::MetricProvider;
+use crate::processes::ProcessCollector;
 
 // Both platform modules are compiled on every host. Their OS-specific parts
 // (FFI calls, `HostPlatform` implementations) are gated internally, while the
@@ -115,6 +116,22 @@ pub trait HostPlatform: Send + Sync {
     /// catalog rather than a failure.
     fn metric_providers(&self) -> Vec<Arc<dyn MetricProvider>> {
         Vec::new()
+    }
+
+    /// The reader for this host's process table, when PULSE has one.
+    ///
+    /// Deliberately **not** a metric provider. Processes are high-cardinality
+    /// and ephemeral, so they are served by [`ProcessSnapshotService`] through
+    /// its own command rather than by the metrics engine — see
+    /// `docs/metrics/processes.md`. The three low-cardinality *counts* are a
+    /// separate, ordinary provider.
+    ///
+    /// `None` means PULSE has no implementation here, which the interface
+    /// reports as such rather than as an empty process list.
+    ///
+    /// [`ProcessSnapshotService`]: crate::processes::ProcessSnapshotService
+    fn process_collector(&self) -> Option<Arc<dyn ProcessCollector>> {
+        None
     }
 }
 
