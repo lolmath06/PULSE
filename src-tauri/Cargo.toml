@@ -29,6 +29,11 @@ tauri-plugin-opener = "2"
 # SHA-256 of an executable, only when the user asks for it (RustCrypto,
 # already in the dependency graph through Tauri).
 sha2 = "0.10"
+# Local metric history (Phase 10). `bundled` compiles SQLite's own amalgamation
+# into PULSE, so neither Fedora nor Windows needs a system `libsqlite3` or a
+# `sqlite3.dll` beside the executable, and both platforms run the same SQLite
+# version. No server, no network: one file in the app's local data directory.
+rusqlite = { version = "0.40", features = ["bundled"] }
 
 # --- platform-specific dependencies ---------------------------------------
 # Each OS pulls only what it needs; neither list is compiled on the other

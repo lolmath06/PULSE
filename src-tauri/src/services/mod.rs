@@ -3,6 +3,7 @@
 //! Services orchestrate work and hold no OS-specific code: anything that
 //! differs between Windows and Linux is resolved by the `platform` layer.
 
+pub mod history;
 pub mod metrics;
 pub mod platform_info;
 pub mod processes;

@@ -133,6 +133,19 @@ pub const HEALTH_KEYS: &[&str] = &[
     HEALTH_MEDIA_ERRORS,
 ];
 
+/// Whether `requested` asks for any **health** metric of `source`.
+///
+/// Reading health is not free: on NVMe it is an admin command to the
+/// controller, and one issued every few seconds keeps a laptop SSD out of its
+/// low-power states. The providers therefore read it only when a health key of
+/// that very device is part of the request — the history sampler, which asks
+/// for I/O rates every five seconds, never triggers it.
+pub fn requests_health(requested: &[MetricRef], source: &str) -> bool {
+    requested.iter().any(|reference| {
+        reference.source_id.as_str() == source && HEALTH_KEYS.contains(&reference.key.as_str())
+    })
+}
+
 /// Every per-device key, in declaration order.
 pub const PER_DEVICE_KEYS: &[&str] = &[
     CAPACITY_TOTAL,
@@ -722,6 +735,29 @@ pub(crate) mod fixtures {
 mod tests {
     use super::fixtures::*;
     use super::*;
+
+    #[test]
+    fn health_is_requested_only_by_a_health_key_of_that_very_device() {
+        let nvme = SourceId::new("storage:nvme0n1").expect("valid");
+        let other = SourceId::new("storage:nvme1n1").expect("valid");
+        let rates = [
+            storage_ref(IO_READ_BYTES, &nvme),
+            storage_ref(IO_WRITE_BYTES, &nvme),
+        ];
+
+        assert!(!requests_health(&rates, "storage:nvme0n1"));
+        assert!(requests_health(
+            &[
+                storage_ref(IO_READ_BYTES, &nvme),
+                storage_ref(HEALTH_TEMPERATURE, &nvme)
+            ],
+            "storage:nvme0n1"
+        ));
+        assert!(!requests_health(
+            &[storage_ref(HEALTH_TEMPERATURE, &other)],
+            "storage:nvme0n1"
+        ));
+    }
     use crate::metrics::model::MetricValueType;
 
     const GIB: u64 = 1024 * 1024 * 1024;

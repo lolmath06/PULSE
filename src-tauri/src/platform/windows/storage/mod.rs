@@ -379,7 +379,11 @@ impl MetricProvider for WindowsStorageProvider {
 
             if let Some(disk) = self.disk_for(source) {
                 telemetry.entry(source).or_insert_with(|| {
-                    let (health, error) = self.health_for(disk);
+                    let (health, error) = if wellknown::requests_health(requested, source) {
+                        self.health_for(disk)
+                    } else {
+                        (None, None)
+                    };
 
                     (
                         StorageTelemetry {

@@ -554,7 +554,12 @@ impl MetricProvider for LinuxStorageProvider {
 
             if let Some(device) = self.device_for(source) {
                 telemetry.entry(source).or_insert_with(|| {
-                    let (health, temperature, error) = self.health_for(device);
+                    let (health, temperature, error) =
+                        if wellknown::requests_health(requested, source) {
+                            self.health_for(device)
+                        } else {
+                            (None, None, None)
+                        };
 
                     (
                         StorageTelemetry {

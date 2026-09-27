@@ -21,5 +21,11 @@ pub mod platform;
 #[path = "../../../src-tauri/src/processes/mod.rs"]
 pub mod processes;
 
+// Phase 10: the persistent history — SQLite store, migrations, queries,
+// retention, the scheduler and the database-path abstraction. All tauri-free,
+// so the real Windows persistence code is type checked here, not a stub.
+#[path = "../../../src-tauri/src/history/mod.rs"]
+pub mod history;
+
 #[path = "../../../src-tauri/src/services/mod.rs"]
 pub mod services;

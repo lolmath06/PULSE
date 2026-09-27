@@ -40,6 +40,14 @@ path = "src/lib.rs"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 sha2 = "0.10"
+# The history store's SQLite binding. The application enables `bundled`, which
+# compiles SQLite's C amalgamation; that step needs MSVC's `cl.exe` and
+# `lib.exe`, which do not exist on a Fedora host. The harness therefore uses the
+# binding **without** `bundled`: every line of PULSE's Rust that talks to
+# SQLite — and rusqlite and libsqlite3-sys themselves — is still type checked
+# for `x86_64-pc-windows-msvc`, while the C compilation of SQLite for Windows is
+# left to a Windows build (CI's `windows-latest` job, or a Windows machine).
+rusqlite = "0.40"
 
 # Kept in step with src-tauri/Cargo.toml. Not used for a Windows target, but
 # declared so the manifests do not drift.
