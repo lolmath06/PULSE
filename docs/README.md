@@ -1,16 +1,17 @@
 # PULSE Documentation
 
-| Section                                                            | Contents                                                              |
-| ------------------------------------------------------------------ | --------------------------------------------------------------------- |
-| [`architecture/overview.md`](architecture/overview.md)             | Layering, boundaries, modes vs dashboards, the cross-platform rule    |
-| [`architecture/mini-overlay.md`](architecture/mini-overlay.md)     | The permanent Mini desktop overlay: requirements and platform reality |
-| [`development/getting-started.md`](development/getting-started.md) | Prerequisites, setup, commands, workflow                              |
-| [`development/testing.md`](development/testing.md)                 | What is tested automatically, and what must be tested by hand         |
-| [`platforms/fedora.md`](platforms/fedora.md)                       | Fedora/Linux data sources, permissions, Wayland and X11               |
-| [`platforms/windows.md`](platforms/windows.md)                     | Windows data sources, privileges, packaging caveats                   |
-| [`metrics/README.md`](metrics/README.md)                           | The planned metrics engine contract                                   |
-| [`widgets/README.md`](widgets/README.md)                           | The planned widget contract                                           |
-| [`user-guide/README.md`](user-guide/README.md)                     | End-user documentation (grows with the features)                      |
+| Section                                                            | Contents                                                               |
+| ------------------------------------------------------------------ | ---------------------------------------------------------------------- |
+| [`architecture/overview.md`](architecture/overview.md)             | Layering, boundaries, modes vs dashboards, the cross-platform rule     |
+| [`architecture/mini-overlay.md`](architecture/mini-overlay.md)     | The permanent Mini desktop overlay: requirements and platform reality  |
+| [`development/getting-started.md`](development/getting-started.md) | Prerequisites, setup, commands, workflow                               |
+| [`development/testing.md`](development/testing.md)                 | What is tested automatically, and what must be tested by hand          |
+| [`development/msrv.md`](development/msrv.md)                       | The Rust 1.77.2 minimum, how it is verified, and the pins that keep it |
+| [`platforms/fedora.md`](platforms/fedora.md)                       | Fedora/Linux data sources, permissions, Wayland and X11                |
+| [`platforms/windows.md`](platforms/windows.md)                     | Windows data sources, privileges, packaging caveats                    |
+| [`metrics/README.md`](metrics/README.md)                           | The planned metrics engine contract                                    |
+| [`widgets/README.md`](widgets/README.md)                           | The planned widget contract                                            |
+| [`user-guide/README.md`](user-guide/README.md)                     | End-user documentation (grows with the features)                       |
 
 ## Project phases
 

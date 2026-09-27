@@ -6,7 +6,8 @@ Common to both platforms:
 
 - **Node.js 20.19+** (22 LTS recommended — see `.nvmrc`)
 - **pnpm 10+** — `corepack enable pnpm`
-- **Rust stable 1.77.2+** — via [rustup](https://rustup.rs)
+- **Rust 1.77.2+** — via [rustup](https://rustup.rs). 1.77.2 is the verified
+  minimum for the whole locked graph; see [`msrv.md`](msrv.md).
 
 ### Fedora Linux
 

@@ -278,8 +278,10 @@ pnpm rust:windows        # cargo check  --target x86_64-pc-windows-msvc
 pnpm rust:windows:lint   # cargo clippy --target x86_64-pc-windows-msvc -D warnings
 ```
 
-The harness pins the same `rust-version = 1.77.2` as the application, so it
-refuses anything PULSE itself could not compile.
+The harness declares the same `rust-version = 1.77.2` as the application, and
+is itself checked with the 1.77.2 toolchain
+(`cargo +1.77.2 check --manifest-path tools/windows-check/Cargo.toml --target x86_64-pc-windows-msvc`)
+— see [`../development/msrv.md`](../development/msrv.md).
 
 It proves the Windows CPU, memory, GPU, storage and network providers, the DXGI
 and `D3DKMT` layers, the SetupAPI disk enumeration, the storage and volume
@@ -615,13 +617,24 @@ that row alone. PULSE never requests elevation to widen this.
   `history/` module — SQLite store, migrations, queries, retention, scheduler,
   database-path function — and `services/history.rs`, checked and linted for
   `x86_64-pc-windows-msvc`. There is no Windows stub.
-- **One honest gap:** the application enables `rusqlite`'s `bundled` feature,
-  which compiles SQLite's C amalgamation with MSVC (`cl.exe`, `lib.exe`). Those
-  tools do not exist on a Fedora host and no system package may be installed,
-  so the harness uses `rusqlite` **without** `bundled`: every line of PULSE's
-  Rust that talks to SQLite, plus `rusqlite` and `libsqlite3-sys`, is type
-  checked for Windows, but the C compilation of SQLite for Windows is left to a
-  Windows build (CI's `windows-latest` job, or a Windows machine).
+- **Status from Fedora, precisely:**
+
+  | What                                             | Status                                                    |
+  | ------------------------------------------------ | --------------------------------------------------------- |
+  | Windows Rust / history integration               | **Cross-checked** (`check` + `clippy`, stable and 1.77.2) |
+  | Bundled SQLite C amalgamation compiled with MSVC | **Pending** — a real Windows build or Windows CI          |
+  | Windows physical runtime                         | **Not executed**                                          |
+
+  The application enables `rusqlite`'s `bundled` feature (rusqlite 0.32.1,
+  SQLite 3.46.0), which compiles SQLite's C code with MSVC (`cl.exe`,
+  `lib.exe`). Those tools do not exist on a Fedora host and no system package may
+  be installed, so the **harness alone** uses `rusqlite` without `bundled`
+  (named as a known limitation in `tools/windows-check/Cargo.toml`). Every line
+  of PULSE's Rust that talks to SQLite, plus `rusqlite` and `libsqlite3-sys`, is
+  type checked for Windows; the C compilation is not. Production Windows still
+  uses the bundled SQLite. CI's `msrv` and `backend` jobs on `windows-latest`
+  build the real configuration — they have not run yet (the branch is not
+  pushed).
 
 ### Manual test protocol — Windows · NOT EXECUTED
 

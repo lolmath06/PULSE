@@ -412,6 +412,9 @@ impl HistoryStore {
         let ids: Vec<i64> = {
             let mut statement =
                 connection.prepare("SELECT series_id FROM metric_series ORDER BY series_id")?;
+            // The binding is required: the iterator borrows `statement`, which
+            // must outlive it (E0597 without it). Clippy 1.77 flags it anyway.
+            #[allow(clippy::let_and_return)]
             let ids = statement
                 .query_map([], |row| row.get(0))?
                 .collect::<Result<Vec<i64>, _>>()?;

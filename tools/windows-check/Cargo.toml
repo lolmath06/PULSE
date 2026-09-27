@@ -40,14 +40,20 @@ path = "src/lib.rs"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 sha2 = "0.10"
-# The history store's SQLite binding. The application enables `bundled`, which
-# compiles SQLite's C amalgamation; that step needs MSVC's `cl.exe` and
-# `lib.exe`, which do not exist on a Fedora host. The harness therefore uses the
-# binding **without** `bundled`: every line of PULSE's Rust that talks to
-# SQLite — and rusqlite and libsqlite3-sys themselves — is still type checked
-# for `x86_64-pc-windows-msvc`, while the C compilation of SQLite for Windows is
-# left to a Windows build (CI's `windows-latest` job, or a Windows machine).
-rusqlite = "0.40"
+# KNOWN LIMITATION OF THIS HARNESS — SQLite is NOT the production configuration.
+#
+# The application uses `rusqlite` with `bundled`, which compiles SQLite's C
+# amalgamation. For `x86_64-pc-windows-msvc` that needs MSVC's `cl.exe` and
+# `lib.exe`, which do not exist on a Fedora host. This harness therefore
+# depends on the same `rusqlite` version WITHOUT `bundled`, which compiles no C.
+#
+# What that still proves: every line of PULSE's Rust that talks to SQLite, and
+# rusqlite / libsqlite3-sys themselves, type check for Windows.
+# What it does NOT prove: that the bundled SQLite C code compiles with MSVC.
+# That is left to a real Windows build (CI's `msrv` and `backend` jobs on
+# `windows-latest`, or a Windows machine). Production Windows still uses the
+# bundled SQLite; this substitution exists only in this harness.
+rusqlite = "0.32"
 
 # Kept in step with src-tauri/Cargo.toml. Not used for a Windows target, but
 # declared so the manifests do not drift.
@@ -55,7 +61,8 @@ rusqlite = "0.40"
 libc = "0.2"
 
 [target.'cfg(target_os = "windows")'.dependencies]
-windows-version = "0.100"
+# Kept in step with src-tauri: 0.1 for the 1.77.2 MSRV.
+windows-version = "0.1"
 windows = { version = "0.61", features = ["Win32_Graphics_Dxgi"] }
 windows-sys = { version = "0.61", features = [
     "Win32_Foundation",

@@ -2,10 +2,21 @@
 
 ## Technology
 
-SQLite through [`rusqlite`](https://crates.io/crates/rusqlite) 0.40 with the
+SQLite through [`rusqlite`](https://crates.io/crates/rusqlite) **0.32.1**
+(`libsqlite3-sys` 0.30.1, **SQLite 3.46.0**) with the
 **`bundled`** feature: SQLite's amalgamation is compiled into PULSE, so Fedora
 needs no `libsqlite3` package and Windows no `sqlite3.dll`, and both run the same
 SQLite version. No server, no network.
+
+### Why 0.32 and not the latest
+
+PULSE's minimum Rust is 1.77.2, and that is a promise about the whole locked
+dependency graph. rusqlite 0.32.1 is the newest line that really builds on
+1.77.2: `libsqlite3-sys` 0.31+ uses `#[expect]` (Rust 1.81) and 0.38 uses
+`cfg_select!`. Neither declares a `rust-version`, so this was established by
+building each candidate (0.32 … 0.39) with the 1.77.2 toolchain. Everything
+PULSE needs — WAL, `WITHOUT ROWID`, UPSERT, `prepare_cached`, read-only
+connections — is in SQLite 3.46. See [`../development/msrv.md`](../development/msrv.md).
 
 ## Location
 

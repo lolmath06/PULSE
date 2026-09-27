@@ -30,10 +30,17 @@ tauri-plugin-opener = "2"
 # already in the dependency graph through Tauri).
 sha2 = "0.10"
 # Local metric history (Phase 10). `bundled` compiles SQLite's own amalgamation
-# into PULSE, so neither Fedora nor Windows needs a system `libsqlite3` or a
-# `sqlite3.dll` beside the executable, and both platforms run the same SQLite
-# version. No server, no network: one file in the app's local data directory.
-rusqlite = { version = "0.40", features = ["bundled"] }
+# (SQLite 3.46.0) into PULSE, so neither Fedora nor Windows needs a system
+# `libsqlite3` or a `sqlite3.dll` beside the executable, and both platforms run
+# the same SQLite version. No server, no network: one file in the app's local
+# data directory.
+#
+# Pinned to 0.32 for the MSRV: rusqlite 0.32.1 / libsqlite3-sys 0.30.1 is the
+# newest line that builds with Rust 1.77.2. From libsqlite3-sys 0.31 on, the
+# crate uses `#[expect]` (Rust 1.81) and later `cfg_select!`; neither release
+# declares a `rust-version`, so only a real 1.77.2 build reveals it. See
+# docs/development/msrv.md before raising this.
+rusqlite = { version = "0.32", features = ["bundled"] }
 
 # --- platform-specific dependencies ---------------------------------------
 # Each OS pulls only what it needs; neither list is compiled on the other
@@ -47,7 +54,9 @@ rusqlite = { version = "0.40", features = ["bundled"] }
 libc = "0.2"
 
 [target.'cfg(target_os = "windows")'.dependencies]
-windows-version = "0.100"
+# 0.1, not 0.100: windows-version 0.100 is edition 2024 and needs Rust 1.95.
+# The one call PULSE makes, `OsVersion::current()`, is identical in 0.1.7.
+windows-version = "0.1"
 # DXGI adapter enumeration is COM, which `windows-sys` deliberately does not
 # cover. The `windows` crate is already in the dependency graph on Windows
 # (Tauri pulls it in), so this adds correct COM lifetime handling and no build

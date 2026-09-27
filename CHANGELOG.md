@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Persistent metric history** (`src-tauri/src/history/`). One backend
   scheduler (`HistoryService`, thread `pulse-history`) samples the historized
   metrics every 5 s and writes **one transaction per batch** to SQLite
-  (`rusqlite` 0.40, `bundled`) in the app's local data directory. WAL,
+  (`rusqlite` 0.32.1, `bundled`, SQLite 3.46.0) in the app's local data directory. WAL,
   `synchronous = NORMAL`, 2 s busy timeout. Schema v1 with structured
   migrations; a newer schema is refused and left untouched.
 - **What is historized:** an explicit allow-list of 25 keys across CPU (total,
@@ -53,6 +53,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   card.
 - `d3-shape` (path generation only, ~2.5 KB gzip) is the one new frontend
   dependency.
+
+### Fixed — Rust 1.77.2 compatibility of the whole build
+
+- **The declared MSRV now holds for the entire locked dependency graph**, not
+  only for PULSE's own code. Verified by building, testing and checking with
+  the real 1.77.2 toolchain — see `docs/development/msrv.md`.
+- `rusqlite` 0.40 → **0.32.1** (`libsqlite3-sys` 0.38.2 → 0.30.1, bundled
+  SQLite 3.46.0): the newest line that builds on 1.77.2 (0.33+ uses
+  `#[expect]`, Rust 1.81). No API change was needed; schema, cadence,
+  retention and queries are unchanged.
+- `windows-version` 0.100 → **0.1.7** (0.100 is edition 2024, Rust 1.95) —
+  a Windows-only direct dependency that was already above the MSRV before
+  Phase 10. Same `OsVersion::current()` API.
+- The lockfile was re-resolved with Cargo's MSRV-aware resolver (484 → 470
+  packages: 89 changed version, 20 removed, 13 added) and three crates
+  that declare no `rust-version` were pinned by hand: `dlopen2` 0.8.0 /
+  `dlopen2_derive` 0.4.0 (0.4.2+ are edition 2024), `getrandom` 0.3.3 and
+  `wasi` 0.14.2 (wasm-only, kept clean so the lockfile has no edition-2024 or
+  post-1.77.2 manifest at all). Tauri stays on 2.11.
+- CI: a new `msrv` job builds and tests `src-tauri` with Rust 1.77.2 and
+  `--locked` on Linux **and Windows** — on Windows that is also the first real
+  MSVC compilation of the bundled SQLite. Not yet run (branch not pushed).
+- Docs no longer imply that bundled SQLite was built for Windows from Fedora.
 
 ### Changed
 

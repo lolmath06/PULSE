@@ -198,7 +198,8 @@ macOS is not a target.
 ## Prerequisites
 
 - **Node.js 20.19+** (22 LTS recommended) and **pnpm 10+** (`corepack enable pnpm`)
-- **Rust stable 1.77.2+** via [rustup](https://rustup.rs)
+- **Rust 1.77.2+** via [rustup](https://rustup.rs) — verified minimum for the
+  whole locked dependency graph ([MSRV](docs/development/msrv.md))
 
 ### Fedora Linux
 
