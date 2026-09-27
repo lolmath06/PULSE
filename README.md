@@ -11,7 +11,7 @@
 
 ## Status
 
-**Phase 8 — Processes & applications.** Version `0.1.0-dev`.
+**Phase 10 — Persistent history & modular visualization.** Version `0.1.0-dev`.
 
 PULSE can now answer, on Fedora and Windows behind exactly the same contract:
 
@@ -119,7 +119,15 @@ MAC both operating systems now put on Wi-Fi by default; and a process is never
 identified by its PID alone — because every one of those can change between
 boots, between networks, or between one process and the next.
 
-There is still no scheduler and no history: the UI samples on demand.
+**Phase 10 — history and visualization.** PULSE now also remembers: one
+backend scheduler records the stable numeric metrics every five seconds into a
+local SQLite file (raw for 24 hours, one-minute min/max/average/count for seven
+days), and every system section has a history chart — CPU Total, memory,
+temperatures, GPU, storage read/write, network download/upload and process
+counts. Each chart can be drawn as a line, area, sparkline, value, bar or gauge,
+with presets (Clean, Minimal, Technical, Gaming, Compact, Neon, Transparent) and
+a Customize panel for colours, size, curve, fill, background, grid, axes and
+statistics. Live cards still refresh on demand, and Refresh never writes history.
 
 ## Vision
 
@@ -267,10 +275,12 @@ PULSE/
 │   ├── stores/
 │   ├── styles/          # design tokens, global CSS
 │   ├── types/           # shared types, mirrors of Rust payloads
-│   └── utils/
+│   ├── utils/
+│   └── visualization/   # generic chart engine: renderers, config, presets, Customize
 ├── src-tauri/           # Rust backend
 │   └── src/
 │       ├── commands/    # Tauri command surface
+│       ├── history/     # persistent metric history: scheduler, SQLite store, queries
 │       ├── metrics/     # metrics engine, model, well-known declarations
 │       ├── platform/    # the platform seam
 │       ├── processes/   # process snapshots — high-cardinality, outside the catalog
@@ -306,6 +316,11 @@ Start at [`docs/README.md`](docs/README.md).
   [advanced CPU](docs/metrics/cpu-advanced.md), [GPU](docs/metrics/gpu.md),
   [thermals](docs/metrics/thermals.md), [storage](docs/metrics/storage.md),
   [network](docs/metrics/network.md), [processes](docs/metrics/processes.md)
+- [History](docs/history/architecture.md) — [storage](docs/history/storage.md),
+  [retention](docs/history/retention.md)
+- [Visualization](docs/visualization/architecture.md) —
+  [renderers](docs/visualization/renderers.md),
+  [customization](docs/visualization/customization.md)
 - [Widgets](docs/widgets/README.md)
 
 ## Roadmap
@@ -320,8 +335,11 @@ Start at [`docs/README.md`](docs/README.md).
 | 5     | Temperatures and fan speeds                                    | Done        |
 | 6     | Storage devices, volumes, I/O and NVMe health                  | Done        |
 | 7     | Network interfaces, traffic and Wi-Fi quality                  | Done        |
-| 8     | Processes, applications and their CPU, memory and I/O          | **Current** |
-| 9+    | Active network probes, history, graphs                         | Planned     |
+| 8     | Processes, applications and their CPU, memory and I/O          | Done        |
+| 9     | Process inspector, provenance and controls                     | Done        |
+| 10    | Persistent history, time series, modular visualization engine  | **Current** |
+| 11    | Configurable dashboard, widgets, desktop overlay               | Planned     |
+| 1+    | Active network probes                                          | Planned     |
 | 1+    | Widget engine, configurable dashboards                         | Planned     |
 | 1+    | Mini overlay, Gaming and Development modes                     | Planned     |
 | 1+    | Themes, presets, alerts, tray, autostart                       | Planned     |

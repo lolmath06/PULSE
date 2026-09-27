@@ -607,6 +607,47 @@ that row alone. PULSE never requests elevation to widen this.
 - **Path handling** — never assume `/`; use `std::path` throughout, and never
   hardcode `C:\`.
 
+## History and visualization (Phase 10)
+
+- **Database:** `%LOCALAPPDATA%\dev.pulse.app\history.sqlite3` (Tauri's
+  `app_local_data_dir`; local, not roaming).
+- **Compiled, not executed.** `tools/windows-check` includes the real
+  `history/` module — SQLite store, migrations, queries, retention, scheduler,
+  database-path function — and `services/history.rs`, checked and linted for
+  `x86_64-pc-windows-msvc`. There is no Windows stub.
+- **One honest gap:** the application enables `rusqlite`'s `bundled` feature,
+  which compiles SQLite's C amalgamation with MSVC (`cl.exe`, `lib.exe`). Those
+  tools do not exist on a Fedora host and no system package may be installed,
+  so the harness uses `rusqlite` **without** `bundled`: every line of PULSE's
+  Rust that talks to SQLite, plus `rusqlite` and `libsqlite3-sys`, is type
+  checked for Windows, but the C compilation of SQLite for Windows is left to a
+  Windows build (CI's `windows-latest` job, or a Windows machine).
+
+### Manual test protocol — Windows · NOT EXECUTED
+
+Nothing below has been run on Windows.
+
+1. `pnpm app:dev`. The History recorder card shows _Recording · Every 5 s_ and a
+   path under `%LOCALAPPDATA%\dev.pulse.app\`. The file exists there.
+2. Wait 30 s. _Batches this session_ rises by about one every 5 s; _Database
+   details_ shows rows growing and journal `WAL`.
+3. **CPU Total:** the CPU history chart shows a percentage and a curve close to
+   Task Manager's overall CPU. Switch to _Logical processors_: small sparklines.
+4. **Presets:** Customize → Clean, Minimal, Technical, Gaming, Compact — each
+   visibly different; pick a custom primary colour with the colour picker.
+5. **Small sparkline:** Compact preset, Size Custom, height 36 — readable, no
+   axes, no clipping. **Large:** Size Large, window maximised — no pixelation.
+6. **Storage / network:** copy a large file and open a web page; Read/Write and
+   Download/Upload react within ~10 s.
+7. **Refresh:** click Refresh on several cards repeatedly; in _Database details_
+   the batch count still grows by one per 5 s only.
+8. **Restart:** choose Area + custom colour + grid off, close PULSE, check Task
+   Manager shows no `pulse.exe`, relaunch: style, range and earlier samples
+   return, with a gap for the closed period; new points continue.
+9. **Shutdown:** after closing, `history.sqlite3-wal` is 0 bytes or absent.
+10. Machine without a readable CPU temperature: the thermal panel lists it as
+    _Not charted_ with the reason — never a flat 0 °C line.
+
 ## Packaging
 
 Planned targets: NSIS (`.exe`) and MSI, configured in `tauri.conf.json`.

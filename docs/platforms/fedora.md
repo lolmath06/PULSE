@@ -384,6 +384,32 @@ machine with a `sleep` child the tests spawn themselves (see the Phase 9 report
 and `platform/linux/processes/control/runtime_tests.rs`). Details:
 `docs/processes/`.
 
+## History and visualization (Phase 10)
+
+- **Database:** `~/.local/share/dev.pulse.app/history.sqlite3` (Tauri's
+  `app_local_data_dir`, i.e. `$XDG_DATA_HOME/dev.pulse.app`). SQLite is compiled
+  in (`rusqlite` `bundled`), so no `sqlite` RPM is required.
+- **Validated physically on Fedora 39** (debug build, 32 logical processors):
+  87 historized references, 79 producing values; batches every 5 000 ms
+  (median; 4 975–5 020 ms observed), 79 rows per batch, sampling ≈ 15 ms median
+  and insert ≈ 0.31 ms median; WAL mode, `synchronous = NORMAL`. Across a close
+  and relaunch the history persisted, the only interval above 15 s was the
+  restart itself (drawn as a gap), no batch was duplicated while every card
+  sampled on mount, the WAL was checkpointed to 0 bytes on exit and no `pulse`
+  process remained. The file contained no MAC, serial, interface or user name.
+- **NVMe health is no longer read with I/O rates.** The storage provider now
+  issues the NVMe admin command only when a `storage.health.*` metric of that
+  drive is requested, so the 5-second history sampler never wakes the SSD's
+  controller. Drive temperature is therefore not historized.
+- **GPU without NVML** (nouveau / no proprietary driver): `gpu.usage.core` is
+  unavailable, writes no rows, and the GPU history panel says _Telemetry
+  unavailable_ instead of drawing zeros.
+- **XWayland + nouveau note:** running the dev build with `GDK_BACKEND=x11` on
+  the nouveau driver crashed the WebKit web process (`nouveau_pushbuf_data:
+assertion kref failed`) — a driver issue; `WEBKIT_DISABLE_COMPOSITING_MODE=1`
+  avoids it. The native Wayland default is unaffected. History kept recording
+  through the web process crash, since it lives in Rust.
+
 ## Packaging
 
 Planned targets: `rpm` (primary for Fedora), plus `deb` and `appimage` for

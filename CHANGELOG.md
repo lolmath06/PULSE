@@ -7,6 +7,69 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added — Phase 10: Persistent history & modular visualization
+
+- **Persistent metric history** (`src-tauri/src/history/`). One backend
+  scheduler (`HistoryService`, thread `pulse-history`) samples the historized
+  metrics every 5 s and writes **one transaction per batch** to SQLite
+  (`rusqlite` 0.40, `bundled`) in the app's local data directory. WAL,
+  `synchronous = NORMAL`, 2 s busy timeout. Schema v1 with structured
+  migrations; a newer schema is refused and left untouched.
+- **What is historized:** an explicit allow-list of 25 keys across CPU (total,
+  per logical processor, package temperature), memory, GPU, storage I/O, network
+  traffic and Wi-Fi signal, and the three machine-wide process counts. **Never**
+  a per-process series — refused by the selection and again by the store.
+- **Unavailable is not zero:** unavailable samples write no row; charts show
+  gaps. Non-finite values are never stored.
+- **Retention:** raw 24 h, then one-minute buckets keeping min/max/avg/count for
+  7 days; compaction at startup and hourly, raw rows deleted only in the same
+  transaction as their aggregate.
+- **Bounded queries:** `get_metric_history(metrics, range)` for 15m/1h/6h/24h/7d,
+  at most ~720 points per series; `latest` gives the exact last sample.
+- **Events:** `history-sample-recorded { batchId, timestampMs, rowCount }` after
+  each batch; the UI re-queries only visible panels. `get_history_status` reports
+  cadence, timings and (on demand) row counts and file sizes.
+- **Time handling:** UTC storage, monotonic scheduling, no catch-up after sleep
+  or clock steps, gaps above 3× the bucket, injected clock for tests.
+- **Privacy:** source identifiers are stored as a digest (`kind:` + 64-bit
+  SHA-256), never a MAC or serial; rows are key, timestamp and number only.
+- **Clean shutdown:** on exit the scheduler stops and the WAL is checkpointed.
+- **Generic visualization engine** (`src/visualization/`): `MetricVisualization`
+  renders any metric from `data + meta + config` inside a W×H box. Six renderers
+  — line, area, sparkline, value, bar, gauge — from one data path; typed,
+  serialisable `VisualizationConfig` (size, line, curve, markers, fill,
+  colours, colour modes theme/manual/threshold, per-series colours and labels,
+  background and opacity, border, radius, shadow/glow, text scale/weight,
+  decimals, axes, grid, fixed/auto scale, visual-only smoothing, legend,
+  tooltip, summary statistics, compact mode, gauge arc and thickness).
+- **Presets:** Clean, Minimal, Technical, Gaming, Compact, Neon, Transparent —
+  starting points, never locks; *Custom (from …)*, *Reset visualization*, *Save
+  as preset*.
+- **One Customize panel** for every chart, with a live preview and native colour
+  pickers; choices persist in versioned `localStorage` (`pulse.visualization.v1`).
+- **History sections** on the Overview: CPU (Total = `cpu.usage.total`, plus a
+  small-multiples logical-processor view), memory, thermal, GPU, storage
+  read/write, network download/upload, process counts, and a History recorder
+  card.
+- `d3-shape` (path generation only, ~2.5 KB gzip) is the one new frontend
+  dependency.
+
+### Changed
+
+- The storage providers (Fedora and Windows) read NVMe health only when a
+  `storage.health.*` key of that device is requested, so frequent I/O sampling
+  never wakes the controller.
+- The app is now built with `Builder::build` + `run` so history can stop cleanly
+  on `RunEvent::Exit`.
+
+### Documentation
+
+- New `docs/history/{architecture,storage,retention}.md` and
+  `docs/visualization/{architecture,renderers,customization}.md`, including the
+  Phase 11 rendering contract. Updated the architecture overview, metrics
+  README, Fedora and Windows platform docs (Windows manual protocol · NOT
+  EXECUTED) and README.
+
 ### Added — Phase 9: Process inspector, provenance, context actions & controls
 
 - **Three services, kept apart.** `ProcessSnapshotService` (the table, every

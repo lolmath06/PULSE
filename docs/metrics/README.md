@@ -139,9 +139,15 @@ Called through `src/services/metrics.ts`. Types in `src/types/metrics.ts`.
 
 ## Deliberately still absent
 
-No scheduler, no polling loop, no history, no ring buffer, no SQLite, no
-adaptive sampling, no subscriptions, no events. The interaction model remains
-`request → sample → response`, and the UI refreshes on demand.
+For **live** metrics: no polling loop, no adaptive sampling, no subscriptions.
+The interaction model remains `request → sample → response`, and the cards
+refresh on demand.
+
+**History** arrived in Phase 10 as a consumer of the engine, not a change to
+it: one backend scheduler samples the historized metrics every five seconds
+into SQLite and emits one `history-sample-recorded` event per batch. It is not
+a provider, the engine's contract did not change, and the Refresh buttons still
+never write history. See [`../history/architecture.md`](../history/architecture.md).
 
 This is why a first CPU sample may report `temporarilyUnavailable`: usage is a
 rate, and without a sampler there may be no usable delta yet. PULSE says so
@@ -165,7 +171,8 @@ Planned for later phases:
 
 - **Scheduler** — cadence per metric, driven by subscriptions and by the active
   mode's budget, with declared sampling costs so expensive metrics run rarely.
-- **History** — a bounded ring buffer per metric in Rust, with downsampling.
+- **History** — done in Phase 10: SQLite, raw 24 h + 1-minute min/max/avg/count
+  aggregates for 7 days. See [`../history/retention.md`](../history/retention.md).
 - **Transport** — Tauri events for streaming samples, so the UI stops polling.
 
 ## Planned metric families

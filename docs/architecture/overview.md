@@ -263,9 +263,9 @@ mechanism behind "a dashboard configured on Fedora still works on Windows".
 Availability is the one field each platform decides for itself, because the same
 machine may genuinely expose a frequency on one OS and not the other.
 
-**Deliberately deferred**: the scheduler, subscriptions, streaming events,
-history and its ring buffer. The interaction model is still
-`request → sample → response`, with the UI refreshing on demand.
+**Live metrics** still follow `request → sample → response`: the cards refresh
+on demand. **History** (Phase 10) is the one exception, and it is a consumer of
+the engine rather than a part of it — see §4b.
 
 See [`../metrics/README.md`](../metrics/README.md),
 [`../metrics/model.md`](../metrics/model.md),
@@ -274,6 +274,33 @@ See [`../metrics/README.md`](../metrics/README.md),
 [`../metrics/storage.md`](../metrics/storage.md),
 [`../metrics/network.md`](../metrics/network.md) and
 [`../metrics/processes.md`](../metrics/processes.md).
+
+## 4b. History and visualization (Phase 10)
+
+```text
+MetricsEngine ─► HistoryService (one thread, every 5 s) ─► HistoryStore (SQLite, WAL)
+                         │ history-sample-recorded                 │ get_metric_history
+                         ▼                                         ▼
+            useMetricHistory (no timers) ─► toVisualizationData ─► MetricVisualization
+```
+
+- **One backend scheduler** writes history; nothing else does. Refresh buttons
+  stay live-only. History is **not a provider** — the engine keeps six.
+- `src-tauri/src/history/` is tauri-free (clock injected, event sink a trait,
+  path an argument), so the Windows harness type checks the real persistence.
+- Queries are bounded to ~720 points per series whatever the range; buckets
+  keep min/max/avg/count.
+- `src/visualization/` is a generic engine — six renderers, a serialisable
+  `VisualizationConfig`, presets, one Customize panel — with no knowledge of
+  history, SQLite, Tauri or the page. `MetricVisualization` given data, meta,
+  config and a W×H box is the contract Phase 11 widgets and the overlay use.
+
+See [`../history/architecture.md`](../history/architecture.md),
+[`../history/storage.md`](../history/storage.md),
+[`../history/retention.md`](../history/retention.md),
+[`../visualization/architecture.md`](../visualization/architecture.md),
+[`../visualization/renderers.md`](../visualization/renderers.md) and
+[`../visualization/customization.md`](../visualization/customization.md).
 
 ## 5. Widgets (future)
 

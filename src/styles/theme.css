@@ -32,6 +32,15 @@
   --pulse-success-text: #7fd8a4;
   --pulse-overlay: rgba(4, 6, 8, 0.62);
 
+  /* Visualization palette (Phase 10). Series colours in the order a chart
+     assigns them, and the grid. A chart in "Theme" colour mode uses only these,
+     so a future theme recolours every chart without touching its config. */
+  --pulse-viz-1: #38d6c4;
+  --pulse-viz-2: #8f9cff;
+  --pulse-viz-3: #f6c177;
+  --pulse-viz-4: #c4a7e7;
+  --pulse-viz-grid: #232a32;
+
   --pulse-radius: 10px;
   --pulse-radius-sm: 6px;
 

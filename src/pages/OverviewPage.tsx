@@ -8,6 +8,14 @@ import { GpuDetailsCard } from '@/components/GpuDetailsCard/GpuDetailsCard';
 import { StorageDetailsCard } from '@/components/StorageDetailsCard/StorageDetailsCard';
 import { NetworkDetailsCard } from '@/components/NetworkDetailsCard/NetworkDetailsCard';
 import { ProcessDetailsCard } from '@/components/ProcessDetailsCard/ProcessDetailsCard';
+import { HistoryStatusCard } from '@/components/History/HistoryStatusCard';
+import { CpuHistory } from '@/components/History/CpuHistory';
+import { MemoryHistory } from '@/components/History/MemoryHistory';
+import { ThermalHistory } from '@/components/History/ThermalHistory';
+import { GpuHistory } from '@/components/History/GpuHistory';
+import { StorageHistory } from '@/components/History/StorageHistory';
+import { NetworkHistory } from '@/components/History/NetworkHistory';
+import { ProcessHistory } from '@/components/History/ProcessHistory';
 
 export function OverviewPage() {
   const state = usePlatformInfo();
@@ -58,12 +66,21 @@ export function OverviewPage() {
       </div>
 
       <MetricsEngineCard />
+      <HistoryStatusCard />
+      {/* Each system section: its live summary, then its history. */}
       <LiveSampleCard />
+      <MemoryHistory />
       <CpuDetailsCard />
+      <CpuHistory />
+      <ThermalHistory />
       <GpuDetailsCard />
+      <GpuHistory />
       <StorageDetailsCard />
+      <StorageHistory />
       <NetworkDetailsCard />
+      <NetworkHistory />
       <ProcessDetailsCard />
+      <ProcessHistory />
     </section>
   );
 }
