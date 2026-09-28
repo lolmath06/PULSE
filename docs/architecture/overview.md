@@ -302,6 +302,36 @@ See [`../history/architecture.md`](../history/architecture.md),
 [`../visualization/renderers.md`](../visualization/renderers.md) and
 [`../visualization/customization.md`](../visualization/customization.md).
 
+## 4c. Dashboards, widgets and overlays (Phase 11)
+
+```text
+ ui-config.json (UiConfigStore: one file, atomic, versioned, shared by every window)
+   ├─ dashboards ─► main window: DashboardGrid ─┐
+   ├─ dashboards ─► Mini window ────────────────┼─► WidgetCard ─► WidgetContent ─► MetricVisualization
+   └─ overlays ───► overlay-<id> windows ───────┘
+ data: history (SQLite, 5 s)  or  live (LiveHub: one 1 s sampler for the union of all windows, in memory)
+```
+
+- **One drawing path** for dashboard, Mini and overlays: the Phase 10 engine.
+- **UiConfigStore** replaces per-webview `localStorage` so every window sees
+  the same configuration; Phase 10 preferences are migrated once.
+- **Live feed**: one backend sampler, deduplicated across widgets and windows,
+  bounded rings, never persisted, idle when nothing is visible, never samples
+  NVMe health or individual processes.
+- **Overlays**: real frameless, transparent, always-on-top Tauri windows owned
+  by the backend (`desktop::reconcile`), Edit/Locked with click-through where
+  the platform allows, tray, configurable global shortcut, monitor-relative
+  logical geometry. Platform decisions are Tauri-free data
+  (`src-tauri/src/overlay/`), checked by the Windows harness.
+- None of these is a metric provider; the engine still has six.
+
+See [`../dashboard/architecture.md`](../dashboard/architecture.md),
+[`../dashboard/widgets.md`](../dashboard/widgets.md),
+[`../dashboard/layout.md`](../dashboard/layout.md),
+[`../overlay/architecture.md`](../overlay/architecture.md),
+[`../overlay/platform-capabilities.md`](../overlay/platform-capabilities.md) and
+[`../overlay/user-guide.md`](../overlay/user-guide.md).
+
 ## 5. Widgets (future)
 
 A widget is a pure rendering of one or more metric subscriptions plus a
@@ -349,6 +379,10 @@ Neither the mode engine nor the dashboard engine is implemented in Phase 0.
 Phase 0 only fixes the vocabulary and wires navigation.
 
 ## 7. Where the Mini overlay fits
+
+> Phase 11: this overlay exists as **overlays** (`docs/overlay/`); _Mini_ is now
+> a small ordinary window. The reasoning below still explains why sampling and
+> history live in Rust.
 
 The Mini overlay is the strongest constraint on the architecture, because it
 requires the backend to keep producing data while the main UI is not visible.

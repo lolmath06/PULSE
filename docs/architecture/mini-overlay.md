@@ -1,7 +1,17 @@
 # PULSE Mini — Permanent Desktop Overlay
 
-> Status: **design notes only.** Nothing in this document is implemented in
-> Phase 0. It exists so that no decision taken now makes it harder later.
+> Status: **Phase 0 design notes, superseded in part by Phase 11.**
+>
+> Phase 11 built the permanent desktop overlay described below — borderless,
+> transparent, always-on-top where the platform allows, click-through when
+> locked — as **overlays** (`docs/overlay/`), any number of them, each showing
+> any widgets. The name _Mini_ now means something simpler: a small,
+> **ordinary** PULSE window showing one dashboard (interactive, decorated,
+> never always-on-top). The requirements and platform analysis below remain
+> the background for the overlay work; see
+> [`../overlay/architecture.md`](../overlay/architecture.md) and
+> [`../overlay/platform-capabilities.md`](../overlay/platform-capabilities.md)
+> for what was built and measured.
 
 ## What Mini is — and is not
 

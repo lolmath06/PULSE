@@ -1,7 +1,7 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "Minimal capability set for the PULSE main window. Permissions are added only when a feature actually needs them.",
-  "windows": ["main"],
+  "description": "Minimal capability set for the PULSE main window and the Mini window (an ordinary, decorated window). Permissions are added only when a feature actually needs them.",
+  "windows": ["main", "mini"],
   "permissions": ["core:default"]
 }

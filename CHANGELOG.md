@@ -7,6 +7,69 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added — Phase 11: Modular dashboard, widgets & desktop overlays
+
+- **Shared UI configuration** (`UiConfigStore`): one versioned
+  `ui-config.json` in the app config directory for every window, instead of
+  per-webview `localStorage`. Atomic writes (temp + fsync + rename, `.bak`),
+  corrupt files quarantined and the backup used, newer versions never
+  overwritten, a coalescing writer thread, cross-window `ui-config-changed`
+  events. Phase 10 visual preferences are migrated once.
+- **Dashboards**: several named dashboards (create, rename, duplicate, delete,
+  reset with confirmation), a 12-column grid with per-kind limits,
+  collision push-down and compaction, repair on load, responsive reflow,
+  Edit/Locked, explicit drag handle and resize grip, keyboard move/resize/
+  delete/customize, duplicate, import/export JSON without hardware identifiers.
+- **Widgets**: four generic kinds (visualization, value, group, summary)
+  drawn by the Phase 10 engine; CPU Total bound to `cpu.usage.total`; tiny
+  sizes down to 60×20 values and 80×24 sparklines; groups (CPU usage +
+  temperature, GPU usage + VRAM + temperature); templates (save, rename,
+  delete). *Add widget* lists what the live catalog really offers and explains
+  anything disabled. Privacy-safe source references (`get_source_refs`),
+  automatic sources labelled as such, *Source unavailable* with remapping.
+- **Live widget feed**: one backend 1-second sampler (`LiveHub`) for the union
+  of every window's subscription — deduplicated, bounded 300-point rings,
+  never persisted, idle when nothing is visible, and refusing NVMe health and
+  per-process series. History stays at 5 s in SQLite.
+- **Desktop overlays**: separate frameless, transparent, always-on-top Tauri
+  windows (`overlay-<id>`), owned and reconciled by the backend. Edit mode
+  (drag bar, Lock, Open PULSE, resize grip) and Locked mode (no chrome,
+  click-through and unfocusable where the platform allows). Layout (row,
+  column, grid), chrome (background, opacity, border, shadow, corners, gap),
+  presets (Tiny stats, Thermal strip, Gaming, Minimal corner), send-to-overlay
+  from the dashboard and copy back.
+- **Overlay capabilities** per display server (Windows, X11, XWayland,
+  Wayland), shown in the UI with reasons and refined by runtime facts. Honest
+  on GNOME Wayland: always-on-top and click-through *limited*, positioning
+  and multi-monitor placement *unsupported*.
+- **Monitor-relative logical geometry** with per-monitor scale factors,
+  missing-monitor and off-screen recovery.
+- **Global shortcut** (default Ctrl+Shift+F12, configurable, conflicts
+  reported without losing the previous shortcut), **tray** (Open PULSE, Edit
+  overlays, Lock overlays, Show / hide overlays, Quit), and a **close
+  behaviour** setting (Quit by default, or keep running while overlays are
+  visible, never with nothing on screen).
+- **Mini window**: a small ordinary window showing one dashboard.
+- Navigation: *Dashboard* and *Overlays*.
+
+### Changed
+
+- Dependencies: `tauri` gains the `tray-icon` feature; new
+  `tauri-plugin-global-shortcut` `~2.3` (2.4 requires Rust 1.90). The locked
+  graph still builds and tests with Rust 1.77.2.
+- New capability file `capabilities/overlay.json` for `overlay-*` windows:
+  `core:default` plus window start-dragging and start-resize-dragging only.
+  The Mini window uses the default capability.
+- `docs/architecture/mini-overlay.md` is marked as Phase 0 notes: the overlay
+  it describes is now *overlays*; *Mini* is a small ordinary window.
+
+### Documentation
+
+- New `docs/dashboard/{architecture,widgets,layout}.md` and
+  `docs/overlay/{architecture,platform-capabilities,user-guide}.md`; updated
+  the architecture overview, Fedora and Windows platform docs (Windows
+  protocol · NOT EXECUTED), the MSRV notes and README.
+
 ### Added — Phase 10: Persistent history & modular visualization
 
 - **Persistent metric history** (`src-tauri/src/history/`). One backend

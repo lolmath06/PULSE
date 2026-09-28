@@ -661,6 +661,53 @@ Nothing below has been run on Windows.
 10. Machine without a readable CPU temperature: the thermal panel lists it as
     _Not charted_ with the reason — never a flat 0 °C line.
 
+## Dashboard, widgets and overlays (Phase 11)
+
+- **Configuration:** `%APPDATA%\dev.pulse.app\ui-config.json`, atomic
+  replace via `MoveFileExW(MOVEFILE_REPLACE_EXISTING)` (Rust `fs::rename`).
+- **Cross-checked from Fedora** (`pnpm rust:windows`, `rust:windows:lint`,
+  and with Rust 1.77.2): the config store, the live feed, and the overlay core
+  — capabilities, monitor/DPI geometry, overlay specs, settings and shortcut
+  conflict logic.
+- **Not cross-checked:** `src-tauri/src/desktop.rs` (the Tauri calls:
+  `set_ignore_cursor_events`, always-on-top, tray, global-shortcut plugin),
+  because the full Tauri crate cannot be built for Windows from Fedora. It
+  contains no Windows-specific code; CI's Windows jobs build it.
+- **Expected** (not verified): always-on-top (WS_EX_TOPMOST), click-through
+  (WS_EX_TRANSPARENT), absolute per-monitor placement with per-monitor DPI,
+  RegisterHotKey, notification-area tray.
+
+### Manual test protocol — Phase 11 · Windows · NOT EXECUTED
+
+Nothing below has been run on Windows.
+
+1. **Dashboard persistence:** Dashboard → Edit layout → add CPU Total,
+   Memory, CPU temperature, Network; move and resize; close PULSE; check Task
+   Manager has no `pulse.exe`; relaunch — the layout returns;
+   `%APPDATA%\dev.pulse.app\ui-config.json` exists.
+2. **Overlay window:** Overlays → _Tiny stats_. A separate frameless window
+   appears, not in the taskbar.
+3. **Always-on-top:** click a normal window (Explorer, Notepad) over the
+   overlay's position — the overlay stays above.
+4. **Transparency:** set the background opacity to 0 — only the text shows.
+5. **Click-through:** Lock the overlay; click through it onto a window behind;
+   the click reaches that window, the overlay never takes focus.
+6. **Global shortcut:** Ctrl+Shift+F12 toggles Edit/Locked. Set a shortcut
+   already used by another program — PULSE reports the conflict and keeps the
+   old one.
+7. **Tray:** Open PULSE, Edit overlays, Lock overlays, Show/hide, Quit.
+8. **DPI:** at 100 %, 125 %, 150 % and 200 % display scaling, the overlay
+   keeps its size and position after a restart.
+9. **Multi-monitor:** move an overlay to a second monitor, restart — it
+   returns there; unplug that monitor, restart — it appears on the primary one.
+10. **Keep running:** set _Keep running_, close the main window — overlays
+    stay; reopen from the tray.
+11. **Minecraft (optional):** windowed and borderless — the locked overlay
+    stays on top, clicks reach the game, focus never moves. Exclusive
+    fullscreen is not supported.
+12. **Clean quit:** tray → Quit; no `pulse.exe` and no `WebView2` child left;
+    `history.sqlite3-wal` is 0 bytes or absent.
+
 ## Packaging
 
 Planned targets: NSIS (`.exe`) and MSI, configured in `tauri.conf.json`.

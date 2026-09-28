@@ -8,7 +8,7 @@ use std::sync::Arc;
 
 use serde::Serialize;
 use serde_json::Value;
-use tauri::{AppHandle, Emitter, Manager, State, WebviewWindow};
+use tauri::{AppHandle, Emitter, Manager, Runtime, State, WebviewWindow};
 
 use crate::ui_config::writer::ConfigWriter;
 use crate::ui_config::{UiConfigSnapshot, UiConfigStore};
@@ -36,8 +36,8 @@ pub struct UiConfigChanged {
 }
 
 /// Applies a change on behalf of `origin`, then broadcasts and schedules a save.
-pub fn apply_section(
-    app: &AppHandle,
+pub fn apply_section<R: Runtime>(
+    app: &AppHandle<R>,
     section: &str,
     value: Value,
     origin: &str,
@@ -57,7 +57,33 @@ pub fn apply_section(
             value,
         },
     );
+    if section == "overlays" {
+        crate::desktop::on_overlays_changed(app);
+    }
+    if section == "settings" {
+        crate::desktop::on_settings_changed(app);
+    }
     Ok(revision)
+}
+
+/// Changes a section in place on the backend's behalf (the shortcut, the tray,
+/// a dragged overlay). `change` returns whether it changed anything; only then
+/// is the section saved and broadcast.
+pub fn update_section<R: Runtime>(
+    app: &AppHandle<R>,
+    section: &str,
+    origin: &str,
+    change: impl FnOnce(&mut Value) -> bool,
+) -> Option<u64> {
+    let state = app.try_state::<UiConfigState>()?;
+    let mut value = state
+        .store
+        .section(section)
+        .unwrap_or_else(|| Value::Object(serde_json::Map::new()));
+    if !change(&mut value) {
+        return None;
+    }
+    apply_section(app, section, value, origin).ok()
 }
 
 /// The whole document, its revision and how it was loaded.

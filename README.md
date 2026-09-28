@@ -11,7 +11,7 @@
 
 ## Status
 
-**Phase 10 — Persistent history & modular visualization.** Version `0.1.0-dev`.
+**Phase 11 — Modular dashboard, widgets & desktop overlays.** Version `0.1.0-dev`.
 
 PULSE can now answer, on Fedora and Windows behind exactly the same contract:
 
@@ -119,7 +119,18 @@ MAC both operating systems now put on Wi-Fi by default; and a process is never
 identified by its PID alone — because every one of those can change between
 boots, between networks, or between one process and the next.
 
-**Phase 10 — history and visualization.** PULSE now also remembers: one
+**Phase 11 — dashboards and overlays.** PULSE is now your own monitor:
+configurable dashboards of widgets (add, move, resize, duplicate, customize,
+lock, several dashboards, templates, import/export), tiny widgets down to a
+60×20 value or an 80×24 sparkline, and **desktop overlays** — separate
+frameless, transparent windows that stay above other applications where the
+system allows and let clicks through when locked, with a tray and a
+configurable global shortcut. A small, ordinary _Mini_ window shows a
+dashboard. Everything is drawn by the Phase 10 engine and fed by one shared
+live sampler; all UI settings live in one atomic, versioned file. No game
+injection, no fake FPS.
+
+**Phase 10 — history and visualization.** PULSE also remembers: one
 backend scheduler records the stable numeric metrics every five seconds into a
 local SQLite file (raw for 24 hours, one-minute min/max/average/count for seven
 days), and every system section has a history chart — CPU Total, memory,
@@ -267,7 +278,11 @@ expected outside the Tauri runtime.
 PULSE/
 ├── src/                 # React frontend
 │   ├── app/             # router, routes, app constants
-│   ├── components/      # reusable components
+│   ├── components/      # reusable components (Dashboard, Overlay, Mini, History…)
+│   ├── config/          # the shared UI configuration store
+│   ├── dashboard/       # widget model, grid layout, library, bindings, templates
+│   ├── live/            # this window's side of the live widget feed
+│   ├── overlay/         # overlay model, presets, desktop commands
 │   ├── features/        # feature slices
 │   ├── hooks/
 │   ├── layouts/
@@ -281,7 +296,11 @@ PULSE/
 ├── src-tauri/           # Rust backend
 │   └── src/
 │       ├── commands/    # Tauri command surface
+│       ├── desktop.rs   # overlay windows, Mini, tray, global shortcut (Tauri glue)
 │       ├── history/     # persistent metric history: scheduler, SQLite store, queries
+│       ├── live/        # the live widget feed: one shared 1 s sampler, in-memory rings
+│       ├── overlay/     # overlay core: capabilities, geometry, specs, settings
+│       ├── ui_config/   # the shared UI configuration file (atomic, versioned)
 │       ├── metrics/     # metrics engine, model, well-known declarations
 │       ├── platform/    # the platform seam
 │       ├── processes/   # process snapshots — high-cardinality, outside the catalog
@@ -322,6 +341,11 @@ Start at [`docs/README.md`](docs/README.md).
 - [Visualization](docs/visualization/architecture.md) —
   [renderers](docs/visualization/renderers.md),
   [customization](docs/visualization/customization.md)
+- [Dashboard](docs/dashboard/architecture.md) — [widgets](docs/dashboard/widgets.md),
+  [layout](docs/dashboard/layout.md)
+- [Overlays](docs/overlay/architecture.md) —
+  [platform capabilities](docs/overlay/platform-capabilities.md),
+  [user guide](docs/overlay/user-guide.md)
 - [Widgets](docs/widgets/README.md)
 
 ## Roadmap
@@ -338,8 +362,8 @@ Start at [`docs/README.md`](docs/README.md).
 | 7     | Network interfaces, traffic and Wi-Fi quality                  | Done        |
 | 8     | Processes, applications and their CPU, memory and I/O          | Done        |
 | 9     | Process inspector, provenance and controls                     | Done        |
-| 10    | Persistent history, time series, modular visualization engine  | **Current** |
-| 11    | Configurable dashboard, widgets, desktop overlay               | Planned     |
+| 10    | Persistent history, time series, modular visualization engine  | Done        |
+| 11    | Configurable dashboard, widgets, desktop overlays              | **Current** |
 | 1+    | Active network probes                                          | Planned     |
 | 1+    | Widget engine, configurable dashboards                         | Planned     |
 | 1+    | Mini overlay, Gaming and Development modes                     | Planned     |

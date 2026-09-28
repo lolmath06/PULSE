@@ -1,0 +1,11 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "overlay",
+  "description": "Desktop overlay windows (label overlay-<id>, created only by the backend from validated ids). Frameless, so in Edit mode they need exactly two extra permissions: moving the window from its drag bar and resizing it from its grip. Nothing else.",
+  "windows": ["overlay-*"],
+  "permissions": [
+    "core:default",
+    "core:window:allow-start-dragging",
+    "core:window:allow-start-resize-dragging"
+  ]
+}

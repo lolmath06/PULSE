@@ -29,6 +29,12 @@ export const NAV_ROUTES: readonly NavRoute[] = [
     description: 'Your own dashboards: widgets you add, arrange and style.',
   },
   {
+    path: '/overlays',
+    label: 'Overlays',
+    mode: 'mini',
+    description: 'Widgets in their own windows on the desktop.',
+  },
+  {
     path: '/gaming',
     label: 'Gaming',
     mode: 'gaming',
@@ -50,6 +56,6 @@ export const NAV_ROUTES: readonly NavRoute[] = [
     path: '/mini',
     label: 'Mini',
     mode: 'mini',
-    description: 'Configuration surface for the permanent desktop overlay.',
+    description: 'A small, ordinary PULSE window showing one dashboard.',
   },
 ] as const;

@@ -4,6 +4,7 @@
 //! validate input, delegate to `services`, and return serialisable payloads.
 //! Platform branching never happens here.
 
+pub mod desktop;
 pub mod history;
 pub mod live;
 pub mod metrics;

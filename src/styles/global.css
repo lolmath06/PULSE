@@ -2399,3 +2399,259 @@ code,
   border-radius: var(--pulse-radius-sm);
   user-select: text;
 }
+
+/* ---------- desktop overlays & Mini (Phase 11) ---------- */
+
+/* An overlay window: the page itself is transparent; only the overlay's own
+   chrome (if any) is drawn. */
+html.pulse-overlay,
+html.pulse-overlay body,
+html.pulse-overlay #root {
+  background: transparent;
+  overflow: hidden;
+}
+
+.overlay {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  min-width: 100%;
+  min-height: 100%;
+  isolation: isolate;
+}
+
+.overlay__backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.overlay__bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  background: rgba(10, 12, 15, 0.9);
+  cursor: grab;
+}
+
+.overlay__name {
+  flex: 1;
+  overflow: hidden;
+  font-size: 11px;
+  color: var(--pulse-text-muted);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.overlay__button {
+  padding: 1px 6px;
+  border: 1px solid var(--pulse-border-strong);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--pulse-text);
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.overlay__widgets {
+  align-items: flex-start;
+}
+
+.overlay__empty {
+  margin: 0;
+  font-size: 12px;
+  color: var(--pulse-text-muted);
+}
+
+.overlay__resize {
+  position: absolute;
+  right: 1px;
+  bottom: 1px;
+  width: 12px;
+  height: 12px;
+  cursor: nwse-resize;
+  border-right: 2px solid var(--pulse-accent);
+  border-bottom: 2px solid var(--pulse-accent);
+}
+
+.overlay--editing {
+  outline: 1px dashed var(--pulse-accent-dim);
+  outline-offset: -1px;
+}
+
+/* Widgets inside an overlay carry no card background of their own. */
+.widget--overlay {
+  background: transparent;
+}
+
+.overlays-page__actions,
+.overlays-page__presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.overlays-page__preset {
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 180px;
+  background: transparent;
+  color: var(--pulse-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.overlay-editor__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.overlay-editor__name {
+  max-width: 260px;
+  font-size: 14px;
+}
+
+.overlay-editor__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 320px);
+  gap: 16px;
+  margin: 12px 0;
+}
+
+.overlay-editor__preview {
+  min-width: 0;
+  overflow: auto;
+  padding: 12px;
+  border-radius: var(--pulse-radius-sm);
+  background: repeating-conic-gradient(#1b2027 0% 25%, #151a20 0% 50%) 50% / 16px 16px;
+}
+
+.overlay-editor__preview .overlay {
+  min-width: 0;
+  min-height: 0;
+}
+
+.overlay-editor__settings {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.overlay-editor__widgets {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0 0 10px;
+  padding: 0;
+  list-style: none;
+}
+
+.overlay-editor__widget {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--pulse-border);
+}
+
+.overlay-editor__widget-name {
+  flex: 1;
+  min-width: 120px;
+  font-size: 13px;
+}
+
+.capabilities {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.capabilities__item {
+  display: grid;
+  grid-template-columns: 96px 190px minmax(0, 1fr);
+  gap: 10px;
+  align-items: baseline;
+  font-size: 12.5px;
+}
+
+.capabilities__status {
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  text-align: center;
+}
+
+.capabilities__status--supported {
+  color: var(--pulse-success-text);
+  border: 1px solid currentColor;
+}
+
+.capabilities__status--limited {
+  color: var(--pulse-warning-text);
+  border: 1px solid currentColor;
+}
+
+.capabilities__status--unsupported {
+  color: var(--pulse-danger-text);
+  border: 1px solid currentColor;
+}
+
+.capabilities__reason {
+  color: var(--pulse-text-muted);
+}
+
+.send-overlay {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.mini {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 8px;
+  gap: 8px;
+  overflow: auto;
+}
+
+.mini__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.mini__widgets {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+@media (max-width: 860px) {
+  .overlay-editor__body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .capabilities__item {
+    grid-template-columns: 96px minmax(0, 1fr);
+  }
+
+  .capabilities__reason {
+    grid-column: 1 / -1;
+  }
+}

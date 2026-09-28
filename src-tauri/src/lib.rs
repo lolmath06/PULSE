@@ -21,9 +21,11 @@
 //! for system access, and the frontend never reads the system directly.
 
 pub mod commands;
+pub mod desktop;
 pub mod history;
 pub mod live;
 pub mod metrics;
+pub mod overlay;
 pub mod platform;
 pub mod processes;
 pub mod services;
@@ -52,6 +54,17 @@ impl history::HistoryEventSink for TauriHistoryEvents {
 pub fn run() {
     let app = tauri::Builder::default()
         .manage(state::AppState::new())
+        .plugin(
+            tauri_plugin_global_shortcut::Builder::new()
+                .with_handler(|app, shortcut, event| {
+                    desktop::on_shortcut(app, shortcut, event.state());
+                })
+                .build(),
+        )
+        .on_window_event(|window, event| {
+            use tauri::Manager;
+            desktop::on_window_event(window.app_handle(), window, event);
+        })
         .setup(|app| {
             use std::sync::Arc;
             use tauri::Manager;
@@ -100,6 +113,10 @@ pub fn run() {
                 live::LIVE_CADENCE,
             );
             app.manage(Arc::new(live));
+
+            // Overlays, the tray and the global shortcut — after the config
+            // store, which says which overlays exist.
+            desktop::setup(app.handle());
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -112,6 +129,12 @@ pub fn run() {
             commands::metrics::get_source_refs,
             commands::live::set_live_subscription,
             commands::live::get_live_buffer,
+            commands::desktop::get_desktop_status,
+            commands::desktop::set_overlay_hotkey,
+            commands::desktop::overlay_action,
+            commands::desktop::open_main_window,
+            commands::desktop::open_mini_window,
+            commands::desktop::quit_app,
             commands::ui_config::get_ui_config,
             commands::ui_config::set_ui_config_section,
             commands::processes::get_process_snapshot,

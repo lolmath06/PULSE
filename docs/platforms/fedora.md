@@ -410,6 +410,32 @@ assertion kref failed`) — a driver issue; `WEBKIT_DISABLE_COMPOSITING_MODE=1`
   avoids it. The native Wayland default is unaffected. History kept recording
   through the web process crash, since it lives in Rust.
 
+## Dashboard, widgets and overlays (Phase 11)
+
+- **Configuration:** `~/.config/dev.pulse.app/ui-config.json` (+ `.bak`),
+  atomic, shared by every window. The development build's Phase 10
+  `localStorage` preferences were migrated into it on first launch (verified).
+- **Session:** GNOME on Wayland. Overlay capabilities as PULSE reports and as
+  measured are in
+  [`../overlay/platform-capabilities.md`](../overlay/platform-capabilities.md):
+  native Wayland — always-on-top _limited_, click-through _limited_,
+  positioning _unsupported_, global shortcut _limited_, tray _limited_;
+  XWayland — always-on-top and click-through **measured** (`_NET_WM_STATE_ABOVE`,
+  1×1-pixel input region when locked).
+- **Tray:** `libappindicator3` is present; GNOME shows tray icons only with
+  the AppIndicator extension.
+- **Lifecycle (measured, XWayland):** closing the main window with _Quit_
+  closed both overlays and exited cleanly (history stopped, WAL checkpointed to
+  0 bytes, no `pulse` process). With _Keep running_, the main window hid and
+  the overlays stayed; closing the overlays from the window manager hid them in
+  the configuration and brought the main window back; closing it then quit.
+- **Cost (debug build, measured over 60 s):** 1.33 % of one core with the main
+  window alone, 3.95 % with two live overlays (four live widgets).
+- **nouveau + X11:** WebKit crashes under `GDK_BACKEND=x11` unless
+  `WEBKIT_DISABLE_COMPOSITING_MODE=1`; in that mode transparent overlay areas
+  may show previous frames' glyphs. Native Wayland is the default and is not
+  affected by the crash.
+
 ## Packaging
 
 Planned targets: `rpm` (primary for Fedora), plus `deb` and `appimage` for

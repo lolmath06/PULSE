@@ -32,6 +32,13 @@ pub mod history;
 #[path = "../../../src-tauri/src/live/mod.rs"]
 pub mod live;
 
+// Phase 11: the overlay core — capabilities per display server, monitor/DPI
+// geometry, overlay specs, settings and the global-shortcut conflict logic.
+// The Tauri calls that apply them (`src-tauri/src/desktop.rs`) need the full
+// Tauri crate, which this harness cannot build for Windows from Fedora.
+#[path = "../../../src-tauri/src/overlay/mod.rs"]
+pub mod overlay;
+
 #[path = "../../../src-tauri/src/ui_config/mod.rs"]
 pub mod ui_config;
 
