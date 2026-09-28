@@ -1,6 +1,7 @@
 import { createBrowserRouter } from 'react-router-dom';
 import { AppLayout } from '@/layouts/AppLayout';
 import { OverviewPage } from '@/pages/OverviewPage';
+import { DashboardRoute } from '@/pages/DashboardRoute';
 import { GamingPage } from '@/pages/GamingPage';
 import { DevelopmentPage } from '@/pages/DevelopmentPage';
 import { PersonalPage } from '@/pages/PersonalPage';
@@ -13,6 +14,7 @@ export const router = createBrowserRouter([
     element: <AppLayout />,
     children: [
       { index: true, element: <OverviewPage /> },
+      { path: 'dashboard', element: <DashboardRoute /> },
       { path: 'gaming', element: <GamingPage /> },
       { path: 'development', element: <DevelopmentPage /> },
       { path: 'personal', element: <PersonalPage /> },

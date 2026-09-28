@@ -29,6 +29,9 @@ pub mod history;
 
 // Phase 11: the shared UI configuration store — atomic writes, backups,
 // corruption recovery and the coalescing writer.
+#[path = "../../../src-tauri/src/live/mod.rs"]
+pub mod live;
+
 #[path = "../../../src-tauri/src/ui_config/mod.rs"]
 pub mod ui_config;
 

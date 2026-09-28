@@ -276,6 +276,14 @@ export function useUiSection<T>(section: UiSection, normalize: (raw: unknown) =>
 
 const cache = new Map<UiSection, { raw: unknown; normalize: unknown; value: unknown }>();
 
+/**
+ * One section, normalised, outside React — the same cached value the hooks
+ * see, so an action always applies to exactly what is on screen.
+ */
+export function readSectionNormalized<T>(section: UiSection, normalize: (raw: unknown) => T): T {
+  return cachedNormalize(section, state.document[section], normalize);
+}
+
 function cachedNormalize<T>(section: UiSection, raw: unknown, normalize: (raw: unknown) => T): T {
   const hit = cache.get(section);
   if (hit && hit.raw === raw && hit.normalize === normalize) return hit.value as T;

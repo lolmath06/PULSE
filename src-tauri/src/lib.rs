@@ -22,6 +22,7 @@
 
 pub mod commands;
 pub mod history;
+pub mod live;
 pub mod metrics;
 pub mod platform;
 pub mod processes;
@@ -88,6 +89,17 @@ pub fn run() {
                 ui_config::writer::QUIET_PERIOD,
             );
             app.manage(commands::ui_config::UiConfigState { store, writer });
+
+            // The live widget feed: one shared 1-second sampler for whatever
+            // the visible widgets show, never persisted. It sleeps while no
+            // window subscribes.
+            let live = live::LiveService::start(
+                app.state::<state::AppState>().metrics_handle(),
+                Arc::new(history::SystemClock),
+                Arc::new(commands::live::TauriLiveEvents(app.handle().clone())),
+                live::LIVE_CADENCE,
+            );
+            app.manage(Arc::new(live));
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -97,6 +109,9 @@ pub fn run() {
             commands::metrics::sample_metrics,
             commands::history::get_history_status,
             commands::history::get_metric_history,
+            commands::metrics::get_source_refs,
+            commands::live::set_live_subscription,
+            commands::live::get_live_buffer,
             commands::ui_config::get_ui_config,
             commands::ui_config::set_ui_config_section,
             commands::processes::get_process_snapshot,
@@ -119,12 +134,27 @@ pub fn run() {
         .expect("error while building PULSE");
 
     app.run(|handle, event| {
+        if let tauri::RunEvent::WindowEvent {
+            label,
+            event: tauri::WindowEvent::Destroyed,
+            ..
+        } = &event
+        {
+            use tauri::Manager;
+            // A closed window no longer needs its live metrics.
+            if let Some(live) = handle.try_state::<std::sync::Arc<live::LiveService>>() {
+                live.remove_subscriber(label);
+            }
+        }
         if let tauri::RunEvent::Exit = event {
             use tauri::Manager;
             // Finish the batch in flight and let the store close cleanly, so
             // the WAL is checkpointed and no scheduler thread outlives PULSE.
             if let Some(history) = handle.try_state::<std::sync::Arc<history::HistoryService>>() {
                 history.shutdown();
+            }
+            if let Some(live) = handle.try_state::<std::sync::Arc<live::LiveService>>() {
+                live.shutdown();
             }
             // Write any configuration change still inside its quiet period.
             if let Some(config) = handle.try_state::<commands::ui_config::UiConfigState>() {

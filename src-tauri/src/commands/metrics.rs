@@ -36,3 +36,12 @@ pub fn get_metric_catalog(state: State<'_, AppState>) -> Vec<MetricDefinition> {
 pub fn sample_metrics(state: State<'_, AppState>, metrics: Vec<MetricRef>) -> Vec<MetricSample> {
     service::sample(state.metrics(), &metrics)
 }
+
+/// `sourceId → persistable reference` for every catalog source.
+///
+/// Saved widget bindings store the persistable form, so no MAC-derived or
+/// serial-derived identifier ever reaches the configuration file.
+#[tauri::command]
+pub fn get_source_refs(state: State<'_, AppState>) -> std::collections::BTreeMap<String, String> {
+    service::persistable_source_refs(state.metrics())
+}

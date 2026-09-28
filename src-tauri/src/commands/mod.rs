@@ -5,6 +5,7 @@
 //! Platform branching never happens here.
 
 pub mod history;
+pub mod live;
 pub mod metrics;
 pub mod platform;
 pub mod process_control;

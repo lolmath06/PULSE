@@ -45,6 +45,12 @@ export interface CustomizePanelProps {
   readonly data: VisualizationData;
   readonly meta: VisualizationMeta;
   readonly onClose: () => void;
+  /**
+   * Options that belong to the host rather than to the visualization — a
+   * widget's title, frame, metrics and data source. Shown first; every
+   * visual option stays in the sections below, never duplicated.
+   */
+  readonly extra?: ReactNode;
 }
 
 const LABELS: Record<string, string> = {
@@ -75,7 +81,7 @@ const LABELS: Record<string, string> = {
 
 const label = (value: string) => LABELS[value] ?? value;
 
-function Section({
+export function Section({
   title,
   children,
   open = false,
@@ -92,7 +98,7 @@ function Section({
   );
 }
 
-function Field({
+export function Field({
   label: text,
   children,
   hint,
@@ -110,7 +116,7 @@ function Field({
   );
 }
 
-function Choice<T extends string>({
+export function Choice<T extends string>({
   options,
   value,
   onChange,
@@ -140,7 +146,7 @@ function Choice<T extends string>({
   );
 }
 
-function Toggle({
+export function Toggle({
   text,
   checked,
   onChange,
@@ -164,7 +170,7 @@ function Toggle({
   );
 }
 
-function Slider({
+export function Slider({
   value,
   min,
   max,
@@ -198,7 +204,7 @@ function Slider({
 }
 
 /** A real colour picker (the platform's own) plus an exact hex field. */
-function ColorField({
+export function ColorField({
   text,
   value,
   onChange,
@@ -243,7 +249,7 @@ function ColorField({
 
 const pct = (value: number) => `${Math.round(value * 100)} %`;
 
-export function CustomizePanel({ title, chart, data, meta, onClose }: CustomizePanelProps) {
+export function CustomizePanel({ title, chart, data, meta, onClose, extra }: CustomizePanelProps) {
   const { config, update } = chart;
   const [presetName, setPresetName] = useState('');
   const [scaleDraft, setScaleDraft] = useState({
@@ -296,6 +302,7 @@ export function CustomizePanel({ title, chart, data, meta, onClose }: CustomizeP
       </div>
 
       <div className="customize__scroll">
+        {extra}
         <Section title="Preset" open>
           <p className="customize__preset-status" aria-live="polite">
             {presetStatus}

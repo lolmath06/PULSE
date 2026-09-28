@@ -23,6 +23,12 @@ export const NAV_ROUTES: readonly NavRoute[] = [
     description: 'The default PULSE dashboard.',
   },
   {
+    path: '/dashboard',
+    label: 'Dashboard',
+    mode: 'standard',
+    description: 'Your own dashboards: widgets you add, arrange and style.',
+  },
+  {
     path: '/gaming',
     label: 'Gaming',
     mode: 'gaming',

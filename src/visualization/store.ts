@@ -165,6 +165,52 @@ export function chartStateFrom(
   };
 }
 
+/** Saves `config`'s style as a named preset available to every chart and widget. */
+export function saveCustomPreset(name: string, config: VisualizationConfig): string | null {
+  const trimmed = name.trim().slice(0, 40);
+  if (!trimmed) return null;
+  const preset: VisualizationPreset = {
+    id: `custom:${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
+    name: trimmed,
+    description: 'Saved by you.',
+    style: styleOf(config),
+    custom: true,
+  };
+  const latest = current();
+  commit({ ...latest, customPresets: [...latest.customPresets, preset] });
+  return preset.id;
+}
+
+/** Deletes a user preset. Built-in presets cannot be deleted. */
+export function deleteCustomPreset(presetId: string) {
+  const latest = current();
+  commit({ ...latest, customPresets: latest.customPresets.filter((p) => p.id !== presetId) });
+}
+
+/** Renames a user preset. */
+export function renameCustomPreset(presetId: string, name: string) {
+  const trimmed = name.trim().slice(0, 40);
+  if (!trimmed) return;
+  const latest = current();
+  commit({
+    ...latest,
+    customPresets: latest.customPresets.map((p) =>
+      p.id === presetId ? { ...p, name: trimmed } : p,
+    ),
+  });
+}
+
+/** Every preset: built-in first, then the user's. */
+export function usePresets(): readonly VisualizationPreset[] {
+  const shape = useSyncExternalStore(subscribe, current, current);
+  return useMemo(() => [...BUILT_IN_PRESETS, ...shape.customPresets], [shape.customPresets]);
+}
+
+/** Looks a preset up among built-in and user presets. */
+export function lookupPreset(presetId: string): VisualizationPreset | undefined {
+  return findPreset(presetId, current().customPresets);
+}
+
 export interface ChartVisualization extends ChartVisualizationState {
   /** Every preset the user can pick, built-in first. */
   readonly presets: readonly VisualizationPreset[];

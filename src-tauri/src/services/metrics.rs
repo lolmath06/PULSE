@@ -48,6 +48,42 @@ pub fn sample(engine: &MetricsEngine, requested: &[MetricRef]) -> Vec<MetricSamp
     engine.sample(requested)
 }
 
+/// How a source is written into saved configuration (widget bindings).
+///
+/// Logical sources — `cpu:system`, `cpu:logical-3`, `cpu:package-0`,
+/// `memory:system`, `process:system`, any `…:system` — say nothing about the
+/// machine and are kept as they are, readable. Device sources can be derived
+/// from a MAC address or a serial number, so they are replaced by the same
+/// digest the history database uses. A saved dashboard or an exported JSON
+/// file therefore never contains a hardware identifier.
+pub fn persistable_source_ref(source: &crate::metrics::SourceId) -> String {
+    let text = source.as_str();
+    let mut parts = text.splitn(2, ':');
+    let kind = parts.next().unwrap_or_default();
+    let instance = parts.next().unwrap_or_default();
+    if instance == "system" || matches!(kind, "cpu" | "memory" | "process" | "system") {
+        text.to_string()
+    } else {
+        crate::history::store::source_digest(source)
+    }
+}
+
+/// `sourceId → persistable reference` for every source in the catalog.
+pub fn persistable_source_refs(
+    engine: &MetricsEngine,
+) -> std::collections::BTreeMap<String, String> {
+    engine
+        .catalog()
+        .iter()
+        .map(|definition| {
+            (
+                definition.metric.source_id.as_str().to_string(),
+                persistable_source_ref(&definition.metric.source_id),
+            )
+        })
+        .collect()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -276,6 +312,38 @@ mod tests {
         assert_eq!(samples.len(), 1);
         assert_eq!(samples[0].metric, reference);
         assert!(!samples[0].availability.is_available());
+    }
+
+    #[test]
+    fn persisted_source_refs_never_contain_hardware_identifiers() {
+        let refer = |text: &str| {
+            persistable_source_ref(&crate::metrics::SourceId::new(text).expect("valid"))
+        };
+        assert_eq!(refer("cpu:system"), "cpu:system");
+        assert_eq!(refer("cpu:logical-7"), "cpu:logical-7");
+        assert_eq!(refer("cpu:package-0"), "cpu:package-0");
+        assert_eq!(refer("memory:system"), "memory:system");
+        assert_eq!(refer("network:system"), "network:system");
+        for hardware in [
+            "network:mac-9009df3e97f2",
+            "storage:serial-s677nx0w",
+            "gpu:pci-0000-01-00-0",
+            "volume:wwid-eui.002538b331b36d03-p8",
+        ] {
+            let persisted = refer(hardware);
+            let instance = hardware.split(':').nth(1).expect("instance");
+            assert!(!persisted.contains(instance), "{hardware} -> {persisted}");
+            assert_eq!(persisted, refer(hardware), "stable");
+        }
+    }
+
+    #[test]
+    fn every_catalog_source_has_a_persistable_ref() {
+        let engine = build_engine();
+        let refs = persistable_source_refs(&engine);
+        for definition in engine.catalog() {
+            assert!(refs.contains_key(definition.metric.source_id.as_str()));
+        }
     }
 
     #[test]
