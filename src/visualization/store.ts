@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useSyncExternalStore } from 'react';
+import { readSection, subscribeUiConfig, writeSection } from '@/config/uiConfig';
 import type { HistoryRange } from '@/types/history';
 import { DEFAULT_HISTORY_RANGE, isHistoryRange } from '@/types/history';
 import type { DeepPartial, VisualizationConfig } from '@/visualization/config';
@@ -15,24 +16,25 @@ import {
 /**
  * Where visualization choices live between launches.
  *
- * # Why `localStorage`
+ * # Phase 11: the shared configuration
  *
- * These are pure presentation preferences — a colour, a curve, a range — of a
- * single-user desktop app. `localStorage` lives in the webview's own data
- * directory inside PULSE's app data, is synchronous (a chart never flashes its
- * default style before the saved one arrives), and is shared by every window
- * of the same origin, which the Phase 11 widgets will be. None of it is sensitive
- * and none of it belongs in the metric database: history rows hold samples,
- * never how they are drawn.
+ * Phase 10 kept these preferences in `localStorage`. With several windows
+ * (main, Mini, overlays) and different webview origins in development and
+ * release builds, that would have meant several diverging copies. They now
+ * live in the `visualization` section of the shared UI configuration
+ * (`src/config/uiConfig.ts`, backed by one file in the app's config
+ * directory) and every window sees the same thing.
+ *
+ * The first time a window loads a configuration without that section, the
+ * Phase 10 `localStorage` payload (`pulse.visualization.v1`) is migrated into
+ * it — see `src/config/migrations.ts`. The old key is left in place, unread.
  *
  * # Versioning
  *
- * The key carries the version (`pulse.visualization.v1`) and so does the
- * payload. A future format uses a **new** key and migrates from this one, so
- * it can never be clobbered by an older PULSE. Inside a payload, every chart's
- * configuration is re-read field by field ({@link normalizeConfig}): an
- * unknown property is ignored, an invalid one falls back alone, and a payload
- * that is not version 1 is ignored entirely rather than misread.
+ * The payload carries `version: 1`. Every chart's configuration is re-read
+ * field by field ({@link normalizeConfig}): an unknown property is ignored, an
+ * invalid one falls back alone, and a payload that is not version 1 is ignored
+ * entirely rather than misread.
  *
  * No device or interface identifier is stored — only chart ids chosen by the
  * code (`cpu.total`, `network`), styles, preset names the user typed, and a
@@ -74,14 +76,16 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-/** Parses a stored payload, tolerating anything. */
-export function parseStore(text: string | null): StoreShape {
-  if (!text) return EMPTY_STORE;
-  let raw: unknown;
-  try {
-    raw = JSON.parse(text);
-  } catch {
-    return EMPTY_STORE;
+/** Parses a stored payload — JSON text or an object — tolerating anything. */
+export function parseStore(input: unknown): StoreShape {
+  if (input === null || input === undefined || input === '') return EMPTY_STORE;
+  let raw: unknown = input;
+  if (typeof input === 'string') {
+    try {
+      raw = JSON.parse(input);
+    } catch {
+      return EMPTY_STORE;
+    }
   }
   if (!isRecord(raw) || raw.version !== VISUALIZATION_STORE_VERSION) return EMPTY_STORE;
 
@@ -118,42 +122,25 @@ export function parseStore(text: string | null): StoreShape {
   return { version: VISUALIZATION_STORE_VERSION, charts, customPresets };
 }
 
-let store: StoreShape | null = null;
-const subscribers = new Set<() => void>();
-
-function readStorage(): string | null {
-  try {
-    return globalThis.localStorage?.getItem(VISUALIZATION_STORAGE_KEY) ?? null;
-  } catch {
-    return null;
-  }
-}
+let parsed: { raw: unknown; shape: StoreShape } | null = null;
 
 function current(): StoreShape {
-  if (!store) store = parseStore(readStorage());
-  return store;
+  const raw = readSection('visualization');
+  if (!parsed || parsed.raw !== raw) parsed = { raw, shape: parseStore(raw) };
+  return parsed.shape;
 }
 
 function commit(next: StoreShape) {
-  store = next;
-  try {
-    globalThis.localStorage?.setItem(VISUALIZATION_STORAGE_KEY, JSON.stringify(next));
-  } catch {
-    // Storage full or disabled: the choice still applies for this session.
-  }
-  for (const notify of [...subscribers]) notify();
+  writeSection('visualization', next);
 }
 
 function subscribe(listener: () => void) {
-  subscribers.add(listener);
-  return () => {
-    subscribers.delete(listener);
-  };
+  return subscribeUiConfig(listener);
 }
 
-/** Forgets the in-memory copy so the next read comes from storage. For tests. */
+/** Forgets the parsed copy. For tests. */
 export function reloadVisualizationStoreForTesting() {
-  store = null;
+  parsed = null;
 }
 
 /**

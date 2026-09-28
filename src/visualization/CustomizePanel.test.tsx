@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 import { CustomizePanel } from '@/visualization/CustomizePanel';
 import { MetricVisualization } from '@/visualization/MetricVisualization';
+import { resetUiConfigForTesting } from '@/config/uiConfig';
 import { reloadVisualizationStoreForTesting, useChartVisualization } from '@/visualization/store';
 import type { DeepPartial, VisualizationConfig } from '@/visualization/config';
 import type { VisualizationMeta } from '@/visualization/types';
@@ -59,7 +60,7 @@ const chart = () => screen.getByTestId('chart').querySelector('.viz') as HTMLEle
 const panel = () => screen.getByRole('dialog', { name: 'Customize CPU history' });
 
 beforeEach(() => {
-  localStorage.clear();
+  resetUiConfigForTesting();
   reloadVisualizationStoreForTesting();
 });
 

@@ -22,6 +22,7 @@ import * as metricsService from '@/services/metrics';
 import * as historyService from '@/services/history';
 import { emitHistorySampleForTesting, historySubscriberCount } from '@/services/history';
 import { resetMetricCatalogForTesting } from '@/hooks/useMetricCatalog';
+import { resetUiConfigForTesting } from '@/config/uiConfig';
 import { reloadVisualizationStoreForTesting } from '@/visualization/store';
 import { CpuHistory } from '@/components/History/CpuHistory';
 import { GpuHistory } from '@/components/History/GpuHistory';
@@ -94,7 +95,7 @@ function answer(metrics: readonly MetricRef[], range: HistoryRange) {
 let historySpy: MockInstance<typeof historyService.getMetricHistory>;
 
 beforeEach(() => {
-  localStorage.clear();
+  resetUiConfigForTesting();
   reloadVisualizationStoreForTesting();
   resetMetricCatalogForTesting();
   vi.spyOn(metricsService, 'getMetricCatalog').mockResolvedValue(CATALOG);

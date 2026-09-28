@@ -27,6 +27,7 @@ pub mod platform;
 pub mod processes;
 pub mod services;
 pub mod state;
+pub mod ui_config;
 
 /// The event the history scheduler emits after each batch.
 ///
@@ -65,6 +66,28 @@ pub fn run() {
             let events = Arc::new(TauriHistoryEvents(app.handle().clone()));
             let history = services::history::start_history(engine, data_dir, events);
             app.manage(Arc::new(history));
+
+            // The shared UI configuration, in the app's config directory. Never
+            // fails: an unreadable file means defaults, and the load outcome
+            // says why.
+            let config_path = match app.path().app_config_dir() {
+                Ok(dir) => ui_config::config_path(&dir),
+                Err(error) => {
+                    eprintln!("PULSE: no config directory ({error}); using a temporary one");
+                    ui_config::config_path(&std::env::temp_dir().join("dev.pulse.app"))
+                }
+            };
+            let store = Arc::new(ui_config::UiConfigStore::open(&config_path));
+            eprintln!(
+                "PULSE: UI configuration {:?}: {}",
+                store.load_outcome(),
+                config_path.display()
+            );
+            let writer = ui_config::writer::ConfigWriter::spawn(
+                Arc::clone(&store),
+                ui_config::writer::QUIET_PERIOD,
+            );
+            app.manage(commands::ui_config::UiConfigState { store, writer });
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -74,6 +97,8 @@ pub fn run() {
             commands::metrics::sample_metrics,
             commands::history::get_history_status,
             commands::history::get_metric_history,
+            commands::ui_config::get_ui_config,
+            commands::ui_config::set_ui_config_section,
             commands::processes::get_process_snapshot,
             commands::process_control::get_process_details,
             commands::process_control::get_process_provenance,
@@ -100,6 +125,10 @@ pub fn run() {
             // the WAL is checkpointed and no scheduler thread outlives PULSE.
             if let Some(history) = handle.try_state::<std::sync::Arc<history::HistoryService>>() {
                 history.shutdown();
+            }
+            // Write any configuration change still inside its quiet period.
+            if let Some(config) = handle.try_state::<commands::ui_config::UiConfigState>() {
+                config.writer.shutdown();
             }
         }
     });
