@@ -3,7 +3,8 @@ import { getCurrentWindow } from '@tauri-apps/api/window';
 import { isTauriRuntime } from '@/services/tauri';
 import type { Overlay } from '@/overlay/model';
 import { overlayChromeStyle } from '@/overlay/style';
-import { updateOverlay } from '@/overlay/model';
+import { overlayLayout, updateOverlay } from '@/overlay/model';
+import { useElementSize } from '@/visualization/useElementSize';
 import { updateOverlays, useOverlays } from '@/overlay/store';
 import { openMainWindow } from '@/overlay/desktop';
 import { WidgetCard } from '@/components/Dashboard/WidgetCard';
@@ -41,17 +42,12 @@ export function OverlaySurface({
   readonly preview?: boolean;
 }) {
   const editing = !overlay.locked && !preview;
-  const layout =
-    overlay.layout === 'grid'
-      ? { display: 'grid', gridTemplateColumns: `repeat(${overlay.columns}, max-content)` }
-      : {
-          display: 'flex',
-          flexDirection: overlay.layout === 'vertical' ? ('column' as const) : ('row' as const),
-        };
+  const layout = overlayLayout(overlay);
+  const byId = new Map(overlay.widgets.map((widget) => [widget.id, widget]));
 
   return (
     <div
-      className={`overlay${editing ? ' overlay--editing' : ''}`}
+      className={`overlay${editing ? ' overlay--editing' : ''}${preview ? ' overlay--preview' : ''}`}
       style={overlayChromeStyle(overlay)}
       aria-label={`${overlay.name} overlay`}
     >
@@ -66,6 +62,34 @@ export function OverlaySurface({
           }}
         />
       )}
+      <div
+        className="overlay__content"
+        style={{ width: layout.width, height: layout.height }}
+        data-layout={overlay.layout}
+      >
+        {layout.boxes.map((box) => {
+          const widget = byId.get(box.id)!;
+          return (
+            <div
+              key={box.id}
+              className="overlay__slot"
+              style={{ left: box.x, top: box.y, width: box.width, height: box.height }}
+              data-slot={box.id}
+            >
+              <WidgetCard
+                widget={widget}
+                width={box.width}
+                height={box.height}
+                editing={false}
+                className="widget--overlay"
+              />
+            </div>
+          );
+        })}
+        {overlay.widgets.length === 0 && (
+          <p className="overlay__empty">Add widgets from PULSE → Overlays.</p>
+        )}
+      </div>
       {editing && (
         <div className="overlay__bar" data-tauri-drag-region>
           <span className="overlay__name" data-tauri-drag-region>
@@ -91,21 +115,6 @@ export function OverlaySurface({
           </button>
         </div>
       )}
-      <div className="overlay__widgets" style={{ ...layout, gap: overlay.gap }}>
-        {overlay.widgets.map((widget) => (
-          <WidgetCard
-            key={widget.id}
-            widget={widget}
-            width={widget.size.width}
-            height={widget.size.height}
-            editing={false}
-            className="widget--overlay"
-          />
-        ))}
-        {overlay.widgets.length === 0 && (
-          <p className="overlay__empty">Add widgets from PULSE → Overlays.</p>
-        )}
-      </div>
       {editing && (
         <span
           className="overlay__resize"
@@ -119,6 +128,32 @@ export function OverlaySurface({
           }}
         />
       )}
+    </div>
+  );
+}
+
+/**
+ * The overlay exactly as its window draws it, scaled **uniformly** to fit the
+ * editor. Children keep their boxes; only the whole composition shrinks.
+ */
+export function OverlayPreview({ overlay }: { readonly overlay: Overlay }) {
+  const [ref, size] = useElementSize<HTMLDivElement>();
+  const layout = overlayLayout(overlay);
+  const available = size.width || layout.width;
+  const scale = Math.min(1, available / Math.max(1, layout.width));
+  return (
+    <div ref={ref} className="overlay-preview" data-scale={scale.toFixed(3)}>
+      <div
+        className="overlay-preview__frame"
+        style={{ width: layout.width * scale, height: layout.height * scale }}
+      >
+        <div
+          className="overlay-preview__inner"
+          style={{ width: layout.width, height: layout.height, transform: `scale(${scale})` }}
+        >
+          <OverlaySurface overlay={overlay} preview />
+        </div>
+      </div>
     </div>
   );
 }

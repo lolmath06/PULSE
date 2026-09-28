@@ -24,12 +24,15 @@ import {
   createOverlayFromPreset,
   deleteOverlay,
   moveOverlayWidget,
+  fitToContent,
   normalizeOverlays,
+  overlayLayout,
   removeOverlayWidget,
   updateOverlay,
 } from '@/overlay/model';
 import { normalizeSettings } from '@/overlay/settings';
-import { OverlayApp } from '@/components/Overlay/OverlayApp';
+import { OverlayApp, OverlaySurface } from '@/components/Overlay/OverlayApp';
+import type { Overlay, OverlayBox } from '@/overlay/model';
 import { OverlaysPage } from '@/components/Overlay/OverlaysPage';
 import { SendToOverlayDialog } from '@/components/Overlay/SendToOverlayDialog';
 import { MiniApp } from '@/components/Mini/MiniApp';
@@ -173,6 +176,127 @@ describe('overlay model', () => {
     expect(
       normalizeSettings({ closeBehavior: 'keep-running', overlayHotkey: null }).overlayHotkey,
     ).toBeNull();
+  });
+});
+
+describe('overlay layout', () => {
+  const sized = (id: string, width: number, height: number) =>
+    widgetFrom('cpu-value', { id, size: { width, height } });
+  // Deliberately heterogeneous: a wide sparkline, a tiny value, a tall group.
+  const MIXED = [
+    sized('w-a', 180, 40),
+    sized('w-b', 60, 20),
+    sized('w-c', 120, 96),
+    sized('w-d', 90, 30),
+  ];
+  const overlayOf = (layout: Overlay['layout'], columns = 2): Overlay => {
+    const { section, id } = createOverlay(EMPTY_OVERLAYS, 'L', [], { layout, columns, gap: 6 });
+    return { ...section.items.find((o) => o.id === id)!, widgets: MIXED };
+  };
+  const intersects = (a: OverlayBox, b: OverlayBox) =>
+    a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
+
+  function expectSound(overlay: Overlay) {
+    const layout = overlayLayout(overlay);
+    const pad = overlay.chrome.padding;
+    expect(layout.boxes).toHaveLength(overlay.widgets.length);
+    layout.boxes.forEach((box, i) => {
+      // Every child keeps exactly its configured pixel size.
+      expect([box.width, box.height]).toEqual([
+        overlay.widgets[i]!.size.width,
+        overlay.widgets[i]!.size.height,
+      ]);
+      expect(box.x).toBeGreaterThanOrEqual(pad);
+      expect(box.y).toBeGreaterThanOrEqual(pad);
+      expect(box.x + box.width).toBeLessThanOrEqual(layout.width - pad);
+      expect(box.y + box.height).toBeLessThanOrEqual(layout.height - pad);
+      layout.boxes.slice(i + 1).forEach((other) => expect(intersects(box, other)).toBe(false));
+    });
+    return layout;
+  }
+
+  it('row: side by side, exact total', () => {
+    const overlay = overlayOf('horizontal');
+    const layout = expectSound(overlay);
+    const pad = overlay.chrome.padding;
+    expect(layout.boxes.map((b) => b.x)).toEqual([pad, pad + 186, pad + 252, pad + 378]);
+    expect(layout.width).toBe(pad * 2 + 180 + 60 + 120 + 90 + 6 * 3);
+    expect(layout.height).toBe(pad * 2 + 96);
+  });
+
+  it('column: stacked, exact total', () => {
+    const overlay = overlayOf('vertical');
+    const layout = expectSound(overlay);
+    const pad = overlay.chrome.padding;
+    expect(layout.width).toBe(pad * 2 + 180);
+    expect(layout.height).toBe(pad * 2 + 40 + 20 + 96 + 30 + 6 * 3);
+  });
+
+  it('grid: per-column widths, per-row heights', () => {
+    const overlay = overlayOf('grid', 2);
+    const layout = expectSound(overlay);
+    const pad = overlay.chrome.padding;
+    // Columns: max(180, 120) and max(60, 90); rows: max(40, 20) and max(96, 30).
+    expect(layout.width).toBe(pad * 2 + 180 + 90 + 6);
+    expect(layout.height).toBe(pad * 2 + 40 + 96 + 6);
+    expect(layout.boxes[1]).toMatchObject({ x: pad + 186, y: pad });
+    expect(layout.boxes[2]).toMatchObject({ x: pad, y: pad + 46 });
+    expect(expectSound(overlayOf('grid', 3)).boxes).toHaveLength(4);
+    expect(expectSound(overlayOf('grid', 8)).width).toBe(
+      overlayLayout(overlayOf('horizontal')).width,
+    );
+  });
+
+  it('Fit to widgets sets the window to the layout size, exactly', () => {
+    for (const layout of ['horizontal', 'vertical', 'grid'] as const) {
+      const overlay = {
+        ...overlayOf(layout),
+        geometry: { ...overlayOf(layout).geometry, width: 999, height: 999 },
+      };
+      const fitted = fitToContent({ version: 1, items: [overlay] }, overlay.id).items[0]!;
+      const size = overlayLayout(overlay);
+      expect([fitted.geometry.width, fitted.geometry.height]).toEqual([size.width, size.height]);
+    }
+  });
+
+  it('the Gaming preset lays its heterogeneous widgets without overlap', () => {
+    const gaming = OVERLAY_PRESETS.find((preset) => preset.id === 'gaming')!;
+    const { section } = createOverlayFromPreset(EMPTY_OVERLAYS, gaming);
+    const overlay = section.items[0]!;
+    const layout = expectSound(overlay);
+    expect(new Set(overlay.widgets.map((w) => w.size.height)).size).toBeGreaterThan(1);
+    expect([overlay.geometry.width, overlay.geometry.height]).toEqual([
+      layout.width,
+      layout.height,
+    ]);
+  });
+
+  it('the window draws each widget in its box, at its size', () => {
+    const overlay = overlayOf('grid', 2);
+    resetUiConfigForTesting({ overlays: { version: 1, items: [overlay] } });
+    const { container } = render(<OverlaySurface overlay={overlay} />);
+    const content = container.querySelector('.overlay__content') as HTMLElement;
+    const layout = overlayLayout(overlay);
+    expect([content.style.width, content.style.height]).toEqual([
+      `${layout.width}px`,
+      `${layout.height}px`,
+    ]);
+    expect(container.innerHTML).not.toMatch(/max-content/);
+    layout.boxes.forEach((box) => {
+      const slot = container.querySelector(`[data-slot="${box.id}"]`) as HTMLElement;
+      expect([slot.style.left, slot.style.top, slot.style.width, slot.style.height]).toEqual(
+        [box.x, box.y, box.width, box.height].map((n) => `${n}px`),
+      );
+    });
+  });
+
+  it('edit mode lays its bar over the content: the size does not change', () => {
+    const overlay = { ...overlayOf('horizontal'), locked: false };
+    resetUiConfigForTesting({ overlays: { version: 1, items: [overlay] } });
+    const { container } = render(<OverlaySurface overlay={overlay} />);
+    const content = container.querySelector('.overlay__content') as HTMLElement;
+    expect(content.style.height).toBe(`${overlayLayout(overlay).height}px`);
+    expect(container.querySelector('.overlay__bar')).not.toBeNull();
   });
 });
 

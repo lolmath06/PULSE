@@ -10,6 +10,7 @@ import type { ResolvedBinding } from '@/dashboard/bindings';
 import { liveSeriesOf } from '@/dashboard/widgetData';
 import { metaFor } from '@/dashboard/metricInfo';
 import { describeAvailability } from '@/utils/metrics';
+import { groupLayout } from '@/visualization/presentation';
 
 /**
  * Several related values in one widget — a *group* (rows: `Usage 37 %`,
@@ -48,23 +49,31 @@ export function GroupView({
       }),
     [config],
   );
-  const count = Math.max(1, resolved.length);
-  const inline = orientation === 'inline';
+  const layout = groupLayout(
+    resolved.length,
+    width,
+    height,
+    orientation,
+    sparklines,
+    config.text.scale,
+  );
+  const inline = layout.orientation === 'inline';
+  const count = Math.max(1, layout.visible);
   const cellWidth = inline ? width / count : width;
   const rowHeight = inline ? height : height / count;
-  const fontPx = Math.max(9, Math.min(20, rowHeight * (inline ? 0.32 : 0.5))) * config.text.scale;
-  const showSpark = sparklines && (inline ? rowHeight >= 34 : cellWidth >= 160);
+  const showSpark = layout.sparklines;
 
   return (
     <ul
-      className={`widget-group widget-group--${orientation}`}
-      style={{ width, height, color: colors.text, fontSize: fontPx }}
+      className={`widget-group widget-group--${layout.orientation}`}
+      style={{ width, height, color: colors.text, fontSize: layout.fontPx }}
+      data-group-layout={layout.orientation}
     >
-      {resolved.map((entry, index) => {
+      {resolved.slice(0, layout.visible).map((entry, index) => {
         if (!entry.ok) {
           return (
             <li key={index} className="widget-group__item" title={entry.reason}>
-              <span className="widget-group__label">{entry.label}</span>
+              {layout.labels && <span className="widget-group__label">{entry.label}</span>}
               <span className="widget-group__value value--unavailable">—</span>
             </li>
           );
@@ -90,9 +99,11 @@ export function GroupView({
             className="widget-group__item"
             title={readable ? undefined : describeAvailability(entry.definition.availability)}
           >
-            <span className="widget-group__label" style={{ color: colors.muted }}>
-              {entry.label}
-            </span>
+            {layout.labels && (
+              <span className="widget-group__label" style={{ color: colors.muted }}>
+                {entry.label}
+              </span>
+            )}
             <span
               className={`widget-group__value${current === null ? ' value--unavailable' : ''}`}
               style={{ color: thresholdColor(config, current, colors.text) }}

@@ -1480,11 +1480,32 @@ code,
 
 .viz__header {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: baseline;
   gap: 4px 12px;
-  padding: 10px 12px 2px;
+  padding: 8px 12px 2px;
   min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  box-sizing: border-box;
+  flex: none;
+}
+
+.viz__header > * {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.viz__header--inline {
+  align-items: center;
+  gap: 6px;
+  padding: 1px 6px 0;
+  line-height: 1.2;
+}
+
+.viz__label {
+  flex-shrink: 1;
 }
 
 .viz__label {
@@ -1513,34 +1534,37 @@ code,
 
 .viz__body {
   position: relative;
+  flex: none;
   min-width: 0;
-  padding: 2px 4px 0;
+  overflow: hidden;
+  padding: 0;
 }
 
-.viz:not(.viz--compact) .viz__body {
-  padding: 4px 6px 0;
-}
-
-.viz__overlay {
-  position: absolute;
-  top: 3px;
-  left: 6px;
-  z-index: 1;
+/* The micro strip: text and, beside it (never on top), a sparkline. */
+.viz-strip {
   display: flex;
+  align-items: center;
   gap: 6px;
-  max-width: calc(100% - 12px);
+  min-width: 0;
+  overflow: hidden;
+  padding: 0 4px;
+  box-sizing: border-box;
+}
+
+.viz-strip__text {
+  flex: none;
+  min-width: 0;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  pointer-events: none;
-  line-height: 1.2;
+  line-height: 1.1;
 }
 
-.viz__overlay-label {
+.viz-strip__label {
   opacity: 0.7;
 }
 
-.viz__overlay-value {
+.viz-strip__value {
   font-variant-numeric: tabular-nums;
 }
 
@@ -1715,6 +1739,9 @@ code,
   align-items: baseline;
   justify-content: flex-start;
   gap: 6px;
+  padding: 0 4px;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .viz-value__label,
@@ -2179,6 +2206,53 @@ code,
   touch-action: none;
 }
 
+.widget__tools--compact {
+  top: 2px;
+  right: 2px;
+  gap: 2px;
+  padding: 1px;
+}
+
+.widget__tools--compact .widget__tool {
+  padding: 0 5px;
+  font-size: 11px;
+  line-height: 16px;
+}
+
+.widget-menu {
+  position: fixed;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  min-width: 140px;
+  padding: 4px;
+  border: 1px solid var(--pulse-border-strong);
+  border-radius: var(--pulse-radius-sm);
+  background: var(--pulse-bg-elevated);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+}
+
+.widget-menu button {
+  padding: 5px 8px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--pulse-text);
+  font: inherit;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.widget-menu button:hover,
+.widget-menu button:focus-visible {
+  background: var(--pulse-bg-hover, rgba(255, 255, 255, 0.06));
+}
+
+.widget-menu .widget-menu__danger {
+  color: var(--pulse-danger-text);
+}
+
 .widget__tool--danger {
   color: var(--pulse-danger-text);
   border-color: var(--pulse-danger-border);
@@ -2428,10 +2502,15 @@ html.pulse-overlay #root {
 }
 
 .overlay__bar {
+  /* Laid over the content: entering Edit mode never changes the overlay's size. */
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: 16px;
+  z-index: 5;
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-bottom: 4px;
   padding: 2px 4px;
   border-radius: 4px;
   background: rgba(10, 12, 15, 0.9);
@@ -2458,8 +2537,29 @@ html.pulse-overlay #root {
   cursor: pointer;
 }
 
-.overlay__widgets {
-  align-items: flex-start;
+.overlay__content {
+  position: relative;
+  flex: none;
+}
+
+/* Each widget gets an explicit box computed by overlayLayout(). */
+.overlay__slot {
+  position: absolute;
+  overflow: hidden;
+}
+
+.overlay__slot > .widget {
+  width: 100%;
+  height: 100%;
+}
+
+.overlay__empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
 .overlay__empty {
@@ -2539,6 +2639,21 @@ html.pulse-overlay #root {
 .overlay-editor__preview .overlay {
   min-width: 0;
   min-height: 0;
+}
+
+/* The preview draws the overlay at its real size, scaled uniformly to fit. */
+.overlay-preview {
+  width: 100%;
+  min-width: 0;
+}
+
+.overlay-preview__frame {
+  position: relative;
+  overflow: hidden;
+}
+
+.overlay-preview__inner {
+  transform-origin: 0 0;
 }
 
 .overlay-editor__settings {

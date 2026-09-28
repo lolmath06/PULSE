@@ -82,11 +82,39 @@ The **live feed** (`src-tauri/src/live/`, `src/live/liveFeed.ts`):
 Unavailable readings stay gaps (`null`), never zeros; a widget whose metric the
 backend cannot read shows the backend's reason.
 
-## Tiny widgets
+## Tiny widgets — responsive density
 
-Tested sizes: values at 60×20, 80×24, 120×32; sparklines at 80×24, 120×32,
-160×40 — no axes, no legend, no `NaN`. On a dashboard the smallest widget is
-1×1 cell; in an overlay any pixel size from 24×16.
+Every widget decides **what it draws from the box it actually gets**, the same
+way on a dashboard, in Mini and in an overlay
+(`src/visualization/presentation.ts`, `src/dashboard/geometry.ts`):
+
+| Density | Box                         | Drawn                                                                                                                                                          |
+| ------- | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| micro   | height < 56 or width < 110  | the primary value (label and unit only if they fit); a sparkline **beside** it, never on top; no stats, axes, grid, legend, secondary text, markers or tooltip |
+| compact | height < 130 or width < 200 | one-line header, chart, no stats/legend/axes                                                                                                                   |
+| normal  | otherwise                   | full header, statistics, legend; axes when there is room                                                                                                       |
+| large   | ≥ 640 × 260                 | everything                                                                                                                                                     |
+
+- Parts are given explicit heights and dropped in order (statistics → legend →
+  full header → inline header) until the chart keeps its minimum height, so
+  nothing is ever painted over something else and nothing overflows.
+- Renderers degrade **for rendering only**: a gauge smaller than 64 px draws
+  its value; a bar narrower than 90 px draws its value; a bar drops its label
+  (under 160 px) before its track or value; a narrow sparkline (< 110 px) is
+  the line alone; text drops its label, then its unit, before shrinking.
+- The stored configuration is **never** changed: enlarge the widget and the
+  detail returns.
+- The widget frame drops its title under 72 px of height and its padding
+  shrinks to ≤ 3 px under 140×70.
+- In edit mode a widget narrower than 300 px or lower than 90 px shows only
+  its drag handle and a **“…”** menu (Customize, Duplicate, To overlay,
+  Remove) plus the resize grip.
+
+Tested sizes (`presentation.test.tsx`, `Dashboard.test.tsx`): value 60×20,
+80×24, 110×44, 160×40; sparkline 80×24, 110×44, 120×32, 160×40; line/area
+110×44, 160×80, 320×140, 800×300; group 110×44, 160×80, 280×140. On a
+dashboard the smallest widget is 1×1 cell; in an overlay any pixel size from
+24×16.
 
 ## Templates
 

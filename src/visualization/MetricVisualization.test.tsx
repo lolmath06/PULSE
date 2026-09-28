@@ -306,8 +306,9 @@ describe('MetricVisualization — sizes', () => {
   ])('a %i×%i chart has axes and sensible spacing', (width, height) => {
     const { container } = draw(data, {}, { width, height });
     const svg = container.querySelector('svg')!;
-    expect(Number(svg.getAttribute('width'))).toBe(width);
-    expect(svg.getAttribute('viewBox')).toBe(`0 0 ${width} ${svg.getAttribute('height')}`);
+    // The 1 px frame border is drawn inside the box.
+    expect(Number(svg.getAttribute('width'))).toBe(width - 2);
+    expect(svg.getAttribute('viewBox')).toBe(`0 0 ${width - 2} ${svg.getAttribute('height')}`);
     const hit = container.querySelector('.viz-chart__hit')!;
     expect(Number(hit.getAttribute('width'))).toBeGreaterThan(width * 0.85);
     expect(container.querySelectorAll('.viz-chart__tick').length).toBeGreaterThan(4);

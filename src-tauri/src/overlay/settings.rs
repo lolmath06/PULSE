@@ -56,6 +56,61 @@ pub fn parse_settings(section: Option<&Value>) -> DesktopSettings {
     }
 }
 
+/// What closing the **main** window must do.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum MainCloseAction {
+    /// Quit PULSE: overlays close, schedulers stop, SQLite is checkpointed.
+    Quit,
+    /// Hide the main window only. PULSE — its overlays, the live feed and the
+    /// history recorder — keeps running; *Open PULSE* shows it again.
+    HideMain,
+}
+
+/// The close policy, as a pure function:
+///
+/// | close behaviour | visible overlays | action   |
+/// | --------------- | ---------------- | -------- |
+/// | Quit            | any              | Quit     |
+/// | Keep running    | none             | Quit     |
+/// | Keep running    | at least one     | HideMain |
+///
+/// It never depends on the tray being shown: GNOME may hide tray icons, and
+/// an overlay's *Open PULSE* is always there to bring the main window back.
+pub fn main_close_action(behavior: CloseBehavior, visible_overlays: usize) -> MainCloseAction {
+    match (behavior, visible_overlays) {
+        (CloseBehavior::KeepRunningWithOverlays, n) if n > 0 => MainCloseAction::HideMain,
+        _ => MainCloseAction::Quit,
+    }
+}
+
+/// Whether the runtime may exit **on its own** — when its last window is
+/// destroyed, which is Tauri's implicit exit. An explicit Quit (`app.exit`)
+/// always exits; an implicit exit is refused while keep-running has visible
+/// overlays, so nothing but an explicit Quit ends a keep-running session.
+pub fn allow_exit(explicit: bool, behavior: CloseBehavior, visible_overlays: usize) -> bool {
+    explicit || main_close_action(behavior, visible_overlays) == MainCloseAction::Quit
+}
+
+/// Runs the close policy against the window system. Separated from Tauri so
+/// the decision *and* its effect on the window are tested with fakes.
+pub fn handle_main_close(
+    behavior: CloseBehavior,
+    visible_overlays: usize,
+    prevent_close: impl FnOnce(),
+    hide_main: impl FnOnce(),
+    quit: impl FnOnce(),
+) -> MainCloseAction {
+    // The window is never destroyed by the close button: either it is hidden,
+    // or the whole application quits through its normal exit path.
+    prevent_close();
+    let action = main_close_action(behavior, visible_overlays);
+    match action {
+        MainCloseAction::HideMain => hide_main(),
+        MainCloseAction::Quit => quit(),
+    }
+    action
+}
+
 /// Registers and unregisters one global shortcut; implemented by the Tauri
 /// plugin in the app and by a fake in tests.
 pub trait ShortcutRegistrar {
@@ -231,5 +286,73 @@ mod tests {
             .apply(&mut fake, saved.hotkey.as_deref())
             .expect("restored");
         assert_eq!(manager.current(), Some("Alt+Shift+O"));
+    }
+
+    #[test]
+    fn quit_with_overlays_quits() {
+        assert_eq!(
+            main_close_action(CloseBehavior::Quit, 2),
+            MainCloseAction::Quit
+        );
+        assert_eq!(
+            main_close_action(CloseBehavior::Quit, 0),
+            MainCloseAction::Quit
+        );
+    }
+
+    #[test]
+    fn keep_running_without_visible_overlays_quits() {
+        assert_eq!(
+            main_close_action(CloseBehavior::KeepRunningWithOverlays, 0),
+            MainCloseAction::Quit
+        );
+    }
+
+    #[test]
+    fn keep_running_with_a_visible_overlay_only_hides_the_main_window() {
+        let events = std::cell::RefCell::new(Vec::new());
+        let action = handle_main_close(
+            CloseBehavior::KeepRunningWithOverlays,
+            1,
+            || events.borrow_mut().push("prevent"),
+            || events.borrow_mut().push("hide"),
+            || events.borrow_mut().push("quit"),
+        );
+        assert_eq!(action, MainCloseAction::HideMain);
+        assert_eq!(
+            *events.borrow(),
+            ["prevent", "hide"],
+            "no exit is ever requested"
+        );
+        assert!(
+            !allow_exit(false, CloseBehavior::KeepRunningWithOverlays, 1),
+            "implicit exit refused"
+        );
+        assert!(
+            allow_exit(true, CloseBehavior::KeepRunningWithOverlays, 1),
+            "explicit Quit still quits"
+        );
+    }
+
+    #[test]
+    fn keep_running_with_only_hidden_overlays_quits() {
+        // Hidden overlays are not "visible overlays": nothing would be left on screen.
+        let events = std::cell::RefCell::new(Vec::new());
+        let action = handle_main_close(
+            CloseBehavior::KeepRunningWithOverlays,
+            0,
+            || events.borrow_mut().push("prevent"),
+            || events.borrow_mut().push("hide"),
+            || events.borrow_mut().push("quit"),
+        );
+        assert_eq!(action, MainCloseAction::Quit);
+        assert_eq!(*events.borrow(), ["prevent", "quit"]);
+        assert!(allow_exit(false, CloseBehavior::KeepRunningWithOverlays, 0));
+    }
+
+    #[test]
+    fn quit_mode_allows_every_exit() {
+        assert!(allow_exit(false, CloseBehavior::Quit, 3));
+        assert!(allow_exit(true, CloseBehavior::Quit, 3));
     }
 }

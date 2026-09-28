@@ -219,6 +219,9 @@ export function writeSection(section: UiSection, value: unknown) {
   if (!current) return;
   const previous = timers.get(section);
   if (previous) clearTimeout(previous);
+  // Settings change rarely and the backend acts on them (what closing the
+  // main window does): they are sent at once, never left in a debounce.
+  const delay = section === 'settings' ? 0 : SAVE_DEBOUNCE_MS;
   timers.set(
     section,
     setTimeout(() => {
@@ -231,7 +234,7 @@ export function writeSection(section: UiSection, value: unknown) {
         .catch((error: unknown) =>
           setState({ saveError: error instanceof Error ? error.message : String(error) }),
         );
-    }, SAVE_DEBOUNCE_MS),
+    }, delay),
   );
 }
 

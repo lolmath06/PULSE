@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed — Phase 11 corrective: responsive widgets & overlay lifetime
+
+- **Keep running with visible overlays** now really keeps PULSE running:
+  closing the main window only hides it (pure, tested policy
+  `main_close_action` / `handle_main_close`), Tauri's implicit exit when the
+  last window goes is refused while overlays are visible, and _Open PULSE_
+  shows the same main window again (recreated from its configuration only if
+  it no longer exists). An explicit Quit still stops everything. Settings are
+  written without the save debounce so the backend sees a changed close
+  behaviour at once.
+- **Responsive density** shared by dashboards, Mini and overlays:
+  micro/compact/normal/large from the real box. Micro widgets show their
+  primary value (and a sparkline beside it) without stats, axes, grid, legend,
+  secondary labels or tooltip; parts get explicit heights and are dropped in
+  order, so text is never painted over by a chart and nothing overflows.
+  Gauges and narrow bars fall back to a value, bars drop their label first —
+  rendering only, the stored configuration is never changed.
+- **Compact edit tools** for small widgets: drag handle + “…” menu
+  (Customize, Duplicate, To overlay, Remove) + resize grip.
+- **Overlay layout** gives every widget an explicit box of its configured size
+  (row, column, grid with per-column widths and per-row heights) — no
+  `max-content`; _Fit to widgets_ uses the same math; the border is drawn
+  inside the box; the Edit bar is laid over the content; the editor preview
+  matches the window, scaled uniformly.
+- Docs: what the click-through and global-shortcut manual tests mean.
+
 ### Added — Phase 11: Modular dashboard, widgets & desktop overlays
 
 - **Shared UI configuration** (`UiConfigStore`): one versioned

@@ -11,11 +11,38 @@ export function columnsFor(width: number): number {
   return 1;
 }
 
+/**
+ * How a widget's frame uses its box. Part of the same density policy as the
+ * visualizations (`src/visualization/presentation.ts`): at small sizes the
+ * title goes first, padding shrinks, and the edit tools collapse into a
+ * handle and a "…" menu, so the metric itself keeps the space.
+ */
+export interface FrameLayout {
+  readonly padding: number;
+  readonly showTitle: boolean;
+  readonly compactTools: boolean;
+  readonly content: { readonly width: number; readonly height: number };
+}
+
+export function frameLayout(widget: WidgetInstance, width: number, height: number): FrameLayout {
+  const small = width < 140 || height < 70;
+  const padding = small ? Math.min(widget.frame.padding, 3) : widget.frame.padding;
+  const showTitle = widget.frame.showTitle && height >= 72 && width >= 100;
+  const inset = padding * 2 + (widget.frame.border === 'thin' ? 2 : 0);
+  return {
+    padding,
+    showTitle,
+    compactTools: width < 300 || height < 90,
+    content: {
+      width: Math.max(8, width - inset),
+      height: Math.max(8, height - inset - (showTitle ? TITLE_HEIGHT : 0)),
+    },
+  };
+}
+
 /** The inner box a widget's content gets, after its frame. */
 export function contentBox(widget: WidgetInstance, width: number, height: number) {
-  const inset = widget.frame.padding * 2 + (widget.frame.border === 'thin' ? 2 : 0);
-  const title = widget.frame.showTitle ? TITLE_HEIGHT : 0;
-  return { width: Math.max(8, width - inset), height: Math.max(8, height - inset - title) };
+  return frameLayout(widget, width, height).content;
 }
 
 export function widgetTitle(widget: WidgetInstance): string {

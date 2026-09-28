@@ -154,34 +154,120 @@ export function normalizeOverlays(raw: unknown): OverlaysSection {
   return { version: OVERLAYS_VERSION, items };
 }
 
+/** One child's box inside an overlay, in logical pixels. */
+export interface OverlayBox {
+  readonly id: string;
+  readonly x: number;
+  readonly y: number;
+  readonly width: number;
+  readonly height: number;
+}
+
+export interface OverlayLayoutResult {
+  readonly width: number;
+  readonly height: number;
+  readonly boxes: readonly OverlayBox[];
+}
+
+/** The size of an overlay with no widget yet. */
+export const EMPTY_OVERLAY_SIZE = { width: 160, height: 48 } as const;
+
+/**
+ * The exact box of every widget in an overlay — the single source of truth
+ * for the real overlay window, the editor preview and *Fit to widgets*.
+ *
+ * Each child gets exactly its configured pixel size, placed by the layout:
+ *
+ * - **row**: x advances by `width + gap`; height = tallest child;
+ * - **column**: y advances by `height + gap`; width = widest child;
+ * - **grid**: `columns` columns; each column as wide as its widest child,
+ *   each row as tall as its tallest child.
+ *
+ * The overlay's padding surrounds everything. Boxes never intersect, by
+ * construction, and the overlay size always contains them all.
+ */
+export function overlayLayout(
+  overlay: Pick<Overlay, 'layout' | 'columns' | 'gap' | 'chrome' | 'widgets'>,
+): OverlayLayoutResult {
+  const pad = overlay.chrome.padding;
+  const gap = overlay.gap;
+  const widgets = overlay.widgets;
+  if (widgets.length === 0) return { ...EMPTY_OVERLAY_SIZE, boxes: [] };
+
+  if (overlay.layout === 'horizontal') {
+    let x = pad;
+    const boxes = widgets.map((widget) => {
+      const box = {
+        id: widget.id,
+        x,
+        y: pad,
+        width: widget.size.width,
+        height: widget.size.height,
+      };
+      x += widget.size.width + gap;
+      return box;
+    });
+    return {
+      width: x - gap + pad,
+      height: pad * 2 + Math.max(...widgets.map((widget) => widget.size.height)),
+      boxes,
+    };
+  }
+
+  if (overlay.layout === 'vertical') {
+    let y = pad;
+    const boxes = widgets.map((widget) => {
+      const box = {
+        id: widget.id,
+        x: pad,
+        y,
+        width: widget.size.width,
+        height: widget.size.height,
+      };
+      y += widget.size.height + gap;
+      return box;
+    });
+    return {
+      width: pad * 2 + Math.max(...widgets.map((widget) => widget.size.width)),
+      height: y - gap + pad,
+      boxes,
+    };
+  }
+
+  const columns = Math.max(1, Math.min(overlay.columns, widgets.length));
+  const rows = Math.ceil(widgets.length / columns);
+  const columnWidths = Array.from({ length: columns }, (_, column) =>
+    Math.max(
+      ...widgets.filter((_, i) => i % columns === column).map((widget) => widget.size.width),
+    ),
+  );
+  const rowHeights = Array.from({ length: rows }, (_, row) =>
+    Math.max(
+      ...widgets
+        .filter((_, i) => Math.floor(i / columns) === row)
+        .map((widget) => widget.size.height),
+    ),
+  );
+  const offset = (sizes: readonly number[], index: number) =>
+    pad + sizes.slice(0, index).reduce((sum, size) => sum + size + gap, 0);
+  const boxes = widgets.map((widget, i) => ({
+    id: widget.id,
+    x: offset(columnWidths, i % columns),
+    y: offset(rowHeights, Math.floor(i / columns)),
+    width: widget.size.width,
+    height: widget.size.height,
+  }));
+  const total = (sizes: readonly number[]) =>
+    pad * 2 + sizes.reduce((sum, size) => sum + size, 0) + gap * (sizes.length - 1);
+  return { width: total(columnWidths), height: total(rowHeights), boxes };
+}
+
 /** The size the widgets need, chrome included, in logical pixels. */
 export function contentSize(
   overlay: Pick<Overlay, 'layout' | 'columns' | 'gap' | 'chrome' | 'widgets'>,
 ) {
-  const pad = overlay.chrome.padding * 2;
-  const sizes = overlay.widgets.map((widget) => widget.size);
-  if (sizes.length === 0) return { width: 160, height: 48 };
-  const gaps = (count: number) => Math.max(0, count - 1) * overlay.gap;
-  if (overlay.layout === 'horizontal') {
-    return {
-      width: sizes.reduce((sum, size) => sum + size.width, 0) + gaps(sizes.length) + pad,
-      height: Math.max(...sizes.map((size) => size.height)) + pad,
-    };
-  }
-  if (overlay.layout === 'vertical') {
-    return {
-      width: Math.max(...sizes.map((size) => size.width)) + pad,
-      height: sizes.reduce((sum, size) => sum + size.height, 0) + gaps(sizes.length) + pad,
-    };
-  }
-  const columns = Math.max(1, Math.min(overlay.columns, sizes.length));
-  const rows = Math.ceil(sizes.length / columns);
-  const cellWidth = Math.max(...sizes.map((size) => size.width));
-  const cellHeight = Math.max(...sizes.map((size) => size.height));
-  return {
-    width: columns * cellWidth + gaps(columns) + pad,
-    height: rows * cellHeight + gaps(rows) + pad,
-  };
+  const { width, height } = overlayLayout(overlay);
+  return { width, height };
 }
 
 /** A widget as it appears in an overlay: same everything, its own id and a pixel size. */

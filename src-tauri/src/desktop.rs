@@ -35,7 +35,9 @@ use crate::overlay::capabilities::{
     SessionFacts,
 };
 use crate::overlay::geometry::{capture, place, MonitorInfo, OverlayGeometry};
-use crate::overlay::settings::{parse_settings, CloseBehavior, HotkeyManager, ShortcutRegistrar};
+use crate::overlay::settings::{
+    allow_exit, handle_main_close, parse_settings, HotkeyManager, ShortcutRegistrar,
+};
 use crate::overlay::spec::{self, id_from_label, label_for, parse_overlays, OverlaySpec};
 
 pub const MINI_LABEL: &str = "mini";
@@ -364,15 +366,20 @@ pub fn on_window_event<R: Runtime>(
     if label == MAIN_LABEL {
         if let WindowEvent::CloseRequested { api, .. } = event {
             let settings = parse_settings(section(app, "settings").as_ref());
-            let overlays_visible = spec::any_visible(section(app, "overlays").as_ref());
-            if settings.close_behavior == CloseBehavior::KeepRunningWithOverlays && overlays_visible
-            {
-                api.prevent_close();
-                let _ = window.hide();
-            } else {
-                api.prevent_close();
-                app.exit(0);
-            }
+            let visible = spec::visible_count(section(app, "overlays").as_ref());
+            let action = handle_main_close(
+                settings.close_behavior,
+                visible,
+                || api.prevent_close(),
+                || {
+                    let _ = window.hide();
+                },
+                || app.exit(0),
+            );
+            eprintln!(
+                "PULSE: main window closed — {:?} ({:?}, {visible} visible overlay(s))",
+                action, settings.close_behavior
+            );
         }
     }
 }
@@ -409,12 +416,46 @@ pub fn overlay_action<R: Runtime>(app: &AppHandle<R>, action: OverlayAction) {
     });
 }
 
+/// Brings the main window back: the same window if it was hidden, or — should
+/// it ever have been destroyed — a new one built from the same configuration
+/// and label, so there is never a second main window.
 pub fn show_main<R: Runtime>(app: &AppHandle<R>) {
-    if let Some(window) = app.get_webview_window(MAIN_LABEL) {
-        let _ = window.show();
-        let _ = window.unminimize();
-        let _ = window.set_focus();
-    }
+    eprintln!("PULSE: showing the main window");
+    let window = match app.get_webview_window(MAIN_LABEL) {
+        Some(window) => window,
+        None => {
+            let Some(config) = app
+                .config()
+                .app
+                .windows
+                .iter()
+                .find(|window| window.label == MAIN_LABEL)
+                .cloned()
+            else {
+                return;
+            };
+            match WebviewWindowBuilder::from_config(app, &config)
+                .and_then(|builder| builder.build())
+            {
+                Ok(window) => window,
+                Err(error) => {
+                    eprintln!("PULSE: the main window could not be recreated: {error}");
+                    return;
+                }
+            }
+        }
+    };
+    let _ = window.show();
+    let _ = window.unminimize();
+    let _ = window.set_focus();
+}
+
+/// Whether Tauri may exit on its own (its last window was destroyed). An
+/// explicit Quit never asks this; see `overlay::settings::allow_exit`.
+pub fn allow_implicit_exit<R: Runtime>(app: &AppHandle<R>) -> bool {
+    let settings = parse_settings(section(app, "settings").as_ref());
+    let visible = spec::visible_count(section(app, "overlays").as_ref());
+    allow_exit(false, settings.close_behavior, visible)
 }
 
 pub fn open_mini<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {

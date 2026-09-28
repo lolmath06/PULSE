@@ -2,6 +2,7 @@ import type { VisualizationConfig } from '@/visualization/config';
 import type { ResolvedColors } from '@/visualization/color';
 import { thresholdColor } from '@/visualization/color';
 import { formatParts, formatValue } from '@/visualization/format';
+import { fitLine } from '@/visualization/presentation';
 import { barBounds, gaugeBounds } from '@/visualization/registry';
 import { arcPath } from '@/visualization/geometry';
 import type { SeriesSummary } from '@/visualization/series';
@@ -32,7 +33,13 @@ function decimalsOf(config: VisualizationConfig, meta: VisualizationMeta) {
   return config.text.decimals ?? meta.decimals;
 }
 
-/** Just the number: `27 %`, or `CPU 27 %`, as large as the box allows. */
+/**
+ * Just the number: `27 %`, or `CPU 27 %`, as large as the box allows.
+ *
+ * Tall rows stack the label above the number; short ones put everything on
+ * one line fitted by `fitLine` — the label goes first, then the unit, before
+ * the text is allowed to become unreadable. Nothing wraps or overlaps.
+ */
 export function ValueView({
   summaries,
   meta,
@@ -44,9 +51,7 @@ export function ValueView({
 }: InstantViewProps) {
   const rows = Math.max(1, summaries.length);
   const rowHeight = height / rows;
-  const valuePx = Math.max(10, Math.min(64, rowHeight * 0.58, width / 6)) * config.text.scale;
-  const labelPx = Math.max(9, valuePx * 0.36);
-  const inline = rowHeight < 44;
+  const stacked = rowHeight >= 56 && width >= 110;
 
   return (
     <div className="viz-value" style={{ width, height }}>
@@ -56,41 +61,81 @@ export function ValueView({
             ? { value: '—', unit: '' }
             : formatParts(summary.current, meta.unit, decimalsOf(config, meta));
         const label = summaries.length > 1 ? labels[index] : meta.label;
+        const wantLabel = config.text.showLabel ? label : null;
+        const wantUnit = config.text.showUnit && parts.unit ? parts.unit : null;
+        const color = thresholdColor(config, summary.current, colors.text);
+
+        if (stacked) {
+          const numberFit = fitLine(
+            width - 16,
+            rowHeight * 0.62,
+            { value: parts.value, unit: wantUnit },
+            config.text.scale,
+            64,
+          );
+          const labelPx = Math.max(9, Math.min(14, rowHeight * 0.2)) * config.text.scale;
+          return (
+            <div key={index} className="viz-value__row" style={{ height: rowHeight }}>
+              {wantLabel && (
+                <span
+                  className="viz-value__label"
+                  style={{ fontSize: labelPx, color: colors.muted }}
+                >
+                  {wantLabel}
+                </span>
+              )}
+              <span
+                className="viz-value__number"
+                style={{
+                  fontSize: numberFit.fontPx,
+                  fontWeight: WEIGHTS[config.text.weight],
+                  color,
+                }}
+              >
+                {parts.value}
+                {numberFit.unit && wantUnit && (
+                  <span className="viz-value__unit" style={{ fontSize: numberFit.fontPx * 0.5 }}>
+                    {` ${wantUnit}`}
+                  </span>
+                )}
+              </span>
+              {index === 0 && meta.secondary && rowHeight >= 80 && (
+                <span
+                  className="viz-value__secondary"
+                  style={{ fontSize: labelPx, color: colors.muted }}
+                >
+                  {meta.secondary}
+                </span>
+              )}
+            </div>
+          );
+        }
+
+        const fit = fitLine(
+          width - 8,
+          rowHeight,
+          { label: wantLabel, value: parts.value, unit: wantUnit },
+          config.text.scale,
+          32,
+        );
         return (
           <div
             key={index}
-            className={`viz-value__row${inline ? ' viz-value__row--inline' : ''}`}
-            style={{ height: rowHeight }}
+            className="viz-value__row viz-value__row--inline"
+            style={{ height: rowHeight, fontSize: fit.fontPx }}
           >
-            {config.text.showLabel && (
-              <span className="viz-value__label" style={{ fontSize: labelPx, color: colors.muted }}>
-                {label}
+            {fit.label && wantLabel && (
+              <span className="viz-value__label" style={{ color: colors.muted }}>
+                {wantLabel}
               </span>
             )}
             <span
               className="viz-value__number"
-              style={{
-                fontSize: valuePx,
-                fontWeight: WEIGHTS[config.text.weight],
-                color: thresholdColor(config, summary.current, colors.text),
-              }}
+              style={{ fontWeight: WEIGHTS[config.text.weight], color }}
             >
               {parts.value}
-              {config.text.showUnit && parts.unit && (
-                <span className="viz-value__unit" style={{ fontSize: valuePx * 0.5 }}>
-                  {' '}
-                  {parts.unit}
-                </span>
-              )}
+              {fit.unit && wantUnit ? ` ${wantUnit}` : ''}
             </span>
-            {!inline && index === 0 && meta.secondary && (
-              <span
-                className="viz-value__secondary"
-                style={{ fontSize: labelPx, color: colors.muted }}
-              >
-                {meta.secondary}
-              </span>
-            )}
           </div>
         );
       })}
@@ -113,8 +158,11 @@ export function BarView({
   const rows = Math.max(1, summaries.length);
   const rowHeight = Math.min(height / rows, 48);
   const trackHeight = Math.max(4, Math.min(18, rowHeight * 0.36));
-  const fontPx = Math.max(9, Math.min(14, rowHeight * 0.34)) * config.text.scale;
+  const fontPx = Math.max(8, Math.min(14, rowHeight * 0.5)) * config.text.scale;
   const span = bounds.max - bounds.min || 1;
+  // The label is the first thing to go: the bar and its value keep the room.
+  const showLabel = config.text.showLabel && width >= 160 && rowHeight >= 16;
+  const showNote = height - rows * rowHeight >= 14;
 
   return (
     <div className="viz-bar" style={{ width, height }}>
@@ -125,7 +173,7 @@ export function BarView({
         const label = summaries.length > 1 ? labels[index] : meta.label;
         return (
           <div key={index} className="viz-bar__row" style={{ height: rowHeight, fontSize: fontPx }}>
-            {config.text.showLabel && (
+            {showLabel && (
               <span className="viz-bar__label" style={{ color: colors.muted }}>
                 {label}
               </span>
@@ -164,6 +212,7 @@ export function BarView({
         );
       })}
       {bounds.auto &&
+        showNote &&
         summaries.some((summary) => summary.current !== null) &&
         !config.display.compact && (
           <span className="viz-bar__note" style={{ color: colors.muted }}>

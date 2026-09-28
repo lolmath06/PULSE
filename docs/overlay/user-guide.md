@@ -11,12 +11,22 @@
 
 ## Edit and lock
 
-- An overlay starts in **Edit** mode: a thin bar on top — drag it to move the
-  window — with _Lock_ and _Open PULSE_, and a grip in the bottom-right corner
-  to resize.
+- An overlay starts in **Edit** mode: a thin bar laid over the top — drag it
+  to move the window — with _Lock_ and _Open PULSE_, and a grip in the
+  bottom-right corner to resize. The bar never changes the overlay's size.
 - **Lock** hides every control. Where the system allows, clicks then go
   through the overlay to the application behind it, and the overlay can never
   take the keyboard focus.
+
+**How to test click-through:** lock the overlay over a Firefox window and
+click on it. **Success:** Firefox receives the click _and_ the focus, PULSE
+does not become focused, and the overlay stays drawn where it was. The
+application behind becoming active is the expected result, not a bug.
+**Failure:** the click is swallowed by the overlay, PULSE takes the focus, or
+the overlay goes behind Firefox / disappears. Whether it stays visually above
+is the separate _always on top_ capability (on GNOME Wayland: Alt+Space →
+_Always on Top_ on the overlay).
+
 - To edit again: PULSE → Overlays → _Edit overlay_ / _Edit all_, the tray's
   _Edit overlays_, or the global shortcut.
 
@@ -25,7 +35,14 @@
 In PULSE → Overlays, each overlay has: name, visible, Edit/Lock, layout (row,
 column, grid), background (on/off, colour, opacity — the text stays opaque),
 border, shadow, corners, gap, size (_Fit to widgets_), and position where the
-system allows it. Each widget has a pixel size, _Customize_ (the full Phase 10
+system allows it.
+
+**Layout is exact.** Every widget keeps its own pixel size and gets its own
+box: a _row_ places them side by side, a _column_ stacks them, a _grid_ uses
+columns as wide as their widest widget and rows as tall as their tallest.
+The padding surrounds everything. _Fit to widgets_ sets the window to exactly
+that size, and the preview in PULSE → Overlays draws the same composition,
+scaled down uniformly when it does not fit the page. Each widget has a pixel size, _Customize_ (the full Phase 10
 panel: renderer, colours, line, fill, background, fonts, history range…),
 reorder, _Copy to dashboard_ and remove.
 
@@ -39,13 +56,24 @@ removes it.
 On **GNOME Wayland** global shortcuts only reach PULSE while an X11 window has
 focus — use the tray or PULSE → Overlays instead.
 
+**How to test it:** focus _another_ application (e.g. Firefox), press the
+shortcut, and watch the overlay switch between Edit and Locked. If it only
+works while an X11 window has focus, the shortcut is **Limited** on that
+session — as PULSE reports on GNOME Wayland — not broken.
+
 ## Closing PULSE
 
 - Default: closing the main window **quits PULSE** and closes the overlays.
-- _Keep running while overlays are visible_: closing the main window hides it;
-  reopen it from the tray or an overlay's _Open PULSE_. Closing the last
-  overlay brings the main window back.
-- **Quit PULSE** (tray or main window) stops everything.
+- _Keep running while overlays are visible_: while at least one overlay is
+  visible, closing the main window only **hides** it. The overlays, the live
+  feed and the history recorder keep running. _Open PULSE_ (an overlay in
+  Edit mode, or the tray) shows the **same** main window again — never a
+  second one. This does not depend on the tray: GNOME may hide tray icons.
+  Closing the last overlay brings the main window back. With no visible
+  overlay, closing the main window quits.
+- **Quit PULSE** (tray or the command) always quits: overlays close, the live
+  feed and history stop, the configuration is flushed and the database
+  checkpointed, and no PULSE process is left.
 
 ## What your system allows
 

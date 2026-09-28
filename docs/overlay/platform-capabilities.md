@@ -60,6 +60,20 @@ because WebKit crashes on nouveau under X11 otherwise):
   transparent areas; this is tied to that forced WebKit mode and was not seen
   in opaque areas. To confirm on native Wayland.
 
+## What the manual tests mean
+
+- **Click-through — success:** with a locked overlay over another application
+  (e.g. Firefox), a click lands in that application, which becomes focused;
+  PULSE does **not** gain focus; the overlay remains drawn. The application
+  behind taking focus is the intended behaviour and must not be "fixed".
+  **Failure:** the overlay swallows the click or takes focus. The overlay
+  going behind the application or disappearing is an **always-on-top**
+  limitation, reported separately.
+- **Global shortcut — success:** with another application focused, the
+  shortcut toggles every overlay between Edit and Locked. If it works only
+  while an X11/XWayland window has focus (GNOME Wayland), report **Limited**,
+  which is what PULSE shows there.
+
 ## Fullscreen games
 
 | Game mode             | Desktop overlay                                                         |

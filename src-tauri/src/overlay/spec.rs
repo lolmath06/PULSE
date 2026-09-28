@@ -142,6 +142,14 @@ pub fn toggle_all_locked(section: &mut Value) -> Option<bool> {
     Some(lock)
 }
 
+/// How many overlays are configured visible.
+pub fn visible_count(section: Option<&Value>) -> usize {
+    parse_overlays(section)
+        .iter()
+        .filter(|spec| spec.visible)
+        .count()
+}
+
 /// Whether every overlay is hidden (for the tray's Show/Hide toggle).
 pub fn any_visible(section: Option<&Value>) -> bool {
     parse_overlays(section).iter().any(|spec| spec.visible)

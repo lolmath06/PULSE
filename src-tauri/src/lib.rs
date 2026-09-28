@@ -169,6 +169,24 @@ pub fn run() {
                 live.remove_subscriber(label);
             }
         }
+        if let tauri::RunEvent::ExitRequested { code, api, .. } = &event {
+            // `code: None` is Tauri's implicit exit (its last window was
+            // destroyed); `Some` is an explicit Quit, which always quits.
+            if code.is_none() && !desktop::allow_implicit_exit(handle) {
+                api.prevent_exit();
+                eprintln!("PULSE: implicit exit refused — keep running with visible overlays");
+            } else {
+                eprintln!("PULSE: exit requested (code {code:?})");
+            }
+        }
+        if let tauri::RunEvent::WindowEvent {
+            label,
+            event: tauri::WindowEvent::Destroyed,
+            ..
+        } = &event
+        {
+            eprintln!("PULSE: window destroyed: {label}");
+        }
         if let tauri::RunEvent::Exit = event {
             use tauri::Manager;
             // Finish the batch in flight and let the store close cleanly, so

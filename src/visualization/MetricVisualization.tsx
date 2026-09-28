@@ -9,6 +9,7 @@ import { maxPointCount, summarize } from '@/visualization/series';
 import type { SeriesSummary } from '@/visualization/series';
 import type { VisualizationData, VisualizationMeta } from '@/visualization/types';
 import { useElementSize } from '@/visualization/useElementSize';
+import { fitLine, presentationFor, renderedConfig } from '@/visualization/presentation';
 import { TimeSeriesChart } from '@/visualization/renderers/TimeSeriesChart';
 import { BarView, GaugeView, ValueView } from '@/visualization/renderers/InstantViews';
 
@@ -60,17 +61,37 @@ function frameStyle(config: VisualizationConfig, border: string, glow: string): 
 export function MetricVisualization({
   data,
   meta,
-  config,
+  config: storedConfig,
   width,
   height,
   className,
 }: MetricVisualizationProps) {
-  const [bodyRef, measured] = useElementSize<HTMLDivElement>();
+  const [rootRef, measured] = useElementSize<HTMLDivElement>();
+  const exact = width !== undefined && height !== undefined;
+
+  const boxWidth = width ?? (measured.width || storedConfig.size.width || FALLBACK_WIDTH);
+  const boxHeight = exact ? height : configuredHeight(storedConfig);
+
+  // Responsive density: decided from the real box, applied to rendering only.
+  const presentation = useMemo(
+    () =>
+      presentationFor({
+        config: storedConfig,
+        width: boxWidth,
+        height: boxHeight,
+        seriesCount: data.series.length,
+        exact,
+      }),
+    [storedConfig, boxWidth, boxHeight, data.series.length, exact],
+  );
+  const config = useMemo(
+    () => renderedConfig(storedConfig, presentation),
+    [storedConfig, presentation],
+  );
+
   const colors = useMemo(() => resolveColors(config), [config]);
   const info = rendererInfo(config.renderer);
   const support = rendererSupport(config.renderer, meta, config);
-  const compact = config.display.compact || config.renderer === 'sparkline';
-  const exact = width !== undefined && height !== undefined;
 
   const labels = useMemo(
     () =>
@@ -85,10 +106,8 @@ export function MetricVisualization({
   const points = maxPointCount(data.series);
   const hasCurrent = summaries.some((summary) => summary.current !== null);
 
-  const bodyWidth = measured.width || width || config.size.width || FALLBACK_WIDTH;
-  const bodyHeight = exact
-    ? measured.height || Math.max(8, height - (compact ? 4 : 64))
-    : configuredHeight(config);
+  const bodyWidth = Math.max(8, boxWidth - 2);
+  const bodyHeight = Math.max(8, presentation.heights.body);
 
   const fontScale = config.text.scale;
   const rootStyle: CSSProperties = {
@@ -110,34 +129,55 @@ export function MetricVisualization({
           : 'transparent',
   };
 
-  const showHeader = !compact && (config.text.showLabel || config.display.current);
   const currentText =
     primary?.current !== null && primary?.current !== undefined
       ? formatParts(primary.current, meta.unit, decimals)
       : null;
 
+  const micro = presentation.density === 'micro';
+  // In a micro box the message shrinks to a glyph; the full reason stays in
+  // the tooltip and the accessible name, so it is never lost.
+  const message = (text: string, warning = false, short = '…') => (
+    <p
+      className={`viz__message${warning ? ' viz__message--warning' : ''}`}
+      title={text}
+      aria-label={text}
+    >
+      {micro ? short : text}
+    </p>
+  );
+
   let body: ReactNode;
   if (!support.ok) {
-    body = <p className="viz__message">{support.reason}</p>;
+    body = message(support.reason, false, '—');
   } else if (data.status === 'loading' && points === 0 && !hasCurrent) {
-    body = <p className="viz__message">Loading history…</p>;
+    body = message('Loading history…');
   } else if (data.status === 'unavailable' && (info.family === 'timeseries' || !hasCurrent)) {
-    body = (
-      <p className="viz__message viz__message--warning">
-        {`History unavailable: ${data.message ?? 'unknown reason'}`}
-      </p>
-    );
+    body = message(`History unavailable: ${data.message ?? 'unknown reason'}`, true, '—');
   } else if (info.family === 'timeseries' && points === 0) {
-    body = <p className="viz__message">Collecting history…</p>;
+    body = message('Collecting history…');
   } else if (info.family === 'timeseries' && points === 1) {
-    body = (
-      <p className="viz__message">
-        {currentText ? `${formatValue(primary!.current!, meta.unit, decimals)} · ` : ''}
-        Collecting history… one sample so far.
-      </p>
+    const current = currentText ? formatValue(primary!.current!, meta.unit, decimals) : null;
+    body = message(
+      `${current ? `${current} · ` : ''}Collecting history… one sample so far.`,
+      false,
+      current ?? '…',
     );
   } else if (info.family === 'instant' && !hasCurrent) {
-    body = <p className="viz__message">Collecting history…</p>;
+    body = message('Collecting history…', false, '—');
+  } else if (presentation.strip) {
+    body = (
+      <MicroStrip
+        data={data}
+        meta={meta}
+        config={config}
+        colors={colors}
+        width={bodyWidth}
+        height={bodyHeight}
+        labels={labels}
+        currentText={currentText}
+      />
+    );
   } else {
     const common = { meta, config, colors, width: bodyWidth, height: bodyHeight, labels };
     switch (config.renderer) {
@@ -176,53 +216,47 @@ export function MetricVisualization({
     ] as const
   ).filter(([, key]) => config.display[key]);
 
+  const headerLine = (full: boolean) => (
+    <div
+      className={`viz__header${full ? '' : ' viz__header--inline'}`}
+      style={{ fontSize: 12.5 * fontScale, height: presentation.heights.header }}
+    >
+      {config.text.showLabel && <span className="viz__label">{meta.label}</span>}
+      {config.display.current && currentText && (
+        <span className="viz__current" style={{ fontSize: (full ? 20 : 12.5) * fontScale }}>
+          {currentText.value}
+          {config.text.showUnit && currentText.unit && (
+            <span className="viz__unit">{` ${currentText.unit}`}</span>
+          )}
+        </span>
+      )}
+      {full && meta.secondary && <span className="viz__secondary">{meta.secondary}</span>}
+    </div>
+  );
+
   return (
     <div
-      className={`viz viz--${config.renderer}${compact ? ' viz--compact' : ''}${className ? ` ${className}` : ''}`}
+      ref={rootRef}
+      className={`viz viz--${config.renderer} viz--density-${presentation.density}${
+        config.display.compact ? ' viz--compact' : ''
+      }${className ? ` ${className}` : ''}`}
       style={rootStyle}
       data-renderer={config.renderer}
+      data-density={presentation.density}
     >
       <div className="viz__backdrop" style={backdropStyle} aria-hidden="true" />
 
-      {showHeader && (
-        <div className="viz__header" style={{ fontSize: 12.5 * fontScale }}>
-          {config.text.showLabel && <span className="viz__label">{meta.label}</span>}
-          {config.display.current && currentText && info.family === 'timeseries' && (
-            <span className="viz__current" style={{ fontSize: 20 * fontScale }}>
-              {currentText.value}
-              {config.text.showUnit && currentText.unit && (
-                <span className="viz__unit">{` ${currentText.unit}`}</span>
-              )}
-            </span>
-          )}
-          {meta.secondary && info.family === 'timeseries' && (
-            <span className="viz__secondary">{meta.secondary}</span>
-          )}
-        </div>
-      )}
+      {presentation.header !== 'none' && headerLine(presentation.header === 'full')}
 
-      {compact && (config.text.showLabel || config.display.current) && currentText && (
-        <div className="viz__overlay" style={{ fontSize: 11 * fontScale }}>
-          {config.text.showLabel && <span className="viz__overlay-label">{meta.label}</span>}
-          {config.display.current && (
-            <span className="viz__overlay-value">
-              {currentText.value}
-              {config.text.showUnit && currentText.unit ? ` ${currentText.unit}` : ''}
-            </span>
-          )}
-        </div>
-      )}
-
-      <div
-        ref={bodyRef}
-        className="viz__body"
-        style={exact ? { flex: '1 1 auto', minHeight: 0 } : { height: bodyHeight }}
-      >
+      <div className="viz__body" style={{ height: bodyHeight }}>
         {body}
       </div>
 
-      {!compact && config.display.legend && data.series.length > 1 && (
-        <ul className="viz__legend" style={{ fontSize: 11.5 * fontScale }}>
+      {presentation.legend && (
+        <ul
+          className="viz__legend"
+          style={{ fontSize: 11.5 * fontScale, height: presentation.heights.legend }}
+        >
           {data.series.map((series, index) => (
             <li key={series.id} className="viz__legend-item">
               <span className="viz__swatch" style={{ background: colors.series(index) }} />
@@ -235,7 +269,7 @@ export function MetricVisualization({
         </ul>
       )}
 
-      {!compact && statistics.length > 0 && hasCurrent && (
+      {presentation.stats && statistics.length > 0 && hasCurrent && (
         <dl className="viz__stats" style={{ fontSize: 11.5 * fontScale }}>
           {summaries.map((summary, index) => (
             <div key={index} className="viz__stats-row">
@@ -253,6 +287,72 @@ export function MetricVisualization({
             </div>
           ))}
         </dl>
+      )}
+    </div>
+  );
+}
+
+/**
+ * The micro presentation of a time series: `CPU 7 %` and, beside it — never
+ * on top of it — a sparkline when at least 28 px are left for one.
+ */
+function MicroStrip({
+  data,
+  meta,
+  config,
+  colors,
+  width,
+  height,
+  labels,
+  currentText,
+}: {
+  readonly data: VisualizationData;
+  readonly meta: VisualizationMeta;
+  readonly config: VisualizationConfig;
+  readonly colors: ReturnType<typeof resolveColors>;
+  readonly width: number;
+  readonly height: number;
+  readonly labels: readonly string[];
+  readonly currentText: { value: string; unit: string } | null;
+}) {
+  const wantsSpark = width >= 90;
+  const textBudget = wantsSpark ? Math.max(40, width * 0.55) : width;
+  const fit = fitLine(
+    textBudget,
+    height,
+    {
+      label: config.text.showLabel ? meta.label : null,
+      value: currentText && config.display.current ? currentText.value : '—',
+      unit: config.text.showUnit ? currentText?.unit : null,
+    },
+    config.text.scale,
+    18,
+  );
+  const sparkWidth = width - Math.min(fit.textWidth, textBudget) - 6;
+  const showSpark = wantsSpark && sparkWidth >= 28;
+  return (
+    <div className="viz-strip" style={{ width, height }}>
+      <span
+        className="viz-strip__text"
+        style={{ fontSize: fit.fontPx, maxWidth: showSpark ? textBudget : width }}
+      >
+        {fit.label && <span className="viz-strip__label">{meta.label} </span>}
+        <span className="viz-strip__value">
+          {currentText && config.display.current ? currentText.value : '—'}
+          {fit.unit && currentText?.unit ? ` ${currentText.unit}` : ''}
+        </span>
+      </span>
+      {showSpark && (
+        <TimeSeriesChart
+          variant="sparkline"
+          data={data}
+          meta={meta}
+          config={config}
+          colors={colors}
+          width={sparkWidth}
+          height={height}
+          labels={labels}
+        />
       )}
     </div>
   );

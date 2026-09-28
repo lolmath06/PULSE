@@ -18,6 +18,7 @@ import type { LiveBackend } from '@/live/liveFeed';
 import { setSourceRefsForTesting, sourceRefsFrom } from '@/dashboard/bindings';
 import { DashboardPage } from '@/components/Dashboard/DashboardPage';
 import { WidgetContent } from '@/components/Dashboard/WidgetContent';
+import { WidgetCard } from '@/components/Dashboard/WidgetCard';
 import { normalizeDashboards } from '@/dashboard/dashboards';
 import { CATALOG, SOURCE_REFS, widgetFrom } from '@/test/dashboard';
 import { T0, historyResponse } from '@/test/visualization';
@@ -233,6 +234,59 @@ describe('dashboard page', () => {
   });
 });
 
+describe('edit tools of a small widget', () => {
+  it('a tiny widget gets a handle and one "…" menu, never a row of buttons', async () => {
+    const user = userEvent.setup();
+    const calls: string[] = [];
+    const actions = {
+      onCustomize: () => calls.push('customize'),
+      onDuplicate: () => calls.push('duplicate'),
+      onSendToOverlay: () => calls.push('overlay'),
+      onRemove: () => calls.push('remove'),
+      onMoveStart: () => undefined,
+      onResizeStart: () => undefined,
+    };
+    const { container } = render(
+      <WidgetCard
+        widget={widgetFrom('cpu-value')}
+        width={110}
+        height={44}
+        editing
+        actions={actions}
+      />,
+    );
+    const tools = container.querySelector('.widget__tools')!;
+    expect(tools).toHaveClass('widget__tools--compact');
+    expect(within(tools as HTMLElement).queryByRole('button', { name: 'Customize' })).toBeNull();
+    expect(container.querySelector('.widget__resize')).not.toBeNull();
+
+    await user.click(screen.getByRole('button', { name: /actions menu/ }));
+    const menu = screen.getByRole('menu');
+    expect(
+      within(menu)
+        .getAllByRole('menuitem')
+        .map((item) => item.textContent),
+    ).toEqual(['Customize', 'Duplicate', 'To overlay', 'Remove']);
+    await user.click(within(menu).getByRole('menuitem', { name: 'Duplicate' }));
+    expect(calls).toEqual(['duplicate']);
+    expect(screen.queryByRole('menu')).toBeNull();
+  });
+
+  it('a roomy widget keeps its full toolbar', () => {
+    const { container } = render(
+      <WidgetCard
+        widget={widgetFrom('cpu-value')}
+        width={420}
+        height={200}
+        editing
+        actions={{ onCustomize: () => undefined }}
+      />,
+    );
+    expect(container.querySelector('.widget__tools--compact')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Customize' })).toBeInTheDocument();
+  });
+});
+
 describe('widgets', () => {
   it('CPU Total value renders from the live feed, subscribing to cpu.usage.total only', async () => {
     render(<WidgetContent widget={widgetFrom('cpu-value')} width={110} height={44} />);
@@ -270,6 +324,24 @@ describe('widgets', () => {
     expect(container.innerHTML).not.toMatch(/NaN/);
   });
 
+  it.each([
+    [110, 44],
+    [160, 80],
+    [280, 140],
+  ])('a %i×%i group never overflows and keeps its values', async (width, height) => {
+    const widget = widgetFrom('cpu-group');
+    const before = JSON.stringify(widget);
+    const { container } = render(<WidgetContent widget={widget} width={width} height={height} />);
+    await waitFor(() => expect(subscriptions.at(-1)?.length).toBe(2));
+    tick(T0, [[CPU, 37]]);
+    const group = container.querySelector('[data-group-layout]') as HTMLElement;
+    expect(group).not.toBeNull();
+    expect(container.textContent).toContain('37');
+    expect(container.querySelectorAll('.viz-chart__tick')).toHaveLength(0);
+    expect(container.innerHTML).not.toMatch(/NaN|undefined/);
+    expect(JSON.stringify(widget)).toBe(before);
+  });
+
   it('a group shows each value with its unit, and — for an unreadable one', async () => {
     render(<WidgetContent widget={widgetFrom('gpu-group')} width={220} height={96} />);
     await waitFor(() => expect(screen.getByText('Usage')).toBeInTheDocument());
@@ -300,7 +372,16 @@ describe('widgets', () => {
   });
 
   it('a drive temperature widget is refused live and says why, never 0', async () => {
-    render(<WidgetContent widget={widgetFrom('ssd-temp')} width={120} height={40} />);
+    // Micro: a glyph on screen, the reason kept as the accessible name and tooltip.
+    const { unmount } = render(
+      <WidgetContent widget={widgetFrom('ssd-temp')} width={120} height={40} />,
+    );
+    const reason = await screen.findByLabelText(/on demand/);
+    expect(reason).toHaveAttribute('title', expect.stringMatching(/on demand/));
+    expect(document.body.textContent).not.toMatch(/\b0 ?°/);
+    unmount();
+    // Roomy: the reason is written out.
+    render(<WidgetContent widget={widgetFrom('ssd-temp')} width={320} height={140} />);
     expect(await screen.findByText(/on demand/)).toBeInTheDocument();
   });
 

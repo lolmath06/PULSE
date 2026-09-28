@@ -690,9 +690,12 @@ Nothing below has been run on Windows.
 3. **Always-on-top:** click a normal window (Explorer, Notepad) over the
    overlay's position — the overlay stays above.
 4. **Transparency:** set the background opacity to 0 — only the text shows.
-5. **Click-through:** Lock the overlay; click through it onto a window behind;
-   the click reaches that window, the overlay never takes focus.
-6. **Global shortcut:** Ctrl+Shift+F12 toggles Edit/Locked. Set a shortcut
+5. **Click-through:** Lock the overlay over a browser window and click on it.
+   Success = the browser receives the click **and** the focus, PULSE does not
+   become focused, the overlay stays visible. Failure = the click is
+   swallowed, PULSE takes focus, or the overlay goes behind / disappears.
+6. **Global shortcut:** with **another** application focused, Ctrl+Shift+F12
+   toggles Edit/Locked. Set a shortcut
    already used by another program — PULSE reports the conflict and keeps the
    old one.
 7. **Tray:** Open PULSE, Edit overlays, Lock overlays, Show/hide, Quit.
@@ -700,8 +703,10 @@ Nothing below has been run on Windows.
    keeps its size and position after a restart.
 9. **Multi-monitor:** move an overlay to a second monitor, restart — it
    returns there; unplug that monitor, restart — it appears on the primary one.
-10. **Keep running:** set _Keep running_, close the main window — overlays
-    stay; reopen from the tray.
+10. **Keep running:** set _Keep running_, show one overlay, close the main
+    window — the overlay stays and keeps updating, `pulse.exe` is still
+    running; _Open PULSE_ on the overlay (Edit mode) shows the same main
+    window (no second one); then tray → Quit — no `pulse.exe` left.
 11. **Minecraft (optional):** windowed and borderless — the locked overlay
     stays on top, clicks reach the game, focus never moves. Exclusive
     fullscreen is not supported.

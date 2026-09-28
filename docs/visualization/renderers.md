@@ -70,6 +70,11 @@ defaults per unit, overridable per chart.
 
 ## Sizes tested
 
+See the density policy in
+[`../dashboard/widgets.md`](../dashboard/widgets.md#tiny-widgets--responsive-density):
+the engine picks micro/compact/normal/large from its real box and adapts the
+rendering, never the stored configuration.
+
 60×20, 80×24, 120×36, 200×50 (sparkline) · 800×300, 1200×450 (line) · named
 Small (72 px), Medium (180 px), Large (320 px), Custom (any W×H, clamped to
 the container width).

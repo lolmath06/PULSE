@@ -33,7 +33,7 @@ import { Choice, ColorField, Slider, Toggle } from '@/visualization/CustomizePan
 import { WidgetCustomize } from '@/components/Dashboard/WidgetCustomize';
 import { WidgetLibrary } from '@/components/Dashboard/WidgetLibrary';
 import { CapabilityList } from '@/components/Overlay/CapabilityList';
-import { OverlaySurface } from '@/components/Overlay/OverlayApp';
+import { OverlayPreview } from '@/components/Overlay/OverlayApp';
 
 /**
  * Desktop overlays: what this session can do, the global shortcut, what
@@ -271,7 +271,7 @@ function OverlayEditor({
 
       <div className="overlay-editor__body">
         <div className="overlay-editor__preview" aria-label="Preview">
-          <OverlaySurface overlay={overlay} preview />
+          <OverlayPreview overlay={overlay} />
         </div>
         <div className="overlay-editor__settings">
           <Choice

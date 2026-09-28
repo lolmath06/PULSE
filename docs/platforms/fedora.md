@@ -429,6 +429,21 @@ assertion kref failed`) — a driver issue; `WEBKIT_DISABLE_COMPOSITING_MODE=1`
   0 bytes, no `pulse` process). With _Keep running_, the main window hid and
   the overlays stayed; closing the overlays from the window manager hid them in
   the configuration and brought the main window back; closing it then quit.
+- **Keep running — corrective (measured, release build, XWayland, 2 overlays,
+  under a capped user scope):** closing the main window logged `HideMain`;
+  both overlays stayed mapped and kept updating; closing the last overlay
+  showed the **same** main window (same X11 window, no duplicate); closing it
+  then logged `Quit`, the history recorder stopped, the WAL was 0 bytes and no
+  PULSE or WebKit process remained. _Open PULSE_ on an overlay and tray Quit
+  need a physical click (synthetic input does not reach PULSE here) and are
+  in the manual protocol. Native Wayland, same two overlays: ~280 MB for the
+  whole process tree, about 6 % of one core, stable over 50 s.
+- **Manual test semantics:** click-through succeeds when the application
+  behind the locked overlay receives the click _and_ the focus while the
+  overlay stays drawn (it failing to stay above is always-on-top, which is
+  _limited_ on native Wayland). The global shortcut is tested from another
+  focused application; if it only fires while an X11 window has focus, it is
+  _limited_, as reported.
 - **Cost (debug build, measured over 60 s):** 1.33 % of one core with the main
   window alone, 3.95 % with two live overlays (four live widgets).
 - **nouveau + X11:** WebKit crashes under `GDK_BACKEND=x11` unless
