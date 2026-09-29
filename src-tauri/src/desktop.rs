@@ -61,6 +61,8 @@ pub struct DesktopState {
     /// Chosen once at launch; `None` until then.
     hotkey_backend: Mutex<Option<ShortcutBackend>>,
     portal: Mutex<Option<std::sync::Arc<PortalService>>>,
+    /// The overlay bridge D-Bus service (prototype; Linux only).
+    bridge: Mutex<Option<crate::bridge::BridgeService>>,
     tray_fact: Mutex<Option<Result<(), String>>>,
     reconcile: Mutex<()>,
     applied: Mutex<HashMap<String, OverlayGeometry>>,
@@ -82,6 +84,7 @@ impl DesktopState {
             hotkey_fact: Mutex::new(None),
             hotkey_backend: Mutex::new(None),
             portal: Mutex::new(None),
+            bridge: Mutex::new(None),
             tray_fact: Mutex::new(None),
             reconcile: Mutex::new(()),
             applied: Mutex::new(HashMap::new()),
@@ -172,7 +175,8 @@ fn create_overlay<R: Runtime>(
     let url = WebviewUrl::App(format!("index.html?window=overlay&id={}", spec.id).into());
 
     let window = WebviewWindowBuilder::new(app, &label, url)
-        .title(format!("PULSE — {}", spec.name))
+        // The compositor-visible marker the GNOME Shell bridge matches.
+        .title(spec::window_title(&spec.id))
         .decorations(false)
         .transparent(true)
         .shadow(false)
@@ -584,11 +588,39 @@ pub fn apply_hotkey<R: Runtime>(
     result
 }
 
-/// Releases the portal session when PULSE quits (bounded wait).
+/// Starts the overlay bridge D-Bus service (prototype) once. It only runs the
+/// existing Edit ↔ Locked toggle; a failure is logged once and is not fatal.
+fn start_bridge<R: Runtime>(app: &AppHandle<R>) {
+    let Some(state) = app.try_state::<DesktopState>() else {
+        return;
+    };
+    if lock(&state.bridge).is_some() {
+        return;
+    }
+    let toggler = app.clone();
+    match crate::bridge::start(move || overlay_action(&toggler, OverlayAction::ToggleLockAll)) {
+        Ok(Some(service)) => {
+            eprintln!(
+                "PULSE: overlay bridge on the session bus: {} {}",
+                crate::bridge::BUS_NAME,
+                crate::bridge::OBJECT_PATH
+            );
+            *lock(&state.bridge) = Some(service);
+        }
+        Ok(None) => {}
+        Err(error) => eprintln!("PULSE: overlay bridge unavailable: {error}"),
+    }
+}
+
+/// Releases the portal session and the bridge when PULSE quits.
 pub fn shutdown<R: Runtime>(app: &AppHandle<R>) {
     let Some(state) = app.try_state::<DesktopState>() else {
         return;
     };
+    if let Some(mut bridge) = lock(&state.bridge).take() {
+        bridge.stop();
+        eprintln!("PULSE: overlay bridge stopped");
+    }
     let service = lock(&state.portal).take();
     if let Some(service) = service {
         service.close();
@@ -716,6 +748,7 @@ pub fn setup<R: Runtime>(app: &AppHandle<R>) {
         // Overlays first: binding through the portal may wait for the user.
         reconcile(&handle);
         init_hotkey_backend(&handle);
+        start_bridge(&handle);
         let wanted = parse_settings(section(&handle, "settings").as_ref()).hotkey;
         if let Err(error) = apply_hotkey(&handle, wanted.as_deref(), true) {
             eprintln!("PULSE: global shortcut unavailable: {error}");

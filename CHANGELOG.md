@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added — Phase 11.5A prototype: GNOME Wayland overlay bridge (unproven)
+
+- **GNOME Shell 45 extension** `integrations/gnome-shell/pulse-overlay@jamby/`
+  (not installed by default): keeps PULSE overlay windows above others with
+  `Meta.Window.make_above()` (event-driven, bounded re-apply, no polling) and
+  registers Ctrl+Shift+F12 with Mutter (`Main.wm.addKeybinding`, private
+  schema). Overlay windows are matched by the PID of the `dev.pulse.app` bus
+  owner (from the bus daemon) **and** the exact title
+  `PULSE Overlay :: <id>`. User-level `install.sh` (check / install / enable /
+  disable / uninstall; refuses to touch a directory it did not create).
+- **PULSE D-Bus bridge** (`src-tauri/src/bridge.rs`, Linux): `dev.pulse.app`
+  at `/dev/pulse/app/OverlayBridge` with only `Ping`, `GetOverlayBridgeVersion`
+  and `ToggleOverlayEditMode` (the existing toggle); owned while PULSE runs.
+- Overlay windows are now titled `PULSE Overlay :: <id>`.
+- **Physically unproven**: GNOME 45 discovers a new extension only at login;
+  the two proof tests are Matheo's to run
+  ([`docs/overlay/gnome-bridge-poc.md`](docs/overlay/gnome-bridge-poc.md)).
+  Windows path documented only ([`docs/overlay/native-bridge-roadmap.md`](docs/overlay/native-bridge-roadmap.md)).
+
 ### Fixed — Phase 11 final corrective: global shortcut on Wayland
 
 - **The global shortcut now uses the XDG Desktop Portal on native Wayland.**

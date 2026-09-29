@@ -1,0 +1,8 @@
+{
+  "uuid": "pulse-overlay@jamby",
+  "name": "PULSE overlay bridge (prototype)",
+  "description": "Keeps PULSE overlay windows above other windows and forwards Ctrl+Shift+F12 to PULSE. Prototype for PULSE Phase 11.5A; not physically proven.",
+  "shell-version": ["45"],
+  "settings-schema": "org.gnome.shell.extensions.pulse-overlay",
+  "version": 1
+}

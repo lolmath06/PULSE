@@ -34,6 +34,25 @@ pub fn id_from_label(label: &str) -> Option<&str> {
         .filter(|id| is_valid_id(id))
 }
 
+/// The title prefix of every overlay window: the compositor-visible marker
+/// the GNOME Shell bridge (`integrations/gnome-shell/`) matches, together
+/// with the PID of the process that owns PULSE's D-Bus name. Main
+/// ("PULSE") and Mini ("PULSE Mini") never carry it.
+pub const OVERLAY_TITLE_PREFIX: &str = "PULSE Overlay :: ";
+
+/// An overlay window's title: the marker and the overlay's validated id —
+/// never its user-typed name.
+pub fn window_title(id: &str) -> String {
+    format!("{OVERLAY_TITLE_PREFIX}{id}")
+}
+
+/// Whether `title` is exactly an overlay marker with a valid id.
+pub fn is_overlay_title(title: &str) -> bool {
+    title
+        .strip_prefix(OVERLAY_TITLE_PREFIX)
+        .is_some_and(is_valid_id)
+}
+
 /// The most overlay windows PULSE will create.
 pub const MAX_OVERLAYS: usize = 16;
 
@@ -224,6 +243,23 @@ mod tests {
         assert_eq!(id_from_label("overlay-o-abc"), Some("o-abc"));
         assert_eq!(id_from_label("overlay-Evil Label"), None);
         assert_eq!(id_from_label("main"), None);
+    }
+
+    #[test]
+    fn overlay_window_titles_carry_an_exact_marker() {
+        assert_eq!(window_title("o-abc123"), "PULSE Overlay :: o-abc123");
+        assert!(is_overlay_title(&window_title("o-abc123")));
+        for other in [
+            "PULSE",
+            "PULSE Mini",
+            "PULSE — HUD",
+            "PULSE Overlay :: ",
+            "PULSE Overlay :: Bad Id",
+            "Firefox — PULSE Overlay :: o-abc",
+            "PULSE Overlay :: o-abc; rm",
+        ] {
+            assert!(!is_overlay_title(other), "{other}");
+        }
     }
 
     #[test]

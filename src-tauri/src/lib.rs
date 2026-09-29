@@ -20,6 +20,7 @@
 //! No module above `platform` may contain `#[cfg(target_os = ...)]` branches
 //! for system access, and the frontend never reads the system directly.
 
+pub mod bridge;
 pub mod commands;
 pub mod desktop;
 pub mod history;

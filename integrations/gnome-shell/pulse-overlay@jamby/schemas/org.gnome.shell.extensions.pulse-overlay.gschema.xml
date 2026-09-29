@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.pulse-overlay"
+          path="/org/gnome/shell/extensions/pulse-overlay/">
+    <key name="toggle-overlays" type="as">
+      <default><![CDATA[['<Control><Shift>F12']]]></default>
+      <summary>Toggle PULSE overlays between Edit and Locked</summary>
+      <description>Registered with Mutter by the PULSE overlay bridge; forwarded to PULSE over the session bus.</description>
+    </key>
+  </schema>
+</schemalist>
