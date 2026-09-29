@@ -53,13 +53,21 @@ them all otherwise. Change it in PULSE → Overlays → _Global shortcut_; if th
 combination is taken, PULSE says so and keeps the previous one. _Disable_
 removes it.
 
-On **GNOME Wayland** global shortcuts only reach PULSE while an X11 window has
-focus — use the tray or PULSE → Overlays instead.
+On a **Wayland** session the shortcut goes through your desktop's portal
+(XDG Desktop Portal `GlobalShortcuts`): the first time, the desktop may ask
+you to approve it or to choose the keys, and it may let you change them later
+in its own settings — PULSE then shows the keys the desktop reports. If you
+decline, the shortcut is **not bound** and PULSE says so; press _Apply_ to be
+asked again. If your desktop has no such portal (GNOME before 48 — Fedora 39
+included), PULSE says global shortcuts are **not available** on the session:
+use the tray, an overlay's bar or PULSE → Overlays.
 
 **How to test it:** focus _another_ application (e.g. Firefox), press the
-shortcut, and watch the overlay switch between Edit and Locked. If it only
-works while an X11 window has focus, the shortcut is **Limited** on that
-session — as PULSE reports on GNOME Wayland — not broken.
+shortcut, and watch the overlay switch between Edit and Locked.
+
+**Always on top is a different matter.** On GNOME Wayland an ordinary window
+cannot keep itself above a focused application, and PULSE does not pretend
+to; click-through still works.
 
 ## Closing PULSE
 
@@ -82,6 +90,7 @@ reason. On GNOME Wayland in particular: an application cannot keep itself
 above others (use Alt+Space → _Always on Top_ on the overlay), cannot choose
 its position (drag it in Edit mode), and click-through depends on the
 compositor. See [`platform-capabilities.md`](platform-capabilities.md).
+Measured on GNOME 45: a focused application is drawn over the overlay.
 
 ## Games
 

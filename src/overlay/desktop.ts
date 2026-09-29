@@ -20,10 +20,22 @@ export interface OverlayCapabilities {
   readonly tray: Capability;
 }
 
+/**
+ * Which backend delivers the global shortcut on this session: the plugin
+ * (Windows, X11, XWayland), the XDG Desktop Portal (native Wayland), or none.
+ */
+export type ShortcutBackend =
+  | { readonly kind: 'plugin' }
+  | { readonly kind: 'portal'; readonly version: number }
+  | { readonly kind: 'unavailable'; readonly reason: string };
+
 export interface DesktopStatus {
   readonly capabilities: OverlayCapabilities;
+  /** The shortcut in force — with the portal, as the desktop describes it. */
   readonly hotkey: string | null;
   readonly hotkeyError: string | null;
+  /** Absent from older backends and until the backend is chosen. */
+  readonly hotkeyBackend?: ShortcutBackend | null;
 }
 
 export type OverlayAction =

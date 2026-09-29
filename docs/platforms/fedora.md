@@ -438,12 +438,32 @@ assertion kref failed`) — a driver issue; `WEBKIT_DISABLE_COMPOSITING_MODE=1`
   need a physical click (synthetic input does not reach PULSE here) and are
   in the manual protocol. Native Wayland, same two overlays: ~280 MB for the
   whole process tree, about 6 % of one core, stable over 50 s.
+- **Physical validation (Phase 11 corrective, by the user):** dashboard, tiny
+  widgets, customization, persistence, overlay layouts, several overlays,
+  keep running, _Open PULSE_, click-through and Mini pass. **Always on top on
+  native GNOME Wayland does not hold**: a focused application is drawn above
+  the overlay — a compositor limitation PULSE does not work around. **The
+  global shortcut did nothing** with Firefox focused: the plugin's X11 grab
+  sits on XWayland and never sees keys while a Wayland window is focused.
+- **Global shortcut backend (Wayland):** PULSE now uses the XDG Desktop Portal
+  `GlobalShortcuts` interface on native Wayland. This machine's portal
+  (xdg-desktop-portal 1.18.2, xdg-desktop-portal-gnome 45.1, GNOME Shell 45)
+  **does not offer it** (checked read-only with `busctl --user introspect`),
+  so on Fedora 39 PULSE reports the shortcut **unsupported** with that reason
+  instead of claiming a shortcut that cannot fire. GNOME 48 (Fedora 42) and
+  KDE Plasma ≥ 5.27 provide the interface.
+- **Runtime check (release build, native Wayland, one overlay, capped
+  scope):** the backend was chosen once — _unavailable_, with the portal's own
+  error — no portal session was created, no X11 grab was registered, and
+  PULSE → Overlays reports the shortcut unsupported. Quitting through PULSE's
+  tray menu exited cleanly (exit code 0, history stopped, WAL 0 bytes, no
+  process left). The portal path itself (dialog, `Activated`) needs a desktop
+  that offers it and was not exercised here.
 - **Manual test semantics:** click-through succeeds when the application
   behind the locked overlay receives the click _and_ the focus while the
   overlay stays drawn (it failing to stay above is always-on-top, which is
-  _limited_ on native Wayland). The global shortcut is tested from another
-  focused application; if it only fires while an X11 window has focus, it is
-  _limited_, as reported.
+  not available on native GNOME Wayland). The global shortcut is tested from
+  another focused application.
 - **Cost (debug build, measured over 60 s):** 1.33 % of one core with the main
   window alone, 3.95 % with two live overlays (four live widgets).
 - **nouveau + X11:** WebKit crashes under `GDK_BACKEND=x11` unless

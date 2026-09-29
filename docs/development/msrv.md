@@ -68,5 +68,10 @@ Pins that the resolver cannot find by itself, because the crates declare no
 | `tauri-plugin-global-shortcut` | `~2.3` (2.3.2)  | 2.4 declares Rust 1.90 (Phase 11)                                                                       |
 | `getrandom` / `wasi`           | 0.3.3 / 0.14.2  | newer ones pull edition-2024 `wit-bindgen`; wasm-only, pinned so no locked manifest needs a newer Cargo |
 
+`zbus` (Linux, the Wayland portal shortcut client) is a direct dependency
+since the Phase 11 final corrective. It adds no crate: zbus 5.12.0 was already
+locked through `tauri-plugin-opener`, with the same default features, and
+declares `rust-version = "1.77"`.
+
 The last two are lockfile pins (`cargo update --precise`), so a careless
 `cargo update` undoes them — the 1.77.2 build or the CI `msrv` job will say so.

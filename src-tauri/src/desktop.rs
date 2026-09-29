@@ -13,7 +13,12 @@
 //! - windows are created from the async runtime, never from a synchronous
 //!   command (which would deadlock on Windows);
 //! - the global-shortcut plugin blocks on a main-thread round trip, so it is
-//!   never called from the main thread or during `setup`.
+//!   never called from the main thread or during `setup`; the portal backend
+//!   may wait for the user to answer the desktop's dialog, so neither is it.
+//!
+//! The global shortcut has one backend per session, chosen once at launch by
+//! `overlay::global_shortcut::choose_backend`: the plugin on Windows and X11,
+//! the XDG Desktop Portal on native Wayland (`crate::portal`), or none.
 
 use std::collections::HashMap;
 use std::str::FromStr;
@@ -35,10 +40,12 @@ use crate::overlay::capabilities::{
     SessionFacts,
 };
 use crate::overlay::geometry::{capture, place, MonitorInfo, OverlayGeometry};
+use crate::overlay::global_shortcut::{choose_backend, ShortcutBackend};
 use crate::overlay::settings::{
     allow_exit, handle_main_close, parse_settings, HotkeyManager, ShortcutRegistrar,
 };
 use crate::overlay::spec::{self, id_from_label, label_for, parse_overlays, OverlaySpec};
+use crate::portal::PortalService;
 
 pub const MINI_LABEL: &str = "mini";
 pub const MAIN_LABEL: &str = "main";
@@ -51,6 +58,9 @@ pub struct DesktopState {
     pub display: DisplayServer,
     hotkey: Mutex<HotkeyManager>,
     hotkey_fact: Mutex<Option<Result<String, String>>>,
+    /// Chosen once at launch; `None` until then.
+    hotkey_backend: Mutex<Option<ShortcutBackend>>,
+    portal: Mutex<Option<std::sync::Arc<PortalService>>>,
     tray_fact: Mutex<Option<Result<(), String>>>,
     reconcile: Mutex<()>,
     applied: Mutex<HashMap<String, OverlayGeometry>>,
@@ -70,6 +80,8 @@ impl DesktopState {
             display: detect_display_server(&SessionFacts::from_env()),
             hotkey: Mutex::new(HotkeyManager::default()),
             hotkey_fact: Mutex::new(None),
+            hotkey_backend: Mutex::new(None),
+            portal: Mutex::new(None),
             tray_fact: Mutex::new(None),
             reconcile: Mutex::new(()),
             applied: Mutex::new(HashMap::new()),
@@ -257,7 +269,7 @@ pub fn on_settings_changed<R: Runtime>(app: &AppHandle<R>) {
     let app = app.clone();
     tauri::async_runtime::spawn(async move {
         let wanted = parse_settings(section(&app, "settings").as_ref()).hotkey;
-        let _ = apply_hotkey(&app, wanted.as_deref());
+        let _ = apply_hotkey(&app, wanted.as_deref(), false);
     });
 }
 
@@ -498,18 +510,90 @@ impl<R: Runtime> ShortcutRegistrar for PluginRegistrar<'_, R> {
     }
 }
 
-/// Registers `wanted` as the shortcut. Must not run on the main thread.
-pub fn apply_hotkey<R: Runtime>(app: &AppHandle<R>, wanted: Option<&str>) -> Result<(), String> {
+/// Chooses the session's shortcut backend (once) and, for the portal, starts
+/// its worker. Must not run on the main thread: it may touch D-Bus.
+fn init_hotkey_backend<R: Runtime>(app: &AppHandle<R>) {
+    let Some(state) = app.try_state::<DesktopState>() else {
+        return;
+    };
+    if lock(&state.hotkey_backend).is_some() {
+        return;
+    }
+    let mut connection = None;
+    let mut backend = choose_backend(state.display, || {
+        let (availability, found) = crate::portal::probe();
+        connection = found;
+        availability
+    });
+    if let (ShortcutBackend::Portal { .. }, Some(connection)) = (&backend, connection) {
+        let toggler = app.clone();
+        match PortalService::start(connection, move || {
+            overlay_action(&toggler, OverlayAction::ToggleLockAll);
+        }) {
+            Ok(service) => *lock(&state.portal) = Some(std::sync::Arc::new(service)),
+            Err(error) => {
+                backend = ShortcutBackend::Unavailable {
+                    reason: format!("the desktop portal could not be used: {error}"),
+                }
+            }
+        }
+    }
+    eprintln!("PULSE: global shortcut backend: {backend:?}");
+    *lock(&state.hotkey_backend) = Some(backend);
+}
+
+/// Registers (plugin) or binds (portal) `wanted` as the shortcut. Must not
+/// run on the main thread; with the portal it may wait for the user.
+///
+/// `explicit`: the user asked (see `PortalShortcut::apply`).
+pub fn apply_hotkey<R: Runtime>(
+    app: &AppHandle<R>,
+    wanted: Option<&str>,
+    explicit: bool,
+) -> Result<(), String> {
     let Some(state) = app.try_state::<DesktopState>() else {
         return Err("desktop integration not ready".into());
     };
-    let result = lock(&state.hotkey).apply(&mut PluginRegistrar(app), wanted);
+    let backend = lock(&state.hotkey_backend).clone();
+    let result = match backend {
+        Some(ShortcutBackend::Plugin) => {
+            lock(&state.hotkey).apply(&mut PluginRegistrar(app), wanted)
+        }
+        Some(ShortcutBackend::Portal { .. }) => {
+            let service = lock(&state.portal).clone();
+            match service {
+                // Not holding any lock while the desktop's dialog is open.
+                Some(service) => service.apply(wanted, explicit),
+                None => Err("the portal backend is not running".into()),
+            }
+        }
+        Some(ShortcutBackend::Unavailable { reason }) => match wanted {
+            Some(_) => Err(reason),
+            None => Ok(()),
+        },
+        None => Err("desktop integration not ready".into()),
+    };
+    let effective = lock(&state.portal)
+        .as_ref()
+        .and_then(|service| service.snapshot().effective);
     *lock(&state.hotkey_fact) = Some(match (&result, wanted) {
-        (Ok(()), Some(shortcut)) => Ok(shortcut.to_string()),
+        (Ok(()), Some(shortcut)) => Ok(effective.unwrap_or_else(|| shortcut.to_string())),
         (Ok(()), None) => Err("no shortcut configured".into()),
         (Err(error), _) => Err(error.clone()),
     });
     result
+}
+
+/// Releases the portal session when PULSE quits (bounded wait).
+pub fn shutdown<R: Runtime>(app: &AppHandle<R>) {
+    let Some(state) = app.try_state::<DesktopState>() else {
+        return;
+    };
+    let service = lock(&state.portal).take();
+    if let Some(service) = service {
+        service.close();
+        eprintln!("PULSE: global shortcut portal session closed");
+    }
 }
 
 /// The plugin's handler: the configured shortcut toggles Edit ↔ Locked.
@@ -582,21 +666,43 @@ pub fn build_tray<R: Runtime>(app: &AppHandle<R>) {
 #[serde(rename_all = "camelCase")]
 pub struct DesktopStatus {
     pub capabilities: OverlayCapabilities,
+    /// The shortcut in force: as requested (plugin) or as the desktop
+    /// describes it (portal).
     pub hotkey: Option<String>,
     pub hotkey_error: Option<String>,
+    pub hotkey_backend: Option<ShortcutBackend>,
 }
 
 pub fn status<R: Runtime>(app: &AppHandle<R>) -> Option<DesktopStatus> {
     let state = app.try_state::<DesktopState>()?;
+    let backend = lock(&state.hotkey_backend).clone();
     let runtime = RuntimeFacts {
         hotkey: lock(&state.hotkey_fact).clone(),
         tray: lock(&state.tray_fact).clone(),
+        hotkey_backend: backend.clone(),
     };
-    let manager = lock(&state.hotkey);
+    let (hotkey, hotkey_error) = match (&backend, lock(&state.portal).as_ref()) {
+        (Some(ShortcutBackend::Portal { .. }), Some(service)) => {
+            let snapshot = service.snapshot();
+            (
+                snapshot.effective.or(snapshot.requested),
+                snapshot.last_error,
+            )
+        }
+        (Some(ShortcutBackend::Unavailable { .. }), _) => (None, None),
+        _ => {
+            let manager = lock(&state.hotkey);
+            (
+                manager.current().map(String::from),
+                manager.last_error().map(String::from),
+            )
+        }
+    };
     Some(DesktopStatus {
         capabilities: capabilities(state.display, &runtime),
-        hotkey: manager.current().map(String::from),
-        hotkey_error: manager.last_error().map(String::from),
+        hotkey,
+        hotkey_error,
+        hotkey_backend: backend,
     })
 }
 
@@ -607,11 +713,13 @@ pub fn setup<R: Runtime>(app: &AppHandle<R>) {
     build_tray(app);
     let handle = app.clone();
     tauri::async_runtime::spawn(async move {
+        // Overlays first: binding through the portal may wait for the user.
+        reconcile(&handle);
+        init_hotkey_backend(&handle);
         let wanted = parse_settings(section(&handle, "settings").as_ref()).hotkey;
-        if let Err(error) = apply_hotkey(&handle, wanted.as_deref()) {
+        if let Err(error) = apply_hotkey(&handle, wanted.as_deref(), true) {
             eprintln!("PULSE: global shortcut unavailable: {error}");
         }
-        reconcile(&handle);
         if let Some(status) = status(&handle) {
             let caps = &status.capabilities;
             eprintln!(

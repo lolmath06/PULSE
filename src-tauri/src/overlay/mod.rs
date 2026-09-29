@@ -13,12 +13,15 @@
 //! - [`geometry`] — monitor-relative logical placement, DPI, recovery;
 //! - [`spec`] — the backend-owned fields of the `overlays` configuration;
 //! - [`settings`] — close behaviour and the global shortcut, with conflict
-//!   handling.
+//!   handling;
+//! - [`global_shortcut`] — which shortcut backend a session uses, and the XDG
+//!   Desktop Portal shortcut session as a state machine.
 //!
 //! The Tauri calls that apply these decisions live in `crate::desktop`, which
 //! contains no `cfg(target_os)` branch: platform differences are data here.
 
 pub mod capabilities;
 pub mod geometry;
+pub mod global_shortcut;
 pub mod settings;
 pub mod spec;

@@ -695,7 +695,8 @@ Nothing below has been run on Windows.
    become focused, the overlay stays visible. Failure = the click is
    swallowed, PULSE takes focus, or the overlay goes behind / disappears.
 6. **Global shortcut:** with **another** application focused, Ctrl+Shift+F12
-   toggles Edit/Locked. Set a shortcut
+   toggles Edit/Locked. (Windows keeps the plugin backend, `RegisterHotKey`;
+   the Wayland portal backend is Linux-only and never used here.) Set a shortcut
    already used by another program — PULSE reports the conflict and keeps the
    old one.
 7. **Tray:** Open PULSE, Edit overlays, Lock overlays, Show/hide, Quit.

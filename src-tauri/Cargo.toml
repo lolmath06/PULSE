@@ -58,6 +58,11 @@ rusqlite = { version = "0.32", features = ["bundled"] }
 # admin passthrough). No wrapper layer and no runtime — declaring these by hand
 # would mean hand-rolling `struct statvfs`, whose layout is libc's business.
 libc = "0.2"
+# The XDG Desktop Portal client for global shortcuts on Wayland
+# (org.freedesktop.portal.GlobalShortcuts), blocking API. Already in the
+# locked graph through tauri-plugin-opener with these same default features,
+# so this adds no crate; zbus 5.12 declares and builds with Rust 1.77.
+zbus = "5.12"
 
 [target.'cfg(target_os = "windows")'.dependencies]
 # 0.1, not 0.100: windows-version 0.100 is edition 2024 and needs Rust 1.95.

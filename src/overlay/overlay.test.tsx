@@ -46,12 +46,13 @@ const WAYLAND_STATUS = {
     clickThrough: { status: 'limited', reason: 'input region requested' },
     positioning: { status: 'unsupported', reason: 'Wayland clients cannot choose their position' },
     transparentWindow: { status: 'supported', reason: 'alpha' },
-    globalHotkey: { status: 'limited', reason: 'XWayland only' },
+    globalHotkey: { status: 'supported', reason: 'via the XDG Desktop Portal' },
     multiMonitorPositioning: { status: 'unsupported', reason: 'compositor decides' },
     tray: { status: 'limited', reason: 'GNOME needs AppIndicator' },
   },
   hotkey: 'Ctrl+Shift+F12',
   hotkeyError: null,
+  hotkeyBackend: { kind: 'plugin' },
 };
 
 let invoke: ReturnType<typeof vi.fn>;
@@ -422,6 +423,54 @@ describe('overlays page', () => {
     await user.click(screen.getByRole('button', { name: 'Apply' }));
     await waitFor(() => expect(screen.queryByRole('alert')).toBeNull());
     expect(invoke).toHaveBeenCalledWith('set_overlay_hotkey', { shortcut: 'Alt+Shift+O' });
+  });
+
+  it('on Wayland the shortcut comes from the desktop portal, and says so', async () => {
+    invoke.mockImplementation((command: string) =>
+      command === 'get_desktop_status'
+        ? Promise.resolve({
+            ...WAYLAND_STATUS,
+            hotkey: 'Shift+Ctrl+F12',
+            hotkeyBackend: { kind: 'portal', version: 1 },
+          })
+        : Promise.reject(new Error('Ctrl+Alt+T: not bound — the desktop declined')),
+    );
+    const user = userEvent.setup();
+    render(<OverlaysPage />);
+    expect(
+      await screen.findByText(/XDG Desktop Portal, whichever application/),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Active: Shift+Ctrl+F12.')).toBeInTheDocument();
+    const input = screen.getByLabelText('Global shortcut');
+    await user.clear(input);
+    await user.type(input, 'Ctrl+Alt+T');
+    await user.click(screen.getByRole('button', { name: 'Apply' }));
+    const alert = await screen.findByRole('alert');
+    expect(alert).toHaveTextContent(/Not bound — .*declined/);
+    expect(alert).not.toHaveTextContent(/previous shortcut is still active/);
+  });
+
+  it('without a portal the shortcut is reported unavailable, with the reason', async () => {
+    invoke.mockImplementation((command: string) =>
+      Promise.resolve(
+        command === 'get_desktop_status'
+          ? {
+              ...WAYLAND_STATUS,
+              capabilities: {
+                ...WAYLAND_STATUS.capabilities,
+                globalHotkey: { status: 'unsupported', reason: 'no GlobalShortcuts portal' },
+              },
+              hotkey: null,
+              hotkeyBackend: { kind: 'unavailable', reason: 'no GlobalShortcuts portal' },
+            }
+          : undefined,
+      ),
+    );
+    render(<OverlaysPage />);
+    expect(await screen.findByRole('status')).toHaveTextContent(
+      /not available on this session: no GlobalShortcuts portal/,
+    );
+    expect(screen.getByText('No global shortcut is active.')).toBeInTheDocument();
   });
 
   it('close behaviour is a setting, quit by default', async () => {

@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed — Phase 11 final corrective: global shortcut on Wayland
+
+- **The global shortcut now uses the XDG Desktop Portal on native Wayland.**
+  The Tauri plugin's X11 grab lands on XWayland there: it registered, and
+  never fired while a Wayland application (Firefox) had focus. PULSE now
+  chooses one backend per session (`overlay::global_shortcut`): the plugin on
+  Windows, X11 and XWayland (unchanged); `org.freedesktop.portal.GlobalShortcuts`
+  on Wayland (`CreateSession`, `BindShortcuts` for `toggle-overlays-edit`,
+  `Activated`/`Deactivated`/`ShortcutsChanged`, `Session.Close` on disable and
+  quit), through `zbus` — already in the locked graph, Rust 1.77.2 kept.
+  Without the portal the shortcut is reported **unsupported** with the reason,
+  never silently grabbed through X11. The desktop's consent dialog is
+  respected; a declined shortcut is reported as not bound and only retried
+  when the user asks. PULSE → Overlays says which backend is in force.
+- **Always on top on GNOME Wayland is documented as not available** to an
+  ordinary window (physically confirmed: a focused application is drawn
+  above the overlay). Nothing works around it. Click-through is unaffected.
+- Fedora 39's portal (GNOME 45) does not offer `GlobalShortcuts`; there the
+  shortcut is reported unsupported. GNOME 48+ and KDE Plasma 5.27+ offer it.
+
 ### Fixed — Phase 11 corrective: responsive widgets & overlay lifetime
 
 - **Keep running with visible overlays** now really keeps PULSE running:

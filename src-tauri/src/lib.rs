@@ -27,6 +27,7 @@ pub mod live;
 pub mod metrics;
 pub mod overlay;
 pub mod platform;
+pub mod portal;
 pub mod processes;
 pub mod services;
 pub mod state;
@@ -189,6 +190,8 @@ pub fn run() {
         }
         if let tauri::RunEvent::Exit = event {
             use tauri::Manager;
+            // Release the portal shortcut session (bounded wait).
+            desktop::shutdown(handle);
             // Finish the batch in flight and let the store close cleanly, so
             // the WAL is checkpointed and no scheduler thread outlives PULSE.
             if let Some(history) = handle.try_state::<std::sync::Arc<history::HistoryService>>() {

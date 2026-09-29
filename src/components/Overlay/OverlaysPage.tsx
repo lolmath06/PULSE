@@ -46,6 +46,7 @@ export function OverlaysPage() {
   const [statusError, setStatusError] = useState<string | null>(null);
   const [hotkey, setHotkey] = useState(settings.overlayHotkey ?? '');
   const [hotkeyError, setHotkeyError] = useState<string | null>(null);
+  const backend = status?.hotkeyBackend ?? null;
 
   const refresh = useCallback(() => {
     getDesktopStatus()
@@ -171,9 +172,23 @@ export function OverlaysPage() {
             Disable
           </button>
         </div>
+        {backend?.kind === 'portal' && (
+          <p className="card__note">
+            Delivered by your desktop through the XDG Desktop Portal, whichever application has
+            focus. The desktop may ask you to approve it, and may let you change the keys in its own
+            keyboard settings.
+          </p>
+        )}
+        {backend?.kind === 'unavailable' && (
+          <p className="card__note" role="status">
+            {`Global shortcuts are not available on this session: ${backend.reason}`}
+          </p>
+        )}
         {hotkeyError && (
           <p className="customize__error" role="alert">
-            {`Not registered — ${hotkeyError}. The previous shortcut is still active.`}
+            {backend?.kind === 'plugin' || !backend
+              ? `Not registered — ${hotkeyError}. The previous shortcut is still active.`
+              : `Not bound — ${hotkeyError}.`}
           </p>
         )}
         {status && (

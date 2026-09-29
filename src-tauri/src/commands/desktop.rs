@@ -10,8 +10,10 @@ pub fn get_desktop_status(app: AppHandle) -> Option<DesktopStatus> {
     desktop::status(&app)
 }
 
-/// Changes the global shortcut. On a conflict the previous shortcut stays in
-/// force and the error says so; the setting is saved only on success.
+/// Changes the global shortcut. On a conflict (or, with the desktop portal,
+/// a declined request) the previous shortcut stays in force and the error
+/// says so; the setting is saved only on success. With the portal this waits
+/// for the user to answer the desktop's dialog.
 #[tauri::command]
 pub async fn set_overlay_hotkey(
     app: AppHandle,
@@ -20,7 +22,7 @@ pub async fn set_overlay_hotkey(
     let wanted = shortcut
         .map(|s| s.trim().to_string())
         .filter(|s| !s.is_empty());
-    desktop::apply_hotkey(&app, wanted.as_deref())?;
+    desktop::apply_hotkey(&app, wanted.as_deref(), true)?;
     crate::commands::ui_config::update_section(&app, "settings", "backend", |value| {
         let next = serde_json::json!(wanted);
         if value.get("overlayHotkey") == Some(&next) {

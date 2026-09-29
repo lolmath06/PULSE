@@ -13,6 +13,8 @@
 
 use serde::{Deserialize, Serialize};
 
+use super::global_shortcut::ShortcutBackend;
+
 /// Which windowing system an overlay window really lives on.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -124,6 +126,8 @@ pub struct RuntimeFacts {
     pub hotkey: Option<Result<String, String>>,
     /// `Some(Err)` when the tray icon could not be created.
     pub tray: Option<Result<(), String>>,
+    /// The global-shortcut backend chosen for this session, once known.
+    pub hotkey_backend: Option<ShortcutBackend>,
 }
 
 use CapabilityStatus::{Limited, Supported, Unsupported};
@@ -182,7 +186,7 @@ pub fn expected_capabilities(server: DisplayServer) -> OverlayCapabilities {
             display_server: server,
             always_on_top: cap(
                 Limited,
-                "Wayland has no protocol for an application to keep itself above others. On GNOME, open the window menu (Alt+Space) on the overlay and choose “Always on Top”",
+                "Wayland has no protocol for an application to keep itself above others, and the compositor decides: measured on GNOME, the overlay goes behind an application once that application is focused. GNOME's own window menu (Alt+Space → “Always on Top”) is the user's choice to make, not PULSE's",
             ),
             click_through: cap(
                 Limited,
@@ -194,8 +198,8 @@ pub fn expected_capabilities(server: DisplayServer) -> OverlayCapabilities {
             ),
             transparent_window: cap(Supported, "per-pixel alpha surfaces"),
             global_hotkey: cap(
-                Limited,
-                "global shortcuts are grabbed through XWayland and fire only while an X11/XWayland window has focus; use the tray or the main window instead",
+                Unsupported,
+                "on Wayland a global shortcut needs the XDG Desktop Portal (org.freedesktop.portal.GlobalShortcuts); an X11 grab would register and never fire while a Wayland application has focus",
             ),
             multi_monitor_positioning: cap(
                 Unsupported,
@@ -225,21 +229,41 @@ pub fn expected_capabilities(server: DisplayServer) -> OverlayCapabilities {
 /// Expectations refined by what actually happened.
 pub fn capabilities(server: DisplayServer, runtime: &RuntimeFacts) -> OverlayCapabilities {
     let mut capabilities = expected_capabilities(server);
-    match &runtime.hotkey {
-        Some(Err(error)) => {
+    let portal = matches!(runtime.hotkey_backend, Some(ShortcutBackend::Portal { .. }));
+    match &runtime.hotkey_backend {
+        Some(ShortcutBackend::Portal { version }) => {
             capabilities.global_hotkey = cap(
-                Unsupported,
-                &format!("the shortcut could not be registered: {error}"),
+                Supported,
+                &format!(
+                    "via the XDG Desktop Portal (GlobalShortcuts v{version}): the desktop delivers the shortcut whichever application has focus, and may ask you to approve it"
+                ),
             );
         }
-        Some(Ok(shortcut)) => {
-            let reason = format!(
-                "{} is registered — {}",
-                shortcut, capabilities.global_hotkey.reason
-            );
-            capabilities.global_hotkey.reason = reason;
+        Some(ShortcutBackend::Unavailable { reason }) => {
+            capabilities.global_hotkey = cap(Unsupported, reason);
         }
-        None => {}
+        Some(ShortcutBackend::Plugin) | None => {}
+    }
+    if capabilities.global_hotkey.status != Unsupported || portal {
+        match &runtime.hotkey {
+            Some(Err(error)) => {
+                let what = if portal {
+                    "the shortcut is not bound"
+                } else {
+                    "the shortcut could not be registered"
+                };
+                capabilities.global_hotkey = cap(Unsupported, &format!("{what}: {error}"));
+            }
+            Some(Ok(shortcut)) => {
+                let verb = if portal { "bound" } else { "registered" };
+                let reason = format!(
+                    "{shortcut} is {verb} — {}",
+                    capabilities.global_hotkey.reason
+                );
+                capabilities.global_hotkey.reason = reason;
+            }
+            None => {}
+        }
     }
     if let Some(Err(error)) = &runtime.tray {
         capabilities.tray = cap(
@@ -363,6 +387,7 @@ mod tests {
         let facts = RuntimeFacts {
             hotkey: Some(Err("Ctrl+Shift+F12 is already taken".into())),
             tray: Some(Err("no StatusNotifier host".into())),
+            hotkey_backend: Some(ShortcutBackend::Plugin),
         };
         let result = capabilities(DisplayServer::X11, &facts);
         assert_eq!(result.global_hotkey.status, Unsupported);
@@ -374,12 +399,60 @@ mod tests {
             &RuntimeFacts {
                 hotkey: Some(Ok("Ctrl+Shift+F12".into())),
                 tray: Some(Ok(())),
+                hotkey_backend: Some(ShortcutBackend::Plugin),
             },
         );
         assert!(ok
             .global_hotkey
             .reason
             .starts_with("Ctrl+Shift+F12 is registered"));
+    }
+
+    #[test]
+    fn wayland_shortcut_is_supported_only_through_a_bound_portal() {
+        let portal = |hotkey| RuntimeFacts {
+            hotkey,
+            hotkey_backend: Some(ShortcutBackend::Portal { version: 1 }),
+            ..RuntimeFacts::default()
+        };
+        let bound = capabilities(
+            DisplayServer::Wayland,
+            &portal(Some(Ok("Ctrl+Shift+F12".into()))),
+        );
+        assert_eq!(bound.global_hotkey.status, Supported);
+        assert!(bound
+            .global_hotkey
+            .reason
+            .starts_with("Ctrl+Shift+F12 is bound"));
+        assert!(bound.global_hotkey.reason.contains("XDG Desktop Portal"));
+        // Always-on-top is a separate capability: the portal changes nothing there.
+        assert_eq!(bound.always_on_top.status, Limited);
+
+        let declined = capabilities(
+            DisplayServer::Wayland,
+            &portal(Some(Err("declined".into()))),
+        );
+        assert_eq!(declined.global_hotkey.status, Unsupported);
+        assert!(declined.global_hotkey.reason.contains("not bound"));
+
+        let missing = capabilities(
+            DisplayServer::Wayland,
+            &RuntimeFacts {
+                hotkey_backend: Some(ShortcutBackend::Unavailable {
+                    reason: "the portal has no GlobalShortcuts interface".into(),
+                }),
+                ..RuntimeFacts::default()
+            },
+        );
+        assert_eq!(missing.global_hotkey.status, Unsupported);
+        assert!(missing.global_hotkey.reason.contains("no GlobalShortcuts"));
+        assert_eq!(
+            capabilities(DisplayServer::Wayland, &RuntimeFacts::default())
+                .global_hotkey
+                .status,
+            Unsupported,
+            "never claimed before the portal is found"
+        );
     }
 
     #[test]

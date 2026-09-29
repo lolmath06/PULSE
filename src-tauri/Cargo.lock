@@ -2687,6 +2687,7 @@ dependencies = [
  "windows",
  "windows-sys 0.61.2",
  "windows-version",
+ "zbus",
 ]
 
 [[package]]

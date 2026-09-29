@@ -14,15 +14,15 @@ session is **XWayland**.
 
 ## Expectations and measurements
 
-| Capability              | Windows              | X11 / XWayland                                         | Wayland (native)                                                       |
-| ----------------------- | -------------------- | ------------------------------------------------------ | ---------------------------------------------------------------------- |
-| Always on top           | supported (expected) | supported — **measured on XWayland**                   | **limited** — no protocol; GNOME: Alt+Space → _Always on Top_          |
-| Click-through           | supported (expected) | supported — **measured on XWayland**                   | **limited** — input region requested, compositor decides; not verified |
-| Absolute positioning    | supported (expected) | supported                                              | **unsupported** — clients cannot place windows                         |
-| Transparent window      | supported (expected) | X11: limited (needs a compositor); XWayland: supported | supported                                                              |
-| Global shortcut         | supported (expected) | X11: supported; XWayland: **limited**                  | **limited** — XWayland grab, fires only while an X11 window has focus  |
-| Multi-monitor placement | supported (expected) | supported                                              | **unsupported** — the compositor chooses                               |
-| Tray                    | supported (expected) | limited — GNOME needs the AppIndicator extension       | limited — same                                                         |
+| Capability              | Windows              | X11 / XWayland                                         | Wayland (native)                                                                    |
+| ----------------------- | -------------------- | ------------------------------------------------------ | ----------------------------------------------------------------------------------- |
+| Always on top           | supported (expected) | supported — **measured on XWayland**                   | **not guaranteed** — no protocol; **measured on GNOME: goes behind a focused app**  |
+| Click-through           | supported (expected) | supported — **measured on XWayland**                   | **measured working on GNOME** (reported _limited_: compositor decides)              |
+| Absolute positioning    | supported (expected) | supported                                              | **unsupported** — clients cannot place windows                                      |
+| Transparent window      | supported (expected) | X11: limited (needs a compositor); XWayland: supported | supported                                                                           |
+| Global shortcut         | supported (expected) | X11: supported; XWayland: **limited**                  | XDG Desktop Portal `GlobalShortcuts` if the desktop offers it, else **unsupported** |
+| Multi-monitor placement | supported (expected) | supported                                              | **unsupported** — the compositor chooses                                            |
+| Tray                    | supported (expected) | limited — GNOME needs the AppIndicator extension       | limited — same                                                                      |
 
 "Expected" means: what the platform API provides; **not yet verified on a
 Windows machine**.
@@ -60,6 +60,44 @@ because WebKit crashes on nouveau under X11 otherwise):
   transparent areas; this is tied to that forced WebKit mode and was not seen
   in opaque areas. To confirm on native Wayland.
 
+## Two separate things on GNOME Wayland
+
+**Always on top — not available to an ordinary application window.**
+Physically confirmed on Fedora 39 / GNOME 45: once another application is
+focused, it is drawn above the overlay. Wayland has no protocol for a client
+to keep itself above others and PULSE does not work around that — no GNOME
+Shell injection, no extension, no compositor settings, no forcing PULSE
+through XWayland. GNOME's own window menu (Alt+Space → _Always on Top_) is
+the user's choice. A GNOME-specific companion may be considered in a later
+platform phase. PULSE reports it _limited_.
+
+**Global shortcut — through the XDG Desktop Portal.** The Tauri plugin grabs
+keys through X11; on native Wayland that grab lands on XWayland, which sees
+keys only while an X11 window is focused, so it _registered_ and never fired
+with Firefox focused. PULSE now picks a backend per session:
+
+| Session        | Backend                                                                    |
+| -------------- | -------------------------------------------------------------------------- |
+| Windows        | plugin (`RegisterHotKey`) — unchanged                                      |
+| X11 / XWayland | plugin (`XGrabKey`) — unchanged                                            |
+| Wayland        | `org.freedesktop.portal.GlobalShortcuts` (action `toggle-overlays-edit`)   |
+| Wayland, none  | **unsupported**, with the reason — never a silent fallback to the X11 grab |
+
+Portal lifecycle: `CreateSession` → `BindShortcuts` (the desktop may show a
+dialog to approve or choose the keys; declining leaves the shortcut
+**not bound**, reported as such) → `Activated` toggles Edit/Locked once per
+press, `Deactivated` is ignored, `ShortcutsChanged` updates the keys shown →
+`Session.Close` on disable and on quit. Changing the shortcut binds a new
+session and closes the old one only once the desktop accepted it; at most one
+session stays open. A declined shortcut is retried only when you press
+_Apply_ again, never on its own.
+
+Availability: GNOME offers the portal from **GNOME 48**, KDE Plasma from
+5.27. **Fedora 39 (GNOME 45, xdg-desktop-portal-gnome 45.1) does not** — the
+interface is absent from the session bus — so there PULSE reports the global
+shortcut **unsupported** with that reason. Use the tray, an overlay's bar or
+PULSE → Overlays instead.
+
 ## What the manual tests mean
 
 - **Click-through — success:** with a locked overlay over another application
@@ -70,9 +108,10 @@ because WebKit crashes on nouveau under X11 otherwise):
   going behind the application or disappearing is an **always-on-top**
   limitation, reported separately.
 - **Global shortcut — success:** with another application focused, the
-  shortcut toggles every overlay between Edit and Locked. If it works only
-  while an X11/XWayland window has focus (GNOME Wayland), report **Limited**,
-  which is what PULSE shows there.
+  shortcut toggles every overlay between Edit and Locked. On native Wayland
+  PULSE → Overlays says which backend is in force: _XDG Desktop Portal_
+  (expect the desktop to ask for approval the first time) or _not available on
+  this session_ with the reason.
 
 ## Fullscreen games
 
