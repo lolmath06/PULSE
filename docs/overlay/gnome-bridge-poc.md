@@ -1,5 +1,10 @@
 # GNOME Wayland overlay bridge — proof of concept (Phase 11.5A/B)
 
+> **Historical record.** The production bridge (extension v2, status panel,
+> `Hello`, Enable/Disable, shortcut from PULSE) is documented in
+> [`gnome-bridge.md`](gnome-bridge.md). All three parts below were later
+> confirmed physically, including persistent click-through (20/20 clicks).
+
 > **Status**
 >
 > | Part                                                  | Status                                                                                          |

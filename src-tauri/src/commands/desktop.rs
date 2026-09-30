@@ -22,7 +22,14 @@ pub async fn set_overlay_hotkey(
     let wanted = shortcut
         .map(|s| s.trim().to_string())
         .filter(|s| !s.is_empty());
-    desktop::apply_hotkey(&app, wanted.as_deref(), true)?;
+    if desktop::gnome_bridge_active(&app) {
+        // GNOME delivers the shortcut through the bridge: its binding lives in
+        // the extension's own setting, which Mutter watches.
+        crate::gnome_bridge::write_hotkey(wanted.as_deref())?;
+        desktop::refresh_gnome_bridge(&app);
+    } else {
+        desktop::apply_hotkey(&app, wanted.as_deref(), true)?;
+    }
     crate::commands::ui_config::update_section(&app, "settings", "backend", |value| {
         let next = serde_json::json!(wanted);
         if value.get("overlayHotkey") == Some(&next) {
@@ -32,6 +39,25 @@ pub async fn set_overlay_hotkey(
         true
     });
     Ok(wanted)
+}
+
+/// Gathers the GNOME bridge facts again (the user pressed Refresh, or the
+/// overlay page opened) and returns the new status.
+#[tauri::command]
+pub async fn refresh_gnome_bridge(app: AppHandle) -> Option<DesktopStatus> {
+    desktop::refresh_gnome_bridge(&app);
+    desktop::status(&app)
+}
+
+/// Enables or disables the GNOME bridge extension through GNOME Shell's own
+/// API — only ever from the user's Enable / Disable button.
+#[tauri::command]
+pub async fn set_gnome_bridge_enabled(
+    app: AppHandle,
+    enabled: bool,
+) -> Result<Option<DesktopStatus>, String> {
+    desktop::set_gnome_bridge_enabled(&app, enabled)?;
+    Ok(desktop::status(&app))
 }
 
 /// Locks, unlocks, shows or hides every overlay.

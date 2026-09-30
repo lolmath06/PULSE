@@ -1,7 +1,7 @@
 // PULSE overlay bridge — GNOME Shell 45 glue.
 //
-// PROTOTYPE (Phase 11.5A), NOT PHYSICALLY PROVEN. See
-// docs/overlay/gnome-bridge-poc.md.
+// Physically verified on Fedora 39 / GNOME 45. See
+// docs/overlay/gnome-bridge.md.
 //
 // Two jobs, both compositor-side:
 //  1. keep PULSE's overlay windows above other windows (Meta.Window.make_above),
@@ -20,6 +20,7 @@ import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
 
 import {
   BUS_NAME,
+  HELLO_METHOD,
   INTERFACE,
   KEYBINDING,
   OBJECT_PATH,
@@ -112,6 +113,27 @@ export default class PulseOverlayExtension extends Extension {
             try {
               connection.call_finish(result);
             } catch (error) {
+              onError(error);
+            }
+          },
+        ),
+
+      sendHello: (version, onError) =>
+        Gio.DBus.session.call(
+          BUS_NAME,
+          OBJECT_PATH,
+          INTERFACE,
+          HELLO_METHOD,
+          new GLib.Variant('(u)', [version]),
+          new GLib.VariantType('(u)'),
+          Gio.DBusCallFlags.NO_AUTO_START,
+          DBUS_TIMEOUT_MS,
+          null,
+          (connection, result) => {
+            try {
+              connection.call_finish(result);
+            } catch (error) {
+              // A PULSE older than bridge v2 has no Hello: not an error worth more than one line.
               onError(error);
             }
           },

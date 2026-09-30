@@ -39,6 +39,9 @@ import { MiniApp } from '@/components/Mini/MiniApp';
 import { App } from '@/app/App';
 import { CATALOG, SOURCE_REFS, widgetFrom } from '@/test/dashboard';
 
+/** Both return the desktop status: the page asks GNOME afresh once, then reads the cache. */
+const STATUS_COMMANDS = new Set(['get_desktop_status', 'refresh_gnome_bridge']);
+
 const WAYLAND_STATUS = {
   capabilities: {
     displayServer: 'wayland',
@@ -69,7 +72,7 @@ beforeEach(() => {
   });
   vi.spyOn(metricsService, 'getMetricCatalog').mockResolvedValue(CATALOG);
   invoke = vi.fn((command: string, args?: Record<string, unknown>) => {
-    if (command === 'get_desktop_status') return Promise.resolve(WAYLAND_STATUS);
+    if (STATUS_COMMANDS.has(command)) return Promise.resolve(WAYLAND_STATUS);
     if (command === 'set_overlay_hotkey') {
       return args?.shortcut === 'Ctrl+Alt+T'
         ? Promise.reject(new Error('Ctrl+Alt+T: already registered by another application'))
@@ -427,7 +430,7 @@ describe('overlays page', () => {
 
   it('on Wayland the shortcut comes from the desktop portal, and says so', async () => {
     invoke.mockImplementation((command: string) =>
-      command === 'get_desktop_status'
+      STATUS_COMMANDS.has(command)
         ? Promise.resolve({
             ...WAYLAND_STATUS,
             hotkey: 'Shift+Ctrl+F12',
@@ -453,7 +456,7 @@ describe('overlays page', () => {
   it('without a portal the shortcut is reported unavailable, with the reason', async () => {
     invoke.mockImplementation((command: string) =>
       Promise.resolve(
-        command === 'get_desktop_status'
+        STATUS_COMMANDS.has(command)
           ? {
               ...WAYLAND_STATUS,
               capabilities: {

@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import {
+  COMPANION_VERSION,
   MAX_REASSERTS,
   OVERLAY_TITLE,
   PulseOverlayBridge,
   isPulseOverlay,
 } from '../pulse-overlay@jamby/lib.js';
+import metadata from '../pulse-overlay@jamby/metadata.json';
 
 // The decisions of the GNOME Shell bridge, driven through a fake Shell. No
 // GNOME Shell, no Mutter, no D-Bus: this proves the logic, not the physical
@@ -75,6 +77,8 @@ function fakeShell(windows = []) {
     watches: new Map(),
     toggles: 0,
     toggleError: null,
+    hellos: [],
+    helloError: null,
     logs: [],
     nextId: 1,
     addKeybinding(handler) {
@@ -107,6 +111,10 @@ function fakeShell(windows = []) {
     sendToggle(onError) {
       shell.toggles += 1;
       if (shell.toggleError) onError(shell.toggleError);
+    },
+    sendHello(version, onError) {
+      shell.hellos.push(version);
+      if (shell.helloError) onError(shell.helloError);
     },
     log: (message) => shell.logs.push(message),
     // Test helpers.
@@ -320,5 +328,47 @@ describe('Ctrl+Shift+F12', () => {
     bridge.disable();
     handler();
     expect(shell.toggles).toBe(0);
+  });
+});
+
+describe('hello', () => {
+  it('greets PULSE once each time it appears on the bus, with our version', () => {
+    const shell = fakeShell();
+    const bridge = new PulseOverlayBridge(shell);
+    bridge.enable();
+    expect(shell.hellos).toEqual([]);
+    shell.pulseAppears();
+    expect(shell.hellos).toEqual([COMPANION_VERSION]);
+    shell.pulseVanishes();
+    shell.pulseAppears();
+    expect(shell.hellos).toEqual([COMPANION_VERSION, COMPANION_VERSION]);
+  });
+
+  it('an older PULSE refusing the hello is logged once and never thrown', () => {
+    const shell = fakeShell();
+    shell.helloError = new Error('UnknownMethod');
+    const bridge = new PulseOverlayBridge(shell);
+    bridge.enable();
+    expect(() => shell.pulseAppears()).not.toThrow();
+    // The error arrives once per appearance; the toggle still works.
+    expect(shell.logs.filter((line) => line.includes('hello'))).toHaveLength(1);
+    shell.keyHandler();
+    expect(shell.toggles).toBe(1);
+  });
+
+  it('never greets with an unusable PID, nor after disable', () => {
+    const shell = fakeShell();
+    const bridge = new PulseOverlayBridge(shell);
+    bridge.enable();
+    shell.pulseAppears(0);
+    expect(shell.hellos).toEqual([]);
+    bridge.disable();
+    shell.pulseAppears();
+    expect(shell.hellos).toEqual([]);
+  });
+
+  it('the declared version matches metadata.json', () => {
+    expect(metadata.version).toBe(COMPANION_VERSION);
+    expect(metadata.uuid).toBe('pulse-overlay@jamby');
   });
 });

@@ -14,18 +14,24 @@ session is **XWayland**.
 
 ## Expectations and measurements
 
-| Capability              | Windows              | X11 / XWayland                                         | Wayland (native)                                                                    |
-| ----------------------- | -------------------- | ------------------------------------------------------ | ----------------------------------------------------------------------------------- |
-| Always on top           | supported (expected) | supported — **measured on XWayland**                   | **not guaranteed** — no protocol; **measured on GNOME: goes behind a focused app**  |
-| Click-through           | supported (expected) | supported — **measured on XWayland**                   | **measured working on GNOME** (reported _limited_: compositor decides)              |
-| Absolute positioning    | supported (expected) | supported                                              | **unsupported** — clients cannot place windows                                      |
-| Transparent window      | supported (expected) | X11: limited (needs a compositor); XWayland: supported | supported                                                                           |
-| Global shortcut         | supported (expected) | X11: supported; XWayland: **limited**                  | XDG Desktop Portal `GlobalShortcuts` if the desktop offers it, else **unsupported** |
-| Multi-monitor placement | supported (expected) | supported                                              | **unsupported** — the compositor chooses                                            |
-| Tray                    | supported (expected) | limited — GNOME needs the AppIndicator extension       | limited — same                                                                      |
+| Capability              | Windows              | X11 / XWayland                                         | Wayland (native)                                                                        |
+| ----------------------- | -------------------- | ------------------------------------------------------ | --------------------------------------------------------------------------------------- |
+| Always on top           | supported (expected) | supported — **measured on XWayland**                   | no protocol: goes behind a focused app — **supported with the GNOME bridge (verified)** |
+| Click-through           | supported (expected) | supported — **measured on XWayland**                   | **supported on GNOME (verified, 20/20 clicks)**; _limited_ on other compositors         |
+| Absolute positioning    | supported (expected) | supported                                              | **unsupported** — clients cannot place windows                                          |
+| Transparent window      | supported (expected) | X11: limited (needs a compositor); XWayland: supported | supported                                                                               |
+| Global shortcut         | supported (expected) | X11: supported; XWayland: **limited**                  | GNOME bridge (verified), else the `GlobalShortcuts` portal, else **unsupported**        |
+| Multi-monitor placement | supported (expected) | supported                                              | **unsupported** — the compositor chooses                                                |
+| Tray                    | supported (expected) | limited — GNOME needs the AppIndicator extension       | limited — same                                                                          |
 
-"Expected" means: what the platform API provides; **not yet verified on a
-Windows machine**.
+"Expected" means: what PULSE's native Win32 backend does
+([`windows-native.md`](windows-native.md)); **implemented and compiled, not
+yet verified on a Windows machine**.
+
+Phase 12 update: on GNOME Wayland the [GNOME bridge](gnome-bridge.md) makes
+always-on-top and the shortcut **supported**, and click-through is
+**supported** on GNOME with or without it. The sections below are the
+Phase 11 measurements that led there.
 
 ## Fedora 39 — measured (Phase 11)
 

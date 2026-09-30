@@ -1,7 +1,8 @@
 // PULSE overlay bridge — the decisions, without GNOME Shell.
 //
-// PROTOTYPE (Phase 11.5A), NOT PHYSICALLY PROVEN. See
-// docs/overlay/gnome-bridge-poc.md.
+// Physically verified on Fedora 39 / GNOME 45 (Wayland): overlays stay above
+// a focused application, and the shortcut reaches PULSE whichever window has
+// focus. See docs/overlay/gnome-bridge.md.
 //
 // Everything that can go wrong inside GNOME Shell is decided here, in plain
 // JavaScript with no `gi://` or `resource://` import, so it is unit-tested
@@ -12,6 +13,9 @@ export const BUS_NAME = 'dev.pulse.app';
 export const OBJECT_PATH = '/dev/pulse/app/OverlayBridge';
 export const INTERFACE = 'dev.pulse.app.OverlayBridge';
 export const TOGGLE_METHOD = 'ToggleOverlayEditMode';
+export const HELLO_METHOD = 'Hello';
+/** This extension's version; keep equal to metadata.json → version. */
+export const COMPANION_VERSION = 2;
 export const KEYBINDING = 'toggle-overlays';
 
 /**
@@ -66,6 +70,7 @@ export function readFacts(window, normalType) {
  *   listWindows() -> Meta.Window[]
  *   connectWindow(window, signal, cb) -> id / disconnectWindow(window, id)
  *   sendToggle(onError)
+ *   sendHello(version, onError)   — announce ourselves to PULSE
  *   normalType
  *   log(message)
  */
@@ -139,6 +144,16 @@ export class PulseOverlayBridge {
     this._pulsePid = typeof pid === 'number' && pid > 0 ? pid : null;
     this._logged.delete('absent');
     this._logged.delete('toggle');
+    this._logged.delete('hello');
+    if (this._pulsePid !== null) {
+      // Once per appearance of PULSE on the bus: lets PULSE show that the
+      // running extension reaches it. Asynchronous; never waited for.
+      this._guard(() =>
+        this._shell.sendHello(COMPANION_VERSION, (error) =>
+          this._logOnce('hello', `PULSE did not accept our hello: ${error}`),
+        ),
+      );
+    }
     for (const window of this._shell.listWindows()) this._consider(window);
   }
 

@@ -29,18 +29,22 @@ use std::time::Duration;
 use serde::Serialize;
 use serde_json::Value;
 use tauri::{
-    AppHandle, Manager, PhysicalPosition, Runtime, WebviewUrl, WebviewWindow, WebviewWindowBuilder,
-    WindowEvent,
+    AppHandle, Emitter, Manager, PhysicalPosition, Runtime, WebviewUrl, WebviewWindow,
+    WebviewWindowBuilder, WindowEvent,
 };
 use tauri_plugin_global_shortcut::{GlobalShortcutExt, Shortcut, ShortcutState};
 
 use crate::commands::ui_config::{update_section, UiConfigState};
+use crate::overlay::backend::{
+    backend_info, select_backend, window_policy, OverlayBackendInfo, OverlayBackendKind,
+};
 use crate::overlay::capabilities::{
     capabilities, detect_display_server, DisplayServer, OverlayCapabilities, RuntimeFacts,
     SessionFacts,
 };
 use crate::overlay::geometry::{capture, place, MonitorInfo, OverlayGeometry};
 use crate::overlay::global_shortcut::{choose_backend, ShortcutBackend};
+use crate::overlay::gnome_bridge::{bridge_status, GnomeBridgeStatus, GnomeFacts, Handshake};
 use crate::overlay::input::{handle_event, InputEvent, OverlayInputMode, OverlayInputs};
 use crate::overlay::settings::{
     allow_exit, handle_main_close, parse_settings, HotkeyManager, ShortcutRegistrar,
@@ -62,8 +66,15 @@ pub struct DesktopState {
     /// Chosen once at launch; `None` until then.
     hotkey_backend: Mutex<Option<ShortcutBackend>>,
     portal: Mutex<Option<std::sync::Arc<PortalService>>>,
-    /// The overlay bridge D-Bus service (prototype; Linux only).
+    /// The overlay bridge D-Bus service (Linux only).
     bridge: Mutex<Option<crate::bridge::BridgeService>>,
+    /// The GNOME bridge facts, gathered at launch and on refresh — never
+    /// polled. `None` until first gathered.
+    gnome: Mutex<Option<GnomeFacts>>,
+    /// The bridge's own shortcut, read with the facts.
+    gnome_hotkey: Mutex<Option<String>>,
+    /// The running extension's last `Hello`.
+    handshake: std::sync::Arc<Mutex<Option<Handshake>>>,
     tray_fact: Mutex<Option<Result<(), String>>>,
     reconcile: Mutex<()>,
     applied: Mutex<HashMap<String, OverlayGeometry>>,
@@ -89,6 +100,9 @@ impl DesktopState {
             hotkey_backend: Mutex::new(None),
             portal: Mutex::new(None),
             bridge: Mutex::new(None),
+            gnome: Mutex::new(None),
+            gnome_hotkey: Mutex::new(None),
+            handshake: std::sync::Arc::new(Mutex::new(None)),
             tray_fact: Mutex::new(None),
             reconcile: Mutex::new(()),
             applied: Mutex::new(HashMap::new()),
@@ -171,15 +185,16 @@ fn apply_lock<R: Runtime>(app: &AppHandle<R>, window: &WebviewWindow<R>, event: 
         event,
         InputEvent::Created { locked: true } | InputEvent::Reconciled { locked: true }
     );
+    let policy = window_policy(locked);
     if let Some(state) = app.try_state::<DesktopState>() {
         let label = window.label();
         let outcome = handle_event(&state.inputs, label, event, |mode| {
-            crate::overlay_input::set_overlay_input_mode(window, mode)
+            debug_assert_eq!(mode, policy.input);
+            crate::overlay_native::set_overlay_input_mode(window, mode)
         });
         report_input(label, event, outcome);
     }
-    let _ = window.set_focusable(!locked);
-    let _ = window.set_always_on_top(true);
+    crate::overlay_native::apply_focus_and_stacking(window, policy);
 }
 
 /// Logs a failed input-mode change, and — with `PULSE_OVERLAY_INPUT_DEBUG`
@@ -205,7 +220,7 @@ fn report_input(
 fn watch_remap<R: Runtime>(app: &AppHandle<R>, window: &WebviewWindow<R>) {
     let app = app.clone();
     let label = window.label().to_string();
-    crate::overlay_input::watch_remap(window, move |apply| {
+    crate::overlay_native::watch_remap(window, move |apply| {
         if let Some(state) = app.try_state::<DesktopState>() {
             let outcome = handle_event(&state.inputs, &label, InputEvent::Mapped, apply);
             report_input(&label, InputEvent::Mapped, outcome);
@@ -665,7 +680,23 @@ fn start_bridge<R: Runtime>(app: &AppHandle<R>) {
         return;
     }
     let toggler = app.clone();
-    match crate::bridge::start(move || overlay_action(&toggler, OverlayAction::ToggleLockAll)) {
+    let handshake = state.handshake.clone();
+    let emitter = app.clone();
+    let hello = move |version: u32| {
+        let at = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map(|d| d.as_secs())
+            .unwrap_or(0);
+        let previous = lock(&handshake).replace(Handshake { version, at });
+        if previous.map(|p| p.version) != Some(version) {
+            eprintln!("PULSE: GNOME bridge extension v{version} connected");
+        }
+        let _ = emitter.emit(DESKTOP_STATUS_EVENT, ());
+    };
+    match crate::bridge::start(
+        move || overlay_action(&toggler, OverlayAction::ToggleLockAll),
+        hello,
+    ) {
         Ok(Some(service)) => {
             eprintln!(
                 "PULSE: overlay bridge on the session bus: {} {}",
@@ -678,6 +709,57 @@ fn start_bridge<R: Runtime>(app: &AppHandle<R>) {
         Err(error) => eprintln!("PULSE: overlay bridge unavailable: {error}"),
     }
 }
+
+/// Gathers the GNOME bridge facts again (GNOME Shell's extension state, the
+/// installed copy, the bridge's shortcut). At launch, and when the user
+/// refreshes or acts — never on a timer. Must not run on the main thread.
+pub fn refresh_gnome_bridge<R: Runtime>(app: &AppHandle<R>) {
+    let Some(state) = app.try_state::<DesktopState>() else {
+        return;
+    };
+    let facts = crate::gnome_bridge::gather(state.display);
+    let hotkey = match &facts.shell {
+        Some(Ok(shell)) => {
+            let loaded_from = shell
+                .extension
+                .as_ref()
+                .and_then(|info| info.path.as_deref());
+            crate::gnome_bridge::read_hotkey(loaded_from)
+        }
+        _ => None,
+    };
+    *lock(&state.gnome) = Some(facts);
+    *lock(&state.gnome_hotkey) = hotkey;
+}
+
+/// The bridge's status: the cached facts with the latest handshake.
+fn gnome_status(state: &DesktopState) -> Option<GnomeBridgeStatus> {
+    let mut facts = lock(&state.gnome).clone()?;
+    facts.handshake = *lock(&state.handshake);
+    Some(bridge_status(&facts))
+}
+
+/// Enables or disables the extension through GNOME Shell's own API, on the
+/// user's explicit request, then refreshes.
+pub fn set_gnome_bridge_enabled<R: Runtime>(
+    app: &AppHandle<R>,
+    enabled: bool,
+) -> Result<(), String> {
+    let result = crate::gnome_bridge::set_enabled(enabled);
+    refresh_gnome_bridge(app);
+    let _ = app.emit(DESKTOP_STATUS_EVENT, ());
+    result
+}
+
+/// Whether the GNOME bridge is the overlay backend right now.
+pub fn gnome_bridge_active<R: Runtime>(app: &AppHandle<R>) -> bool {
+    app.try_state::<DesktopState>()
+        .and_then(|state| gnome_status(&state))
+        .is_some_and(|status| status.is_active())
+}
+
+/// Emitted when the desktop status changed outside the frontend's request.
+pub const DESKTOP_STATUS_EVENT: &str = "desktop-status-changed";
 
 /// Releases the portal session and the bridge when PULSE quits.
 pub fn shutdown<R: Runtime>(app: &AppHandle<R>) {
@@ -764,6 +846,14 @@ pub fn build_tray<R: Runtime>(app: &AppHandle<R>) {
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DesktopStatus {
+    /// The overlay backend this session uses.
+    pub backend: OverlayBackendInfo,
+    /// The GNOME bridge, where it applies (GNOME on Wayland); otherwise its
+    /// status says it does not apply.
+    pub gnome_bridge: Option<GnomeBridgeStatus>,
+    /// The repository copy of the extension and its installer, when PULSE
+    /// runs from a source checkout.
+    pub gnome_bridge_source: Option<String>,
     pub capabilities: OverlayCapabilities,
     /// The shortcut in force: as requested (plugin) or as the desktop
     /// describes it (portal).
@@ -775,12 +865,20 @@ pub struct DesktopStatus {
 pub fn status<R: Runtime>(app: &AppHandle<R>) -> Option<DesktopStatus> {
     let state = app.try_state::<DesktopState>()?;
     let backend = lock(&state.hotkey_backend).clone();
+    let gnome = gnome_status(&state);
+    let gnome_active = gnome.as_ref().is_some_and(GnomeBridgeStatus::is_active);
+    let gnome_hotkey = lock(&state.gnome_hotkey).clone();
     let runtime = RuntimeFacts {
         hotkey: lock(&state.hotkey_fact).clone(),
         tray: lock(&state.tray_fact).clone(),
         hotkey_backend: backend.clone(),
+        gnome_desktop: lock(&state.gnome).as_ref().is_some_and(|f| f.gnome_desktop),
+        gnome_bridge_active: gnome_active,
+        gnome_bridge_hotkey: gnome_hotkey.clone(),
     };
+    let overlay_backend = select_backend(state.display, gnome_active);
     let (hotkey, hotkey_error) = match (&backend, lock(&state.portal).as_ref()) {
+        _ if overlay_backend == OverlayBackendKind::GnomeBridge => (gnome_hotkey, None),
         (Some(ShortcutBackend::Portal { .. }), Some(service)) => {
             let snapshot = service.snapshot();
             (
@@ -798,6 +896,9 @@ pub fn status<R: Runtime>(app: &AppHandle<R>) -> Option<DesktopStatus> {
         }
     };
     Some(DesktopStatus {
+        backend: backend_info(overlay_backend),
+        gnome_bridge: gnome,
+        gnome_bridge_source: crate::gnome_bridge::source_dir(),
         capabilities: capabilities(state.display, &runtime),
         hotkey,
         hotkey_error,
@@ -816,15 +917,30 @@ pub fn setup<R: Runtime>(app: &AppHandle<R>) {
         reconcile(&handle);
         init_hotkey_backend(&handle);
         start_bridge(&handle);
+        refresh_gnome_bridge(&handle);
+        if let Some(bridge) = handle
+            .try_state::<DesktopState>()
+            .and_then(|state| gnome_status(&state))
+            .filter(|status| {
+                status.state != crate::overlay::gnome_bridge::BridgeState::NotApplicable
+            })
+        {
+            eprintln!("PULSE: GNOME bridge: {}", bridge.summary);
+        }
         let wanted = parse_settings(section(&handle, "settings").as_ref()).hotkey;
-        if let Err(error) = apply_hotkey(&handle, wanted.as_deref(), true) {
-            eprintln!("PULSE: global shortcut unavailable: {error}");
+        // With the GNOME bridge active the shortcut is Mutter's, through the
+        // extension: there is nothing for the portal or the plugin to bind.
+        if !gnome_bridge_active(&handle) {
+            if let Err(error) = apply_hotkey(&handle, wanted.as_deref(), true) {
+                eprintln!("PULSE: global shortcut unavailable: {error}");
+            }
         }
         if let Some(status) = status(&handle) {
             let caps = &status.capabilities;
             eprintln!(
-                "PULSE: desktop {:?}: always-on-top {:?}, click-through {:?}, positioning {:?}, hotkey {:?} ({}), tray {:?}",
+                "PULSE: desktop {:?} — {}: always-on-top {:?}, click-through {:?}, positioning {:?}, hotkey {:?} ({}), tray {:?}",
                 caps.display_server,
+                status.backend.label,
                 caps.always_on_top.status,
                 caps.click_through.status,
                 caps.positioning.status,

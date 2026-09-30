@@ -7,6 +7,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added — Phase 12: production GNOME overlay bridge and overlay backends
+
+- **Overlay backend abstraction** (`overlay::backend`): each session uses one
+  backend — _Windows native_, _GNOME native bridge_, _standard Wayland_,
+  _X11_ or _unavailable_ — chosen from the display server and the bridge's
+  live state, and all honour one Edit/Locked contract (`window_policy`:
+  Edit interactive and focusable; Locked click-through, never focused; both
+  keep-above). `overlay_input.rs` became `overlay_native.rs`.
+- **GNOME bridge status** (`overlay::gnome_bridge`, pure; `gnome_bridge.rs`,
+  facts): from GNOME Shell's own `org.gnome.Shell.Extensions` API, the
+  installed `metadata.json` and the extension's `Hello` — _not needed here_,
+  _not installed_, _installed — log in again_, _disabled_, _active_
+  (+ _connected_), _error_, _incompatible_, _extensions off_,
+  _unavailable_; update-available and restart-pending detection. Gathered at
+  launch, on page open, on Refresh and after Enable/Disable — never polled.
+- **Capabilities follow the bridge**: with it active, always-on-top and the
+  global shortcut become _supported_; click-through is _supported_ on any
+  GNOME Wayland session (verified in Phase 11.5B).
+- **Extension v2** (`pulse-overlay@jamby`, same UUID): production metadata,
+  `Hello(u) → u` once per PULSE appearance (logged once and ignored by an
+  older PULSE). Stacking and keybinding logic unchanged. `install.sh` gains
+  `status` and `update`, and reads GNOME's output in the C locale.
+- **Bridge D-Bus v2**: `Hello` added; accepted only from the `gnome-shell`
+  process (PID from the bus daemon). Still no other argument, property or
+  signal.
+- **PULSE → Overlays → Overlay backend**: backend, verification level,
+  headline capabilities, and for GNOME the bridge's state, versions, numbered
+  setup steps with copyable commands, explicit Enable / Disable / Refresh,
+  troubleshooting and limits. With the bridge active the _Global shortcut_
+  card writes the extension's own setting (Mutter re-binds at once).
+- Docs: [`docs/overlay/gnome-bridge.md`](docs/overlay/gnome-bridge.md); the
+  proof-of-concept page is kept as history.
+
 ### Fixed — Phase 12: overlay toggle scope
 
 - **The Edit/Locked toggle now acts on visible overlays only** — the global

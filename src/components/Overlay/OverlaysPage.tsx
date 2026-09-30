@@ -19,8 +19,10 @@ import { updateOverlays, useOverlays } from '@/overlay/store';
 import type { DesktopStatus, OverlayAction } from '@/overlay/desktop';
 import {
   getDesktopStatus,
+  onDesktopStatusChanged,
   openMiniWindow,
   overlayAction,
+  refreshGnomeBridge,
   setOverlayHotkey,
 } from '@/overlay/desktop';
 import { DEFAULT_HOTKEY, setCloseBehavior, useDesktopSettings } from '@/overlay/settings';
@@ -33,6 +35,7 @@ import { Choice, ColorField, Slider, Toggle } from '@/visualization/CustomizePan
 import { WidgetCustomize } from '@/components/Dashboard/WidgetCustomize';
 import { WidgetLibrary } from '@/components/Dashboard/WidgetLibrary';
 import { CapabilityList } from '@/components/Overlay/CapabilityList';
+import { OverlayBackendPanel } from '@/components/Overlay/OverlayBackendPanel';
 import { OverlayPreview } from '@/components/Overlay/OverlayApp';
 
 /**
@@ -59,9 +62,25 @@ export function OverlaysPage() {
       );
   }, []);
   useEffect(() => {
-    refresh();
-    return onUiConfigChange(refresh);
+    // Opening the page asks GNOME Shell afresh (once); configuration changes
+    // only re-read the backend's cached status, so a dragged slider never
+    // reaches GNOME Shell.
+    refreshGnomeBridge()
+      .then((next) => {
+        setStatus(next);
+        setStatusError(null);
+      })
+      .catch((error: unknown) =>
+        setStatusError(error instanceof Error ? error.message : String(error)),
+      );
+    const offConfig = onUiConfigChange(refresh);
+    const offStatus = onDesktopStatusChanged(refresh);
+    return () => {
+      offConfig();
+      offStatus();
+    };
   }, [refresh]);
+  const bridgeHotkey = status?.backend?.kind === 'gnomeBridge';
 
   const act = (action: OverlayAction) => void overlayAction(action).catch(() => undefined);
 
@@ -94,6 +113,8 @@ export function OverlaysPage() {
           Open Mini window
         </button>
       </div>
+
+      <OverlayBackendPanel status={status} error={statusError} onStatus={setStatus} />
 
       <div className="card">
         <h2 className="card__title">New overlay</h2>
@@ -174,14 +195,20 @@ export function OverlaysPage() {
             Disable
           </button>
         </div>
-        {backend?.kind === 'portal' && (
+        {bridgeHotkey && (
+          <p className="card__note">
+            Delivered by the GNOME bridge through Mutter, whichever application has focus. Applying
+            a shortcut here changes the bridge&apos;s own setting; GNOME uses it at once.
+          </p>
+        )}
+        {!bridgeHotkey && backend?.kind === 'portal' && (
           <p className="card__note">
             Delivered by your desktop through the XDG Desktop Portal, whichever application has
             focus. The desktop may ask you to approve it, and may let you change the keys in its own
             keyboard settings.
           </p>
         )}
-        {backend?.kind === 'unavailable' && (
+        {!bridgeHotkey && backend?.kind === 'unavailable' && (
           <p className="card__note" role="status">
             {`Global shortcuts are not available on this session: ${backend.reason}`}
           </p>
@@ -227,7 +254,7 @@ export function OverlaysPage() {
       </div>
 
       <div className="card">
-        <h2 className="card__title">What overlays can do here</h2>
+        <h2 className="card__title">Every capability, in detail</h2>
         {status ? (
           <CapabilityList capabilities={status.capabilities} />
         ) : (

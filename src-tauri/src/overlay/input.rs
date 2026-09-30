@@ -4,7 +4,7 @@
 //! A Locked overlay is **click-through**: pointer events go to whatever is
 //! below it (Firefox, a game) as if the overlay were not there. An overlay in
 //! Edit is **interactive**. That native state is a side effect on a real window
-//! (on Linux, the GTK input shape; see `crate::overlay_input`), so this module
+//! (on Linux, the GTK input shape; see `crate::overlay_native`), so this module
 //! only decides *when* to apply *which* mode, and the side effect is injected —
 //! the tests below drive a fake and prove nothing physical.
 //!

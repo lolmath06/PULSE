@@ -1,5 +1,7 @@
-//! The native side of an overlay's input mode (see `crate::overlay::input` for
-//! when it is applied).
+//! The native side of an overlay window's Edit / Locked state
+//! (`overlay::backend::window_policy`): its input mode (see
+//! `crate::overlay::input` for when that is applied), whether it can take
+//! focus, and whether it asks to stay above other windows.
 //!
 //! **Linux (GTK 3).** Click-through is GTK's *widget-level* input shape on the
 //! overlay's `GtkApplicationWindow`: an empty region for `ClickThrough`, none
@@ -28,7 +30,23 @@
 
 use tauri::{Runtime, WebviewWindow};
 
+use crate::overlay::backend::OverlayWindowPolicy;
 use crate::overlay::input::OverlayInputMode;
+
+/// Focus and stacking for `policy`. Idempotent and cheap, so applied on every
+/// reconciliation. (The input mode is separate: see
+/// [`set_overlay_input_mode`].)
+///
+/// On GNOME Wayland the stacking request is a no-op for the window itself —
+/// the protocol has none — and the GNOME bridge keeps the overlay above from
+/// inside the compositor.
+pub fn apply_focus_and_stacking<R: Runtime>(
+    window: &WebviewWindow<R>,
+    policy: OverlayWindowPolicy,
+) {
+    let _ = window.set_focusable(policy.focusable);
+    let _ = window.set_always_on_top(policy.keep_above);
+}
 
 /// Applies `mode` to an overlay window. On Linux it runs on the main thread
 /// and waits for it; the `Ok` text describes what was done, for diagnostics.

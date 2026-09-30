@@ -1,8 +1,9 @@
 {
   "uuid": "pulse-overlay@jamby",
-  "name": "PULSE overlay bridge (prototype)",
-  "description": "Keeps PULSE overlay windows above other windows and forwards Ctrl+Shift+F12 to PULSE. Prototype for PULSE Phase 11.5A; not physically proven.",
+  "name": "PULSE Overlay Bridge",
+  "description": "Keeps PULSE's desktop overlays above other windows on GNOME Wayland and delivers the overlay shortcut (Ctrl+Shift+F12 by default) to PULSE. Only PULSE's own overlay windows are ever touched.",
   "shell-version": ["45"],
   "settings-schema": "org.gnome.shell.extensions.pulse-overlay",
-  "version": 1
+  "url": "https://github.com/lolmath06/PULSE",
+  "version": 2
 }

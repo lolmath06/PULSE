@@ -2,8 +2,8 @@
 //! compositor-side companion (the GNOME Shell extension in
 //! `integrations/gnome-shell/`) asks PULSE to toggle its overlays.
 //!
-//! **Prototype (Phase 11.5A), physically unproven.** See
-//! `docs/overlay/gnome-bridge-poc.md`.
+//! Physically verified on Fedora 39 / GNOME 45 (Phase 11.5); see
+//! `docs/overlay/gnome-bridge.md`.
 //!
 //! | what      | value                           |
 //! | --------- | ------------------------------- |
@@ -12,11 +12,14 @@
 //! | object    | `/dev/pulse/app/OverlayBridge`  |
 //! | interface | `dev.pulse.app.OverlayBridge`   |
 //!
-//! Three methods, nothing else: `Ping`, `GetOverlayBridgeVersion`, and
-//! `ToggleOverlayEditMode`, which runs the existing Edit ↔ Locked toggle.
-//! No argument is ever taken, so the bridge cannot be made to read a file,
-//! run a command or reach any other PULSE function. PULSE stays the source of
-//! truth for the overlays; the extension only sends the action.
+//! Four methods, nothing else: `Ping`, `GetOverlayBridgeVersion`,
+//! `ToggleOverlayEditMode` (the shared Edit ↔ Locked toggle), and
+//! `Hello(u version) → u`, with which the running extension announces itself.
+//! The only argument anywhere is that version number, used for display; a
+//! `Hello` is accepted only from the `gnome-shell` process (its PID comes from
+//! the bus daemon). Nothing can make the bridge read a file, run a command or
+//! reach any other PULSE function. PULSE stays the source of truth for the
+//! overlays; the extension only sends the action.
 //!
 //! The name also lets the extension learn PULSE's PID from the bus daemon
 //! (`GetConnectionUnixProcessID`), which is how it recognises PULSE's
@@ -25,22 +28,36 @@
 pub const BUS_NAME: &str = "dev.pulse.app";
 pub const OBJECT_PATH: &str = "/dev/pulse/app/OverlayBridge";
 pub const INTERFACE: &str = "dev.pulse.app.OverlayBridge";
-/// Bumped when the interface changes.
-pub const VERSION: u32 = 1;
+/// Bumped when the interface changes. 2 added `Hello`.
+pub const VERSION: u32 = 2;
 
-/// The exported object. Its only effect is the callback it was built with.
+/// The highest companion version PULSE records; anything above is clamped.
+const MAX_COMPANION_VERSION: u32 = 1_000;
+
+/// The exported object. Its only effects are the callbacks it was built with.
 pub struct OverlayBridge {
     // Read only by the D-Bus interface, which exists on Linux.
     #[cfg_attr(not(target_os = "linux"), allow(dead_code))]
     toggle: Box<dyn Fn() + Send + Sync>,
+    #[cfg_attr(not(target_os = "linux"), allow(dead_code))]
+    hello: Box<dyn Fn(u32) + Send + Sync>,
 }
 
 impl OverlayBridge {
-    pub fn new(toggle: impl Fn() + Send + Sync + 'static) -> Self {
+    pub fn new(
+        toggle: impl Fn() + Send + Sync + 'static,
+        hello: impl Fn(u32) + Send + Sync + 'static,
+    ) -> Self {
         Self {
             toggle: Box::new(toggle),
+            hello: Box::new(hello),
         }
     }
+}
+
+/// Whether a process name (`/proc/<pid>/comm`) is GNOME Shell's.
+pub fn is_gnome_shell_comm(comm: &str) -> bool {
+    comm.trim() == "gnome-shell"
 }
 
 #[cfg(target_os = "linux")]
@@ -61,6 +78,28 @@ impl OverlayBridge {
     /// never changed.
     fn toggle_overlay_edit_mode(&self) {
         (self.toggle)();
+    }
+
+    /// The running extension announces itself with its version and learns
+    /// the bridge's. Refused unless the caller is the `gnome-shell` process.
+    async fn hello(
+        &self,
+        companion_version: u32,
+        #[zbus(header)] header: zbus::message::Header<'_>,
+        #[zbus(connection)] connection: &zbus::Connection,
+    ) -> zbus::fdo::Result<u32> {
+        let denied = || zbus::fdo::Error::AccessDenied("not GNOME Shell".into());
+        let sender = header.sender().ok_or_else(denied)?.to_owned();
+        let pid = zbus::fdo::DBusProxy::new(connection)
+            .await?
+            .get_connection_unix_process_id(sender.into())
+            .await?;
+        let comm = std::fs::read_to_string(format!("/proc/{pid}/comm")).unwrap_or_default();
+        if !is_gnome_shell_comm(&comm) {
+            return Err(denied());
+        }
+        (self.hello)(companion_version.min(MAX_COMPANION_VERSION));
+        Ok(VERSION)
     }
 }
 
@@ -101,12 +140,15 @@ impl Drop for BridgeService {
 /// Starts the service on the session bus. `Ok(None)` where there is no such
 /// bridge (non-Linux). An error — no session bus, or another PULSE already
 /// owns the name — is reported once by the caller and is never fatal.
-pub fn start(toggle: impl Fn() + Send + Sync + 'static) -> Result<Option<BridgeService>, String> {
+pub fn start(
+    toggle: impl Fn() + Send + Sync + 'static,
+    hello: impl Fn(u32) + Send + Sync + 'static,
+) -> Result<Option<BridgeService>, String> {
     #[cfg(target_os = "linux")]
     {
         let connection = zbus::blocking::connection::Builder::session()
             .and_then(|builder| builder.name(BUS_NAME))
-            .and_then(|builder| builder.serve_at(OBJECT_PATH, OverlayBridge::new(toggle)))
+            .and_then(|builder| builder.serve_at(OBJECT_PATH, OverlayBridge::new(toggle, hello)))
             .and_then(|builder| builder.build())
             .map_err(|error| error.to_string())?;
         Ok(Some(BridgeService {
@@ -115,7 +157,7 @@ pub fn start(toggle: impl Fn() + Send + Sync + 'static) -> Result<Option<BridgeS
     }
     #[cfg(not(target_os = "linux"))]
     {
-        let _ = toggle;
+        let _ = (toggle, hello);
         Ok(None)
     }
 }
@@ -132,9 +174,12 @@ mod tests {
     fn counted() -> (OverlayBridge, Arc<AtomicUsize>) {
         let count = Arc::new(AtomicUsize::new(0));
         let seen = count.clone();
-        let bridge = OverlayBridge::new(move || {
-            seen.fetch_add(1, Ordering::SeqCst);
-        });
+        let bridge = OverlayBridge::new(
+            move || {
+                seen.fetch_add(1, Ordering::SeqCst);
+            },
+            |_| {},
+        );
         (bridge, count)
     }
 
@@ -155,7 +200,7 @@ mod tests {
     }
 
     #[test]
-    fn the_interface_exposes_exactly_three_argument_free_methods() {
+    fn the_interface_exposes_four_methods_and_one_numeric_argument() {
         let (bridge, _) = counted();
         let mut xml = String::new();
         bridge.introspect_to_writer(&mut xml, 0);
@@ -170,12 +215,29 @@ mod tests {
             .collect();
         assert_eq!(
             methods,
-            ["Ping", "GetOverlayBridgeVersion", "ToggleOverlayEditMode"]
+            [
+                "Ping",
+                "GetOverlayBridgeVersion",
+                "ToggleOverlayEditMode",
+                "Hello"
+            ]
         );
-        // No input argument anywhere: nothing can be passed in.
-        assert!(!xml.contains("direction=\"in\""), "{xml}");
+        // One input argument in the whole interface: Hello's version number.
+        assert_eq!(xml.matches("direction=\"in\"").count(), 1, "{xml}");
+        assert!(
+            xml.contains("<arg name=\"companion_version\" type=\"u\" direction=\"in\"/>"),
+            "{xml}"
+        );
         assert!(!xml.contains("<property"), "{xml}");
         assert!(!xml.contains("<signal"), "{xml}");
+    }
+
+    #[test]
+    fn only_gnome_shell_may_say_hello() {
+        assert!(is_gnome_shell_comm("gnome-shell\n"));
+        assert!(!is_gnome_shell_comm("gnome-shell-calendar-server"));
+        assert!(!is_gnome_shell_comm("python3"));
+        assert!(!is_gnome_shell_comm(""));
     }
 
     #[test]

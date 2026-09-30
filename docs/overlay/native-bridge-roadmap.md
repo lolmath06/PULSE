@@ -1,8 +1,10 @@
 # Native overlay bridges — roadmap
 
-Phase 11.5A only prototypes the GNOME Wayland bridge
-([`gnome-bridge-poc.md`](gnome-bridge-poc.md), **unproven**). Everything below
-is intent, not implementation.
+**Phase 12 update:** the GNOME bridge is in production
+([`gnome-bridge.md`](gnome-bridge.md), physically verified) and the Windows
+native backend is implemented ([`windows-native.md`](windows-native.md),
+compiled, **not physically verified**). The rest of this page is the
+original plan, kept for the record; the St-actor fallback was never needed.
 
 ## Linux — GNOME Wayland
 

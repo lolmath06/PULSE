@@ -17,14 +17,20 @@
 //! - [`global_shortcut`] — which shortcut backend a session uses, and the XDG
 //!   Desktop Portal shortcut session as a state machine;
 //! - [`input`] — when a window gets which input mode (click-through when
-//!   locked), with the native side effect injected.
+//!   locked), with the native side effect injected;
+//! - [`backend`] — which overlay backend a session uses (Windows native,
+//!   GNOME bridge, standard Wayland, X11) and the Edit/Locked contract they
+//!   all honour;
+//! - [`gnome_bridge`] — the GNOME Shell companion's status, from facts.
 //!
 //! The Tauri calls that apply these decisions live in `crate::desktop`, which
 //! contains no `cfg(target_os)` branch: platform differences are data here.
 
+pub mod backend;
 pub mod capabilities;
 pub mod geometry;
 pub mod global_shortcut;
+pub mod gnome_bridge;
 pub mod input;
 pub mod settings;
 pub mod spec;

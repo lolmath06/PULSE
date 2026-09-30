@@ -128,20 +128,32 @@ pub struct RuntimeFacts {
     pub tray: Option<Result<(), String>>,
     /// The global-shortcut backend chosen for this session, once known.
     pub hotkey_backend: Option<ShortcutBackend>,
+    /// `XDG_CURRENT_DESKTOP` names GNOME.
+    pub gnome_desktop: bool,
+    /// GNOME Shell reports the PULSE overlay bridge enabled.
+    pub gnome_bridge_active: bool,
+    /// The bridge's shortcut, as PULSE writes shortcuts (`Ctrl+Shift+F12`).
+    pub gnome_bridge_hotkey: Option<String>,
 }
 
 use CapabilityStatus::{Limited, Supported, Unsupported};
 
 /// The platform's expected capabilities, before runtime facts.
 pub fn expected_capabilities(server: DisplayServer) -> OverlayCapabilities {
-    let windows_note = "expected from Win32; not yet verified on a Windows machine";
+    let windows_note =
+        "PULSE's native Win32 overlay backend — implemented and compiled, not yet verified on a Windows machine";
     match server {
         DisplayServer::Windows => OverlayCapabilities {
             display_server: server,
-            always_on_top: cap(Supported, &format!("topmost window (WS_EX_TOPMOST) — {windows_note}")),
+            always_on_top: cap(
+                Supported,
+                &format!("HWND_TOPMOST, re-asserted on every Edit/Lock change — {windows_note}"),
+            ),
             click_through: cap(
                 Supported,
-                &format!("layered, hit-test-transparent window (WS_EX_TRANSPARENT) — {windows_note}"),
+                &format!(
+                    "a layered, hit-test-transparent window (WS_EX_LAYERED | WS_EX_TRANSPARENT) while locked; WS_EX_NOACTIVATE never takes focus — {windows_note}"
+                ),
             ),
             positioning: cap(Supported, &format!("absolute placement per monitor — {windows_note}")),
             transparent_window: cap(Supported, &format!("per-pixel alpha — {windows_note}")),
@@ -264,6 +276,28 @@ pub fn capabilities(server: DisplayServer, runtime: &RuntimeFacts) -> OverlayCap
             }
             None => {}
         }
+    }
+    if server == DisplayServer::Wayland && runtime.gnome_desktop {
+        capabilities.click_through = cap(
+            Supported,
+            "an empty input region, kept as GTK's own input shape so every compositor configure preserves it — verified on GNOME 45 (Fedora 39)",
+        );
+    }
+    if server == DisplayServer::Wayland && runtime.gnome_bridge_active {
+        capabilities.always_on_top = cap(
+            Supported,
+            "kept above other windows by the PULSE GNOME bridge (Mutter make_above), whichever application has focus — verified on GNOME 45",
+        );
+        let shortcut = runtime
+            .gnome_bridge_hotkey
+            .as_deref()
+            .unwrap_or("The bridge's shortcut");
+        capabilities.global_hotkey = cap(
+            Supported,
+            &format!(
+                "{shortcut} is registered with Mutter by the PULSE GNOME bridge and reaches PULSE whichever application has focus — verified on GNOME 45"
+            ),
+        );
     }
     if let Some(Err(error)) = &runtime.tray {
         capabilities.tray = cap(
@@ -388,6 +422,7 @@ mod tests {
             hotkey: Some(Err("Ctrl+Shift+F12 is already taken".into())),
             tray: Some(Err("no StatusNotifier host".into())),
             hotkey_backend: Some(ShortcutBackend::Plugin),
+            ..RuntimeFacts::default()
         };
         let result = capabilities(DisplayServer::X11, &facts);
         assert_eq!(result.global_hotkey.status, Unsupported);
@@ -400,6 +435,7 @@ mod tests {
                 hotkey: Some(Ok("Ctrl+Shift+F12".into())),
                 tray: Some(Ok(())),
                 hotkey_backend: Some(ShortcutBackend::Plugin),
+                ..RuntimeFacts::default()
             },
         );
         assert!(ok
@@ -453,6 +489,50 @@ mod tests {
             Unsupported,
             "never claimed before the portal is found"
         );
+    }
+
+    #[test]
+    fn gnome_click_through_is_supported_and_other_compositors_stay_limited() {
+        let gnome = capabilities(
+            DisplayServer::Wayland,
+            &RuntimeFacts {
+                gnome_desktop: true,
+                ..RuntimeFacts::default()
+            },
+        );
+        assert_eq!(gnome.click_through.status, Supported);
+        assert!(gnome.click_through.reason.contains("GNOME 45"));
+        // Without the bridge, stacking stays the compositor's decision.
+        assert_eq!(gnome.always_on_top.status, Limited);
+
+        let other = capabilities(DisplayServer::Wayland, &RuntimeFacts::default());
+        assert_eq!(other.click_through.status, Limited);
+    }
+
+    #[test]
+    fn the_active_gnome_bridge_unlocks_stacking_and_the_shortcut() {
+        let facts = RuntimeFacts {
+            gnome_desktop: true,
+            gnome_bridge_active: true,
+            gnome_bridge_hotkey: Some("Ctrl+Shift+F12".into()),
+            // The portal is missing on GNOME 45; the bridge replaces it.
+            hotkey_backend: Some(ShortcutBackend::Unavailable {
+                reason: "no GlobalShortcuts".into(),
+            }),
+            ..RuntimeFacts::default()
+        };
+        let result = capabilities(DisplayServer::Wayland, &facts);
+        assert_eq!(result.always_on_top.status, Supported);
+        assert!(result.always_on_top.reason.contains("GNOME bridge"));
+        assert_eq!(result.global_hotkey.status, Supported);
+        assert!(result.global_hotkey.reason.starts_with("Ctrl+Shift+F12"));
+        // Placement is still the compositor's: the bridge does not move windows.
+        assert_eq!(result.positioning.status, Unsupported);
+
+        // The bridge never changes an X11 session.
+        let x11 = capabilities(DisplayServer::XWayland, &facts);
+        assert_ne!(x11.global_hotkey.status, Supported);
+        assert!(!x11.always_on_top.reason.contains("GNOME bridge"));
     }
 
     #[test]

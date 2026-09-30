@@ -23,11 +23,12 @@
 pub mod bridge;
 pub mod commands;
 pub mod desktop;
+pub mod gnome_bridge;
 pub mod history;
 pub mod live;
 pub mod metrics;
 pub mod overlay;
-pub mod overlay_input;
+pub mod overlay_native;
 pub mod platform;
 pub mod portal;
 pub mod processes;
@@ -134,6 +135,8 @@ pub fn run() {
             commands::live::get_live_buffer,
             commands::desktop::get_desktop_status,
             commands::desktop::set_overlay_hotkey,
+            commands::desktop::refresh_gnome_bridge,
+            commands::desktop::set_gnome_bridge_enabled,
             commands::desktop::overlay_action,
             commands::desktop::open_main_window,
             commands::desktop::open_mini_window,

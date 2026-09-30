@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
-# PULSE overlay bridge (GNOME Shell 45) — user-level install / uninstall.
-#
-# PROTOTYPE (Phase 11.5A), NOT PHYSICALLY PROVEN.
+# PULSE Overlay Bridge (GNOME Shell 45) — user-level install / update /
+# uninstall. See docs/overlay/gnome-bridge.md.
 #
 # Touches exactly one directory:
 #   ~/.local/share/gnome-shell/extensions/pulse-overlay@jamby/
@@ -9,7 +8,9 @@
 # extension's own entry in the enabled list (via `gnome-extensions`).
 #
 #   ./install.sh check      validate the sources (writes nothing)
+#   ./install.sh status     what is installed and what GNOME Shell runs (writes nothing)
 #   ./install.sh install    copy + compile the private schema (then log out/in once)
+#   ./install.sh update     same as install, over a copy this script installed
 #   ./install.sh enable     gnome-extensions enable
 #   ./install.sh disable    gnome-extensions disable
 #   ./install.sh uninstall  disable, then remove the directory — only if this
@@ -34,11 +35,27 @@ check() {
 
 ours() { [[ -f "$TARGET/$MARKER" ]]; }
 
+version_of() {
+  python3 -c 'import json,sys; print(json.load(open(sys.argv[1])).get("version","?"))' "$1" 2>/dev/null || echo "?"
+}
+
 case "${1:-}" in
   check)
     check
     ;;
-  install)
+  status)
+    echo "bundled:   v$(version_of "$SOURCE/metadata.json")  ($SOURCE)"
+    if [[ -f "$TARGET/metadata.json" ]]; then
+      echo "installed: v$(version_of "$TARGET/metadata.json")  ($TARGET)$(ours && echo ', by this script')"
+    else
+      echo "installed: no"
+    fi
+    if command -v gnome-extensions >/dev/null; then
+      LC_ALL=C gnome-extensions info "$UUID" 2>/dev/null | sed -n 's/^ *\(State\|Version\): */running \1: /p' ||
+        echo "running:   GNOME Shell does not know it yet (log out and back in after installing)"
+    fi
+    ;;
+  install|update)
     check
     if [[ -e "$TARGET" ]] && ! ours; then
       echo "REFUSING: $TARGET exists and was not installed by this script." >&2
@@ -50,13 +67,13 @@ case "${1:-}" in
     install -m 0644 "$SOURCE/$SCHEMA" "$TARGET/$SCHEMA"
     glib-compile-schemas --strict "$TARGET/schemas"
     date -Is > "$TARGET/$MARKER"
-    echo "Installed to $TARGET"
-    echo "GNOME Shell 45 on Wayland only discovers new extensions at login:"
-    echo "log out and back in once, then run: $0 enable"
+    echo "Installed v$(version_of "$TARGET/metadata.json") to $TARGET"
+    echo "GNOME Shell 45 on Wayland loads extension code only at login:"
+    echo "log out and back in once, then enable it (PULSE → Overlays, or: $0 enable)."
     ;;
   enable)
     gnome-extensions enable "$UUID"
-    gnome-extensions info "$UUID" | sed -n '1,/State/p'
+    LC_ALL=C gnome-extensions info "$UUID" | sed -n '1,/State/p'
     ;;
   disable)
     gnome-extensions disable "$UUID" || true
@@ -74,7 +91,7 @@ case "${1:-}" in
     fi
     ;;
   *)
-    sed -n '2,17p' "$0"
+    sed -n '2,19p' "$0"
     exit 2
     ;;
 esac
