@@ -18,7 +18,8 @@ import { invokeCommand, isTauriRuntime } from '@/services/tauri';
  * each feature normalises its own section field by field when reading it.
  */
 
-export type UiSection = 'visualization' | 'dashboards' | 'overlays' | 'templates' | 'settings';
+export type UiSection =
+  'visualization' | 'dashboards' | 'overlays' | 'templates' | 'settings' | 'appearance';
 
 export const UI_SECTIONS: readonly UiSection[] = [
   'visualization',
@@ -26,6 +27,7 @@ export const UI_SECTIONS: readonly UiSection[] = [
   'overlays',
   'templates',
   'settings',
+  'appearance',
 ];
 
 export const UI_CONFIG_EVENT = 'ui-config-changed';

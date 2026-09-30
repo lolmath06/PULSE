@@ -7,6 +7,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added — Phase 12: design system, eight visual styles and the Appearance studio
+
+- **Design system** (`src/design/`, `src/styles/theme.css`, `design.css`):
+  one token contract — canvas, translucent surfaces, borders, text, accent,
+  six series colours, type families/weights/casing, radius and chamfer,
+  shadows, highlight, blur, glow, value halo, spacing (× density) and motion
+  — applied to `:root` for a window or to any container for one part of it.
+- **Eight built-in styles**, each a complete look rather than a palette:
+  _Clean_, _Glass_ (frosted aurora), _Technical_ (blueprint grid, mono
+  readouts, markers), _Neon_ (glowing lines), _Gaming_ (chamfered, condensed
+  heavy numbers), _Stealth_, _Compact_ and _Transparent HUD_ (no panels, haloed
+  figures). Text contrast ≥ 7:1 and muted ≥ 4.5:1 in every style (tested).
+- **Appearance studio** (new _Studio → Appearance_ page): style gallery,
+  live preview drawn by the real widget engine, and tuning — accent and
+  palette, panel opacity, blur, borders, shadows, roundness, font, text size,
+  density, widget/overlay padding and gaps, chart line/fill/shape, titles,
+  micro labels, motion. Every control follows the style until moved.
+  **Saved styles**: save, use, rename, duplicate, delete, export and import
+  (`pulse.style` JSON).
+- **Styles reach widgets at render time**: charts still on their preset and
+  untouched frames take the style; customised ones keep their own settings;
+  nothing stored changes. Dashboards and overlays can each wear their own
+  style; choosing one for an overlay writes its chrome once and refits it.
+- **Shell redesign**: grouped navigation with icons, brand mark, style chip,
+  page entrance, refined buttons, segmented controls, switches, sliders,
+  selects, dialogs, drawer, menus and tooltips; hover elevation on widgets.
+  Style and mode changes cross-fade (View Transitions, where available).
+- The main window **reopens on the page it was left on**.
+- Fixes found on the way: chart statistics and legends no longer clip (their
+  CSS now fits the heights the layout budgets); a statistics row appears only
+  where it fits on one line; micro labels no longer end in "…" (text fitting
+  measured on the real fallback fonts); a card titled like its chart no longer
+  repeats the name.
+- New `appearance` configuration section (frontend and backend).
+- Docs: [`docs/design-system/overview.md`](docs/design-system/overview.md),
+  [`customization.md`](docs/design-system/customization.md).
+
 ### Added — Phase 12: Windows native overlay backend (not physically verified)
 
 - **Windows overlays are native tool windows**: `WS_EX_TOOLWINDOW` (no

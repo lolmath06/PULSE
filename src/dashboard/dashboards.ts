@@ -18,6 +18,8 @@ import { firstFit, moveWidget, repairLayout, resizeWidget } from '@/dashboard/la
 import { configFor } from '@/dashboard/metricInfo';
 import { createWidget, findBlueprint } from '@/dashboard/library';
 import { isValidId, newId } from '@/dashboard/ids';
+import type { StyleId } from '@/design/styles';
+import { isStyleId } from '@/design/styles';
 
 /**
  * The `dashboards` section: several named dashboards, one active.
@@ -63,7 +65,7 @@ export function defaultWidgets(): WidgetInstance[] {
 }
 
 export function defaultDashboard(id = 'default', name = 'Default'): Dashboard {
-  return { id, name, locked: true, widgets: defaultWidgets() };
+  return { id, name, locked: true, styleId: null, widgets: defaultWidgets() };
 }
 
 export function defaultSection(): DashboardsSection {
@@ -82,6 +84,7 @@ export function normalizeDashboard(raw: unknown): Dashboard | null {
     id: isValidId(raw.id) ? raw.id : newId('d'),
     name,
     locked: raw.locked !== false,
+    styleId: isStyleId(raw.styleId) ? raw.styleId : null,
     // Repaired on every load: a hand-edited or older file can never leave two
     // widgets on top of each other.
     widgets: repairLayout(uniqueWidgetIds(widgets)),
@@ -136,6 +139,7 @@ export function createDashboard(section: DashboardsSection, name: string): Dashb
     id: newId('d'),
     name: name.trim().slice(0, 40) || 'Dashboard',
     locked: false,
+    styleId: null,
     widgets: [],
   };
   return { ...section, items: [...section.items, dashboard], activeId: dashboard.id };
@@ -174,6 +178,15 @@ export function deleteDashboard(section: DashboardsSection, id: string): Dashboa
 /** Restores the default widgets. Templates are untouched (another section). */
 export function resetDashboard(section: DashboardsSection, id: string): DashboardsSection {
   return mapDashboard(section, id, (dashboard) => ({ ...dashboard, widgets: defaultWidgets() }));
+}
+
+/** The style a dashboard wears; `null` follows the app. */
+export function setDashboardStyle(
+  section: DashboardsSection,
+  id: string,
+  styleId: StyleId | null,
+): DashboardsSection {
+  return mapDashboard(section, id, (dashboard) => ({ ...dashboard, styleId }));
 }
 
 export function setLocked(

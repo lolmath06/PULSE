@@ -5,6 +5,8 @@ import { ROW_HEIGHT } from '@/dashboard/model';
 import { useElementSize } from '@/visualization/useElementSize';
 import { openMainWindow } from '@/overlay/desktop';
 import { WidgetCard } from '@/components/Dashboard/WidgetCard';
+import { RootLook } from '@/design/LookContext';
+import { useAppLook } from '@/design/hooks';
 
 /**
  * The Mini window: a small, **ordinary** PULSE window — decorated, focusable,
@@ -12,6 +14,15 @@ import { WidgetCard } from '@/components/Dashboard/WidgetCard';
  * column. Unlike an overlay it is never always-on-top and never click-through.
  */
 export function MiniApp() {
+  const look = useAppLook();
+  return (
+    <RootLook look={look}>
+      <MiniContent />
+    </RootLook>
+  );
+}
+
+function MiniContent() {
   const section = useDashboards();
   const [chosen, setChosen] = useState<string | null>(null);
   const dashboard = section.items.find((item) => item.id === chosen) ?? activeDashboard(section);

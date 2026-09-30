@@ -3,6 +3,8 @@ import { router } from '@/app/router';
 import { OverlayApp } from '@/components/Overlay/OverlayApp';
 import { MiniApp } from '@/components/Mini/MiniApp';
 import { isValidId } from '@/dashboard/ids';
+import { RootLook } from '@/design/LookContext';
+import { useAppLook } from '@/design/hooks';
 
 /**
  * One frontend, three kinds of window, chosen by the URL the backend opened:
@@ -17,5 +19,15 @@ export function App() {
   const id = params.get('id');
   if (kind === 'overlay' && isValidId(id)) return <OverlayApp id={id} />;
   if (kind === 'mini') return <MiniApp />;
-  return <RouterProvider router={router} />;
+  return <MainWindow />;
+}
+
+/** The main window wears the app's style on `:root`. */
+function MainWindow() {
+  const look = useAppLook();
+  return (
+    <RootLook look={look}>
+      <RouterProvider router={router} />
+    </RootLook>
+  );
 }

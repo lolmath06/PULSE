@@ -4,6 +4,8 @@ import { isHexColor } from '@/visualization/config';
 import { visualDefaultsFor } from '@/dashboard/dashboards';
 import { createWidget, findBlueprint } from '@/dashboard/library';
 import { isValidId, newId } from '@/dashboard/ids';
+import type { StyleId } from '@/design/styles';
+import { isStyleId } from '@/design/styles';
 
 /**
  * The `overlays` section: desktop overlays and what they show.
@@ -44,6 +46,12 @@ export interface OverlayGeometry {
 export interface Overlay {
   readonly id: string;
   readonly name: string;
+  /**
+   * The style its window wears (colours, type, glow), or `null` for the
+   * app's. The chrome below is always explicit: choosing a style writes the
+   * style's chrome here once, so an overlay's size never changes behind it.
+   */
+  readonly styleId: StyleId | null;
   readonly visible: boolean;
   readonly locked: boolean;
   readonly layout: OverlayLayout;
@@ -125,6 +133,7 @@ export function normalizeOverlay(raw: unknown): Overlay | null {
   return {
     id: raw.id,
     name: typeof raw.name === 'string' && raw.name.trim() ? raw.name.slice(0, 40) : 'Overlay',
+    styleId: isStyleId(raw.styleId) ? raw.styleId : null,
     visible: raw.visible !== false,
     locked: raw.locked === true,
     layout: (OVERLAY_LAYOUTS as readonly string[]).includes(raw.layout as string)
@@ -296,6 +305,7 @@ export function createOverlay(
   const overlay = withFittedGeometry({
     id: newId('o'),
     name: name.trim().slice(0, 40) || 'Overlay',
+    styleId: null,
     visible: true,
     locked: false,
     layout: 'horizontal',
@@ -379,6 +389,29 @@ export function updateOverlayWidget(
 
 export function fitToContent(section: OverlaysSection, id: string): OverlaysSection {
   return updateOverlay(section, id, withFittedGeometry);
+}
+
+/** What a style gives an overlay's frame: chrome and gap, written once. */
+export interface OverlayStyleChrome {
+  readonly chrome: OverlayChrome;
+  readonly gap: number;
+}
+
+/**
+ * Dresses an overlay in a style: its window wears the style's tokens, and the
+ * style's chrome and gap are written into the overlay — explicitly, once — so
+ * the overlay can still be tuned afterwards and its size never changes behind
+ * it. The window is refitted to the new padding.
+ */
+export function applyOverlayStyle(
+  section: OverlaysSection,
+  id: string,
+  styleId: StyleId | null,
+  look: OverlayStyleChrome,
+): OverlaysSection {
+  return updateOverlay(section, id, (overlay) =>
+    withFittedGeometry({ ...overlay, styleId, chrome: look.chrome, gap: look.gap }),
+  );
 }
 
 // --- presets ---------------------------------------------------------------

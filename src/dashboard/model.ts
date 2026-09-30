@@ -3,6 +3,7 @@ import { DEFAULT_HISTORY_RANGE, isHistoryRange } from '@/types/history';
 import type { VisualizationConfig } from '@/visualization/config';
 import { BASE_CONFIG, isHexColor, normalizeConfig } from '@/visualization/config';
 import { isValidId, newId } from '@/dashboard/ids';
+import type { StyleId } from '@/design/styles';
 
 /**
  * The widget model shared by the dashboard, the Mini window and overlays.
@@ -119,6 +120,8 @@ export interface Dashboard {
   readonly id: string;
   readonly name: string;
   readonly locked: boolean;
+  /** The style this dashboard wears, or `null` for the app's. */
+  readonly styleId: StyleId | null;
   readonly widgets: readonly WidgetInstance[];
 }
 

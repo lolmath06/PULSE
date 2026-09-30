@@ -296,7 +296,12 @@ export function TimeSeriesChart({
 
         {drawn.map((segments, index) =>
           segments.map((drawnSegment, segmentIndex) => (
-            <g key={`${index}-${segmentIndex}`} className="viz-chart__series">
+            <g
+              key={`${index}-${segmentIndex}`}
+              className="viz-chart__series"
+              // `currentColor` for style effects (a glow follows its series).
+              style={{ color: colors.series(index) }}
+            >
               {drawnSegment.band && !chromeless && (
                 <path
                   className="viz-chart__band"

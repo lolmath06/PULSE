@@ -8,6 +8,8 @@ import { useElementSize } from '@/visualization/useElementSize';
 import { updateOverlays, useOverlays } from '@/overlay/store';
 import { openMainWindow } from '@/overlay/desktop';
 import { WidgetCard } from '@/components/Dashboard/WidgetCard';
+import { RootLook, StyleScope } from '@/design/LookContext';
+import { useScopedLook } from '@/design/hooks';
 
 /**
  * The content of one desktop overlay window.
@@ -31,7 +33,17 @@ export function OverlayApp({ id }: { readonly id: string }) {
   }, []);
 
   if (!overlay) return null;
-  return <OverlaySurface overlay={overlay} />;
+  return <OverlayWindow overlay={overlay} />;
+}
+
+/** The overlay window wears the overlay's style (or the app's) on `:root`. */
+function OverlayWindow({ overlay }: { readonly overlay: Overlay }) {
+  const look = useScopedLook(overlay.styleId);
+  return (
+    <RootLook look={look}>
+      <OverlaySurface overlay={overlay} />
+    </RootLook>
+  );
 }
 
 export function OverlaySurface({
@@ -137,6 +149,7 @@ export function OverlaySurface({
  * editor. Children keep their boxes; only the whole composition shrinks.
  */
 export function OverlayPreview({ overlay }: { readonly overlay: Overlay }) {
+  const look = useScopedLook(overlay.styleId);
   const [ref, size] = useElementSize<HTMLDivElement>();
   const layout = overlayLayout(overlay);
   const available = size.width || layout.width;
@@ -151,7 +164,9 @@ export function OverlayPreview({ overlay }: { readonly overlay: Overlay }) {
           className="overlay-preview__inner"
           style={{ width: layout.width, height: layout.height, transform: `scale(${scale})` }}
         >
-          <OverlaySurface overlay={overlay} preview />
+          <StyleScope look={look} className="style-scope--bare">
+            <OverlaySurface overlay={overlay} preview />
+          </StyleScope>
         </div>
       </div>
     </div>

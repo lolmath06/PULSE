@@ -6,6 +6,7 @@ import { OverviewPage } from '@/pages/OverviewPage';
 import { GamingPage } from '@/pages/GamingPage';
 import { MiniPage } from '@/pages/MiniPage';
 import { NAV_ROUTES } from '@/app/routes';
+import { readSection, resetUiConfigForTesting } from '@/config/uiConfig';
 
 /**
  * Renders the shell at `path` and waits for the backend probe to settle.
@@ -68,5 +69,13 @@ describe('PULSE shell', () => {
     // Outside the Tauri runtime there is no backend; the shell must still
     // render its content instead of throwing.
     expect(screen.getByRole('heading', { level: 1, name: 'Mini' })).toBeInTheDocument();
+  });
+
+  it('reopens on the page it was left on, and remembers the next one', async () => {
+    resetUiConfigForTesting({ appearance: { version: 1, lastRoute: '/gaming' } });
+    await renderAt('/');
+    expect(await screen.findByRole('heading', { level: 1, name: 'Gaming' })).toBeInTheDocument();
+    expect((readSection('appearance') as { lastRoute: string }).lastRoute).toBe('/gaming');
+    resetUiConfigForTesting();
   });
 });

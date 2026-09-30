@@ -4,6 +4,7 @@ import { App } from '@/app/App';
 import { initUiConfig } from '@/config/uiConfig';
 import '@/config/migrations';
 import '@/styles/global.css';
+import '@/styles/design.css';
 
 const container = document.getElementById('root');
 

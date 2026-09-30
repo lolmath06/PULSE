@@ -1,24 +1,41 @@
 /*
- * PULSE base theme tokens.
+ * PULSE design tokens.
  *
- * Phase 0 ships a single, clean dark theme. The full theming system (user
- * themes, presets, per-widget colours) arrives in a later phase; until then
- * every colour in the app must come from a token defined here so that the
- * later system can swap them without touching components.
+ * Every visual decision in the app reads one of these. The values below are
+ * the Clean style's, so the very first paint is right; at runtime
+ * `src/design/look.ts` writes the active style's values — to :root for the
+ * whole window, or to any `.style-scope` container for one part of it
+ * (a dashboard, an overlay preview, a style card).
+ *
+ * Scales:
+ *   type     --pulse-font-scale × the px sizes in the component rules
+ *   space    --pulse-space-1…6  (4 8 12 16 24 32 × density)
+ *   radius   --pulse-radius-sm / --pulse-radius / -lg / -xl
+ *   depth    --pulse-shadow, --pulse-shadow-hover, --pulse-shadow-pop,
+ *            --pulse-highlight (inner top edge), --pulse-blur (glass)
+ *   motion   --pulse-motion-fast / --pulse-motion / --pulse-motion-slow,
+ *            all 0ms when motion is off
  */
 :root {
-  --pulse-bg: #0d1013;
-  --pulse-bg-elevated: #14181d;
-  --pulse-bg-sunken: #0a0c0f;
-  --pulse-border: #232a32;
-  --pulse-border-strong: #313a45;
+  --pulse-bg: #0b0e12;
+  --pulse-backdrop: none;
+  --pulse-surface: #141920;
+  --pulse-surface-raised: #1a2029;
+  --pulse-bg-elevated: #141920;
+  --pulse-bg-sunken: #090c10;
+  --pulse-bg-hover: rgba(233, 238, 244, 0.06);
+  --pulse-border: rgba(255, 255, 255, 0.07);
+  --pulse-border-strong: rgba(255, 255, 255, 0.13);
 
-  --pulse-text: #e6ebf1;
-  --pulse-text-muted: #8b98a8;
-  --pulse-text-faint: #5d6976;
+  --pulse-text: #e9eef4;
+  --pulse-text-muted: #95a2b2;
+  --pulse-text-faint: #606c7b;
 
   --pulse-accent: #38d6c4;
-  --pulse-accent-dim: #1f7c73;
+  --pulse-accent-2: #8f9cff;
+  --pulse-accent-dim: #217a72;
+  --pulse-accent-soft: rgba(56, 214, 196, 0.14);
+  --pulse-accent-contrast: #05070a;
 
   --pulse-warning-bg: #2b2313;
   --pulse-warning-text: #e8c46a;
@@ -32,23 +49,120 @@
   --pulse-success-text: #7fd8a4;
   --pulse-overlay: rgba(4, 6, 8, 0.62);
 
-  /* Visualization palette (Phase 10). Series colours in the order a chart
-     assigns them, and the grid. A chart in "Theme" colour mode uses only these,
-     so a future theme recolours every chart without touching its config. */
+  /* Series colours in the order a chart assigns them, and the grid. A chart
+     in "Theme" colour mode uses only these. */
   --pulse-viz-1: #38d6c4;
   --pulse-viz-2: #8f9cff;
   --pulse-viz-3: #f6c177;
-  --pulse-viz-4: #c4a7e7;
-  --pulse-viz-grid: #232a32;
+  --pulse-viz-4: #f28fad;
+  --pulse-viz-5: #6cc3ff;
+  --pulse-viz-6: #a3e635;
+  --pulse-viz-grid: rgba(255, 255, 255, 0.06);
 
-  --pulse-radius: 10px;
-  --pulse-radius-sm: 6px;
+  --pulse-radius-sm: 6.6px;
+  --pulse-radius: 12px;
+  --pulse-radius-lg: 16.8px;
+  --pulse-radius-xl: 22.8px;
 
   --pulse-font: 'Inter', 'Cantarell', 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif;
+  --pulse-font-display:
+    'Inter Display', 'Inter', 'Cantarell', 'Segoe UI Variable Display', 'Segoe UI', system-ui,
+    sans-serif;
+  --pulse-font-numeric: var(--pulse-font);
   --pulse-font-mono: 'JetBrains Mono', 'Cascadia Mono', 'DejaVu Sans Mono', ui-monospace, monospace;
+  --pulse-font-scale: 1;
+  --pulse-weight-title: 600;
+  --pulse-weight-value: 600;
+  --pulse-title-case: uppercase;
+  --pulse-title-tracking: 0.09em;
 
-  --pulse-sidebar-width: 208px;
+  --pulse-blur: 0px;
+  --pulse-shadow: 0 1px 2px rgba(0, 0, 0, 0.18), 0 11px 29px -13px rgba(0, 0, 0, 0.44);
+  --pulse-shadow-hover: 0 1px 2px rgba(0, 0, 0, 0.24), 0 15px 39px -17px rgba(0, 0, 0, 0.59);
+  --pulse-shadow-pop: 0 1px 2px rgba(0, 0, 0, 0.22), 0 14px 36px -16px rgba(0, 0, 0, 0.55);
+  --pulse-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  --pulse-glow: 0;
+  --pulse-glow-color: transparent;
+  --pulse-line-glow: none;
+  --pulse-chamfer: 0px;
+  --pulse-value-shadow: none;
+
+  --pulse-space-1: 4px;
+  --pulse-space-2: 8px;
+  --pulse-space-3: 12px;
+  --pulse-space-4: 16px;
+  --pulse-space-5: 24px;
+  --pulse-space-6: 32px;
+
+  --pulse-motion-fast: 120ms;
+  --pulse-motion: 200ms;
+  --pulse-motion-slow: 380ms;
+  --pulse-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --pulse-ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+
+  --pulse-sidebar-width: 232px;
   --pulse-status-height: 30px;
 
   color-scheme: dark;
+}
+
+/* A container that wears another style gets the canvas and type of it. */
+.style-scope {
+  color: var(--pulse-text);
+  font-family: var(--pulse-font);
+}
+
+/* ---- per-style touches the tokens cannot express --------------------------- */
+
+/* Lines glow in their own colour where the style has glow. */
+.viz-chart__line {
+  filter: var(--pulse-line-glow);
+}
+
+/* Numbers read over anything (HUD), or light up (Neon). */
+.viz-value__number,
+.viz-strip__value,
+.viz__current,
+.viz-gauge__number,
+.widget-group__value {
+  text-shadow: var(--pulse-value-shadow);
+  font-family: var(--pulse-font-numeric);
+}
+
+/* Gaming: cut corners on cards and overlays. */
+[data-pulse-style='gaming'] .widget:not(.widget--bare),
+[data-pulse-style='gaming'] .card,
+[data-pulse-style='gaming'] .style-card__panel,
+[data-pulse-style='gaming'].overlay-chamfer {
+  clip-path: polygon(
+    var(--pulse-chamfer) 0,
+    100% 0,
+    100% calc(100% - var(--pulse-chamfer)),
+    calc(100% - var(--pulse-chamfer)) 100%,
+    0 100%,
+    0 var(--pulse-chamfer)
+  );
+}
+
+/* Technical: tabular, monospaced readouts everywhere. */
+[data-pulse-style='technical'] .kv dd,
+[data-pulse-style='technical'] .viz-chart__tick {
+  font-family: var(--pulse-font-mono);
+}
+
+/* Motion off: nothing animates, whatever a rule asks. */
+[data-motion='none'] *,
+[data-motion='none'] *::before,
+[data-motion='none'] *::after {
+  animation-duration: 0ms !important;
+  transition-duration: 0ms !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0ms !important;
+    transition-duration: 0ms !important;
+  }
 }

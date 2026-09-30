@@ -8,6 +8,7 @@ import { DevelopmentPage } from '@/pages/DevelopmentPage';
 import { PersonalPage } from '@/pages/PersonalPage';
 import { MiniPage } from '@/pages/MiniPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
+import { AppearancePage } from '@/components/Appearance/AppearancePage';
 
 export const router = createBrowserRouter([
   {
@@ -21,6 +22,7 @@ export const router = createBrowserRouter([
       { path: 'development', element: <DevelopmentPage /> },
       { path: 'personal', element: <PersonalPage /> },
       { path: 'mini', element: <MiniPage /> },
+      { path: 'appearance', element: <AppearancePage /> },
       { path: '*', element: <NotFoundPage /> },
     ],
   },

@@ -6,6 +6,7 @@ import {
   OVERLAY_LAYOUTS,
   OVERLAY_PRESETS,
   addOverlayWidget,
+  applyOverlayStyle,
   createOverlay,
   createOverlayFromPreset,
   deleteOverlay,
@@ -36,6 +37,9 @@ import { WidgetCustomize } from '@/components/Dashboard/WidgetCustomize';
 import { WidgetLibrary } from '@/components/Dashboard/WidgetLibrary';
 import { CapabilityList } from '@/components/Overlay/CapabilityList';
 import { OverlayBackendPanel } from '@/components/Overlay/OverlayBackendPanel';
+import { StylePicker } from '@/components/Appearance/StylePicker';
+import { overlayStyleChrome, resolveLook } from '@/design/look';
+import { readAppearance } from '@/design/store';
 import { OverlayPreview } from '@/components/Overlay/OverlayApp';
 
 /**
@@ -318,6 +322,17 @@ function OverlayEditor({
           <OverlayPreview overlay={overlay} />
         </div>
         <div className="overlay-editor__settings">
+          <StylePicker
+            label="Overlay style"
+            value={overlay.styleId}
+            onChange={(styleId) => {
+              const appearance = readAppearance();
+              const look = resolveLook(styleId ?? appearance.styleId, appearance.custom);
+              updateOverlays((section) =>
+                applyOverlayStyle(section, overlay.id, styleId, overlayStyleChrome(look)),
+              );
+            }}
+          />
           <Choice
             ariaLabel="Overlay layout"
             options={OVERLAY_LAYOUTS}

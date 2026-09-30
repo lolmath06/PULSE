@@ -62,6 +62,7 @@ pub const SECTIONS: &[&str] = &[
     "overlays",
     "templates",
     "settings",
+    "appearance",
 ];
 
 /// Where the configuration lives, given the platform's config directory.

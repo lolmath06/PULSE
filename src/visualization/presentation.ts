@@ -99,8 +99,12 @@ export function presentationFor(input: PresentationInput): Presentation {
   if (timeseries && wantsText && density !== 'micro') {
     header = roomy && !configuredCompact ? 'full' : 'inline';
   }
+  // A statistics row needs its width: four figures (and, with several
+  // series, the series name) on one line, never wrapped over the chart.
+  const statsFit = width >= (seriesCount > 1 ? 420 : 300);
   const statsWanted =
     roomy &&
+    statsFit &&
     !configuredCompact &&
     (config.display.current || config.display.min || config.display.max || config.display.average);
   let stats = statsWanted;
@@ -195,7 +199,9 @@ export function fitLine(
   readonly textWidth: number;
 } {
   const base = Math.max(8, Math.min(maxFont, height * 0.62)) * scale;
-  const glyph = 0.6;
+  // Average advance of a digit or letter, in em — measured on the fallback
+  // fonts PULSE meets (Cantarell, Segoe UI, DejaVu), so a label never ends in "…".
+  const glyph = 0.62;
   const attempts: [boolean, boolean][] = [
     [Boolean(parts.label), Boolean(parts.unit)],
     [false, Boolean(parts.unit)],

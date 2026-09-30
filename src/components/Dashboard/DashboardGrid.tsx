@@ -1,7 +1,8 @@
 import { useMemo, useRef, useState } from 'react';
 import type { KeyboardEvent, PointerEvent } from 'react';
 import type { Dashboard, GridRect, WidgetInstance } from '@/dashboard/model';
-import { GRID_COLUMNS, GRID_GAP, ROW_HEIGHT } from '@/dashboard/model';
+import { GRID_COLUMNS, ROW_HEIGHT } from '@/dashboard/model';
+import { useLook } from '@/design/hooks';
 import { bottom, moveWidget, reflow, resizeWidget, toPixels } from '@/dashboard/layout';
 import { useElementSize } from '@/visualization/useElementSize';
 import { useInViewport } from '@/hooks/useInViewport';
@@ -54,8 +55,10 @@ export function DashboardGrid({
   const [measureRef, measured] = useElementSize<HTMLDivElement>();
   const width = measured.width || fallbackWidth;
   const columns = columnsFor(width);
+  // The gap belongs to the look (density, or the user's own); grid units do not change.
+  const gap = useLook().gridGap;
   const canEdit = editing && columns === GRID_COLUMNS;
-  const columnWidth = (width - GRID_GAP * (columns - 1)) / columns;
+  const columnWidth = (width - gap * (columns - 1)) / columns;
   const [drag, setDrag] = useState<Drag | null>(null);
   const dragRef = useRef<Drag | null>(null);
 
@@ -70,7 +73,7 @@ export function DashboardGrid({
     return widgets;
   }, [dashboard.widgets, columns, drag]);
 
-  const height = Math.max(1, bottom(shown)) * (ROW_HEIGHT + GRID_GAP);
+  const height = Math.max(1, bottom(shown)) * (ROW_HEIGHT + gap);
 
   const begin =
     (widget: WidgetInstance, mode: Drag['mode']) => (event: PointerEvent<HTMLElement>) => {
@@ -87,8 +90,8 @@ export function DashboardGrid({
       };
       dragRef.current = next;
       setDrag(next);
-      const cellX = columnWidth + GRID_GAP;
-      const cellY = ROW_HEIGHT + GRID_GAP;
+      const cellX = columnWidth + gap;
+      const cellY = ROW_HEIGHT + gap;
 
       const onMove = (move: globalThis.PointerEvent) => {
         const current = dragRef.current;
@@ -162,7 +165,7 @@ export function DashboardGrid({
         aria-label={`${dashboard.name} widgets`}
       >
         {shown.map((widget) => {
-          const box = toPixels(widget.layout, columnWidth, ROW_HEIGHT, GRID_GAP);
+          const box = toPixels(widget.layout, columnWidth, ROW_HEIGHT, gap);
           const dragging = drag?.id === widget.id;
           return (
             <GridItem

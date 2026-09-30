@@ -1,8 +1,11 @@
+import { useMemo } from 'react';
 import type { CSSProperties, KeyboardEvent, PointerEvent, ReactNode } from 'react';
 import type { WidgetInstance } from '@/dashboard/model';
 import { WidgetContent } from '@/components/Dashboard/WidgetContent';
 import { TITLE_HEIGHT, frameLayout, widgetTitle } from '@/dashboard/geometry';
 import { WidgetMenu } from '@/components/Dashboard/WidgetMenu';
+import { useLook } from '@/design/hooks';
+import { styleWidget } from '@/design/look';
 
 export interface WidgetCardActions {
   readonly onCustomize?: () => void;
@@ -23,7 +26,7 @@ export interface WidgetCardActions {
  * working and a click on it never moves anything.
  */
 export function WidgetCard({
-  widget,
+  widget: stored,
   width,
   height,
   editing,
@@ -43,14 +46,40 @@ export function WidgetCard({
   readonly className?: string;
   readonly extraTools?: ReactNode;
 }) {
-  const layout = frameLayout(widget, width, height);
+  const look = useLook();
+  // Drawn under the surface's style; the stored widget is never changed.
+  const styled = useMemo(() => styleWidget(stored, look), [stored, look]);
+  const layout = frameLayout(styled, width, height);
+  // Title hierarchy: when the card's title already names a single-metric
+  // chart, the chart does not repeat it in its own header.
+  const widget = useMemo(
+    () =>
+      layout.showTitle &&
+      styled.kind === 'visualization' &&
+      styled.bindings.length === 1 &&
+      styled.visual.config.text.showLabel
+        ? {
+            ...styled,
+            visual: {
+              ...styled.visual,
+              config: {
+                ...styled.visual.config,
+                text: { ...styled.visual.config.text, showLabel: false },
+              },
+            },
+          }
+        : styled,
+    [styled, layout.showTitle],
+  );
   const box = layout.content;
   const title = widgetTitle(widget);
   const frame = widget.frame;
 
   return (
     <article
-      className={`widget${editing ? ' widget--editing' : ''}${className ? ` ${className}` : ''}`}
+      className={`widget${editing ? ' widget--editing' : ''}${
+        look.widget.surface === 'bare' ? ' widget--bare' : ''
+      }${className ? ` ${className}` : ''}`}
       aria-label={title}
       tabIndex={editing ? 0 : undefined}
       onKeyDown={editing ? actions.onKeyDown : undefined}
@@ -60,7 +89,9 @@ export function WidgetCard({
         height,
         padding: layout.padding,
         borderRadius: frame.radius,
-        border: frame.border === 'thin' ? '1px solid var(--pulse-border)' : '1px solid transparent',
+        borderWidth: 1,
+        borderStyle: 'solid',
+        borderColor: frame.border === 'thin' ? 'var(--pulse-border)' : 'transparent',
       }}
       data-widget-id={widget.id}
     >
