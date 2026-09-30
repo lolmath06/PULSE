@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed — Phase 12: overlay toggle scope
+
+- **The Edit/Locked toggle now acts on visible overlays only** — the global
+  shortcut, the tray's toggle and the GNOME bridge's `ToggleOverlayEditMode`
+  (`overlay::spec::toggle_all_locked`). It used to count hidden overlays too,
+  so a hidden overlay left in Edit made the first press lock *that* one while
+  the visible overlay did not change. Hidden overlays now keep their state;
+  with nothing visible the toggle does nothing. *Edit all* / *Lock all* are
+  unchanged (they still address every overlay).
+
 ### Fixed — Phase 11.5B: persistent click-through on GNOME overlays
 
 - **A locked overlay now lets every click through, not just the first.** On

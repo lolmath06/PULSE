@@ -55,8 +55,10 @@ impl OverlayBridge {
         VERSION
     }
 
-    /// If any overlay is in Edit mode, lock them all; otherwise edit them all
-    /// — the same action as the tray and the Phase 11 shortcut.
+    /// Toggles the **visible** overlays: if any is in Edit mode, lock them;
+    /// otherwise put them in Edit — the same action as the tray and the
+    /// shortcut (`overlay::spec::toggle_all_locked`). Hidden overlays are
+    /// never changed.
     fn toggle_overlay_edit_mode(&self) {
         (self.toggle)();
     }

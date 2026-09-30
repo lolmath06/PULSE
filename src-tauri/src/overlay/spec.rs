@@ -149,15 +149,34 @@ pub fn set_all_visible(section: &mut Value, visible: bool) -> bool {
     changed
 }
 
-/// The global shortcut's action: if any overlay is in Edit mode, lock them
-/// all; otherwise unlock them all.
+/// The global shortcut's action (also the tray's and the GNOME bridge's), on
+/// the **visible** overlays only: if any visible overlay is in Edit mode, lock
+/// the visible ones; otherwise put the visible ones in Edit. Returns the new
+/// state, or `None` when no overlay is visible — there is nothing to toggle.
+///
+/// Hidden overlays are never considered and never changed: a hidden overlay
+/// left in Edit must not turn the first press into a no-op on screen, and
+/// toggling what cannot be seen would only surprise when it is shown again.
 pub fn toggle_all_locked(section: &mut Value) -> Option<bool> {
-    let specs = parse_overlays(Some(section));
-    if specs.is_empty() {
+    let visible: Vec<OverlaySpec> = parse_overlays(Some(section))
+        .into_iter()
+        .filter(|spec| spec.visible)
+        .collect();
+    if visible.is_empty() {
         return None;
     }
-    let lock = specs.iter().any(|spec| !spec.locked);
-    set_all_locked(section, lock);
+    let lock = visible.iter().any(|spec| !spec.locked);
+    if let Some(items) = items_mut(section) {
+        for item in items {
+            let targeted = item
+                .get("id")
+                .and_then(Value::as_str)
+                .is_some_and(|id| visible.iter().any(|spec| spec.id == id));
+            if targeted && item.get("locked").and_then(Value::as_bool) != Some(lock) {
+                item["locked"] = json!(lock);
+            }
+        }
+    }
     Some(lock)
 }
 
@@ -283,14 +302,54 @@ mod tests {
         );
     }
 
+    fn locked(value: &Value, id: &str) -> bool {
+        parse_overlays(Some(value))
+            .into_iter()
+            .find(|spec| spec.id == id)
+            .is_some_and(|spec| spec.locked)
+    }
+
     #[test]
-    fn the_shortcut_locks_all_if_any_is_editable_else_unlocks_all() {
+    fn the_shortcut_toggles_the_visible_overlays_only() {
         let mut value = section();
+        // o-aaa (visible, Edit) → locked; o-bbb (hidden, locked) untouched.
         assert_eq!(toggle_all_locked(&mut value), Some(true));
-        assert!(parse_overlays(Some(&value)).iter().all(|s| s.locked));
+        assert!(locked(&value, "o-aaa"));
+        assert!(locked(&value, "o-bbb"));
         assert_eq!(toggle_all_locked(&mut value), Some(false));
-        assert!(parse_overlays(Some(&value)).iter().all(|s| !s.locked));
+        assert!(!locked(&value, "o-aaa"));
+        assert!(locked(&value, "o-bbb"), "a hidden overlay is never changed");
         assert_eq!(toggle_all_locked(&mut json!({ "items": [] })), None);
+    }
+
+    #[test]
+    fn a_hidden_overlay_in_edit_never_swallows_the_first_press() {
+        // The Phase 11.5B observation: one visible locked overlay and a hidden
+        // one left in Edit. The first press must put the visible one in Edit.
+        let mut value = json!({ "items": [
+            { "id": "o-shown", "visible": true, "locked": true },
+            { "id": "o-hidden", "visible": false, "locked": false },
+        ]});
+        assert_eq!(toggle_all_locked(&mut value), Some(false));
+        assert!(!locked(&value, "o-shown"));
+        assert!(!locked(&value, "o-hidden"));
+        assert_eq!(toggle_all_locked(&mut value), Some(true));
+        assert!(locked(&value, "o-shown"));
+        assert!(
+            !locked(&value, "o-hidden"),
+            "hidden overlays keep their state"
+        );
+    }
+
+    #[test]
+    fn with_nothing_visible_the_shortcut_does_nothing() {
+        let mut value = json!({ "items": [
+            { "id": "o-a", "visible": false, "locked": false },
+            { "id": "o-b", "visible": false, "locked": true },
+        ]});
+        let before = value.clone();
+        assert_eq!(toggle_all_locked(&mut value), None);
+        assert_eq!(value, before);
     }
 
     #[test]

@@ -187,10 +187,10 @@ the compositor receives is the protocol trace, not an API call.
 
 **Not verified:** a physical click. Only Matheo's test below proves it.
 
-Note: `ToggleOverlayEditMode` (like the tray and Ctrl+Shift+F12) counts
-**hidden** overlays: if a hidden overlay is in Edit, the first press locks all
-and a visible, already-locked overlay does not change. Unchanged behaviour;
-worth knowing during the test.
+Note (fixed in Phase 12): `ToggleOverlayEditMode`, the tray and
+Ctrl+Shift+F12 used to count **hidden** overlays, so a hidden overlay left in
+Edit made the first press lock it while the visible one did not change. The
+toggle now considers visible overlays only.
 
 ## The global shortcut
 
@@ -217,11 +217,11 @@ runs (the name is released on quit).
 | Object    | `/dev/pulse/app/OverlayBridge` |
 | Interface | `dev.pulse.app.OverlayBridge`  |
 
-| Method                          | Effect                                                                                |
-| ------------------------------- | ------------------------------------------------------------------------------------- |
-| `Ping() → s`                    | `"pong"`                                                                              |
-| `GetOverlayBridgeVersion() → u` | `1`                                                                                   |
-| `ToggleOverlayEditMode()`       | the existing Phase 11 toggle: if any overlay is in Edit, lock all; otherwise edit all |
+| Method                          | Effect                                                                                         |
+| ------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `Ping() → s`                    | `"pong"`                                                                                       |
+| `GetOverlayBridgeVersion() → u` | `1`                                                                                            |
+| `ToggleOverlayEditMode()`       | the shared toggle, on visible overlays only: if any is in Edit, lock them; otherwise edit them |
 
 No method takes an argument; there are no properties and no signals (a test
 asserts it from the introspection data). The overlay state lives in PULSE;

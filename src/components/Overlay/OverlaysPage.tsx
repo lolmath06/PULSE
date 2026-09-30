@@ -132,7 +132,9 @@ export function OverlaysPage() {
 
       <div className="card">
         <h2 className="card__title">Global shortcut</h2>
-        <p className="card__muted">Toggles every overlay between Edit and Locked.</p>
+        <p className="card__muted">
+          Toggles the visible overlays between Edit and Locked. Hidden overlays keep their state.
+        </p>
         <div className="customize__row">
           <input
             type="text"
