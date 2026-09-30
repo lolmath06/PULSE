@@ -1,9 +1,12 @@
-# GNOME Wayland overlay bridge — proof of concept (Phase 11.5A)
+# GNOME Wayland overlay bridge — proof of concept (Phase 11.5A/B)
 
-> **Status: UNPROVEN.** The code exists and its logic is unit-tested, but
-> nobody has yet seen it keep an overlay above Firefox or toggle overlays with
-> Ctrl+Shift+F12 on a real GNOME session. It stays unproven until Matheo runs
-> the two physical tests below.
+> **Status**
+>
+> | Part                                                  | Status                                                                                          |
+> | ----------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+> | Always-on-top above a focused Firefox                 | **PHYSICALLY PROVEN** (Matheo, Fedora 39 / GNOME 45, native Wayland)                            |
+> | Ctrl+Shift+F12 through Mutter while Firefox has focus | **PHYSICALLY PROVEN** (same machine)                                                            |
+> | Persistent click-through (every click, not just one)  | **UNPROVEN** until Matheo runs the 20-click test in [Physical proof](#physical-proof-by-matheo) |
 
 Branch `phase11.5-gnome-bridge-poc`. Target: Fedora 39, GNOME Shell 45.10,
 Mutter 45.7, GJS 1.78.5, native Wayland.
@@ -89,12 +92,105 @@ to windows whose PID is PULSE's.
 
 There is no timer, no loop, no `raise()`, no polling of any kind.
 
-## Click-through
+## Click-through (Phase 11.5B)
 
-Unchanged. Click-through is PULSE's own empty input region on the locked
-overlay; the extension changes only the stacking layer, adds no Shell actor,
-and never intercepts input. Expected: a click on a locked overlay reaches
-Firefox, Firefox gets focus, PULSE does not — and the overlay stays drawn above.
+The extension changes only the stacking layer, adds no Shell actor and never
+intercepts input: click-through is entirely PULSE's own Wayland **input
+region** on the locked overlay's surface. `make_above` and click-through are
+independent.
+
+### What went wrong: one click, then captured
+
+Observed physically: after locking, one click reached Firefox, the next ones
+were caught by the overlay. Cause, from the locked sources (tao 0.35.3,
+GTK 3.24.43, the versions on this machine) and a `WAYLAND_DEBUG` trace of the
+old build:
+
+1. tao gives every Wayland window a GTK titlebar (`WlHeader::setup` →
+   `gtk_window_set_titlebar`, `tao/src/platform_impl/linux/window.rs:90`), so
+   GTK treats the overlay as **client-decorated** even with
+   `decorations(false)`.
+2. A client-decorated `GtkWindow` recomputes its input shape on **every size
+   allocation**: `update_realized_window_properties` → `update_border_windows`
+   → `gtk_widget_set_csd_input_shape` (`gtkwindow.c:7254`) → the widget's
+   app shape ∩ the CSD region → `gdk_window_input_shape_combine_region`.
+3. tao's `set_ignore_cursor_events(true)` wrote a 1×1 region **straight onto
+   the `GdkWindow`**, bypassing GTK's widget-level shape. GTK's app shape
+   stayed "none", so the next recomputation restored the whole window.
+4. Every `xdg_toplevel.configure` from Mutter causes a size allocation — and
+   Mutter sends one when the window's activation state changes, e.g. when a
+   click through it focuses Firefox.
+
+Trace of the old build, overlay 212×304 created Locked: the 1×1 region is
+never even sent; after the first configure the surface gets
+`wl_region.add(-10, -10, 232, 324)` — the whole window plus the CSD margin.
+After a Lock transition the 1×1 region is committed and holds until the next
+configure: hence exactly one click through.
+
+The link between _Firefox taking focus_ and _a configure to the overlay_ is
+the best-supported inference (it is what Mutter does for activation changes;
+it could not be triggered here without synthetic input). The reset itself —
+configure → allocation → full input region — is proven by the trace.
+
+### The fix
+
+`src-tauri/src/overlay_input.rs`, Linux:
+
+- **API:** `WebviewWindow::gtk_window()` (on the main thread, via
+  `run_on_main_thread`) → `gtk_widget_input_shape_combine_region` on the
+  `GtkApplicationWindow`: an **empty** `cairo::Region` for ClickThrough,
+  `None` for Interactive. This is GTK's own stored shape, so every GTK
+  recomputation (allocation, CSD, realize) intersects with it: empty stays
+  empty.
+- **Native children:** every descendant `GdkWindow` that `has_native()` is
+  its own compositor surface and gets the same mode. On this machine there
+  are 9 child `GdkWindow`s (CSD border windows, WebKit) and **0 native** — no
+  `wl_subsurface` is ever created — so the toplevel surface is the only input
+  surface.
+- **Not used:** `gdk_window_set_pass_through`. In GDK 3.24.43 it only sets a
+  flag read by GDK's own client-side hit-testing between a window's children
+  (`gdkwindow.c:7287`, `point_in_input_window`); it never reaches the
+  Wayland backend, so it cannot hand a click to Firefox. CSS
+  `pointer-events` is not the mechanism either.
+- **Elsewhere** (Windows, and any non-Linux build): tao's
+  `set_ignore_cursor_events`, unchanged.
+
+When it is applied (`overlay::input`, pure and unit-tested): when a window is
+created (Created), when the lock state changes on reconciliation (only on a
+change, or to retry a failure), and on GTK `map` (the Wayland surface is
+destroyed on hide and recreated on show without the region being re-sent —
+`gdk_wayland_window_hide_surface`). The `map` handler is connected once per
+window. Focus changes and keep-above never change the desired mode. No timer,
+no polling. Main and Mini are never handled.
+
+Order: the configuration changes first (the frontend hides or shows its edit
+controls from it); reconciliation then applies the native mode and waits for
+the main thread, and only then sets focusability and always-on-top.
+
+### Verified here (not the proof)
+
+One release instance, one overlay, native Wayland, `WAYLAND_DEBUG=client`,
+toggled with the bridge's own `ToggleOverlayEditMode` (no synthetic input):
+
+- created Locked → `set_input_region` with an **empty** region, and again
+  empty after the compositor's configure (where the old build sent the full
+  window);
+- Edit → `add(-10, -10, 232, 324)` (normal input); Lock → empty; Edit →
+  full; Lock → empty;
+- one `Mapped` re-apply in the whole run: no duplicate handlers;
+- quit: process gone, `dev.pulse.app` released.
+
+`PULSE_OVERLAY_INPUT_DEBUG=1` prints one line per applied transition (mode,
+display, client-decorated, child/native `GdkWindow` counts). Failures are
+always logged. GDK has no getter for an input shape, so the readback of what
+the compositor receives is the protocol trace, not an API call.
+
+**Not verified:** a physical click. Only Matheo's test below proves it.
+
+Note: `ToggleOverlayEditMode` (like the tray and Ctrl+Shift+F12) counts
+**hidden** overlays: if a hidden overlay is in Edit, the first press locks all
+and a visible, already-locked overlay does not change. Unchanged behaviour;
+worth knowing during the test.
 
 ## The global shortcut
 
@@ -189,6 +285,21 @@ Logs: `journalctl --user -b /usr/bin/gnome-shell | grep "PULSE overlay bridge"`.
   enabled.
 
 ## Physical proof (by Matheo)
+
+**Test 3 — persistent click-through (open)**
+
+1. Lock the overlay.
+2. Put it over several clickable Firefox controls.
+3. Click **through** it at least 10 consecutive times, in different places.
+4. Every click must reach Firefox; Firefox stays focused; the overlay stays
+   visually above Firefox.
+5. Ctrl+Shift+F12 → Edit: the overlay is interactive (drag, resize, Open
+   PULSE).
+6. Ctrl+Shift+F12 → Lock, and another 10 consecutive clicks through.
+
+PASS only if all 20 locked-state clicks reach Firefox.
+
+Tests 1 and 2 below **passed** physically.
 
 **Test 1 — always on top**
 

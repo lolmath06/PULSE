@@ -15,7 +15,9 @@
 //! - [`settings`] — close behaviour and the global shortcut, with conflict
 //!   handling;
 //! - [`global_shortcut`] — which shortcut backend a session uses, and the XDG
-//!   Desktop Portal shortcut session as a state machine.
+//!   Desktop Portal shortcut session as a state machine;
+//! - [`input`] — when a window gets which input mode (click-through when
+//!   locked), with the native side effect injected.
 //!
 //! The Tauri calls that apply these decisions live in `crate::desktop`, which
 //! contains no `cfg(target_os)` branch: platform differences are data here.
@@ -23,5 +25,6 @@
 pub mod capabilities;
 pub mod geometry;
 pub mod global_shortcut;
+pub mod input;
 pub mod settings;
 pub mod spec;

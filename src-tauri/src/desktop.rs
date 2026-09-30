@@ -41,6 +41,7 @@ use crate::overlay::capabilities::{
 };
 use crate::overlay::geometry::{capture, place, MonitorInfo, OverlayGeometry};
 use crate::overlay::global_shortcut::{choose_backend, ShortcutBackend};
+use crate::overlay::input::{handle_event, InputEvent, OverlayInputMode, OverlayInputs};
 use crate::overlay::settings::{
     allow_exit, handle_main_close, parse_settings, HotkeyManager, ShortcutRegistrar,
 };
@@ -66,6 +67,9 @@ pub struct DesktopState {
     tray_fact: Mutex<Option<Result<(), String>>>,
     reconcile: Mutex<()>,
     applied: Mutex<HashMap<String, OverlayGeometry>>,
+    /// The input mode each overlay window should have (click-through when
+    /// locked); see `overlay::input`.
+    inputs: Mutex<OverlayInputs>,
     pending: Mutex<HashMap<String, OverlayGeometry>>,
     flush_scheduled: AtomicBool,
 }
@@ -88,6 +92,7 @@ impl DesktopState {
             tray_fact: Mutex::new(None),
             reconcile: Mutex::new(()),
             applied: Mutex::new(HashMap::new()),
+            inputs: Mutex::new(OverlayInputs::default()),
             pending: Mutex::new(HashMap::new()),
             flush_scheduled: AtomicBool::new(false),
         }
@@ -147,17 +152,65 @@ fn monitors<R: Runtime>(app: &AppHandle<R>) -> (Vec<MonitorInfo>, Option<usize>)
 
 // --- overlay windows -----------------------------------------------------------
 
-/// Applies Edit or Locked to an overlay window.
+/// Applies Edit or Locked to an overlay window. `event` says why: a new
+/// window, or a reconciliation (see `overlay::input` for when that reaches
+/// the native window).
 ///
 /// Locked: clicks pass through (where the platform honours it) and the window
 /// cannot take focus — a game keeps the keyboard. Resizing needs the Edit
 /// grip, so a locked overlay cannot be resized by accident either; the window
 /// itself stays "resizable", because GTK ignores the requested size of a
 /// non-resizable window and falls back to the web view's natural height.
-fn apply_lock<R: Runtime>(window: &WebviewWindow<R>, locked: bool) {
-    let _ = window.set_ignore_cursor_events(locked);
+///
+/// The input mode is applied first and waited for: by the time this returns,
+/// a Locked overlay's native window is click-through and an Edit one takes
+/// the pointer again. The frontend hides or shows its edit controls from the
+/// same configuration change, independently; neither waits for the other.
+fn apply_lock<R: Runtime>(app: &AppHandle<R>, window: &WebviewWindow<R>, event: InputEvent) {
+    let locked = matches!(
+        event,
+        InputEvent::Created { locked: true } | InputEvent::Reconciled { locked: true }
+    );
+    if let Some(state) = app.try_state::<DesktopState>() {
+        let label = window.label();
+        let outcome = handle_event(&state.inputs, label, event, |mode| {
+            crate::overlay_input::set_overlay_input_mode(window, mode)
+        });
+        report_input(label, event, outcome);
+    }
     let _ = window.set_focusable(!locked);
     let _ = window.set_always_on_top(true);
+}
+
+/// Logs a failed input-mode change, and — with `PULSE_OVERLAY_INPUT_DEBUG`
+/// set — every applied one with what the native layer found.
+fn report_input(
+    label: &str,
+    event: InputEvent,
+    outcome: Option<(OverlayInputMode, Result<String, String>)>,
+) {
+    match outcome {
+        Some((mode, Err(error))) => {
+            eprintln!("PULSE: overlay '{label}' input {mode:?} not applied ({event:?}): {error}")
+        }
+        Some((mode, Ok(details))) if std::env::var_os("PULSE_OVERLAY_INPUT_DEBUG").is_some() => {
+            eprintln!("PULSE: overlay '{label}' input {mode:?} ({event:?}): {details}")
+        }
+        _ => {}
+    }
+}
+
+/// Re-applies the desired input mode whenever the overlay's native window is
+/// mapped again, since its surface may then be new. Connected once per window.
+fn watch_remap<R: Runtime>(app: &AppHandle<R>, window: &WebviewWindow<R>) {
+    let app = app.clone();
+    let label = window.label().to_string();
+    crate::overlay_input::watch_remap(window, move |apply| {
+        if let Some(state) = app.try_state::<DesktopState>() {
+            let outcome = handle_event(&state.inputs, &label, InputEvent::Mapped, apply);
+            report_input(&label, InputEvent::Mapped, outcome);
+        }
+    });
 }
 
 fn create_overlay<R: Runtime>(
@@ -202,8 +255,15 @@ fn create_overlay<R: Runtime>(
         }
     }
     lock(&state.applied).insert(spec.id.clone(), spec.geometry.clone());
+    watch_remap(app, &window);
     window.show()?;
-    apply_lock(&window, spec.locked);
+    apply_lock(
+        app,
+        &window,
+        InputEvent::Created {
+            locked: spec.locked,
+        },
+    );
     Ok(())
 }
 
@@ -225,6 +285,7 @@ pub fn reconcile<R: Runtime>(app: &AppHandle<R>) {
         if !specs.iter().any(|spec| spec.id == id && spec.visible) {
             let _ = window.destroy();
             lock(&state.applied).remove(id);
+            lock(&state.inputs).on_event(&label, InputEvent::Destroyed);
         }
     }
 
@@ -236,7 +297,13 @@ pub fn reconcile<R: Runtime>(app: &AppHandle<R>) {
                 }
             }
             Some(window) => {
-                apply_lock(&window, spec.locked);
+                apply_lock(
+                    app,
+                    &window,
+                    InputEvent::Reconciled {
+                        locked: spec.locked,
+                    },
+                );
                 let previous = lock(&state.applied).get(&spec.id).cloned();
                 if previous.as_ref() != Some(&spec.geometry) {
                     let (screens, primary) = monitors(app);

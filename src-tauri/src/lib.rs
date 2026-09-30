@@ -27,6 +27,7 @@ pub mod history;
 pub mod live;
 pub mod metrics;
 pub mod overlay;
+pub mod overlay_input;
 pub mod platform;
 pub mod portal;
 pub mod processes;

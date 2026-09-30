@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed — Phase 11.5B: persistent click-through on GNOME overlays
+
+- **A locked overlay now lets every click through, not just the first.** On
+  Wayland, tao installs a GTK titlebar, so GTK treats the overlay as
+  client-decorated and recomputes its input shape on every size allocation —
+  which each compositor `configure` (e.g. after focus moves to Firefox)
+  triggers. tao's `set_ignore_cursor_events` wrote its region below GTK, so
+  that recomputation restored the whole window. PULSE now sets GTK's own
+  widget-level input shape (`gtk_widget_input_shape_combine_region`: empty
+  when Locked, none in Edit, plus any native child `GdkWindow`), which GTK
+  keeps through every recomputation (`src-tauri/src/overlay_input.rs`).
+  Verified at the Wayland protocol level; the physical 20-click test is still
+  Matheo's.
+- When the input mode is applied is decided in `overlay::input` (pure,
+  unit-tested): on creation, on a lock change, on GTK `map`; never on focus
+  or keep-above; never for the main window or Mini. No polling.
+- `gtk` 0.18 is now a direct Linux dependency (already locked through Tauri;
+  Rust 1.77.2 kept). `PULSE_OVERLAY_INPUT_DEBUG=1` logs each transition.
+- Always-on-top and the Mutter Ctrl+Shift+F12 binding are **physically
+  proven** and unchanged.
+
 ### Added — Phase 11.5A prototype: GNOME Wayland overlay bridge (unproven)
 
 - **GNOME Shell 45 extension** `integrations/gnome-shell/pulse-overlay@jamby/`

@@ -63,6 +63,10 @@ libc = "0.2"
 # locked graph through tauri-plugin-opener with these same default features,
 # so this adds no crate; zbus 5.12 declares and builds with Rust 1.77.
 zbus = "5.12"
+# GTK 3 bindings, for the one thing tao does not do durably: the overlay's
+# click-through input shape (see src/overlay_input.rs). The same version Tauri
+# already locks, so this adds no crate; gtk 0.18 declares Rust 1.70.
+gtk = "0.18"
 
 [target.'cfg(target_os = "windows")'.dependencies]
 # 0.1, not 0.100: windows-version 0.100 is edition 2024 and needs Rust 1.95.
