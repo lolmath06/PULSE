@@ -26,6 +26,7 @@ pub mod gpu;
 pub mod memory;
 pub mod network;
 pub mod ntdll;
+pub mod overlay_window;
 pub mod processes;
 pub mod storage;
 

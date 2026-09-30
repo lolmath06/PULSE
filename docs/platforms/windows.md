@@ -677,6 +677,17 @@ Nothing below has been run on Windows.
   (WS_EX_TRANSPARENT), absolute per-monitor placement with per-monitor DPI,
   RegisterHotKey, notification-area tray.
 
+### Native overlay backend (Phase 12)
+
+Overlays now use PULSE's Windows native backend: tao's flags plus a window
+subclass that enforces `WS_EX_TOOLWINDOW`, `WS_EX_NOACTIVATE`,
+`WS_EX_LAYERED | WS_EX_TRANSPARENT` (locked) and `WS_EX_TOPMOST`, re-asserts
+`HWND_TOPMOST` without activating, and reads the style back. The Win32 part
+(`platform/windows/overlay_window.rs`) is type-checked by the harness;
+**implemented and compiled, not physically verified** — see
+[`../overlay/windows-native.md`](../overlay/windows-native.md) and its manual
+checks.
+
 ### Manual test protocol — Phase 11 · Windows · NOT EXECUTED
 
 Nothing below has been run on Windows.

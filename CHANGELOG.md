@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added — Phase 12: Windows native overlay backend (not physically verified)
+
+- **Windows overlays are native tool windows**: `WS_EX_TOOLWINDOW` (no
+  taskbar button, not in Alt+Tab), `WS_EX_TOPMOST` with
+  `SetWindowPos(HWND_TOPMOST, SWP_NOACTIVATE)` re-asserted on every
+  Edit/Lock change, `WS_EX_LAYERED | WS_EX_TRANSPARENT` and
+  `WS_EX_NOACTIVATE` while locked (`platform::windows::overlay_window`).
+- tao rewrites the whole extended style from its own flags on any change, so
+  the overlay window is subclassed (`SetWindowSubclass`) and every
+  `WM_STYLECHANGING` gets PULSE's managed bits enforced; the style is read
+  back and a mismatch logged. tao's own flags are driven the same way.
+- Style arithmetic unit-tested on every host (Lock → Edit → Lock exact
+  across tao rewrites); the Win32 FFI type-checked for
+  `x86_64-pc-windows-msvc`. **Not run on Windows**
+  ([`docs/overlay/windows-native.md`](docs/overlay/windows-native.md)).
+- `windows-sys` gains the `Win32_UI_WindowsAndMessaging` feature (no new
+  crate). Docs: [`docs/overlay/backends.md`](docs/overlay/backends.md).
+
 ### Added — Phase 12: production GNOME overlay bridge and overlay backends
 
 - **Overlay backend abstraction** (`overlay::backend`): each session uses one

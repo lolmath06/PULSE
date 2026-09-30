@@ -26,7 +26,16 @@
 //! GDK's own dispatch between a window's children and never reaches the
 //! compositor.
 //!
-//! **Elsewhere**, tao's `set_ignore_cursor_events`, unchanged.
+//! **Windows** (native backend, implemented and compiled, **not physically
+//! verified**): tao's own flags — `set_ignore_cursor_events`,
+//! `set_focusable`, `set_always_on_top` — plus
+//! `platform::windows::overlay_window`, which subclasses the window so its
+//! managed extended styles (`WS_EX_TOOLWINDOW`, `WS_EX_NOACTIVATE`,
+//! `WS_EX_LAYERED | WS_EX_TRANSPARENT`, `WS_EX_TOPMOST`) survive tao's own
+//! style rewrites, re-asserts `HWND_TOPMOST` without activating, and reads
+//! the style back.
+//!
+//! **Elsewhere**, tao's `set_ignore_cursor_events`.
 
 use tauri::{Runtime, WebviewWindow};
 
@@ -46,6 +55,51 @@ pub fn apply_focus_and_stacking<R: Runtime>(
 ) {
     let _ = window.set_focusable(policy.focusable);
     let _ = window.set_always_on_top(policy.keep_above);
+    // Queued after tao's own flag changes, so it runs once they are applied.
+    #[cfg(target_os = "windows")]
+    win32::apply(window, policy);
+}
+
+#[cfg(target_os = "windows")]
+mod win32 {
+    use tauri::{Runtime, WebviewWindow};
+
+    use crate::overlay::backend::OverlayWindowPolicy;
+    use crate::overlay::input::OverlayInputMode;
+    use crate::platform::windows::overlay_window::{self, OverlayWindowState};
+
+    pub fn apply<R: Runtime>(window: &WebviewWindow<R>, policy: OverlayWindowPolicy) {
+        let state = OverlayWindowState {
+            click_through: policy.input == OverlayInputMode::ClickThrough,
+            focusable: policy.focusable,
+            topmost: policy.keep_above,
+        };
+        let target = window.clone();
+        let label = window.label().to_string();
+        let _ = window.run_on_main_thread(move || {
+            let result = target
+                .hwnd()
+                .map_err(|error| error.to_string())
+                .and_then(|hwnd| overlay_window::apply(hwnd.0 as isize, state));
+            match result {
+                Ok(style) if overlay_window::verified(style, state) => {
+                    if std::env::var_os("PULSE_OVERLAY_INPUT_DEBUG").is_some() {
+                        eprintln!(
+                            "PULSE: overlay '{label}' Win32 styles: {}",
+                            overlay_window::describe(style)
+                        );
+                    }
+                }
+                Ok(style) => eprintln!(
+                    "PULSE: overlay '{label}' Win32 styles not as requested: {}",
+                    overlay_window::describe(style)
+                ),
+                Err(error) => {
+                    eprintln!("PULSE: overlay '{label}' Win32 styles not applied: {error}")
+                }
+            }
+        });
+    }
 }
 
 /// Applies `mode` to an overlay window. On Linux it runs on the main thread

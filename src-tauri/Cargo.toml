@@ -90,7 +90,10 @@ windows = { version = "0.61", features = ["Win32_Graphics_Dxgi"] }
 #   Wdk_…               SystemProcessorPerformanceInformation
 #   WindowsProgramming  SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION
 #   UI_Shell            SHGetKnownFolderPath (locating Program Files without
-#                       trusting an inherited environment variable)
+#                       trusting an inherited environment variable), and
+#                       SetWindowSubclass / DefSubclassProc (overlay windows)
+#   UI_WindowsAndMessaging  GetWindowLongPtrW, SetWindowLongPtrW, SetWindowPos
+#                       (the native overlay backend's styles and Z-order)
 #   System_Com          CoTaskMemFree (freeing what that call allocates)
 #   System_IO           DeviceIoControl (every storage query)
 #   Storage_FileSystem  CreateFileW, the volume enumeration, GetDiskFreeSpaceExW
@@ -115,6 +118,7 @@ windows-sys = { version = "0.61", features = [
     "Win32_System_WindowsProgramming",
     "Win32_System_Com",
     "Win32_UI_Shell",
+    "Win32_UI_WindowsAndMessaging",
     "Wdk_System_SystemInformation",
     "Win32_System_IO",
     "Win32_Storage_FileSystem",
