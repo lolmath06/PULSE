@@ -115,11 +115,12 @@ export interface OverlayLook {
   readonly gap: number;
 }
 
+/**
+ * A built-in style. Its name, tagline and description are translations keyed
+ * by id (`styles.<id>.name` / `.tagline` / `.description`).
+ */
 export interface VisualStyle {
   readonly id: StyleId;
-  readonly name: string;
-  readonly tagline: string;
-  readonly description: string;
   /** Where it shines — shown on its card, never enforced. */
   readonly bestFor: readonly ('dashboard' | 'overlay' | 'mini')[];
   readonly tokens: StyleTokens;
@@ -156,10 +157,6 @@ function chart(patch: DeepPartial<VisualizationConfig>): DeepPartial<Visualizati
 export const STYLES: readonly VisualStyle[] = [
   {
     id: 'clean',
-    name: 'Clean',
-    tagline: 'Modern, calm, professional',
-    description:
-      'Quiet charcoal surfaces, soft depth and a single teal accent. The default: everything readable, nothing shouting.',
     bestFor: ['dashboard', 'mini'],
     tokens: {
       bg: '#0b0e12',
@@ -212,10 +209,6 @@ export const STYLES: readonly VisualStyle[] = [
   },
   {
     id: 'glass',
-    name: 'Glass',
-    tagline: 'Frosted, luminous, premium',
-    description:
-      'Translucent frosted panels over a deep aurora, a bright top-edge highlight and airy corners. The showpiece.',
     bestFor: ['dashboard'],
     tokens: {
       bg: '#090a18',
@@ -268,10 +261,6 @@ export const STYLES: readonly VisualStyle[] = [
   },
   {
     id: 'technical',
-    name: 'Technical',
-    tagline: 'Instrumentation, dense and exact',
-    description:
-      'An engineering bench: blueprint grid, square edges, monospaced figures, amber readouts, every axis and sample marker.',
     bestFor: ['dashboard', 'overlay'],
     tokens: {
       bg: '#080a0c',
@@ -324,10 +313,6 @@ export const STYLES: readonly VisualStyle[] = [
   },
   {
     id: 'neon',
-    name: 'Neon',
-    tagline: 'High contrast, electric',
-    description:
-      'Near-black with magenta and cyan light: glowing lines, lit edges and luminous numbers. Dramatic, still legible.',
     bestFor: ['dashboard', 'overlay'],
     tokens: {
       bg: '#05050b',
@@ -380,10 +365,6 @@ export const STYLES: readonly VisualStyle[] = [
   },
   {
     id: 'gaming',
-    name: 'Gaming',
-    tagline: 'Bold, fast, energetic',
-    description:
-      'Cut corners, crimson and amber, condensed heavy type and big numbers: built to be read in a glance mid-game.',
     bestFor: ['overlay', 'dashboard'],
     tokens: {
       bg: '#0a070b',
@@ -436,10 +417,6 @@ export const STYLES: readonly VisualStyle[] = [
   },
   {
     id: 'stealth',
-    name: 'Stealth',
-    tagline: 'Dark, discreet, low noise',
-    description:
-      'Almost no chrome, muted slate type, no fills and no grids: present when you look for it, invisible when you do not.',
     bestFor: ['overlay', 'mini'],
     tokens: {
       bg: '#060708',
@@ -492,10 +469,6 @@ export const STYLES: readonly VisualStyle[] = [
   },
   {
     id: 'compact',
-    name: 'Compact',
-    tagline: 'Tight, efficient, tiny-friendly',
-    description:
-      'Denser spacing, smaller type and quiet charts: the most information per pixel for small widgets and micro overlays.',
     bestFor: ['mini', 'overlay'],
     tokens: {
       bg: '#0c0f13',
@@ -548,10 +521,6 @@ export const STYLES: readonly VisualStyle[] = [
   },
   {
     id: 'hud',
-    name: 'Transparent HUD',
-    tagline: 'No panels, only the numbers',
-    description:
-      'Chrome-free: bright figures with a soft dark halo so they read over any wallpaper or game, thin lines, no grid.',
     bestFor: ['overlay'],
     tokens: {
       bg: '#07090c',
@@ -617,46 +586,38 @@ export function isStyleId(value: unknown): value is StyleId {
   return typeof value === 'string' && (STYLE_IDS as readonly string[]).includes(value);
 }
 
-/** Accent presets for the colour picker. */
-export const ACCENTS: readonly { readonly name: string; readonly color: string }[] = [
-  { name: 'Teal', color: '#38d6c4' },
-  { name: 'Sky', color: '#7dd3fc' },
-  { name: 'Blue', color: '#60a5fa' },
-  { name: 'Violet', color: '#a78bfa' },
-  { name: 'Magenta', color: '#ff2bd6' },
-  { name: 'Crimson', color: '#ff3b5c' },
-  { name: 'Amber', color: '#f5b942' },
-  { name: 'Lime', color: '#a3e635' },
-  { name: 'Mint', color: '#4ade80' },
-  { name: 'Silver', color: '#aab4c0' },
+/** Accent presets for the colour picker. Names: `styles.accents.<id>`. */
+export const ACCENTS: readonly { readonly id: string; readonly color: string }[] = [
+  { id: 'teal', color: '#38d6c4' },
+  { id: 'sky', color: '#7dd3fc' },
+  { id: 'blue', color: '#60a5fa' },
+  { id: 'violet', color: '#a78bfa' },
+  { id: 'magenta', color: '#ff2bd6' },
+  { id: 'crimson', color: '#ff3b5c' },
+  { id: 'amber', color: '#f5b942' },
+  { id: 'lime', color: '#a3e635' },
+  { id: 'mint', color: '#4ade80' },
+  { id: 'silver', color: '#aab4c0' },
 ];
 
-/** Series palettes; `style` keeps the style's own. */
-export const PALETTES: Readonly<
-  Record<string, { readonly name: string; readonly colors: readonly string[] }>
-> = {
+/** Series palettes; `style` keeps the style's own. Names: `styles.palettes.<id>`. */
+export const PALETTES: Readonly<Record<string, { readonly colors: readonly string[] }>> = {
   aurora: {
-    name: 'Aurora',
     colors: ['#38d6c4', '#8f9cff', '#f6c177', '#f28fad', '#6cc3ff', '#a3e635'],
   },
   ocean: {
-    name: 'Ocean',
     colors: ['#38bdf8', '#2dd4bf', '#818cf8', '#67e8f9', '#a5b4fc', '#5eead4'],
   },
   ember: {
-    name: 'Ember',
     colors: ['#fb7185', '#fbbf24', '#f97316', '#fda4af', '#facc15', '#ef4444'],
   },
   forest: {
-    name: 'Forest',
     colors: ['#4ade80', '#a3e635', '#2dd4bf', '#fde047', '#86efac', '#34d399'],
   },
   candy: {
-    name: 'Candy',
     colors: ['#f472b6', '#c084fc', '#60a5fa', '#fcd34d', '#34d399', '#fb923c'],
   },
   mono: {
-    name: 'Mono',
     colors: ['#e5e7eb', '#9ca3af', '#6b7280', '#d1d5db', '#4b5563', '#f3f4f6'],
   },
 };

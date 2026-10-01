@@ -14,6 +14,7 @@ import { describeAvailability } from '@/utils/metrics';
 import type { NetworkInterface } from '@/utils/network';
 import { isPrimaryKind, networkMetric, orderInterfaces } from '@/utils/network';
 import { storageMetric } from '@/utils/storage';
+import { sourceLabel } from '@/i18n/metrics';
 
 /**
  * Which metrics each history section plots. Pure, so the choices — CPU Total
@@ -54,10 +55,10 @@ export function thermalSeries(catalog: readonly MetricDefinition[]): {
   };
 
   packages.forEach((definition) =>
-    add(definition, packages.length === 1 ? 'CPU' : `CPU ${definition.sourceLabel}`),
+    add(definition, packages.length === 1 ? 'CPU' : `CPU ${sourceLabel(definition)}`),
   );
   gpus.forEach((definition) =>
-    add(definition, gpus.length === 1 ? 'GPU' : `GPU ${definition.sourceLabel}`),
+    add(definition, gpus.length === 1 ? 'GPU' : `GPU ${sourceLabel(definition)}`),
   );
   return { series, unavailable };
 }
@@ -65,16 +66,32 @@ export function thermalSeries(catalog: readonly MetricDefinition[]): {
 /** Read and write throughput of one storage device. */
 export function storageSeries(sourceId: string): HistorySeriesSpec[] {
   return [
-    { ref: storageMetric(sourceId, STORAGE_IO_READ_BYTES_KEY), label: 'Read' },
-    { ref: storageMetric(sourceId, STORAGE_IO_WRITE_BYTES_KEY), label: 'Write' },
+    {
+      ref: storageMetric(sourceId, STORAGE_IO_READ_BYTES_KEY),
+      label: 'Read',
+      labelKey: 'presets.text.read',
+    },
+    {
+      ref: storageMetric(sourceId, STORAGE_IO_WRITE_BYTES_KEY),
+      label: 'Write',
+      labelKey: 'presets.text.write',
+    },
   ];
 }
 
 /** Download and upload throughput of one interface. */
 export function networkSeries(sourceId: string): HistorySeriesSpec[] {
   return [
-    { ref: networkMetric(sourceId, NETWORK_RECEIVE_BYTES_KEY), label: 'Download' },
-    { ref: networkMetric(sourceId, NETWORK_TRANSMIT_BYTES_KEY), label: 'Upload' },
+    {
+      ref: networkMetric(sourceId, NETWORK_RECEIVE_BYTES_KEY),
+      label: 'Download',
+      labelKey: 'presets.text.download',
+    },
+    {
+      ref: networkMetric(sourceId, NETWORK_TRANSMIT_BYTES_KEY),
+      label: 'Upload',
+      labelKey: 'presets.text.upload',
+    },
   ];
 }
 

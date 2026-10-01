@@ -1,5 +1,7 @@
 import { useMemo, useRef, useState } from 'react';
 import type { KeyboardEvent, PointerEvent } from 'react';
+import { useTranslation } from 'react-i18next';
+import { dashboardName } from '@/dashboard/dashboards';
 import type { Dashboard, GridRect, WidgetInstance } from '@/dashboard/model';
 import { GRID_COLUMNS, ROW_HEIGHT } from '@/dashboard/model';
 import { useLook } from '@/design/hooks';
@@ -52,6 +54,7 @@ export function DashboardGrid({
   readonly actions: GridActions;
   readonly fallbackWidth?: number;
 }) {
+  const { t } = useTranslation();
   const [measureRef, measured] = useElementSize<HTMLDivElement>();
   const width = measured.width || fallbackWidth;
   const columns = columnsFor(width);
@@ -153,16 +156,12 @@ export function DashboardGrid({
 
   return (
     <div ref={measureRef} className="dashboard-grid-host">
-      {editing && !canEdit && (
-        <p className="card__note">
-          Widen the window to rearrange widgets; narrow layouts are for viewing.
-        </p>
-      )}
+      {editing && !canEdit && <p className="card__note">{t('dashboard.widenToEdit')}</p>}
       <div
         className={`dashboard-grid${canEdit ? ' dashboard-grid--editing' : ''}`}
         style={{ height, ['--grid-columns' as string]: columns }}
         role="list"
-        aria-label={`${dashboard.name} widgets`}
+        aria-label={t('dashboard.widgets', { name: dashboardName(dashboard) })}
       >
         {shown.map((widget) => {
           const box = toPixels(widget.layout, columnWidth, ROW_HEIGHT, gap);

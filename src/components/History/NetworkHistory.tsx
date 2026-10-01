@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { NETWORK_RECEIVE_BYTES_KEY } from '@/types/wellknown';
 import { useMetricCatalog } from '@/hooks/useMetricCatalog';
 import { useMetricHistory } from '@/hooks/useMetricHistory';
@@ -15,6 +16,7 @@ import { defaultInterface, networkSeries } from '@/components/History/series';
 
 /** Download and upload of one interface; the default is `defaultInterface`. */
 export function NetworkHistory() {
+  const { t } = useTranslation();
   const { catalog, status } = useMetricCatalog();
   const interfaces = useMemo(() => discoverNetworkInterfaces(catalog), [catalog]);
   const [selected, setSelected] = useState<string | null>(null);
@@ -52,23 +54,23 @@ export function NetworkHistory() {
   return (
     <HistoryPanel
       chartId="network"
-      title="Network history"
+      title={t('history.network.title')}
       meta={NETWORK_META}
       series={series}
       defaults={THROUGHPUT_DEFAULTS}
       replacement={
         status === 'ready' && !current ? (
-          <p className="card__muted">No network interface was detected.</p>
+          <p className="card__muted">{t('history.network.none')}</p>
         ) : undefined
       }
       controls={
         <SourceSelect
-          label="Network interface"
+          label={t('history.network.interface')}
           value={current?.sourceId ?? ''}
           onChange={setSelected}
           options={ordered.map((entry) => ({
             value: entry.sourceId,
-            label: `${entry.label} · ${entry.kind}`,
+            label: `${entry.label} · ${t(`cards.network.kinds.${entry.kind}`)}`,
           }))}
         />
       }

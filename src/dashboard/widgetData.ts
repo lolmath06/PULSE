@@ -14,6 +14,8 @@ import type {
 import type { WidgetInstance } from '@/dashboard/model';
 import type { ResolvedBinding } from '@/dashboard/bindings';
 import { metaFor } from '@/dashboard/metricInfo';
+import { widgetTitleText } from '@/dashboard/geometry';
+import { t } from '@/i18n/i18n';
 
 /**
  * Where a widget's numbers come from.
@@ -80,10 +82,10 @@ export function useWidgetData(
 
   const first = usable[0];
   const meta = first
-    ? metaFor(first.binding.key, widget.title ?? first.label, first.definition)
+    ? metaFor(first.binding.key, widgetTitleText(widget) ?? first.label, first.definition)
     : metaFor(
         resolved[0]?.binding.key ?? 'cpu.usage.total',
-        widget.title ?? resolved[0]?.label ?? '—',
+        widgetTitleText(widget) ?? resolved[0]?.label ?? '—',
       );
 
   // Recomputed per render on purpose: renders happen once per live tick or
@@ -93,7 +95,7 @@ export function useWidgetData(
       const reason = resolved.find((entry) => !entry.ok);
       return {
         status: 'unavailable',
-        message: reason && !reason.ok ? reason.reason : 'No metric selected.',
+        message: reason && !reason.ok ? reason.reason : t('metrics.noneSelected'),
         series: [],
         gapThresholdMs: 15_000,
       };

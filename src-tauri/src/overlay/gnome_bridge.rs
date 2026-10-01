@@ -146,8 +146,15 @@ pub struct GnomeBridgeStatus {
     pub state: BridgeState,
     /// One sentence for a chip or a heading.
     pub summary: String,
+    /// A stable identifier of `summary`, so the interface can say it in the
+    /// user's language without reading the English. Never shown.
+    #[serde(default)]
+    pub summary_code: String,
     /// What to do next, if anything.
     pub guidance: Option<String>,
+    /// A stable identifier of `guidance`, like `summary_code`.
+    #[serde(default)]
+    pub guidance_code: Option<String>,
     pub shell_version: Option<String>,
     /// The copy GNOME Shell loaded at login.
     pub running_version: Option<u32>,
@@ -179,12 +186,26 @@ pub fn shell_major(version: &str) -> Option<u32> {
     version.split('.').next()?.trim().parse().ok()
 }
 
+impl GnomeBridgeStatus {
+    fn say(&mut self, code: &str, summary: impl Into<String>) {
+        self.summary_code = code.to_string();
+        self.summary = summary.into();
+    }
+
+    fn advise(&mut self, code: &str, guidance: impl Into<String>) {
+        self.guidance_code = Some(code.to_string());
+        self.guidance = Some(guidance.into());
+    }
+}
+
 /// Decides the bridge status from `facts`.
 pub fn bridge_status(facts: &GnomeFacts) -> GnomeBridgeStatus {
     let mut status = GnomeBridgeStatus {
         state: BridgeState::NotApplicable,
         summary: String::new(),
+        summary_code: String::new(),
         guidance: None,
+        guidance_code: None,
         shell_version: None,
         running_version: None,
         installed_version: facts.disk.as_ref().and_then(|disk| disk.version),
@@ -200,11 +221,17 @@ pub fn bridge_status(facts: &GnomeFacts) -> GnomeBridgeStatus {
     };
 
     if !(facts.gnome_desktop && facts.wayland) {
-        status.summary = if facts.wayland {
-            "Not a GNOME session — the GNOME bridge does not apply here".into()
+        if facts.wayland {
+            status.say(
+                "notGnome",
+                "Not a GNOME session — the GNOME bridge does not apply here",
+            );
         } else {
-            "Not needed on this session — the bridge is for GNOME on Wayland".into()
-        };
+            status.say(
+                "notWayland",
+                "Not needed on this session — the bridge is for GNOME on Wayland",
+            );
+        }
         return status;
     }
 
@@ -212,15 +239,20 @@ pub fn bridge_status(facts: &GnomeFacts) -> GnomeBridgeStatus {
         Some(Ok(shell)) => shell,
         Some(Err(error)) => {
             status.state = BridgeState::Unavailable;
-            status.summary = "GNOME Shell's extension service did not answer".into();
+            status.say(
+                "shellNoAnswer",
+                "GNOME Shell's extension service did not answer",
+            );
             status.error = Some(error.clone());
-            status.guidance =
-                Some("Check that GNOME Shell is running this session, then refresh.".into());
+            status.advise(
+                "checkShell",
+                "Check that GNOME Shell is running this session, then refresh.",
+            );
             return status;
         }
         None => {
             status.state = BridgeState::Unavailable;
-            status.summary = "Not checked yet".into();
+            status.say("notChecked", "Not checked yet");
             return status;
         }
     };
@@ -241,12 +273,16 @@ pub fn bridge_status(facts: &GnomeFacts) -> GnomeBridgeStatus {
 
     if !supported {
         status.state = BridgeState::Incompatible;
-        status.summary = format!(
-            "GNOME Shell {} is not supported by the bridge (verified on GNOME 45)",
-            shell.shell_version
+        status.say(
+            "shellUnsupported",
+            format!(
+                "GNOME Shell {} is not supported by the bridge (verified on GNOME 45)",
+                shell.shell_version
+            ),
         );
-        status.guidance = Some(
-            "Overlays still work as standard Wayland windows: click-through when locked, but the compositor decides their stacking.".into(),
+        status.advise(
+            "standardWayland",
+            "Overlays still work as standard Wayland windows: click-through when locked, but the compositor decides their stacking.",
         );
         return status;
     }
@@ -254,15 +290,20 @@ pub fn bridge_status(facts: &GnomeFacts) -> GnomeBridgeStatus {
     let Some(info) = running else {
         if facts.disk.is_some() {
             status.state = BridgeState::InstalledNeedsLogin;
-            status.summary = "Installed — log out and back in once to load it".into();
-            status.guidance = Some(
-                "GNOME Shell 45 discovers new extensions only at login. After logging back in, enable it here.".into(),
+            status.say(
+                "installedNeedsLogin",
+                "Installed — log out and back in once to load it",
+            );
+            status.advise(
+                "discoverAtLogin",
+                "GNOME Shell 45 discovers new extensions only at login. After logging back in, enable it here.",
             );
         } else {
             status.state = BridgeState::NotInstalled;
-            status.summary = "Not installed".into();
-            status.guidance = Some(
-                "Install the extension with the command below, log out and back in once, then enable it.".into(),
+            status.say("notInstalled", "Not installed");
+            status.advise(
+                "installSteps",
+                "Install the extension with the command below, log out and back in once, then enable it.",
             );
         }
         return status;
@@ -270,9 +311,13 @@ pub fn bridge_status(facts: &GnomeFacts) -> GnomeBridgeStatus {
 
     if !shell.user_extensions_enabled {
         status.state = BridgeState::ExtensionsOff;
-        status.summary = "User extensions are switched off for this session".into();
-        status.guidance = Some(
-            "Turn user extensions back on (Extensions app, or gsettings set org.gnome.shell disable-user-extensions false).".into(),
+        status.say(
+            "extensionsOff",
+            "User extensions are switched off for this session",
+        );
+        status.advise(
+            "extensionsOn",
+            "Turn user extensions back on (Extensions app, or gsettings set org.gnome.shell disable-user-extensions false).",
         );
         return status;
     }
@@ -281,58 +326,78 @@ pub fn bridge_status(facts: &GnomeFacts) -> GnomeBridgeStatus {
         ShellExtensionState::Enabled => {
             status.state = BridgeState::Active;
             status.can_disable = true;
-            status.summary = if status.connected {
-                "Active — keeping overlays above and delivering the shortcut".into()
+            if status.connected {
+                status.say(
+                    "activeConnected",
+                    "Active — keeping overlays above and delivering the shortcut",
+                );
             } else {
-                "Active".into()
-            };
+                status.say("active", "Active");
+            }
             if status.restart_pending {
-                status.guidance =
-                    Some("A newer copy is installed. Log out and back in to load it.".into());
+                status.advise(
+                    "newerCopyInstalled",
+                    "A newer copy is installed. Log out and back in to load it.",
+                );
             } else if status.update_available {
-                status.guidance = Some(
-                    "This PULSE ships a newer bridge. Reinstall it with the command below, then log out and back in.".into(),
+                status.advise(
+                    "reinstallNewer",
+                    "This PULSE ships a newer bridge. Reinstall it with the command below, then log out and back in.",
                 );
             } else if !status.connected {
-                status.guidance = Some(
-                    "Running. It has not greeted this PULSE yet: extension versions before 2 never do; newer ones do as soon as PULSE starts.".into(),
+                status.advise(
+                    "notGreeted",
+                    "Running. It has not greeted this PULSE yet: extension versions before 2 never do; newer ones do as soon as PULSE starts.",
                 );
             }
         }
         ShellExtensionState::Disabled | ShellExtensionState::Initialized => {
             status.state = BridgeState::Disabled;
             status.can_enable = true;
-            status.summary = "Installed but disabled".into();
-            status.guidance = Some("Enable it to keep overlays above other windows.".into());
+            status.say("disabled", "Installed but disabled");
+            status.advise(
+                "enableIt",
+                "Enable it to keep overlays above other windows.",
+            );
         }
         ShellExtensionState::Error => {
             status.state = BridgeState::Error;
             status.can_disable = true;
-            status.summary = "GNOME Shell reported an error in the extension".into();
+            status.say(
+                "extensionError",
+                "GNOME Shell reported an error in the extension",
+            );
             status.error = Some(info.error.clone()).filter(|error| !error.is_empty());
-            status.guidance = Some(
-                "Reinstall it, log out and back in. The error is also in journalctl --user -b /usr/bin/gnome-shell.".into(),
+            status.advise(
+                "reinstallAfterError",
+                "Reinstall it, log out and back in. The error is also in journalctl --user -b /usr/bin/gnome-shell.",
             );
         }
         ShellExtensionState::OutOfDate => {
             status.state = BridgeState::Incompatible;
-            status.summary = format!(
-                "GNOME Shell {} considers the installed extension out of date",
-                shell.shell_version
+            status.say(
+                "outOfDate",
+                format!(
+                    "GNOME Shell {} considers the installed extension out of date",
+                    shell.shell_version
+                ),
             );
-            status.guidance = Some("Reinstall the version this PULSE ships.".into());
+            status.advise(
+                "reinstallShipped",
+                "Reinstall the version this PULSE ships.",
+            );
         }
         ShellExtensionState::Uninstalled => {
             status.state = BridgeState::NotInstalled;
-            status.summary = "Uninstalled".into();
+            status.say("uninstalled", "Uninstalled");
         }
         ShellExtensionState::Enabling
         | ShellExtensionState::Disabling
         | ShellExtensionState::Downloading
         | ShellExtensionState::Unknown => {
             status.state = BridgeState::Changing;
-            status.summary = "GNOME Shell is changing the extension's state".into();
-            status.guidance = Some("Refresh in a moment.".into());
+            status.say("changing", "GNOME Shell is changing the extension's state");
+            status.advise("refreshSoon", "Refresh in a moment.");
         }
     }
     status
@@ -539,6 +604,113 @@ mod tests {
         let status = bridge_status(&gnome(Some(Ok(off)), Some(disk(2))));
         assert_eq!(status.state, BridgeState::ExtensionsOff);
         assert!(!status.is_active());
+    }
+
+    /// Every status the decision can produce, for the code tests below.
+    fn every_status() -> Vec<GnomeBridgeStatus> {
+        let mut facts = vec![
+            GnomeFacts {
+                wayland: true,
+                ..GnomeFacts::default()
+            },
+            GnomeFacts::default(),
+            gnome(None, None),
+            gnome(Some(Err("no answer".into())), None),
+            gnome(
+                Some(Ok(ShellFacts {
+                    shell_version: "46.0".into(),
+                    ..shell(ShellExtensionState::Enabled, 2)
+                })),
+                Some(disk(2)),
+            ),
+            gnome(
+                Some(Ok(ShellFacts {
+                    extension: None,
+                    ..shell(ShellExtensionState::Enabled, 2)
+                })),
+                Some(disk(2)),
+            ),
+            gnome(
+                Some(Ok(ShellFacts {
+                    extension: None,
+                    ..shell(ShellExtensionState::Enabled, 2)
+                })),
+                None,
+            ),
+            gnome(
+                Some(Ok(ShellFacts {
+                    user_extensions_enabled: false,
+                    ..shell(ShellExtensionState::Enabled, 2)
+                })),
+                Some(disk(2)),
+            ),
+            gnome(
+                Some(Ok(shell(ShellExtensionState::Enabled, 1))),
+                Some(disk(2)),
+            ),
+            gnome(
+                Some(Ok(shell(ShellExtensionState::Enabled, 1))),
+                Some(disk(1)),
+            ),
+            gnome(
+                Some(Ok(shell(ShellExtensionState::Enabled, 2))),
+                Some(disk(2)),
+            ),
+        ];
+        let mut connected = gnome(
+            Some(Ok(shell(ShellExtensionState::Enabled, 2))),
+            Some(disk(2)),
+        );
+        connected.handshake = Some(Handshake { version: 2, at: 0 });
+        facts.push(connected);
+        for state in [
+            ShellExtensionState::Disabled,
+            ShellExtensionState::Initialized,
+            ShellExtensionState::Error,
+            ShellExtensionState::OutOfDate,
+            ShellExtensionState::Uninstalled,
+            ShellExtensionState::Enabling,
+            ShellExtensionState::Unknown,
+        ] {
+            facts.push(gnome(Some(Ok(shell(state, 2))), Some(disk(2))));
+        }
+        facts.iter().map(bridge_status).collect()
+    }
+
+    #[test]
+    fn every_summary_and_guidance_carries_a_stable_code() {
+        for status in every_status() {
+            assert!(!status.summary_code.is_empty(), "{:?}", status.summary);
+            assert_eq!(
+                status.guidance.is_some(),
+                status.guidance_code.is_some(),
+                "{:?}",
+                status.guidance
+            );
+        }
+    }
+
+    /// The interface words each code through `src/i18n/locales/en.json`; a
+    /// code without a translation would fall back to the English sentence.
+    #[test]
+    fn every_code_has_an_interface_translation() {
+        let path = concat!(env!("CARGO_MANIFEST_DIR"), "/../src/i18n/locales/en.json");
+        let english: serde_json::Value =
+            serde_json::from_str(&std::fs::read_to_string(path).expect("en.json")).expect("json");
+        let bridge = &english["overlays"]["bridge"];
+        for status in every_status() {
+            assert!(
+                bridge["summaries"][&status.summary_code].is_string(),
+                "summary code {} has no translation",
+                status.summary_code
+            );
+            if let Some(code) = &status.guidance_code {
+                assert!(
+                    bridge["guidance"][code].is_string(),
+                    "guidance code {code} has no translation"
+                );
+            }
+        }
     }
 
     #[test]

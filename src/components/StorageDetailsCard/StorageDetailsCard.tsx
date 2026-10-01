@@ -1,4 +1,7 @@
 import type { MetricSample } from '@/types/metrics';
+import { Trans, useTranslation } from 'react-i18next';
+import { t } from '@/i18n/i18n';
+import { formatFixed } from '@/i18n/format';
 import {
   STORAGE_CAPACITY_TOTAL_KEY,
   STORAGE_DEVICE_COUNT,
@@ -64,6 +67,7 @@ import {
  * being attached to whichever disk looks plausible.
  */
 export function StorageDetailsCard() {
+  useTranslation();
   const { status, devices, volumes, samples, message, refreshing, refresh } = useStorageDetails();
 
   const countOf = (id: string, fallback: number): number => {
@@ -79,14 +83,14 @@ export function StorageDetailsCard() {
   const timestamp = samples.values().next().value?.timestamp;
 
   return (
-    <div className="card" aria-label="Storage details">
-      <h2 className="card__title">Storage details</h2>
+    <div className="card" aria-label={t('cards.storage.storageDetails')}>
+      <h2 className="card__title">{t('cards.storage.storageDetails')}</h2>
 
-      {status === 'loading' && <p className="card__muted">Discovering storage devices…</p>}
+      {status === 'loading' && <p className="card__muted">{t('cards.storage.loading')}</p>}
 
       {status === 'error' && (
         <p className="card__muted" title={message}>
-          Backend unavailable. Run PULSE with <code>pnpm app:dev</code> to reach the Rust layer.
+          <Trans i18nKey="overview.backendUnavailable" components={{ code: <code /> }} />
         </p>
       )}
 
@@ -94,22 +98,19 @@ export function StorageDetailsCard() {
         <>
           <dl className="kv">
             <div className="kv__row">
-              <dt>Storage devices</dt>
+              <dt>{t('cards.storage.storageDevices')}</dt>
               <dd>{deviceCount}</dd>
             </div>
             <div className="kv__row">
-              <dt>Volumes</dt>
+              <dt>{t('metrics.catalog.storage.volume.count.name')}</dt>
               <dd>{volumeCount}</dd>
             </div>
           </dl>
 
           {devices.length === 0 ? (
-            <p className="card__note">
-              No physical storage device was inventoried. Loop devices, RAM disks and device-mapper
-              volumes are deliberately not counted as disks.
-            </p>
+            <p className="card__note">{t('cards.storage.none')}</p>
           ) : (
-            <ul className="storage-grid" aria-label="Storage devices">
+            <ul className="storage-grid" aria-label={t('cards.storage.storageDevices')}>
               {devices.map((device, index) => (
                 <StorageEntry
                   key={device.sourceId}
@@ -123,12 +124,9 @@ export function StorageDetailsCard() {
           )}
 
           {unattributed.length > 0 && (
-            <section className="storage-other" aria-label="Other volumes">
-              <h3 className="storage-other__title">Other volumes</h3>
-              <p className="card__muted">
-                Mounted filesystems PULSE could not tie to one of the disks above. They are listed
-                separately rather than attributed to the wrong device.
-              </p>
+            <section className="storage-other" aria-label={t('cards.storage.otherVolumes')}>
+              <h3 className="storage-other__title">{t('cards.storage.otherVolumes')}</h3>
+              <p className="card__muted">{t('cards.storage.otherVolumesHint')}</p>
               <ul className="storage-volumes">
                 {unattributed.map((volume) => (
                   <VolumeEntry key={volume.sourceId} volume={volume} samples={samples} />
@@ -139,26 +137,23 @@ export function StorageDetailsCard() {
 
           <div className="card__footer">
             <span className="card__muted">
-              {typeof timestamp === 'number' ? `Updated ${formatSampleTime(timestamp)}` : ''}
+              {typeof timestamp === 'number'
+                ? t('cards.updated', { time: formatSampleTime(timestamp) })
+                : ''}
             </span>
             <button
               type="button"
               className="button"
               onClick={refresh}
               disabled={refreshing}
-              aria-label="Refresh storage details"
+              aria-label={t('cards.storage.refreshStorageDetails')}
             >
-              {refreshing ? 'Refreshing…' : 'Refresh'}
+              {refreshing ? t('common.refreshing') : t('common.refresh')}
             </button>
           </div>
 
           <p className="card__note">
-            Throughput, IOPS and latency are measured <em>between</em> two samples, so they appear
-            only after a refresh. A latency is the mean over operations that actually completed: an
-            interval with none has no latency at all, and shows <code>—</code> rather than
-            0&nbsp;ms. Used endurance and available spare are the controller&apos;s own standardised
-            figures — available spare is the reserve of replacement blocks, not free space on a
-            filesystem.
+            <Trans i18nKey="cards.storage.note" components={{ em: <em />, code: <code /> }} />
           </p>
         </>
       )}
@@ -205,50 +200,50 @@ function StorageEntry({
 
       {telemetry.ioAwaitingBaseline && (
         <p className="storage-grid__notice" role="note">
-          <strong>Waiting for another sample</strong>
-          Disk activity is the difference between two readings. Refresh to measure it.
+          <strong>{t('cards.waitingSample')}</strong>
+          {t('cards.storage.waitingHint')}
         </p>
       )}
 
       <dl className="kv kv--compact">
-        <Row label="Read">
+        <Row label={t('cards.storage.read')}>
           <Throughput sample={sampleOf(STORAGE_IO_READ_BYTES_KEY)} />
         </Row>
-        <Row label="Write">
+        <Row label={t('cards.storage.write')}>
           <Throughput sample={sampleOf(STORAGE_IO_WRITE_BYTES_KEY)} />
         </Row>
-        <Row label="Read IOPS">
+        <Row label={t('cards.storage.readIops')}>
           <Iops sample={sampleOf(STORAGE_IO_READ_IOPS_KEY)} />
         </Row>
-        <Row label="Write IOPS">
+        <Row label={t('cards.storage.writeIops')}>
           <Iops sample={sampleOf(STORAGE_IO_WRITE_IOPS_KEY)} />
         </Row>
-        <Row label="Read latency">
+        <Row label={t('cards.storage.readLatency')}>
           <Latency sample={sampleOf(STORAGE_IO_READ_LATENCY_KEY)} />
         </Row>
-        <Row label="Write latency">
+        <Row label={t('cards.storage.writeLatency')}>
           <Latency sample={sampleOf(STORAGE_IO_WRITE_LATENCY_KEY)} />
         </Row>
       </dl>
 
       {telemetry.healthAvailable ? (
         <dl className="kv kv--compact">
-          <Row label="Temperature">
+          <Row label={t('cards.storage.temperature')}>
             <Temperature sample={sampleOf(STORAGE_HEALTH_TEMPERATURE_KEY)} />
           </Row>
-          <Row label="Used endurance">
+          <Row label={t('cards.storage.usedEndurance')}>
             <Endurance sample={sampleOf(STORAGE_HEALTH_PERCENTAGE_USED_KEY)} />
           </Row>
-          <Row label="Available spare">
+          <Row label={t('cards.storage.availableSpare')}>
             <Percent sample={sampleOf(STORAGE_HEALTH_AVAILABLE_SPARE_KEY)} />
           </Row>
-          <Row label="Power-on hours">
+          <Row label={t('cards.storage.powerOnHours')}>
             <Hours sample={sampleOf(STORAGE_HEALTH_POWER_ON_HOURS_KEY)} />
           </Row>
-          <Row label="Unsafe shutdowns">
+          <Row label={t('cards.storage.unsafeShutdowns')}>
             <Count sample={sampleOf(STORAGE_HEALTH_UNSAFE_SHUTDOWNS_KEY)} />
           </Row>
-          <Row label="Media errors">
+          <Row label={t('cards.storage.mediaErrors')}>
             <Count sample={sampleOf(STORAGE_HEALTH_MEDIA_ERRORS_KEY)} />
           </Row>
         </dl>
@@ -258,7 +253,9 @@ function StorageEntry({
 
       {volumes.length > 0 && (
         <>
-          <h4 className="storage-grid__subtitle">Volumes</h4>
+          <h4 className="storage-grid__subtitle">
+            {t('metrics.catalog.storage.volume.count.name')}
+          </h4>
           <ul className="storage-volumes">
             {volumes.map((volume) => (
               <VolumeEntry key={volume.sourceId} volume={volume} samples={samples} />
@@ -319,7 +316,10 @@ function VolumeEntry({
           <Unavailable sample={sampleOf(STORAGE_VOLUME_CAPACITY_TOTAL_KEY)} />
         )}
         {available !== null && (
-          <span className="storage-volumes__available"> · {formatBytes(available)} free</span>
+          <span className="storage-volumes__available">
+            {' '}
+            · {t('cards.storage.free', { value: formatBytes(available) })}
+          </span>
         )}
       </p>
 
@@ -327,7 +327,10 @@ function VolumeEntry({
         <div
           className="usage-bar"
           role="img"
-          aria-label={`${volume.label} is ${formatPercent(percent, 0)} full`}
+          aria-label={t('cards.storage.full', {
+            name: volume.label,
+            value: formatPercent(percent, 0),
+          })}
         >
           <div className="usage-bar__fill" style={{ width: `${Math.min(100, percent)}%` }} />
         </div>
@@ -348,8 +351,8 @@ function VolumeEntry({
 function HealthUnavailableNotice({ reason }: { readonly reason: string | null }) {
   return (
     <p className="storage-grid__notice" role="note">
-      <strong>Health reporting unavailable</strong>
-      {reason ?? 'This device reports no standardised health log.'}
+      <strong>{t('cards.storage.healthUnavailable')}</strong>
+      {reason ?? t('cards.storage.noHealthLog')}
     </p>
   );
 }
@@ -423,7 +426,9 @@ function Endurance({ sample }: { readonly sample: MetricSample | undefined }) {
   if (sample && sample.value !== null && sample.value.type === 'number') {
     const value = sample.value.value;
     return (
-      <span className={value > 100 ? 'value--exceeded' : undefined}>{`${value.toFixed(0)} %`}</span>
+      <span className={value > 100 ? 'value--exceeded' : undefined}>
+        {`${formatFixed(value, 0)} %`}
+      </span>
     );
   }
 
@@ -471,7 +476,9 @@ function Count({ sample }: { readonly sample: MetricSample | undefined }) {
  * dash.
  */
 function Unavailable({ sample }: { readonly sample: MetricSample | undefined }) {
-  const reason = sample ? describeAvailability(sample.availability) : 'Not reported by the backend';
+  const reason = sample
+    ? describeAvailability(sample.availability)
+    : t('cards.notReportedByBackend');
 
   return (
     <span className="value--unavailable" title={reason}>

@@ -1,30 +1,33 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   PROCESS_COUNT_RUNNING,
   PROCESS_COUNT_TOTAL,
   PROCESS_THREAD_COUNT_TOTAL,
 } from '@/types/wellknown';
 import type { HistorySeriesSpec } from '@/utils/history';
-import type { VisualizationMeta } from '@/visualization/types';
+import type { HistoryMeta } from '@/components/History/chartDefaults';
 import { COUNT_DEFAULTS } from '@/components/History/chartDefaults';
 import { HistoryPanel } from '@/components/History/HistoryPanel';
 
 const PROCESS_SERIES: readonly HistorySeriesSpec[] = [
-  { ref: PROCESS_COUNT_TOTAL, label: 'Processes' },
-  { ref: PROCESS_COUNT_RUNNING, label: 'Running' },
+  { ref: PROCESS_COUNT_TOTAL, label: 'Processes', labelKey: 'presets.text.processes' },
+  { ref: PROCESS_COUNT_RUNNING, label: 'Running', labelKey: 'presets.text.running' },
 ];
 const THREAD_SERIES: readonly HistorySeriesSpec[] = [
-  { ref: PROCESS_THREAD_COUNT_TOTAL, label: 'Threads' },
+  { ref: PROCESS_THREAD_COUNT_TOTAL, label: 'Threads', labelKey: 'presets.text.threads' },
 ];
 
-const PROCESS_META: VisualizationMeta = {
+const PROCESS_META: HistoryMeta = {
   label: 'Processes',
+  labelKey: 'presets.text.processes',
   unit: 'count',
   bounds: null,
   decimals: 0,
 };
-const THREAD_META: VisualizationMeta = {
+const THREAD_META: HistoryMeta = {
   label: 'Threads',
+  labelKey: 'presets.text.threads',
   unit: 'count',
   bounds: null,
   decimals: 0,
@@ -37,17 +40,18 @@ const THREAD_META: VisualizationMeta = {
  * is ever recorded — see `docs/history/architecture.md`.
  */
 export function ProcessHistory() {
+  const { t } = useTranslation();
   const [view, setView] = useState<'processes' | 'threads'>('processes');
   const series = view === 'processes' ? PROCESS_SERIES : THREAD_SERIES;
   const meta = view === 'processes' ? PROCESS_META : THREAD_META;
 
   const toggle = useMemo(
     () => (
-      <div className="segmented" role="group" aria-label="Process count">
+      <div className="segmented" role="group" aria-label={t('history.processes.count')}>
         {(
           [
-            ['processes', 'Processes'],
-            ['threads', 'Threads'],
+            ['processes', t('presets.text.processes')],
+            ['threads', t('presets.text.threads')],
           ] as const
         ).map(([value, text]) => (
           <button
@@ -62,18 +66,18 @@ export function ProcessHistory() {
         ))}
       </div>
     ),
-    [view],
+    [view, t],
   );
 
   return (
     <HistoryPanel
       chartId="processes"
-      title="Process count history"
+      title={t('history.processes.title')}
       meta={meta}
       series={series}
       defaults={COUNT_DEFAULTS}
       controls={toggle}
-      footnote="Machine-wide counts only. PULSE never records the history of an individual process."
+      footnote={t('history.processes.footnote')}
     />
   );
 }

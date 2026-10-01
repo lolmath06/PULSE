@@ -1,0 +1,2020 @@
+{
+  "app": {
+    "tagline": "Sisteminiz tek bakışta."
+  },
+  "common": {
+    "comingLater": "PULSE'un sonraki bir aşamasında gelecek.",
+    "active": "Etkin",
+    "copyOf": "{{name}} (kopya)",
+    "all": "Tümü",
+    "checking": "Denetleniyor…",
+    "refresh": "Yenile",
+    "copy": "Kopyala",
+    "copied": "Kopyalandı",
+    "apply": "Uygula",
+    "duplicate": "Çoğalt",
+    "delete": "Sil",
+    "preview": "Önizleme",
+    "customize": "Özelleştir",
+    "removeNamed": "{{name}} öğesini kaldır",
+    "add": "Ekle",
+    "widgetCount_one": "{{count}} bileşen",
+    "widgetCount_other": "{{count}} bileşen",
+    "cancel": "İptal",
+    "rename": "Yeniden adlandır",
+    "reset": "Sıfırla",
+    "export": "Dışa aktar",
+    "import": "İçe aktar",
+    "copyToClipboard": "Panoya kopyala",
+    "invalidJson": "Bu geçerli bir JSON değil.",
+    "remove": "Kaldır",
+    "close": "Kapat",
+    "save": "Kaydet",
+    "deleteNamed": "{{name}} öğesini sil",
+    "refreshing": "Yenileniyor…",
+    "hide": "Gizle",
+    "showAll": "Tümünü göster"
+  },
+  "nav": {
+    "main": "Ana gezinme",
+    "groups": {
+      "monitor": "İzleme",
+      "modes": "Modlar",
+      "studio": "Stüdyo"
+    },
+    "routes": {
+      "overview": {
+        "label": "Genel bakış",
+        "description": "PULSE'un varsayılan panosu."
+      },
+      "dashboard": {
+        "label": "Pano",
+        "description": "Kendi panolarınız: eklediğiniz, yerleştirdiğiniz ve biçimlendirdiğiniz bileşenler."
+      },
+      "overlays": {
+        "label": "Katmanlar",
+        "description": "Masaüstünde kendi pencerelerinde duran bileşenler."
+      },
+      "gaming": {
+        "label": "Oyun",
+        "description": "Oyun sırasında önemli ölçümlere odaklanan hafif bir görünüm."
+      },
+      "development": {
+        "label": "Geliştirme",
+        "description": "Derleme ve iş yükü baskısına odaklanan bir görünüm."
+      },
+      "personal": {
+        "label": "Kişisel",
+        "description": "Pek çok bileşenle serbestçe oluşturulabilen bir pano."
+      },
+      "mini": {
+        "label": "Mini",
+        "description": "Tek bir pano gösteren küçük, sıradan bir PULSE penceresi."
+      },
+      "appearance": {
+        "label": "Görünüm",
+        "description": "Stiller, renkler, yazı tipi, yoğunluk, hareket ve dil — her yüzey için."
+      }
+    },
+    "changeStyle": "Stili değiştir",
+    "style": "Stil"
+  },
+  "status": {
+    "backendStatus": "Arka uç durumu",
+    "querying": "Arka uç sorgulanıyor…",
+    "unavailableUiOnly": "Arka uç kullanılamıyor — yalnızca arayüz"
+  },
+  "notFound": {
+    "title": "Bulunamadı",
+    "subtitle": "PULSE'un bu bölümü yok.",
+    "back": "Genel bakışa dön"
+  },
+  "overview": {
+    "version": "Sürüm {{version}}",
+    "systemDetails": "Sistem ayrıntıları",
+    "detectedPlatform": "Algılanan platform",
+    "backendUnavailable": "Arka uç kullanılamıyor. Rust katmanına ulaşmak için PULSE'u <code>pnpm app:dev</code> ile çalıştırın.",
+    "os": "İşletim sistemi",
+    "platformLayer": "Platform katmanı",
+    "architecture": "Mimari",
+    "displayServer": "Görüntü sunucusu",
+    "backendVersion": "Arka uç sürümü"
+  },
+  "home": {
+    "liveSystem": "Canlı sistem",
+    "links": {
+      "dashboards": "Panolar",
+      "dashboardsHint": "şablonlar, bileşenler, düzenler",
+      "overlays": "Katmanlar",
+      "overlaysHint_one": "{{count}} paket, arka uç durumu",
+      "overlaysHint_other": "{{count}} paket, arka uç durumu",
+      "appearance": "Görünüm",
+      "appearanceHint_one": "{{count}} stil, ince ayar",
+      "appearanceHint_other": "{{count}} stil, ince ayar"
+    }
+  },
+  "welcome": {
+    "title": "PULSE'a hoş geldiniz",
+    "subtitle": "Bir başlangıç noktası seçin. Her seçim daha sonra değiştirilebilir — Görünüm'de, modlarda, Pano'da ve Katmanlar'da.",
+    "label": "Hoş geldiniz",
+    "skip": "Atla",
+    "start": "PULSE'u başlat",
+    "modeLabel": "Mod",
+    "howUse": "Nasıl kullanacaksınız?",
+    "justMonitor": "Yalnızca izleme",
+    "justMonitorHint": "Mod yok — bir stil ve panolar.",
+    "pickStyle": "Bir stil seçin",
+    "styles": "Karşılama stilleri",
+    "starters": "Başlangıçlar",
+    "startWith": "Şununla başla",
+    "dashboard": "Pano",
+    "starterDashboard": "Başlangıç panosu",
+    "keepDashboards": "Mevcut panolarımı koru",
+    "overlay": "Katman",
+    "starterOverlay": "Başlangıç katmanı",
+    "noOverlay": "Şimdilik katman yok",
+    "overlaysHere": "Buradaki katmanlar:",
+    "bridgeNotReady": "— GNOME köprüsü: {{state}}. Kurmak için Katmanlar'a bakın.",
+    "bridgeActive": "— katmanlar diğer pencerelerin üstünde kalır.",
+    "noBackend": "Katman yetenekleri, arka uç yanıt verdiğinde Katmanlar'da gösterilir."
+  },
+  "language": {
+    "label": "Dil",
+    "system": "Sistem ({{language}})",
+    "hint": "Sistem, bilgisayarınızın dilini izler. Tüm PULSE pencerelerine aynı anda uygulanır."
+  },
+  "metrics": {
+    "catalog": {
+      "cpu": {
+        "count": {
+          "logical": {
+            "name": "Mantıksal işlemciler",
+            "description": "İşletim sisteminin iş planladığı mantıksal işlemci (donanım iş parçacığı) sayısı. Eşzamanlı çoklu iş parçacığı ile fiziksel çekirdek sayısını aşar."
+          },
+          "package": {
+            "name": "İşlemci paketleri",
+            "description": "Takılı fiziksel işlemci paketi (soket) sayısı."
+          },
+          "physical": {
+            "name": "Fiziksel çekirdekler",
+            "description": "Ayrı (paket, çekirdek) çiftleri olarak sayılan fiziksel yürütme çekirdeği sayısı; böylece iki farklı paketteki aynı numaralı çekirdekler asla birleştirilmez."
+          }
+        },
+        "frequency": {
+          "current": {
+            "name": "Geçerli frekans",
+            "description": "İşletim sisteminin bu mantıksal işlemci için şu an bildirdiği saat frekansı. Ölçekleme, hızlandırma ve güç ilkeleri onu sürekli değiştirir; bu nedenle silikonun anlık ölçümü değil, platformun en son değeridir."
+          },
+          "max": {
+            "name": "Azami frekans",
+            "description": "Platformun bu mantıksal işlemci için bildirdiği azami saat frekansı. Hibrit bir CPU'da performans ve verimlilik çekirdekleri arasında farklılık gösterir. Yerine asla bir yönetici ya da güç ilkesi sınırı yayımlanmaz."
+          }
+        },
+        "temperature": {
+          "package": {
+            "name": "Paket sıcaklığı",
+            "description": "İşlemci paketinin kendisi için bildirdiği sıcaklık. Paketin kendi sensörüdür; asla tek tek çekirdeklerin ortalaması ya da silikonun tasarlandığı ısıl sınırlardan biri değildir."
+          }
+        },
+        "usage": {
+          "logical": {
+            "name": "CPU kullanımı",
+            "description": "Bu mantıksal işlemcinin önceki örnekten bu yana iş yaparak geçirdiği CPU süresi payı. Eşzamanlı çoklu iş parçacığında iki mantıksal işlemci bir fiziksel çekirdeği paylaşır."
+          },
+          "total": {
+            "name": "CPU kullanımı",
+            "description": "Tüm makinede önceki örnekten bu yana iş yapmaya harcanan CPU süresi payı."
+          }
+        }
+      },
+      "gpu": {
+        "count": {
+          "name": "GPU'lar",
+          "description": "PULSE'un envanterine aldığı donanım grafik bağdaştırıcısı sayısı. Microsoft Basic Render Driver ve WARP gibi yazılım bağdaştırıcıları sayılmaz."
+        },
+        "fan": {
+          "speed": {
+            "name": "Fan",
+            "description": "Bağdaştırıcı fanının dakikadaki devir cinsinden dönüş hızı. Fan kontrol yüzdesi bir hız değil görev döngüsüdür ve asla onun yerine yayımlanmaz."
+          }
+        },
+        "frequency": {
+          "core": {
+            "name": "Çekirdek saati",
+            "description": "Sürücünün bildirdiği geçerli grafik saati. Hızlandırma ve güç ilkeleri onu sürekli değiştirir; bu nedenle silikonun anlık ölçümü değil, platformun en son değeridir."
+          },
+          "memory": {
+            "name": "Bellek saati",
+            "description": "Sürücünün bildirdiği geçerli video belleği saati."
+          }
+        },
+        "memory": {
+          "free": {
+            "name": "Boş VRAM",
+            "description": "Ayırma için hâlâ kullanılabilen ayrılmış video belleği."
+          },
+          "total": {
+            "name": "Toplam VRAM",
+            "description": "Bu bağdaştırıcıda takılı ayrılmış video belleği. Tümleşik bir GPU ile paylaşılan sistem belleği bilerek burada bildirilmez."
+          },
+          "usage": {
+            "percent": {
+              "name": "VRAM kullanımı",
+              "description": "Kullanılan ve toplam bayttan hesaplanan, kullanımdaki ayrılmış video belleği payı."
+            }
+          },
+          "used": {
+            "name": "Kullanılan VRAM",
+            "description": "Tüm sistemde şu anda kullanımda olan ayrılmış video belleği."
+          }
+        },
+        "temperature": {
+          "core": {
+            "name": "Sıcaklık",
+            "description": "Grafik işlemci yongasının kendi sensörünün bildirdiği sıcaklık."
+          },
+          "hotspot": {
+            "name": "Sıcak nokta",
+            "description": "Grafik işlemci paketinde ölçülen en sıcak nokta. Yonga sıcaklığından ayrı bir sensördür, yük altında genellikle daha yüksek okur ve asla ondan türetilmez."
+          },
+          "memory": {
+            "name": "Bellek sıcaklığı",
+            "description": "Kendi sensöründen alınan ayrılmış video belleği sıcaklığı."
+          }
+        },
+        "usage": {
+          "core": {
+            "name": "GPU kullanımı",
+            "description": "Sürücünün bildirdiği şekilde, grafik motorunun kullanımdaki kapasite payı."
+          }
+        }
+      },
+      "memory": {
+        "available": {
+          "name": "Kullanılabilir bellek",
+          "description": "Takas alanına başvurmadan ayrılabilen fiziksel bellek."
+        },
+        "total": {
+          "name": "Toplam bellek",
+          "description": "İşletim sisteminin kullanabildiği takılı fiziksel bellek."
+        },
+        "usage": {
+          "percent": {
+            "name": "Bellek kullanımı",
+            "description": "Kullanılan ve toplam bayttan hesaplanan, kullanımdaki fiziksel bellek payı."
+          }
+        },
+        "used": {
+          "name": "Kullanılan bellek",
+          "description": "Toplam eksi kullanılabilir olarak tanımlanan, kullanımdaki fiziksel bellek."
+        }
+      },
+      "network": {
+        "interface": {
+          "count": {
+            "name": "Arabirimler",
+            "description": "PULSE'un izlediği ağ arabirimi sayısı. Geri döngü arabirimi bilerek dışarıda bırakılır: her zaman vardır ve yalnızca bu makineden hiç çıkmamış trafiği taşır."
+          },
+          "up_count": {
+            "name": "Bağlı",
+            "description": "İzlenen arabirimlerden kaçının şu anda bağlantısı olduğu. Etkin ama kablosuz bir bağdaştırıcı ya da bir ağa ilişkilendirilmemiş bir radyo sayılmaz."
+          }
+        },
+        "link": {
+          "receive_speed": {
+            "name": "Bağlantı RX",
+            "description": "Bağlantının sürücü tarafından anlaşılan gelen kapasitesi — ne kadar aktığı değil. Sabit bir değer değil göstergedir, çünkü hem Wi-Fi hem Ethernet yeniden anlaşır."
+          },
+          "transmit_speed": {
+            "name": "Bağlantı TX",
+            "description": "Bağlantının giden kapasitesi. Ethernet'te gelenle aynıdır; Wi-Fi'de sıklıkla farklıdır."
+          }
+        },
+        "mtu": {
+          "name": "MTU",
+          "description": "Bu arabirimin tek bir çerçevede taşıdığı en büyük yük. Bir okuma değil bir yapılandırma bilgisidir; bu nedenle bir durumdur."
+        },
+        "receive": {
+          "bytes_per_second": {
+            "name": "İndirme",
+            "description": "İşletim sisteminin iki örnek arasındaki birikimli sayaçlarından türetilen, bu makineye saniyede ulaşan bayt. Alma, bu makinenin bakış açısından gelen anlamına gelir."
+          },
+          "dropped_per_second": {
+            "name": "RX düşürülen",
+            "description": "Sağlam ulaşan ama yine de atılan gelen çerçeveler — dolu bir arabellek ya da onları isteyen bir protokol olmaması. Bu yerel bir sayaçtır; PULSE'un ölçmediği İnternet paket kaybı değildir."
+          },
+          "errors_per_second": {
+            "name": "RX hataları",
+            "description": "Bir sorun olduğu için arabirimin reddettiği gelen çerçeveler — hatalı sağlama toplamı, çerçeveleme hatası. Düşürülen çerçevelerden farklı bir sayaçtır; sürekli sıfırdan farklı bir oran genellikle kablo ya da sürücü sorununa işaret eder."
+          },
+          "packets_per_second": {
+            "name": "RX paketleri",
+            "description": "Saniyede gelen paketler, tek noktaya yayın ve diğerleri birlikte. Sıfır gerçek bir ölçümdür: aralık boyunca hiçbir şey gelmedi."
+          }
+        },
+        "transmit": {
+          "bytes_per_second": {
+            "name": "Yükleme",
+            "description": "İşletim sisteminin iki örnek arasındaki birikimli sayaçlarından türetilen, bu makineden saniyede çıkan bayt. Gönderme, giden anlamına gelir."
+          },
+          "dropped_per_second": {
+            "name": "TX düşürülen",
+            "description": "Gönderilmeden önce atılan giden çerçeveler; genellikle bir kuyruk dolu olduğu için."
+          },
+          "errors_per_second": {
+            "name": "TX hataları",
+            "description": "Arabirimin gönderemediği giden çerçeveler."
+          },
+          "packets_per_second": {
+            "name": "TX paketleri",
+            "description": "Saniyede çıkan paketler, tek noktaya yayın ve diğerleri birlikte."
+          }
+        },
+        "wifi": {
+          "link": {
+            "receive_rate": {
+              "name": "Wi-Fi RX hızı",
+              "description": "Erişim noktasıyla anlaşılan gelen hız. Trafik değil kapasitedir: 400 Mbit/s'de anlaşılan ve hiçbir şey taşımayan bir bağlantı yine 400 Mbit/s bildirir."
+            },
+            "transmit_rate": {
+              "name": "Wi-Fi TX hızı",
+              "description": "Erişim noktasıyla anlaşılan giden hız. Gelen hızdan sıklıkla farklıdır."
+            }
+          },
+          "signal": {
+            "quality": {
+              "name": "Kalite",
+              "description": "Yalnızca işletim sisteminin kendisinin hesapladığı yerlerde yayımlanan 0–100 bağlantı kalitesi değeri. Asla sinyal gücünden türetilmez: bilinen her dBm'den yüzdeye formül keyfîdir ve böyle üretilen bir sayı tahmin olduğu hâlde ölçüm gibi görünürdü."
+            },
+            "rssi": {
+              "name": "Sinyal",
+              "description": "Radyonun bildirdiği dBm cinsinden alınan sinyal gücü — −40'ın güçlü, −90'ın zar zor kullanılabilir olduğu logaritmik bir ölçek. Birkaç bağlantı üzerinden ilişkilendirilmiş bir radyoda en güçlü etkin bağlantının değeridir; dBm değerlerinin asla ortalaması alınmaz."
+            }
+          }
+        }
+      },
+      "process": {
+        "count": {
+          "running": {
+            "name": "Çalışan",
+            "description": "Bir işlemcide yürütülen ya da hazır olarak kuyrukta bekleyen süreç sayısı. Boşta bir masaüstündeki hemen her süreç aslında bekler — bir zamanlayıcıyı, bir girdiyi, bir diski — bu yüzden burada küçük bir sayı normaldir ve makinenin boşta olduğunu göstermez. Windows süreç düzeyinde durum bildirmez; bu nedenle bu değer orada uydurulmak yerine kullanılamaz."
+          },
+          "total": {
+            "name": "Süreçler",
+            "description": "Ayrıntılarını PULSE'un okuyamadıkları da dahil, bu makinede şu anda kaç süreç olduğu. Erişimi reddedilen bir süreç yine de vardır ve yine de sayılır."
+          }
+        },
+        "thread": {
+          "count": {
+            "total": {
+              "name": "İş parçacıkları",
+              "description": "Görünür her sürecin tüm iş parçacıklarının toplamı. İş parçacığı sayısı okunamayan süreçler tahmin yerine hiçbir şey katmaz; bu nedenle korumalı süreçlerle dolu bir makinede bu değer bir uydurma değil, eksik bir tahmindir."
+            }
+          }
+        }
+      },
+      "storage": {
+        "capacity": {
+          "total": {
+            "name": "Kapasite",
+            "description": "Fiziksel aygıtın toplam adreslenebilir kapasitesi. Üzerindeki dosya sistemlerinin toplamı değil, aygıtın tamamıdır."
+          }
+        },
+        "device": {
+          "count": {
+            "name": "Depolama aygıtları",
+            "description": "PULSE'un envanterine aldığı fiziksel depolama aygıtı sayısı. Bölümler, döngü aygıtları, RAM diskleri ve device-mapper birimleri ayrı aygıt sayılmaz."
+          }
+        },
+        "health": {
+          "available_spare": {
+            "name": "Kullanılabilir yedek",
+            "description": "Aygıtın yedek blok rezervinden kalan pay. Dosya sistemindeki boş alan ya da ayrılmamış kapasite değildir: tamamen dolu bir sürücü normalde yine %100 yedek bildirir."
+          },
+          "media_errors": {
+            "name": "Ortam hataları",
+            "description": "Denetleyicinin aygıtın ömrü boyunca algılayıp saydığı ortam ve veri bütünlüğü hataları."
+          },
+          "percentage_used": {
+            "name": "Kullanılan dayanıklılık",
+            "description": "Denetleyicinin, aygıtın nominal yazma dayanıklılığının ne kadarının tüketildiğine dair tahmini. Değer aşıldıktan sonraki %100 üstü değerler de dahil, tam olarak aygıtın belirttiği gibi bildirilir ve asla bir sağlık puanına dönüştürülmez."
+          },
+          "power_on_hours": {
+            "name": "Açık kalma saati",
+            "description": "Aygıt denetleyicisinin kendi saydığı şekilde açık kaldığı saatler."
+          },
+          "temperature": {
+            "name": "Sıcaklık",
+            "description": "Depolama denetleyicisinin bileşik sıcaklığı — aygıtın kendi sensörlerinden türettiği tek bir değer; tek bir sensör ya da başka bir bileşenin okuması değildir."
+          },
+          "unsafe_shutdowns": {
+            "name": "Güvensiz kapanmalar",
+            "description": "Aygıtın önceden kapanması söylenmeden gücünü kaybettiği kez sayısı."
+          }
+        },
+        "io": {
+          "read": {
+            "bytes_per_second": {
+              "name": "Okuma",
+              "description": "İşletim sisteminin iki örnek arasındaki birikimli sayaçlarından türetilen, aygıttan saniyede okunan bayt."
+            },
+            "iops": {
+              "name": "Okuma IOPS",
+              "description": "Saniyede tamamlanan okuma işlemleri. Sıfır gerçek bir ölçümdür: aralık boyunca hiçbir okuma tamamlanmadı."
+            },
+            "latency": {
+              "name": "Okuma gecikmesi",
+              "description": "İşletim sisteminin gözlemlediği ortalama okuma süresi — kuyruk dahil ve aygıtın içinden değil ana makineden ölçülür. Hiçbir okumanın tamamlanmadığı bir aralığın gecikmesi yoktur ve sıfır yerine hiçbir değer bildirmez."
+            }
+          },
+          "write": {
+            "bytes_per_second": {
+              "name": "Yazma",
+              "description": "İşletim sisteminin iki örnek arasındaki birikimli sayaçlarından türetilen, aygıta saniyede yazılan bayt."
+            },
+            "iops": {
+              "name": "Yazma IOPS",
+              "description": "Saniyede tamamlanan yazma işlemleri. Sıfır gerçek bir ölçümdür: aralık boyunca hiçbir yazma tamamlanmadı."
+            },
+            "latency": {
+              "name": "Yazma gecikmesi",
+              "description": "İşletim sisteminin gözlemlediği ortalama yazma süresi. Hiçbir yazmanın tamamlanmadığı bir aralık sıfır yerine hiçbir değer bildirmez."
+            }
+          }
+        },
+        "volume": {
+          "capacity": {
+            "available": {
+              "name": "Kullanılabilir",
+              "description": "Bu kullanıcının gerçekten yazabileceği alan. Süper kullanıcı için rezerv tutan dosya sistemlerinde boş alandan azdır ve bu bilinçlidir: o rezerv sizin kullanımınızda değildir."
+            },
+            "total": {
+              "name": "Birim boyutu",
+              "description": "Dosya sisteminin toplam boyutu. Bir aygıttaki birkaç dosya sistemi aygıtın kapasitesine eşit olacak şekilde toplanmaz ve bir dosya sistemi birden çok aygıta yayılabilir."
+            },
+            "used": {
+              "name": "Kullanılan",
+              "description": "Dosya sisteminde veri tutan alan; toplam eksi boş bloklar olarak tanımlanır. Süper kullanıcıya blok ayıran dosya sistemlerinde kullanılan ve kullanılabilir toplamı vermez."
+            }
+          },
+          "count": {
+            "name": "Birimler",
+            "description": "PULSE'un envanterine aldığı bağlanmış dosya sistemi sayısı. Birkaç yoldan erişilebilen bir dosya sistemi bir kez sayılır; proc ve sysfs gibi sözde dosya sistemleri sayılmaz."
+          },
+          "usage": {
+            "percent": {
+              "name": "Birim kullanımı",
+              "description": "Kullanılan ve toplam bayttan hesaplanan, dosya sisteminin veri tutan payı."
+            }
+          }
+        }
+      }
+    },
+    "sources": {
+      "cpuSystem": "Sistem CPU'su",
+      "memorySystem": "Sistem belleği",
+      "gpuSystem": "Grafik",
+      "processSystem": "Süreçler",
+      "networkSystem": "Ağ",
+      "storageSystem": "Depolama",
+      "cpuPackage": "Paket {{index}}"
+    },
+    "availability": {
+      "available": "Kullanılabilir",
+      "unsupported": "Desteklenmiyor",
+      "notDetected": "Algılanmadı",
+      "permissionDenied": "İzin gerekiyor",
+      "temporarilyUnavailable": "Geçici olarak kullanılamıyor",
+      "providerError": "Sağlayıcı hatası",
+      "notRegistered": "Kayıtlı değil"
+    },
+    "availabilityReason": {
+      "unsupported": "Desteklenmiyor: {{reason}}",
+      "notDetected": "Algılanmadı: {{reason}}",
+      "permissionDenied": "İzin gerekiyor: {{reason}}",
+      "temporarilyUnavailable": "Geçici olarak kullanılamıyor: {{reason}}",
+      "providerError": "Sağlayıcı hatası: {{reason}}",
+      "notRegistered": "Kayıtlı değil: {{reason}}"
+    },
+    "engineState": {
+      "ready": "Hazır",
+      "empty": "Boş"
+    },
+    "notReported": "Bu makine bu ölçümü bildirmiyor.",
+    "noneSelected": "Ölçüm seçilmedi.",
+    "sourceUnavailable": "Kaynak kullanılamıyor"
+  },
+  "styles": {
+    "clean": {
+      "name": "Sade",
+      "tagline": "Modern, sakin, profesyonel",
+      "description": "Sakin antrasit yüzeyler, yumuşak derinlik ve tek bir camgöbeği vurgu. Varsayılan: her şey okunur, hiçbir şey bağırmaz."
+    },
+    "glass": {
+      "name": "Cam",
+      "tagline": "Buzlu, ışıltılı, premium",
+      "description": "Derin bir kutup ışığı üzerinde yarı saydam buzlu paneller, parlak bir üst kenar ışığı ve ferah köşeler. Vitrin stili."
+    },
+    "technical": {
+      "name": "Teknik",
+      "tagline": "Ölçü aleti; yoğun ve kesin",
+      "description": "Bir mühendislik tezgâhı: plan ızgarası, keskin kenarlar, eş aralıklı rakamlar, kehribar okumalar, her eksen ve örnek işaretçisi."
+    },
+    "neon": {
+      "name": "Neon",
+      "tagline": "Yüksek kontrast, elektrikli",
+      "description": "Eflatun ve camgöbeği ışıklı neredeyse siyah: parlayan çizgiler, aydınlatılmış kenarlar ve ışıltılı sayılar. Dramatik ama okunaklı."
+    },
+    "gaming": {
+      "name": "Oyun",
+      "tagline": "Cesur, hızlı, enerjik",
+      "description": "Kesik köşeler, kızıl ve kehribar, dar ve kalın yazı, büyük sayılar: oyunun ortasında tek bakışta okunmak için."
+    },
+    "stealth": {
+      "name": "Gizli",
+      "tagline": "Koyu, ölçülü, az gürültü",
+      "description": "Neredeyse çerçevesiz, soluk arduvaz yazı, dolgu ve ızgara yok: baktığınızda orada, bakmadığınızda görünmez."
+    },
+    "compact": {
+      "name": "Kompakt",
+      "tagline": "Sıkı, verimli, küçük boyuta uygun",
+      "description": "Daha sık aralıklar, daha küçük yazı ve sakin grafikler: küçük bileşenler ve mikro katmanlar için piksel başına en çok bilgi."
+    },
+    "hud": {
+      "name": "Saydam HUD",
+      "tagline": "Panel yok, yalnızca sayılar",
+      "description": "Çerçevesiz: her duvar kâğıdı ya da oyun üzerinde okunsun diye yumuşak koyu haleli parlak rakamlar, ince çizgiler, ızgara yok."
+    },
+    "accents": {
+      "teal": "Camgöbeği",
+      "sky": "Gök mavisi",
+      "blue": "Mavi",
+      "violet": "Menekşe",
+      "magenta": "Eflatun",
+      "crimson": "Kızıl",
+      "amber": "Kehribar",
+      "lime": "Limon yeşili",
+      "mint": "Nane",
+      "silver": "Gümüş"
+    },
+    "palettes": {
+      "aurora": "Kutup ışığı",
+      "ocean": "Okyanus",
+      "ember": "Kor",
+      "forest": "Orman",
+      "candy": "Şeker",
+      "mono": "Tek renk"
+    }
+  },
+  "modes": {
+    "gaming": {
+      "name": "Oyun",
+      "tagline": "Önce katmanlar. Tek bakışta okunur.",
+      "description": "Oyununuzun yanında — asla içinde değil — performans ve sıcaklıklar için cesur, kompakt katmanlar. Kilitli katmanlar her tıklamayı geçirir ve asla odak almaz.",
+      "principles": {
+        "noFps": "FPS sayacı yok: PULSE'un gerçek bir FPS kaynağı yok, bu yüzden hiç göstermez.",
+        "safeOverlays": "Yalnızca güvenli masaüstü katmanları — enjeksiyon yok, DirectX/Vulkan/OpenGL kancası yok.",
+        "borderless": "Kenarlıksız ya da pencereli oyunlar; özel tam ekran masaüstü pencerelerini gizler."
+      }
+    },
+    "development": {
+      "name": "Geliştirme",
+      "tagline": "Derleme baskısı, mühendislik çözünürlüğünde.",
+      "description": "Yoğun ve kesin bir düzende CPU, bellek, disk G/Ç, ağ ve süreç sayıları — derlemeler, kapsayıcılar, test çalıştırmaları ve hata ayıklama oturumları için.",
+      "principles": {
+        "realSamples": "Her değer gerçek bir örnektir; geçmiş PULSE'un kendi kaydedicisinden gelir.",
+        "processesNearby": "Bir sıçramanın ardındaki süreç için Süreçler görünümü bir tık uzakta.",
+        "technicalStyle": "Teknik stil: düz parçalar ve örnek işaretçileri — hiçbir şey yumuşatılmaz."
+      }
+    },
+    "personal": {
+      "name": "Kişisel",
+      "tagline": "Günlük görünümünüz, size göre.",
+      "description": "Düzenlemek için hoş, dengeli bir başlangıç noktası: önemsediklerinizi ekleyin, herhangi bir stili seçin, gün boyu ekranda tutun.",
+      "principles": {
+        "editable": "Buradaki her şey düzenlenebilir: bileşenler, stil, düzen, katmanlar.",
+        "saveLook": "Oluşturduğunuz görünümü Görünüm'de kendi stiliniz olarak kaydedin.",
+        "shareExport": "Bir panoyu Dışa aktar ile paylaşın — hiçbir donanım tanımlayıcısı taşımaz."
+      }
+    },
+    "mini": {
+      "name": "Mini",
+      "tagline": "Küçük, zarif bir izleme penceresi.",
+      "description": "Özenle boyutlandırılmış birkaç okuma içeren kompakt, sıradan bir pencere. Etkileşimlidir, asla her zaman üstte değildir — bunun için bir katman kullanın.",
+      "principles": {
+        "normalWindow": "Mini sıradan bir penceredir: taşınabilir, odaklanabilir, görev çubuğunda görünür.",
+        "pickLayout": "Aşağıdan bir Mini düzeni seçin ya da içinde panolarınızdan birini gösterin."
+      }
+    },
+    "miniLayouts": {
+      "vitals": {
+        "name": "Hayati değerler",
+        "description": "CPU, bellek, sıcaklık ve trafik; her biri kendi eğilimiyle."
+      },
+      "thermals": {
+        "name": "Sıcaklıklar",
+        "description": "Renk bantlı, zaman içindeki sıcaklıklar, SSD ile birlikte."
+      },
+      "network": {
+        "name": "Ağ",
+        "description": "İndirme ve yükleme; varsa Wi-Fi sinyaliyle."
+      },
+      "focus": {
+        "name": "Odak",
+        "description": "Büyük bir CPU halkası, gösterge olarak bellek ve ısı."
+      }
+    },
+    "page": {
+      "aria": "{{mode}} modu",
+      "eyebrow": "Mod",
+      "leave": "Moddan çık",
+      "enter": "{{mode}} moduna gir",
+      "style": "{{mode}} stili",
+      "modeDefault": "{{name}} (mod varsayılanı)",
+      "overlaysFor": "{{mode}} için katmanlar",
+      "packsHint": "{{mode}} modu için oluşturuldu — her biri kendi penceresinde düzenlenebilir bir katmana dönüşür.",
+      "behaviour": "Davranış",
+      "whenOn": "Bu mod açıkken",
+      "lockOverlays": "Girişte her katmanı kilitle (tıklamalar geçer, asla odak almaz)",
+      "keepRunning": "Ana pencere kapandığında PULSE ve katmanları çalışmaya devam etsin",
+      "keyMetrics": "{{mode}} temel ölçümleri",
+      "dashboardAria": "{{mode}} panosu",
+      "startDashboard": "{{mode}} panosunu şablonundan başlatın — sonra istediğinizi değiştirin.",
+      "createDashboard": "{{mode}} panosu oluştur",
+      "editInDashboard": "Pano'da düzenle",
+      "switchesKeepRunning": "Moda girmek \"ana pencereyi kapatma\" seçeneğini çalışmaya devam et olarak değiştirir."
+    },
+    "miniPage": {
+      "subtitle": "Küçük, sıradan bir PULSE penceresi. Mini etkileşimlidir ve diğer pencereler gibi davranır; üstte kalıp tıklamaları geçiren bir şey için bir katman ekleyin.",
+      "useHere": "Mini modunu burada da kullan",
+      "layouts": "Mini düzenleri",
+      "whatShows": "Mini'nin gösterdikleri",
+      "layout": "Mini düzeni",
+      "orDashboard": "Ya da bir pano",
+      "dashboardShown": "Mini'de gösterilen pano",
+      "style": "Mini stili",
+      "howLooks": "Mini'nin görünümü",
+      "followMode": "Mini modu ({{name}})",
+      "modeStyle": "Mini modu stili",
+      "followsAtOnce": "Mini penceresi bunları hemen uygular — yeniden açmaya gerek yok.",
+      "preview": "Mini önizlemesi",
+      "live": "Canlı · {{name}}",
+      "tinyOverlays": "Minik katmanlar",
+      "tinyOverlaysHint": "Okumanın her şeyin üstünde kalıp tıklamaları geçirmesi gerektiğinde bunlardan birini kullanın."
+    }
+  },
+  "presets": {
+    "templates": {
+      "balanced": {
+        "name": "Dengeli varsayılan",
+        "description": "Günlük genel bakış: bir özet şeridi, CPU ve bellek, ısı, GPU, ağ, disk."
+      },
+      "gaming": {
+        "name": "Oyun panosu",
+        "description": "Önce yük ve ısı: CPU ve GPU halkaları, sıcaklıklar, VRAM, bellek ve trafik."
+      },
+      "development": {
+        "name": "Geliştirme panosu",
+        "description": "Mühendislik çözünürlüğünde derleme baskısı: CPU, bellek, disk G/Ç, ağ, süreçler."
+      },
+      "personal": {
+        "name": "Kişisel başlangıç",
+        "description": "Kendinize göre uyarlamak için hoş, dengeli bir başlangıç: halkalar, bir grafik, ısı ve ağ."
+      },
+      "thermal": {
+        "name": "Isı odaklı",
+        "description": "PULSE'un okuduğu her sıcaklık, renk bantlı, onu yükselten yükün yanında."
+      },
+      "network-io": {
+        "name": "Ağ ve G/Ç",
+        "description": "Trafik ve disk aktarım hızı yakından, dosya sistemi kullanımı ve Wi-Fi ile."
+      },
+      "minimal": {
+        "name": "Minimal sade",
+        "description": "Dört büyük sayı ve sakin bir grafik. Başka hiçbir şey."
+      },
+      "showcase": {
+        "name": "Gösterişli vitrin",
+        "description": "PULSE en çarpıcı hâliyle: buzlu cam, halkalar, gradyan eğilimler ve canlı bir şerit."
+      }
+    },
+    "packs": {
+      "tiny-thermals": {
+        "name": "Minik sıcaklıklar",
+        "description": "Fısıltı kadar küçük bir blokta bellekle birlikte CPU ve GPU sıcaklığı.",
+        "sample": "CPU 64 °C|GPU 58 °C|RAM %42"
+      },
+      "tiny-stats": {
+        "name": "Minik istatistikler",
+        "description": "Tek ince satırda CPU, GPU, RAM ve sıcaklık.",
+        "sample": "CPU %24|GPU %84|RAM %41|67 °C"
+      },
+      "top-bar": {
+        "name": "Üst çubuk",
+        "description": "Ekranın üstünde, canlı eğilimlerle tam genişlikte bir özet şeridi.",
+        "sample": "CPU %23 ∿|GPU %61 ∿|RAM %44 ∿|CPU 67 °C ∿|↓ 2,1 MB/s ∿|↑ 180 kB/s ∿"
+      },
+      "bottom-bar": {
+        "name": "Alt çubuk",
+        "description": "Alt kenar boyunca göstergeler: CPU, GPU ve bellek için yük çubukları ve trafik.",
+        "sample": "CPU ▰▰▰▱▱|GPU ▰▰▱▱▱|RAM ▰▰▰▰▱|↓ 2,1 MB/s|↑ 180 kB/s"
+      },
+      "left-rail": {
+        "name": "Sol sütun",
+        "description": "Sol kenar boyunca halkalar ve eğilimlerden oluşan tam boy bir sütun.",
+        "sample": "◔ CPU %23|◑ GPU %61|◕ RAM %44|CPU 67 °C|↓ 2,1 MB/s"
+      },
+      "right-rail": {
+        "name": "Sağ sütun",
+        "description": "Sağda tam boy izleme grafikleri: CPU, bellek, ısı, ağ, disk.",
+        "sample": "CPU ⌇⌇⌇|RAM ⌇⌇⌇|°C ⌇⌇⌇|↓↑ ⌇⌇⌇|O/Y ⌇⌇⌇"
+      },
+      "gaming-corner": {
+        "name": "Oyun köşesi",
+        "description": "Üst köşe için altı değerli cesur bir HUD: yük, ısı, VRAM ve RAM.",
+        "sample": "CPU %31|GPU %97|CPU 71 °C|GPU 74 °C|VRAM 6,1 GB|RAM %44"
+      },
+      "thermal-strip": {
+        "name": "Sıcaklık şeridi",
+        "description": "PULSE'un okuyabildiği her sıcaklık, renk bantlı, eğilimlerle.",
+        "sample": "CPU 71 °C ∿|GPU 64 °C ∿|SSD 41 °C"
+      },
+      "summary-card": {
+        "name": "Sistem özeti kartı",
+        "description": "Zarif bir yüzen kart: CPU ve bellek halkaları, gruplanmış GPU ve ağ.",
+        "sample": "◔ CPU %23|◕ RAM %44|GPU %61|↓ 2,1 MB/s"
+      },
+      "network-strip": {
+        "name": "Ağ şeridi",
+        "description": "Eğilimleriyle indirme ve yükleme; varsa Wi-Fi sinyali.",
+        "sample": "↓ 12 MB/s ∿|↑ 1,2 MB/s ∿|Wi-Fi −52 dBm"
+      },
+      "minimal-hud": {
+        "name": "Minimal saydam HUD",
+        "description": "Üç değer ve başka hiçbir şey — panel yok, okunaklılık için yumuşak bir hale.",
+        "sample": "CPU %23|GPU %61|RAM %44"
+      },
+      "dev-rail": {
+        "name": "Geliştirici izleme sütunu",
+        "description": "Kodlama oturumları için: CPU ve bellek grafikleri, disk G/Ç, ağ ve süreç sayıları.",
+        "sample": "CPU ⌇⌇⌇|RAM ⌇⌇⌇|Okuma ∿|Yazma ∿|Ağ ↓ ∿|412 süreç"
+      }
+    },
+    "footprints": {
+      "micro": "Mikro",
+      "card": "Yüzen kart",
+      "top-strip": "Üst çubuk",
+      "bottom-strip": "Alt çubuk",
+      "left-rail": "Sol sütun",
+      "right-rail": "Sağ sütun",
+      "corner": "Köşe HUD",
+      "block": "Özet blok"
+    },
+    "overlayPresets": {
+      "tiny-stats": {
+        "name": "Minik istatistikler",
+        "description": "CPU %24 | GPU %84 | RAM %41"
+      },
+      "thermal-strip": {
+        "name": "Sıcaklık şeridi",
+        "description": "Bir sırada CPU ve GPU sıcaklıkları."
+      },
+      "gaming": {
+        "name": "Oyun",
+        "description": "Üst üste CPU, GPU, VRAM, RAM ve ağ."
+      },
+      "minimal-corner": {
+        "name": "Minimal köşe",
+        "description": "Hiç arka plan olmadan CPU ve RAM."
+      }
+    },
+    "text": {
+      "system": "Sistem",
+      "temperatures": "Sıcaklıklar",
+      "memory": "Bellek",
+      "videoMemory": "Video belleği",
+      "network": "Ağ",
+      "cpuTotal": "Toplam CPU",
+      "processes": "Süreçler",
+      "diskIo": "Disk G/Ç",
+      "cpuTemperature": "CPU sıcaklığı",
+      "filesystem": "Dosya sistemi",
+      "processor": "İşlemci",
+      "temperature": "Sıcaklık",
+      "storage": "Depolama",
+      "cpuPackage": "CPU paketi",
+      "load": "Yük",
+      "graphics": "Grafik",
+      "heat": "Isı",
+      "thermals": "Sıcaklıklar",
+      "temp": "Sıc.",
+      "netDown": "Ağ ↓",
+      "netDownCaps": "AĞ ↓",
+      "diskDown": "Disk ↓",
+      "diskUp": "Disk ↑",
+      "download": "İndirme",
+      "upload": "Yükleme",
+      "read": "Okuma",
+      "write": "Yazma",
+      "disk": "Disk",
+      "running": "Çalışan",
+      "threads": "İş parçacıkları",
+      "clock": "Saat",
+      "hotspot": "Sıcak nokta",
+      "usage": "Kullanım",
+      "gpuTemp": "GPU sıc.",
+      "ssdTemp": "SSD sıc.",
+      "down": "İnen",
+      "up": "Giden",
+      "core": "Çekirdek",
+      "freq": "Frek.",
+      "cpuTemp": "CPU sıc.",
+      "ramUsed": "Kullanılan RAM",
+      "ramFree": "Boş RAM",
+      "gpuFan": "GPU fanı"
+    },
+    "packAria": "{{name}} katman paketi",
+    "addOverlay": "Katman ekle",
+    "footprint": "Kapladığı alan",
+    "templateAria": "{{name}} şablonu",
+    "appStyle": "Uygulama stili",
+    "createDashboard": "Pano oluştur"
+  },
+  "library": {
+    "blueprints": {
+      "cpu-total": {
+        "label": "Toplam CPU",
+        "description": "Zaman içinde makine genelinde CPU kullanımı."
+      },
+      "cpu-value": {
+        "label": "Toplam CPU — değer",
+        "description": "Yalnızca sayı: CPU %23."
+      },
+      "cpu-sparkline": {
+        "label": "Toplam CPU — mini grafik",
+        "description": "Minik bir eğilimle CPU %23."
+      },
+      "cpu-group": {
+        "label": "CPU grubu",
+        "description": "Kullanım ve paket sıcaklığı birlikte."
+      },
+      "cpu-logical": {
+        "label": "Tek bir mantıksal işlemci",
+        "description": "Tek bir mantıksal işlemci; hangisi olduğunu Özelleştir'de seçin."
+      },
+      "memory": {
+        "label": "Bellek kullanımı",
+        "description": "Yüzde olarak kullanımdaki fiziksel bellek."
+      },
+      "memory-value": {
+        "label": "Bellek — değer",
+        "description": "RAM %41."
+      },
+      "memory-used": {
+        "label": "Kullanılan bellek — değer",
+        "description": "Kullanımdaki bayt, örn. 12,0 GiB."
+      },
+      "gpu": {
+        "label": "GPU kullanımı",
+        "description": "Zaman içinde GPU çekirdek yükü."
+      },
+      "gpu-value": {
+        "label": "GPU — değer",
+        "description": "GPU %97."
+      },
+      "gpu-group": {
+        "label": "GPU grubu",
+        "description": "Kullanım, VRAM ve sıcaklık."
+      },
+      "thermal": {
+        "label": "CPU ve GPU sıcaklığı",
+        "description": "İki sensör tek grafikte; okunamayan bir sensör yalnızca görünmez."
+      },
+      "cpu-temp-value": {
+        "label": "CPU sıcaklığı — değer",
+        "description": "71 °C."
+      },
+      "gpu-temp-value": {
+        "label": "GPU sıcaklığı — değer",
+        "description": "72 °C."
+      },
+      "ssd-temp": {
+        "label": "Sürücü sıcaklığı — değer",
+        "description": "Her saniye değil, istek üzerine sürücüden okunur."
+      },
+      "storage": {
+        "label": "Disk okuma / yazma",
+        "description": "Bir sürücünün aktarım hızı (otomatik ya da seçilen)."
+      },
+      "volume": {
+        "label": "Dosya sistemi kullanımı",
+        "description": "Bir dosya sisteminin ne kadar dolu olduğu."
+      },
+      "network": {
+        "label": "İndirme / yükleme",
+        "description": "Bir arabirimin trafiği (otomatik ya da seçilen)."
+      },
+      "network-down-value": {
+        "label": "İndirme — değer",
+        "description": "AĞ ↓ 12 MiB/s."
+      },
+      "wifi": {
+        "label": "Wi-Fi sinyali",
+        "description": "Kablosuz bir arabirimin sinyal gücü."
+      },
+      "processes": {
+        "label": "Süreç ve iş parçacığı sayıları",
+        "description": "Makine geneli sayılar; asla tek bir süreç değil."
+      },
+      "summary": {
+        "label": "Sistem özeti",
+        "description": "Minik eğilimlerle tek şeritte CPU / GPU / RAM / AĞ."
+      }
+    },
+    "categories": {
+      "CPU": "CPU",
+      "Memory": "Bellek",
+      "GPU": "GPU",
+      "Thermals": "Sıcaklıklar",
+      "Storage": "Depolama",
+      "Network": "Ağ",
+      "Processes": "Süreçler",
+      "Custom": "Özel",
+      "Templates": "Şablonlar"
+    },
+    "onDemand": "İstek üzerine sürücüden okunur (bir NVMe yönetici komutu), asla her saniye değil: canlı değer göstermez.",
+    "categoriesLabel": "Bileşen kategorileri",
+    "loading": "Ölçüm kataloğu okunuyor…",
+    "addNamed": "{{name}} ekle",
+    "anyMetric": "Herhangi bir ölçüm",
+    "searchPlaceholder": "Ölçüm kataloğunda ara",
+    "searchLabel": "Ölçüm ara",
+    "notReadable": "Bu makinede okunamıyor",
+    "noTemplates": "Henüz şablon yok. Bir bileşeni özelleştirin ve \"Şablon olarak kaydet\"i kullanın.",
+    "templateName": "Şablon adı"
+  },
+  "visualization": {
+    "presets": {
+      "clean": {
+        "name": "Sade",
+        "description": "Koyu bir panel üzerinde yumuşak çizgi, hafif gradyan ve ince ızgara."
+      },
+      "minimal": {
+        "name": "Minimal",
+        "description": "İnce bir çizgi ve geçerli değer. Izgara, eksen ya da panel yok."
+      },
+      "technical": {
+        "name": "Teknik",
+        "description": "Düz parçalar, örnek işaretçileri, tam eksenler ve tüm istatistikler."
+      },
+      "gaming": {
+        "name": "Oyun",
+        "description": "Kalın parlak çizgi, güçlü gradyan, parıltı ve kalın sayılar."
+      },
+      "compact": {
+        "name": "Kompakt",
+        "description": "Küçük bir sayıyla mini grafik: minik alanlar için."
+      },
+      "neon": {
+        "name": "Neon",
+        "description": "Neredeyse siyah üzerinde yumuşak parıltılı camgöbeği ve eflatun."
+      },
+      "transparent": {
+        "name": "Saydam",
+        "description": "Hiç panel yok — yalnızca çizgi ve sayısı. Katmanlara hazır."
+      }
+    },
+    "renderers": {
+      "line": {
+        "label": "Çizgi",
+        "description": "Zaman içindeki değerler çizgi olarak."
+      },
+      "area": {
+        "label": "Alan",
+        "description": "Altındaki alanı dolu bir çizgi."
+      },
+      "sparkline": {
+        "label": "Mini grafik",
+        "description": "Küçük alanlar için çerçevesiz minik bir eğilim."
+      },
+      "value": {
+        "label": "Değer",
+        "description": "Yalnızca geçerli sayı."
+      },
+      "bar": {
+        "label": "Çubuk",
+        "description": "Geçerli değer yatay bir çubuk olarak."
+      },
+      "gauge": {
+        "label": "Gösterge",
+        "description": "Geçerli değer bir halka üzerinde. Bilinen sınırlar gerektirir."
+      }
+    },
+    "gaugeNeedsBounds": "Gösterge bilinen sınırlar gerektirir ve bu ölçümün sınırı yok. Önce sabit bir ölçek (en az ve en çok) belirleyin.",
+    "scaleErrors": {
+      "both": "Hem en az hem en çok değeri girin.",
+      "numbers": "İki sınır da sayı olmalı.",
+      "order": "En çok değer en az değerden büyük olmalı."
+    },
+    "savedByYou": "Sizin tarafınızdan kaydedildi."
+  },
+  "overlays": {
+    "limitReached_one": "En fazla {{count}} katman. Başka bir tane eklemek için birini silin.",
+    "limitReached_other": "En fazla {{count}} katman. Başka bir tane eklemek için birini silin.",
+    "defaultName": "Katman",
+    "session": "Oturum:",
+    "capabilityList": "Katman yetenekleri",
+    "capabilityStatus": {
+      "supported": "Destekleniyor",
+      "limited": "Sınırlı",
+      "unsupported": "Desteklenmiyor"
+    },
+    "capabilities": {
+      "alwaysOnTop": "Her zaman üstte",
+      "clickThrough": "Kilitliyken tıklama geçirme",
+      "positioning": "Mutlak konumlandırma",
+      "transparentWindow": "Saydam pencere",
+      "globalHotkey": "Genel kısayol",
+      "multiMonitorPositioning": "Çoklu monitör yerleşimi",
+      "tray": "Sistem tepsisi"
+    },
+    "headline": {
+      "alwaysOnTop": "Diğer pencerelerin üstünde",
+      "globalHotkey": "Genel kısayol",
+      "clickThrough": "Tıklama geçirme",
+      "transparentWindow": "Saydam",
+      "multiMonitorPositioning": "Çoklu monitör"
+    },
+    "displayServers": {
+      "windows": "Windows",
+      "x11": "X11",
+      "wayland": "Wayland (yerel)",
+      "xWayland": "XWayland (Wayland oturumu içinde X11)",
+      "other": "Desteklenmeyen platform"
+    },
+    "verification": {
+      "physicallyVerified": "Gerçek donanımda doğrulandı",
+      "implemented": "Uygulandı · henüz donanımda doğrulanmadı",
+      "bestEffort": "Platforma bağlı",
+      "unsupported": "Kullanılamıyor"
+    },
+    "backend": {
+      "title": "Katman arka ucu",
+      "unavailable": "Arka uç kullanılamıyor. PULSE'u pnpm app:dev ile çalıştırın.",
+      "desktopWindow": "Masaüstü penceresi",
+      "whatHere": "Katmanların burada yapabildikleri"
+    },
+    "backends": {
+      "windowsNative": {
+        "label": "Yerel Windows katmanı",
+        "detail": "Katmanlı, en üstte, etkinleşmeyen bir araç penceresi: HWND_TOPMOST onu üstte tutar, WS_EX_NOACTIVATE odağı olduğu yerde bırakır ve WS_EX_TRANSPARENT kilitliyken tıklamaları geçirir. Uygulandı ve derlendi; henüz bir Windows makinesinde doğrulanmadı."
+      },
+      "gnomeBridge": {
+        "label": "Yerel GNOME köprüsü",
+        "detail": "GNOME Shell içindeki PULSE uzantısı katmanları diğer pencerelerin üstünde tutar (Mutter make_above) ve katman kısayolunu Mutter üzerinden iletir; PULSE kilitli katmanlarda tıklama geçirmeyi sağlar. Fedora 39 / GNOME 45'te doğrulandı."
+      },
+      "standardWayland": {
+        "label": "Standart Wayland penceresi",
+        "detail": "Sıradan bir Wayland penceresi: saydam, kilitliyken tıklamaları geçirir; ancak odaktaki bir uygulamanın üstünde kalıp kalmayacağına ve nereye gideceğine bileştirici karar verir."
+      },
+      "x11": {
+        "label": "X11 penceresi",
+        "detail": "Kilitliyken boş girdi şekli olan, istediği yere yerleştirilen, her zaman üstte bir X11 penceresi (_NET_WM_STATE_ABOVE)."
+      },
+      "unsupported": {
+        "label": "Kullanılamıyor",
+        "detail": "Masaüstü katmanları bu platformda desteklenmiyor."
+      }
+    },
+    "placementHints": {
+      "gnome": "Burada diğer pencerelerin üstünde kalır; Düzenleme modunda bir kez kenara sürükleyin — GNOME Wayland pencerelerini kendisi yerleştirir.",
+      "notOnTop": "En iyisi GNOME köprüsü ya da yerel Windows katmanlarıyla: burada bileştirici onu odaktaki bir uygulamanın arkasına koyabilir.",
+      "noPositioning": "Düzenleme modunda bir kez yerine sürükleyin: bu oturum pencereleri konumlandıramaz."
+    },
+    "bridge": {
+      "title": "GNOME köprüsü",
+      "connected": "Bağlı",
+      "enable": "Etkinleştir",
+      "disable": "Devre dışı bırak",
+      "running": "Çalışıyor",
+      "installed": "Yüklü",
+      "ships": "PULSE ile gelir",
+      "setUp": "GNOME köprüsünü kur",
+      "copyUninstall": "Kaldırma komutunu kopyala",
+      "sourcePlaceholder": "<PULSE kaynağı>",
+      "states": {
+        "notApplicable": "Burada gerekmiyor",
+        "unavailable": "Kullanılamıyor",
+        "incompatible": "Uyumsuz",
+        "notInstalled": "Yüklü değil",
+        "installedNeedsLogin": "Yüklü — yeniden oturum açın",
+        "extensionsOff": "Uzantılar kapalı",
+        "disabled": "Devre dışı",
+        "error": "Hata",
+        "active": "Etkin",
+        "changing": "Değişiyor…"
+      },
+      "summaries": {
+        "notGnome": "GNOME oturumu değil — GNOME köprüsü burada geçerli değil",
+        "notWayland": "Bu oturumda gerekmiyor — köprü Wayland üzerindeki GNOME içindir",
+        "shellNoAnswer": "GNOME Shell uzantı hizmeti yanıt vermedi",
+        "notChecked": "Henüz denetlenmedi",
+        "shellUnsupported": "GNOME Shell {{version}} köprü tarafından desteklenmiyor (GNOME 45'te doğrulandı)",
+        "installedNeedsLogin": "Yüklü — yüklemek için bir kez oturumu kapatıp yeniden açın",
+        "notInstalled": "Yüklü değil",
+        "extensionsOff": "Bu oturumda kullanıcı uzantıları kapalı",
+        "activeConnected": "Etkin — katmanları üstte tutuyor ve kısayolu iletiyor",
+        "active": "Etkin",
+        "disabled": "Yüklü ama devre dışı",
+        "extensionError": "GNOME Shell uzantıda bir hata bildirdi",
+        "outOfDate": "GNOME Shell {{version}} yüklü uzantıyı güncel değil sayıyor",
+        "uninstalled": "Kaldırıldı",
+        "changing": "GNOME Shell uzantının durumunu değiştiriyor"
+      },
+      "guidance": {
+        "checkShell": "Bu oturumu GNOME Shell'in çalıştırdığını denetleyin, ardından yenileyin.",
+        "standardWayland": "Katmanlar standart Wayland pencereleri olarak yine çalışır: kilitliyken tıklamaları geçirir, ama yığılma sırasına bileştirici karar verir.",
+        "discoverAtLogin": "GNOME Shell 45 yeni uzantıları yalnızca oturum açılışında bulur. Yeniden oturum açtıktan sonra buradan etkinleştirin.",
+        "installSteps": "Uzantıyı aşağıdaki komutla yükleyin, bir kez oturumu kapatıp yeniden açın, sonra etkinleştirin.",
+        "extensionsOn": "Kullanıcı uzantılarını yeniden açın (Uzantılar uygulaması ya da gsettings set org.gnome.shell disable-user-extensions false).",
+        "newerCopyInstalled": "Daha yeni bir kopya yüklü. Yüklemek için oturumu kapatıp yeniden açın.",
+        "reinstallNewer": "Bu PULSE daha yeni bir köprüyle geliyor. Aşağıdaki komutla yeniden yükleyin, sonra oturumu kapatıp yeniden açın.",
+        "notGreeted": "Çalışıyor. Bu PULSE'u henüz selamlamadı: 2'den önceki uzantı sürümleri bunu hiç yapmaz; daha yenileri PULSE başlar başlamaz yapar.",
+        "enableIt": "Katmanları diğer pencerelerin üstünde tutmak için etkinleştirin.",
+        "reinstallAfterError": "Yeniden yükleyin, oturumu kapatıp yeniden açın. Hata journalctl --user -b /usr/bin/gnome-shell içinde de görünür.",
+        "reinstallShipped": "Bu PULSE ile gelen sürümü yeniden yükleyin.",
+        "refreshSoon": "Birazdan yenileyin."
+      },
+      "steps": {
+        "install": "Uzantıyı yükle",
+        "update": "Uzantıyı güncelle",
+        "installDetail": "~/.local/share/gnome-shell/extensions/ konumuna kopyalar — yalnızca hesabınız, sudo gerekmez.",
+        "updateDetail": "v{{installed}} yüklü; bu PULSE v{{bundled}} ile geliyor.",
+        "login": "Bir kez oturumu kapatıp yeniden açın",
+        "loginDetail": "GNOME Shell 45 uzantı kodunu yalnızca oturum açılışında yükler.",
+        "enable": "Etkinleştirin",
+        "enableDetail": "Buradaki düğmeyle ya da GNOME'un Uzantılar uygulamasında.",
+        "connected": "PULSE'a bağlı",
+        "connectedDetail": "Çalışan uzantı bu PULSE'u selamladı.",
+        "notConnectedDetail": "2 ve sonraki sürümler PULSE'u başlar başlamaz selamlar."
+      },
+      "details": {
+        "summary": "Ne yapar · sorun giderme · sınırlar",
+        "unlocks": "<strong>Sağladıkları:</strong> katmanlar odaktaki uygulamanın üstünde kalır (Mutter <code>make_above</code>) ve katman kısayolu hangi uygulama odakta olursa olsun çalışır — GNOME 45'te genel kısayol portalı yoktur. Kilitliyken tıklama geçirme PULSE'un kendi özelliğidir ve köprüyle ya da köprüsüz çalışır.",
+        "safety": "<strong>Güvenlik:</strong> yalnızca PULSE'un veri yolu adını tutan sürece ait <em>ve</em> başlığı tam olarak <code>PULSE Overlay :: &lt;id&gt;</code> olan pencerelere dokunur. Yoklama yok, girdi yakalama yok, dosya yok, ağ yok.",
+        "troubleshooting": "<strong>Sorun giderme:</strong> yükledikten ya da güncelledikten sonra oturumu kapatıp yeniden açın — GNOME uzantı kodunu yalnızca oturum açılışında yükler. Günlüğü: <code>journalctl --user -b /usr/bin/gnome-shell | grep \"PULSE overlay bridge\"</code>. GNOME Shell oturum açılışında sorun çıkarırsa, başka bir oturumdan <code>gsettings set org.gnome.shell disable-user-extensions true</code> ile kullanıcı uzantılarını kapatın.",
+        "limits": "<strong>Sınırlar:</strong> GNOME Wayland pencerelerini hâlâ kendisi yerleştirir; bu yüzden konumlar ve çoklu monitör yerleşimi bileştiricide kalır. Bir katmanı Düzenleme modunda bir kez sürükleyin. Yalnızca GNOME 45'te doğrulandı."
+      }
+    },
+    "layouts": {
+      "horizontal": "Satır",
+      "vertical": "Sütun",
+      "grid": "Izgara"
+    },
+    "page": {
+      "subtitle": "Masaüstünde kendi küçük pencerelerinde bileşenler — sistemin izin verdiği yerde diğer uygulamaların üstünde, kilitliyken tıklamaları geçirir. Güvenli bir masaüstü penceresi: PULSE asla oyunlara enjekte edilmez.",
+      "all": "Tüm katmanlar",
+      "editAll": "Tümünü düzenle",
+      "lockAll": "Tümünü kilitle",
+      "showAll": "Tümünü göster",
+      "hideAll": "Tümünü gizle",
+      "openMini": "Mini penceresini aç",
+      "newOverlay": "Yeni katman",
+      "packs": "Katman paketleri",
+      "packsHint": "On iki hazır katman — mikro okumalar, kartlar, tam genişlik çubuklar, sütunlar ve köşe HUD'ları. Her şey düzenlenebilir kalır.",
+      "emptyOverlay": "Boş katman",
+      "everyCapability": "Tüm yetenekler, ayrıntılı",
+      "yourPacks": "Paketleriniz",
+      "deletePack": "{{name}} paketini sil"
+    },
+    "hotkey": {
+      "hint": "Görünür katmanları Düzenleme ve Kilitli arasında değiştirir. Gizli katmanlar durumlarını korur.",
+      "viaBridge": "Hangi uygulama odakta olursa olsun GNOME köprüsü tarafından Mutter üzerinden iletilir. Burada bir kısayol uygulamak köprünün kendi ayarını değiştirir; GNOME onu hemen kullanır.",
+      "viaPortal": "Hangi uygulama odakta olursa olsun masaüstünüz tarafından XDG Desktop Portal üzerinden iletilir. Masaüstü onay isteyebilir ve tuşları kendi klavye ayarlarında değiştirmenize izin verebilir.",
+      "unavailable": "Bu oturumda genel kısayollar kullanılamıyor: {{reason}}",
+      "notRegistered": "Kaydedilmedi — {{error}}. Önceki kısayol hâlâ etkin.",
+      "notBound": "Atanmadı — {{error}}.",
+      "active": "Etkin: {{hotkey}}.",
+      "none": "Etkin genel kısayol yok."
+    },
+    "close": {
+      "title": "Ana pencereyi kapatma",
+      "when": "Ana pencere kapatıldığında",
+      "quit": "PULSE'tan çık",
+      "keepRunning": "Katmanlar görünür oldukça çalışmaya devam et",
+      "note": "Varsayılan çıkmaktır. PULSE çalışmaya devam ettiğinde onu tepsiden ya da bir katmanın \"PULSE'u aç\" düğmesinden yeniden açın; tepsiden Çık her şeyi durdurur."
+    },
+    "editor": {
+      "aria": "{{name}} katmanı",
+      "name": "Katman adı",
+      "visible": "Görünür",
+      "edit": "Katmanı düzenle",
+      "lock": "Katmanı kilitle",
+      "saveAsPack": "Paketim olarak kaydet",
+      "saveAsPackBody": "Bileşenleri, düzeni, stili ve çerçevesi; Katmanlar'dan yeniden eklemek için.",
+      "savePack": "Paketi kaydet",
+      "packName": "Paket adı",
+      "fromPack": "\"{{name}}\" paketinden",
+      "resetToPack": "Pakete sıfırla",
+      "style": "Katman stili",
+      "layout": "Katman düzeni",
+      "background": "Katman arka planı",
+      "backgroundOpacity": "Katman arka planı opaklığı",
+      "cornerRadius": "Katman köşe yarıçapı",
+      "gapBetween": "Bileşenler arası boşluk",
+      "width": "Katman genişliği",
+      "height": "Katman yüksekliği",
+      "fit": "Bileşenlere sığdır",
+      "x": "Katman X",
+      "y": "Katman Y",
+      "primaryMonitor": "birincil monitör",
+      "cannotPlace": "Bu oturum pencere yerleştiremez: katmanı Düzenleme modunda çubuğundan sürükleyin.",
+      "widgets": "{{name}} bileşenleri",
+      "widgetWidth": "{{name}} genişliği",
+      "widgetHeight": "{{name}} yüksekliği",
+      "moveEarlier": "{{name}} öğesini öne al",
+      "moveLater": "{{name}} öğesini arkaya al",
+      "copyToDashboard": "Panoya kopyala",
+      "copiesGoTo": "Kopyalar \"{{name}}\" panosuna gider.",
+      "deleteTitle": "\"{{name}}\" katmanı silinsin mi?",
+      "deleteBody": "Penceresi kapanır ve bileşenleri kaldırılır.",
+      "delete": "Katmanı sil"
+    },
+    "surface": {
+      "aria": "{{name}} katmanı",
+      "empty": "PULSE → Katmanlar'dan bileşen ekleyin.",
+      "dragToMove": "{{name}} · taşımak için sürükleyin",
+      "lock": "Kilitle",
+      "openPulse": "PULSE'u aç",
+      "dragToResize": "Yeniden boyutlandırmak için sürükleyin"
+    },
+    "send": {
+      "aria": "{{name}} öğesini bir katmana gönder",
+      "title": "\"{{name}}\" öğesini bir katmana gönder",
+      "addTo": "\"{{name}}\" katmanına ekle"
+    }
+  },
+  "customize": {
+    "background": "Arka plan",
+    "backgroundOpacity": "Arka plan opaklığı",
+    "border": "Kenarlık",
+    "shadow": "Gölge",
+    "corners": "Köşeler",
+    "gap": "Boşluk",
+    "widthShort": "G",
+    "heightShort": "Y",
+    "padding": "İç boşluk",
+    "layout": "Düzen",
+    "borders": {
+      "none": "Yok",
+      "thin": "İnce"
+    },
+    "groupLayouts": {
+      "rows": "Satırlar",
+      "inline": "Yan yana"
+    },
+    "widget": {
+      "section": "Bileşen",
+      "title": "Başlık",
+      "titleLabel": "Bileşen başlığı",
+      "showTitle": "Başlığı göster",
+      "background": "Bileşen arka planı",
+      "opacity": "Bileşen opaklığı",
+      "backgroundOpacity": "Bileşen arka planı opaklığı",
+      "padding": "Bileşen iç boşluğu",
+      "border": "Bileşen kenarlığı",
+      "corners": "Bileşen köşeleri",
+      "cornerRadius": "Bileşen köşe yarıçapı"
+    },
+    "metrics": {
+      "section": "Ölçümler ve kaynak",
+      "label": "{{index}}. ölçümün etiketi",
+      "source": "{{index}}. ölçümün kaynağı",
+      "automatic": "Otomatik",
+      "automaticNamed": "Otomatik — {{name}}",
+      "autoHint": "Otomatik seçildi — hangisinin önemli olduğuna dair bir iddia değil, makul bir varsayılan.",
+      "groupLayout": "Grup düzeni",
+      "tinyTrends": "Minik eğilimler"
+    },
+    "data": {
+      "section": "Veri",
+      "source": "Veri kaynağı",
+      "nowLive": "Şimdi: canlı, 1 sn, bellekte son 5 dakika.",
+      "nowHistory": "Şimdi: geçmiş, {{range}}.",
+      "modes": {
+        "auto": "Otomatik",
+        "history": "Geçmiş",
+        "live": "Canlı"
+      }
+    },
+    "template": {
+      "section": "Şablon",
+      "placeholder": "Şablon adı, örn. Minik CPU'm",
+      "save": "Şablon olarak kaydet"
+    }
+  },
+  "dashboard": {
+    "addWidget": "Bileşen ekle",
+    "defaultName": "Varsayılan",
+    "fallbackName": "Pano",
+    "import": {
+      "notExport": "Bu bir PULSE pano dışa aktarımı değil.",
+      "version": "Desteklenmeyen pano dışa aktarım sürümü: {{version}}.",
+      "noDashboard": "Dışa aktarım geçerli bir pano içermiyor.",
+      "limit_one": "En fazla {{count}} pano.",
+      "limit_other": "En fazla {{count}} pano."
+    },
+    "style": "Pano stili",
+    "actions": "Pano eylemleri",
+    "lockLayout": "Düzeni kilitle",
+    "editLayout": "Düzeni düzenle",
+    "new": "Yeni",
+    "empty": "Bu pano boş.",
+    "newTitle": "Yeni pano",
+    "newSubtitle": "Hazır bir şablondan ya da boş bir ızgaradan başlayın. Her şey düzenlenebilir kalır.",
+    "name": "Pano adı",
+    "nameOptional": "Ad (isteğe bağlı)",
+    "blank": "Boş pano",
+    "renameTitle": "\"{{name}}\" panosunu yeniden adlandır",
+    "deleteTitle": "\"{{name}}\" silinsin mi?",
+    "deleteBody": "Bileşenleri ve düzeni kaldırılır. Şablonlar ve katmanlar korunur.",
+    "deleteConfirm": "Panoyu sil",
+    "resetTitle": "\"{{name}}\" sıfırlansın mı?",
+    "resetToTemplate": "\"{{name}}\" şablonu geçerli bileşenlerin ve stilin yerini alır. Kaydettiğiniz şablonlar korunur.",
+    "resetToDefault": "Varsayılan bileşenler geçerli olanların yerini alır. Şablonlarınız korunur.",
+    "resetConfirm": "Panoyu sıfırla",
+    "exportTitle": "Panoyu dışa aktar",
+    "exportBody": "Taşınabilir bir JSON açıklaması. Hiçbir donanım tanımlayıcısı, yol ya da kullanıcı adı içermez.",
+    "exportedJson": "Dışa aktarılan JSON",
+    "importTitle": "Pano içe aktar",
+    "importBody": "Bir PULSE pano dışa aktarımını yapıştırın. Yeni bir pano olarak eklenir.",
+    "json": "Pano JSON'u",
+    "widgets": "{{name}} bileşenleri",
+    "widenToEdit": "Bileşenleri yeniden düzenlemek için pencereyi genişletin; dar düzenler görüntüleme içindir."
+  },
+  "widget": {
+    "actions": "{{name}} eylemleri",
+    "actionsMenu": "{{name}} eylem menüsü",
+    "dragToMoveNamed": "{{name}} öğesini taşımak için sürükleyin",
+    "dragToMove": "Taşımak için sürükleyin (ya da ok tuşlarını kullanın)",
+    "dragToResize": "Yeniden boyutlandırmak için sürükleyin (ya da Shift + ok tuşları)",
+    "toOverlay": "Katmana"
+  },
+  "history": {
+    "ranges": {
+      "15m": "15 dk",
+      "1h": "1 sa",
+      "6h": "6 sa",
+      "24h": "24 sa",
+      "7d": "7 g"
+    },
+    "cpu": {
+      "view": "CPU görünümü",
+      "total": "Toplam",
+      "title": "CPU geçmişi",
+      "totalNote": "Toplam CPU, arka ucun her mantıksal işlemcide ölçtüğü makine geneli kullanımdır — onlardan yeniden hesaplanmış bir ortalama değil.",
+      "logicalNote": "Seçilen aralıktaki en etkin mantıksal işlemciler. Toplam CPU başvuru noktası olarak kalır.",
+      "loading": "İşlemciler okunuyor…",
+      "logicalHistory": "Mantıksal işlemci geçmişi",
+      "showMostActive_one": "En etkin {{count}} işlemciyi göster",
+      "showMostActive_other": "En etkin {{count}} işlemciyi göster"
+    },
+    "gpu": {
+      "title": "GPU geçmişi",
+      "none": "GPU algılanmadı.",
+      "telemetryUnavailable": "Telemetri kullanılamıyor — {{reason}}"
+    },
+    "thermal": {
+      "title": "Sıcaklık geçmişi",
+      "none": "Bu makinede okunabilir sıcaklık sensörü yok.",
+      "notCharted": "Grafikte değil — {{list}}"
+    },
+    "storage": {
+      "title": "Depolama geçmişi",
+      "none": "Depolama aygıtı algılanmadı.",
+      "device": "Depolama aygıtı"
+    },
+    "network": {
+      "title": "Ağ geçmişi",
+      "none": "Ağ arabirimi algılanmadı.",
+      "interface": "Ağ arabirimi"
+    },
+    "memory": {
+      "title": "Bellek geçmişi",
+      "used": "{{value}} kullanılıyor"
+    },
+    "processes": {
+      "count": "Süreç sayısı",
+      "title": "Süreç sayısı geçmişi",
+      "footnote": "Yalnızca makine geneli sayılar. PULSE asla tek bir sürecin geçmişini kaydetmez."
+    },
+    "status": {
+      "title": "Geçmiş kaydedici",
+      "loading": "Geçmiş sorgulanıyor…",
+      "unavailable": "Geçmiş kullanılamıyor: {{reason}}. Canlı izleme etkilenmez.",
+      "unknownReason": "bilinmeyen neden",
+      "state": "Durum",
+      "recording": "Kaydediyor",
+      "stateUnavailable": "Kullanılamıyor",
+      "cadence": "Sıklık",
+      "every": "Her {{value}} sn",
+      "historized": "Geçmişi tutulan ölçümler",
+      "batches": "Bu oturumdaki toplu işlemler",
+      "lastBatch": "Son toplu işlem",
+      "lastBatchValue_one": "{{time}} · {{count}} satır",
+      "lastBatchValue_other": "{{time}} · {{count}} satır",
+      "sampleWrite": "Örnekleme / yazma",
+      "median": "{{sample}} ms / {{write}} ms ortanca",
+      "database": "Veritabanı",
+      "size": "Boyut",
+      "rows": "Satırlar",
+      "rowsValue": "{{raw}} ham · {{aggregated}} toplanmış · {{series}} seri",
+      "schemaJournal": "Şema / günlük",
+      "lastError": "Son hata: {{error}}",
+      "scheduler": "Tek bir arka plan zamanlayıcısı tarafından yazılır; Yenile düğmeleri asla kayıt yapmaz.",
+      "counting": "Sayılıyor…",
+      "details": "Veritabanı ayrıntıları"
+    }
+  },
+  "viz": {
+    "ui": {
+      "preview": "Önizleme",
+      "preset": "Hazır ayar",
+      "presetName": "Hazır ayar adı",
+      "newPresetName": "Yeni hazır ayar adı",
+      "visualization": "Görselleştirme",
+      "visualizationType": "Görselleştirme türü",
+      "timeRange": "Zaman aralığı",
+      "size": "Boyut",
+      "compactMode": "Kompakt mod",
+      "lineFill": "Çizgi ve dolgu",
+      "lineWidth": "Çizgi kalınlığı",
+      "curve": "Eğri",
+      "points": "Noktalar",
+      "pointMarkers": "Nokta işaretçileri",
+      "fillOpacity": "Dolgu opaklığı",
+      "smoothing": "Yumuşatma",
+      "colors": "Renkler",
+      "colorMode": "Renk modu",
+      "primary": "Birincil",
+      "secondary": "İkincil",
+      "text": "Metin",
+      "grid": "Izgara",
+      "background": "Arka plan",
+      "border": "Kenarlık",
+      "gradientStart": "Gradyan başlangıcı",
+      "gradientEnd": "Gradyan sonu",
+      "above": "üstünde",
+      "backgroundFrame": "Arka plan ve çerçeve",
+      "backgroundOpacity": "Arka plan opaklığı",
+      "cornerRadius": "Köşe yarıçapı",
+      "shadow": "Gölge",
+      "textSize": "Metin boyutu",
+      "weight": "Kalınlık",
+      "fontWeight": "Yazı kalınlığı",
+      "decimals": "Ondalık basamak",
+      "decimalPrecision": "Ondalık hassasiyet",
+      "label": "Etiket",
+      "unit": "Birim",
+      "axesGridScale": "Eksenler, ızgara ve ölçek",
+      "xAxis": "X ekseni",
+      "yAxis": "Y ekseni",
+      "yScale": "Y ölçeği",
+      "legendTooltipStatistics": "Gösterge, araç ipucu ve istatistikler",
+      "legend": "Gösterge",
+      "tooltip": "Araç ipucu",
+      "current": "Geçerli",
+      "minimum": "En az",
+      "maximum": "En çok",
+      "average": "Ortalama",
+      "gauge": "Gösterge",
+      "ringThickness": "Halka kalınlığı",
+      "arc": "Yay",
+      "gaugeArc": "Gösterge yayı",
+      "fillPlaceholder": "dolgu",
+      "fill": "Dolgu",
+      "colourOf": "{{name}} rengi",
+      "hexOf": "{{name}} onaltılık değeri",
+      "labelOf": "{{name}} etiketi",
+      "customFrom": "Özel ({{name}} temelli)",
+      "presetWord": "hazır ayar",
+      "customizeNamed": "{{name}} öğesini özelleştir",
+      "resetVisualization": "Görselleştirmeyi sıfırla",
+      "deletePreset": "Hazır ayarı sil",
+      "saveAsPreset": "Hazır ayar olarak kaydet",
+      "gaugeUnavailable": "Gösterge kullanılamıyor: bu ölçümün doğal sınırları yok. Kullanmak için sabit bir ölçek belirleyin.",
+      "height": "Yükseklik",
+      "width": "Genişlik",
+      "followingTheme": "PULSE temasını izliyor. Herhangi bir renk seçmek Elle moduna geçirir.",
+      "series": "Seriler",
+      "thresholdBands": "Eşik bantları",
+      "thresholdHint": "Sizin seçtiğiniz görsel bantlar — makinenizde neyin fazla yüksek olduğuna dair bir yargı değil.",
+      "bandColour": "{{index}}. bant rengi",
+      "bandUpper": "{{index}}. bant üst sınırı",
+      "removeBand": "{{index}}. bandı kaldır",
+      "addBand": "Bant ekle",
+      "compactHides": "Kompakt mod ve mini grafikler eksenleri, ızgarayı ve göstergeyi gizler.",
+      "min": "En az",
+      "max": "En çok",
+      "smoothingHint": "Yalnızca görsel: kaydedilen örnekler ve araç ipucu gerçek değerleri korur.",
+      "fillFollowsLine": "Dolgu çizgi rengini izler"
+    },
+    "lineWidths": {
+      "thin": "İnce",
+      "medium": "Orta",
+      "thick": "Kalın"
+    },
+    "options": {
+      "small": "Küçük",
+      "medium": "Orta",
+      "large": "Büyük",
+      "custom": "Özel",
+      "straight": "Düz",
+      "smooth": "Yumuşak",
+      "stepped": "Basamaklı",
+      "none": "Yok",
+      "visible": "Görünür",
+      "solid": "Düz renk",
+      "gradient": "Gradyan",
+      "theme": "Tema",
+      "manual": "Elle",
+      "threshold": "Eşik",
+      "light": "Hafif",
+      "thin": "İnce",
+      "subtle": "Belli belirsiz",
+      "glow": "Parıltı",
+      "regular": "Normal",
+      "bold": "Kalın",
+      "full": "Tam daire",
+      "three-quarter": "Dörtte üç",
+      "half": "Yarım",
+      "auto": "Otomatik",
+      "fixed": "Sabit"
+    },
+    "status": {
+      "loading": "Geçmiş yükleniyor…",
+      "unavailable": "Geçmiş kullanılamıyor: {{reason}}",
+      "collecting": "Geçmiş toplanıyor…",
+      "oneSample": "Geçmiş toplanıyor… şimdilik bir örnek.",
+      "noData": "veri yok",
+      "scaledToPeak": "Aralığın tepe değerine ölçeklendi, {{value}}",
+      "overTime": "Zaman içinde {{name}}"
+    },
+    "stats": {
+      "current": "Geçerli",
+      "min": "En az",
+      "max": "En çok",
+      "average": "Ort."
+    }
+  },
+  "appearance": {
+    "styleAria": "{{name}} stili",
+    "ui": {
+      "styles": "Stiller",
+      "yourStyles": "Stilleriniz",
+      "colour": "Renk",
+      "accentColour": "Vurgu rengi",
+      "accent": "Vurgu",
+      "chartPalette": "Grafik paleti",
+      "surfaces": "Yüzeyler",
+      "panelOpacity": "Panel opaklığı",
+      "glassBlur": "Cam bulanıklığı",
+      "borderStrength": "Kenarlık belirginliği",
+      "shadowDepth": "Gölge derinliği",
+      "shapeType": "Şekil ve yazı",
+      "cornerRoundness": "Köşe yuvarlaklığı",
+      "font": "Yazı tipi",
+      "textSize": "Metin boyutu",
+      "layoutDensity": "Düzen ve yoğunluk",
+      "density": "Yoğunluk",
+      "widgetPadding": "Bileşen iç boşluğu",
+      "gapBetweenWidgets": "Bileşenler arası boşluk",
+      "overlayPadding": "Katman iç boşluğu",
+      "overlayGap": "Katman boşluğu",
+      "charts": "Grafikler",
+      "lineThickness": "Çizgi kalınlığı",
+      "fillOpacity": "Dolgu opaklığı",
+      "lineShape": "Çizgi şekli",
+      "contentMotion": "İçerik ve hareket",
+      "widgetTitles": "Bileşen başlıkları",
+      "labelsInTinyWidgets": "Minik bileşenlerde etiketler",
+      "motion": "Hareket",
+      "livePreview": "Canlı önizleme",
+      "styleName": "Stil adı",
+      "deleteThisStyle": "Bu stil silinsin mi?",
+      "exportStyle": "Stili dışa aktar",
+      "exportedStyle": "Dışa aktarılan stil",
+      "importStyle": "Stil içe aktar",
+      "styleJson": "Stil JSON'u",
+      "overlayPaddingNote": "Bir katman bir stil aldığında kullanılır."
+    },
+    "subtitle": "Yalnızca renkleri değil; yüzeyleri, derinliği, yazıyı, yoğunluğu ve grafikleri değiştiren sekiz stil. Herhangi birini ayarlayın; sonucu kendi stiliniz olarak kaydedin.",
+    "modeOn": "<strong>{{mode}} modu</strong> açık: seçtiğiniz stil ona uygulanır.",
+    "leaveMode": "{{mode}} modundan çık",
+    "myStyle": "Benim {{name}} stilim",
+    "saveCurrent": "Geçerli görünümü kaydet",
+    "noUserStyles": "Aşağıda bir stili ayarlayın, sonra buraya kaydedin. Kaydedilen stiller çoğaltılabilir, yeniden adlandırılabilir, dışa aktarılabilir ve paylaşılabilir.",
+    "basedOn": "{{name}} temelli",
+    "inUse": "Kullanımda",
+    "use": "Kullan",
+    "styleAccentTitle": "Stilin vurgusu ({{color}})",
+    "styleAccent": "Stil vurgusu",
+    "fonts": {
+      "style": "Stil",
+      "sans": "Sans",
+      "rounded": "Yuvarlak",
+      "condensed": "Dar",
+      "mono": "Eş aralıklı"
+    },
+    "styleWith": "Stil ({{value}})",
+    "densities": {
+      "compact": "Kompakt",
+      "comfortable": "Rahat",
+      "spacious": "Ferah"
+    },
+    "chartsNote": "Hâlâ kendi hazır ayarında olan her grafiğe uygulanır. Özelleştirdiğiniz grafikler kendi ayarlarını korur.",
+    "motionLevels": {
+      "full": "Tam",
+      "reduced": "Azaltılmış",
+      "none": "Yok"
+    },
+    "resetAll": "Her ayarı {{name}} değerlerine sıfırla",
+    "livePreviewNamed": "Canlı önizleme · {{name}}",
+    "saveLook": "Bu görünümü kaydet",
+    "renameStyle": "Stili yeniden adlandır",
+    "deleteBody": "Şu an onu kullanan her şey, siz başka birini seçene kadar görünümünü korur.",
+    "deleteStyle": "Stili sil",
+    "exportBody": "Stilin taşınabilir bir JSON açıklaması: yalnızca renkler, yazı ve ayarlar.",
+    "importBody": "Bir PULSE stil dışa aktarımını yapıştırın. Stillerinize eklenir.",
+    "useStyle": "Stili kullan",
+    "import": {
+      "notExport": "Bu bir PULSE stil dışa aktarımı değil.",
+      "version": "Desteklenmeyen stil dışa aktarım sürümü: {{version}}.",
+      "noName": "Dışa aktarımın stil adı yok.",
+      "limit_one": "En fazla {{count}} kayıtlı stil.",
+      "limit_other": "En fazla {{count}} kayıtlı stil."
+    }
+  },
+  "mini": {
+    "shownIn": "Mini'de gösterilir"
+  },
+  "processes": {
+    "nice": {
+      "title": "Özel nice değeri — {{name}}",
+      "range": "PID {{pid}}. Nice değerleri {{min}} (en öncelikli) ile {{max}} (en az) arasındadır.",
+      "privileges": "Değeri düşürmek genellikle PULSE'un sahip olmadığı yetkiler gerektirir.",
+      "value": "Nice değeri"
+    },
+    "affinity": {
+      "title": "CPU benzeşimi — {{name}}",
+      "body": "PID {{pid}} sürecinin çalışabileceği mantıksal işlemcileri seçin.",
+      "selectAll": "Tümünü seç",
+      "keepOne": "En az bir CPU bırakın: hiçbirinde çalışmasına izin verilmeyen bir süreç çalışamaz."
+    },
+    "status": {
+      "success": "Tamam",
+      "permissionDenied": "İzin reddedildi",
+      "staleProcess": "Yapılmadı — PID artık başka bir sürece ait",
+      "processGone": "Süreç zaten sonlandı",
+      "unsupported": "Desteklenmiyor",
+      "partialFailure": "Kısmen yapıldı",
+      "invalidRequest": "Yapılmadı",
+      "platformError": "Başarısız"
+    },
+    "outcome": {
+      "suspend": "{{pid}} süreci askıya alındı.",
+      "resume": "{{pid}} süreci sürdürüldü.",
+      "terminate": "{{pid}} sürecinden sonlanması istendi.",
+      "forceKill": "{{pid}} süreci zorla sonlandırıldı.",
+      "priority": "{{pid}} sürecinin önceliği değiştirildi.",
+      "affinity": "{{pid}} sürecinin benzeşimi değiştirildi.",
+      "terminateTree": "{{pid}} süreç ağacı sonlandırıldı.",
+      "openLocation": "Çalıştırılabilir dosyanın konumu açıldı.",
+      "priorityPartial": "{{pid}} sürecinin {{applied}} iş parçacığında öncelik değiştirildi; {{failed}} iş parçacığı reddetti.",
+      "affinityPartial": "{{pid}} sürecinin {{applied}} iş parçacığında benzeşim değiştirildi; {{failed}} iş parçacığı reddetti.",
+      "tree_one": "{{count}} süreçten {{terminated}} tanesi sonlandırıldı; {{gone}} zaten sonlanmıştı, {{refused}} reddetti, {{stale}} eskimiş olduğu için atlandı, {{failed}} başarısız oldu.",
+      "tree_other": "{{count}} süreçten {{terminated}} tanesi sonlandırıldı; {{gone}} zaten sonlanmıştı, {{refused}} reddetti, {{stale}} eskimiş olduğu için atlandı, {{failed}} başarısız oldu."
+    },
+    "hash": {
+      "computed": "Hesaplandı",
+      "changedWhileHashing": "Dosya okunurken değişti",
+      "permissionDenied": "İzin reddedildi",
+      "notFound": "Dosya bulunamadı",
+      "notAFile": "Normal bir dosya değil",
+      "readError": "Okuma hatası"
+    },
+    "confirm": {
+      "who": "{{name}} (PID {{pid}})",
+      "selfWarning": "PULSE'u sonlandırmak bu uygulamayı kapatır.",
+      "endTitle": "{{name}} sonlandırılsın mı?",
+      "endSigterm": "{{who}} sürecine SIGTERM gönderilip sonlanması istenecek. Biraz sürebilir ya da reddedebilir.",
+      "endImmediate": "{{who}} hemen sonlandırılacak. İçindeki kaydedilmemiş çalışma kaybolur.",
+      "forceKillTitle": "{{name}} zorla sonlandırılsın mı?",
+      "forceKillBody": "{{who}} sürecine SIGKILL gönderilecek. Yakalanamaz ya da yok sayılamaz: süreç hiçbir şeyi kaydetme ya da temizleme fırsatı bulamaz.",
+      "treeTitle": "{{name}} ve süreç ağacı sonlandırılsın mı?",
+      "treeRoot": "Kök süreç: {{who}}.",
+      "treeBody_one": "Önce yaklaşık {{count}} alt süreç, en derinden başlanarak, sonra kök sonlandırılacak. Her biri sonlandırılmadan hemen önce yeniden denetlenir; sahibi değişmiş bir PID atlanır.",
+      "treeBody_other": "Önce yaklaşık {{count}} alt süreç, en derinden başlanarak, sonra kök sonlandırılacak. Her biri sonlandırılmadan hemen önce yeniden denetlenir; sahibi değişmiş bir PID atlanır.",
+      "realtimeTitle": "Gerçek zamanlı öncelik ayarlansın mı?",
+      "realtimeWarning": "Gerçek zamanlı öncelik sistemi yanıt vermez hâle getirebilir.",
+      "realtimeBody": "{{who}} sürecine uygulanır. Gerekli yetki yoksa Windows bunun yerine Yüksek uygular ve PULSE bunu bildirir.",
+      "realtimeConfirm": "Gerçek zamanlı ayarla"
+    },
+    "copy": {
+      "done": "{{label}} kopyalandı.",
+      "failed": "{{label}} kopyalanamadı."
+    },
+    "category": {
+      "user": "Kullanıcı",
+      "system": "Sistem",
+      "kernel": "Çekirdek iş parçacığı",
+      "unknown": "Bilinmiyor"
+    },
+    "state": {
+      "running": "Çalışıyor",
+      "sleeping": "Uykuda",
+      "stopped": "Durduruldu",
+      "zombie": "Zombi"
+    },
+    "priority": {
+      "realtime": "Gerçek zamanlı",
+      "high": "Yüksek",
+      "aboveNormal": "Normalin üstü",
+      "normal": "Normal",
+      "belowNormal": "Normalin altı",
+      "low": "Düşük"
+    },
+    "affinityNone": "yok",
+    "affinitySummary_one": "CPU {{list}} ({{total}} içinden {{count}})",
+    "affinitySummary_other": "CPU {{list}} ({{total}} içinden {{count}})",
+    "trust": {
+      "trusted": "Güvenilir imza",
+      "signedButUntrusted": "İmzalı, güvenilmiyor",
+      "invalid": "Geçersiz imza",
+      "unsigned": "İmzasız",
+      "permissionDenied": "İzin reddedildi",
+      "unavailable": "Kullanılamıyor"
+    },
+    "provenance": {
+      "userHome": "Kullanıcı/yerel çalıştırılabilir dosya (ev dizininizde, bir paketten değil)",
+      "localInstall": "Kullanıcı/yerel çalıştırılabilir dosya (paket yöneticisi dışında yüklenmiş)",
+      "notDetected": "Paket algılanmadı"
+    },
+    "menu": {
+      "exited": "Süreç zaten sonlandı.",
+      "unavailable": "Kullanılamıyor.",
+      "checking": "İzinler denetleniyor…",
+      "nicePreset": "{{level}} (nice {{value}})",
+      "customNice": "Özel nice değeri…",
+      "forceKill": "Zorla sonlandır",
+      "inspect": "Ayrıntıları incele",
+      "search": "Çevrimiçi ara",
+      "openLocation": "Dosya konumunu aç",
+      "processName": "Süreç adı",
+      "executablePath": "Çalıştırılabilir dosya yolu",
+      "executableUnavailable": "Çalıştırılabilir dosya kullanılamıyor.",
+      "instanceId": "Süreç örneği kimliği",
+      "suspend": "Askıya al",
+      "resume": "Sürdür",
+      "end": "Süreci sonlandır",
+      "endTree": "Süreç ağacını sonlandır",
+      "setPriority": "Öncelik ayarla",
+      "setAffinity": "Benzeşim ayarla…",
+      "affinityUnreadable": "Geçerli benzeşim okunamadı.",
+      "actionsFor": "{{name}} için eylemler",
+      "inspectApplication": "Uygulamayı incele",
+      "showProcesses": "Süreçleri göster"
+    },
+    "table": {
+      "processDetails": "Süreç ayrıntıları",
+      "dismiss": "Kapat",
+      "processView": "Süreç görünümü",
+      "processCategory": "Süreç kategorisi",
+      "refreshProcessDetails": "Süreç ayrıntılarını yenile",
+      "applications": "Uygulamalar",
+      "application": "Uygulama",
+      "processes": "Süreçler",
+      "memory": "Bellek",
+      "read": "Okuma",
+      "write": "Yazma",
+      "process": "Süreç",
+      "threads": "İş parçacıkları",
+      "state": "Durum",
+      "searchPlaceholder": "Ada ya da PID'ye göre ara",
+      "searchLabel": "Süreçleri ada ya da PID'ye göre ara"
+    },
+    "filters": {
+      "all": "Tümü",
+      "user": "Kullanıcı",
+      "system": "Sistem",
+      "kernel": "Çekirdek"
+    },
+    "oneOf_one": "{{name}} için {{count}} süreçten 1'i",
+    "oneOf_other": "{{name}} için {{count}} süreçten 1'i",
+    "loading": "Süreç tablosu taranıyor…",
+    "showAll_one": "{{count}} süreci göster",
+    "showAll_other": "{{count}} sürecin tümünü göster",
+    "updated": "{{time}} güncellendi · {{ms}} ms'de toplandı",
+    "note": "CPU, bu makinenin <strong>tüm</strong> kapasitesinin bir payıdır; bu yüzden bir mantıksal işlemciyi dolduran bir iş parçacığı küçük bir yüzdedir ve sütunun toplamı aşağı yukarı sistem CPU göstergesinin gösterdiği kadardır. Okuma ve Yazma, platformun süreç başına G/Ç sayaçlarıdır (Fedora ile Windows'un nasıl farklılaştığı için belgelere bakın). Hızlar iki anlık görüntü <em>arasında</em> ölçülür, bu yüzden yalnızca bir yenilemeden sonra görünür. İncelemek için bir sürece tıklayın; eylemler için sağ tıklayın (ya da Shift+F10). Her eylem tam olarak o süreç örneğini hedefler, yıkıcıysa onay ister ve asla kendiliğinden çalışmaz. Komut satırları bilerek toplanmaz.",
+    "noApplicationMatch": "Bu aramayla eşleşen uygulama yok.",
+    "noProcessMatch": "Bu aramayla eşleşen süreç yok.",
+    "groupedByName": "Süreç adına göre gruplandı: PULSE bu süreçlerin çalıştırılabilir dosyalarını okuyamadı; bu yüzden aynı adlı iki ilgisiz program birlikte sayılırdı.",
+    "inspector": {
+      "processInspector": "Süreç denetçisi",
+      "closeInspector": "Denetçiyi kapat",
+      "identity": "Kimlik",
+      "processName": "Süreç adı",
+      "product": "Ürün",
+      "parent": "Üst süreç",
+      "instanceId": "Örnek kimliği",
+      "state": "Durum",
+      "started": "Başlatıldı",
+      "owner": "Sahip",
+      "category": "Kategori",
+      "architecture": "Mimari",
+      "resourceUsage": "Kaynak kullanımı",
+      "memory": "Bellek",
+      "threads": "İş parçacıkları",
+      "read": "Okuma",
+      "write": "Yazma",
+      "executable": "Çalıştırılabilir dosya",
+      "path": "Yol",
+      "file": "Dosya",
+      "size": "Boyut",
+      "modified": "Değiştirildi",
+      "securityProvenance": "Güvenlik ve köken",
+      "description": "Açıklama",
+      "company": "Şirket",
+      "version": "Sürüm",
+      "scheduling": "Zamanlama",
+      "priority": "Öncelik",
+      "cpuAffinity": "CPU benzeşimi",
+      "processControl": "Süreç denetimi",
+      "suspend": "Askıya al",
+      "resume": "Sürdür",
+      "endProcess": "Süreci sonlandır",
+      "endProcessTree": "Süreç ağacını sonlandır",
+      "forceKill": "Zorla sonlandır",
+      "provenance": "Köken",
+      "package": "Paket",
+      "signature": "İmza",
+      "publisher": "Yayıncı",
+      "setPriority": "Öncelik ayarla",
+      "stale": "Bu süreç sonlandı ve PID'si artık başka bir sürece ait. PULSE onun üzerinde işlem yapmaz.",
+      "exited": "Süreç sonlandı. Artık onunla yapılabilecek bir şey yok.",
+      "reading": "Bu süreç okunuyor…",
+      "self": "Bu, PULSE'un kendisi. Sonlandırmak bu uygulamayı kapatır.",
+      "kernelThread": "Çekirdek iş parçacığı çekirdeğin içinde çalışır: çalıştırılabilir dosyası ya da paketi yoktur ve PULSE'tan denetlenemez.",
+      "notInSnapshot": "Son anlık görüntüde yok.",
+      "replaced": "Bu sürecin başlatıldığı dosya o zamandan beri diskte silindi ya da değiştirildi.",
+      "copyPath": "Yolu kopyala",
+      "versionNote": "Açıklama, ürün ve şirket dosyanın kendisi tarafından beyan edilir ve hiçbir şey kanıtlamaz; imza, Windows'un doğruladığı şeydir.",
+      "computing": "Hesaplanıyor…",
+      "computeHash": "SHA-256 hesapla",
+      "provenanceNote": "Köken bir kanıttır, hüküm değildir: bir paket ya da geçerli bir imza bir programı güvenli yapmaz ve bunların yokluğu onu kötü amaçlı yapmaz.",
+      "changeAffinity": "Benzeşimi değiştir…",
+      "suspendedByPulse": "PULSE bu süreci bu oturumda askıya aldı.",
+      "suspendedState": "{{state}} (PULSE tarafından askıya alındı)",
+      "notApplicableKernel": "Çekirdek iş parçacığı için geçerli değil",
+      "catalog": "(sistem kataloğu)",
+      "claimed": "(beyan edilmiş, güvenilmiyor)",
+      "notComputed": "Hesaplanmadı",
+      "copyHash": "SHA-256 kopyala",
+      "searchHash": "Özeti çevrimiçi ara",
+      "checkVirusTotal": "Özeti VirusTotal'da denetle",
+      "custom": "Özel…",
+      "memoryPercent": "Bellek %",
+      "searchHint": "Tarayıcınızda programın adı için bir web araması açar",
+      "virusTotalHint": "Tarayıcınızda bu özet için VirusTotal sayfasını açar. Dosya asla yüklenmez."
+    }
+  },
+  "cards": {
+    "updated": "{{time}} güncellendi",
+    "notReported": "Bildirilmedi",
+    "notReportedByBackend": "Arka uç tarafından bildirilmedi",
+    "cpu": {
+      "title": "CPU ayrıntıları",
+      "loading": "CPU topolojisi okunuyor…",
+      "packages": "Paketler",
+      "packageTemperature": "{{name}} sıcaklığı",
+      "showAll_one": "{{count}} işlemciyi göster",
+      "showAll_other": "{{count}} işlemcinin tümünü göster",
+      "noProcessors": "Bu makinede tek tek mantıksal işlemci gösterilmiyor.",
+      "refresh": "CPU ayrıntılarını yenile",
+      "note": "Bir fiziksel çekirdek birden çok mantıksal işlemci taşıyabilir; bu yüzden kullanım mantıksal işlemci başına bildirilir. Frekanslar işletim sisteminin bildirdiği değerlerdir. Paket sıcaklığı işlemcinin kendi sensörüdür, asla çekirdeklerinin ortalaması değildir.",
+      "maxFor": "{{name}} için bildirilen azami: {{value}}",
+      "noMax": "bu işlemci için azami frekans yayımlanmıyor"
+    },
+    "gpu": {
+      "gpuDetails": "GPU ayrıntıları",
+      "graphicsAdapters": "Grafik bağdaştırıcıları",
+      "refreshGpuDetails": "GPU ayrıntılarını yenile",
+      "gpuUsage": "GPU kullanımı",
+      "vramUsage": "VRAM kullanımı",
+      "coreClock": "Çekirdek saati",
+      "memoryClock": "Bellek saati",
+      "temperature": "Sıcaklık",
+      "hotspot": "Sıcak nokta",
+      "memoryTemperature": "Bellek sıcaklığı",
+      "fan": "Fan",
+      "loading": "Grafik bağdaştırıcıları bulunuyor…",
+      "none": "Donanım grafik bağdaştırıcısı algılanmadı. Yazılım işleyicileri bilerek GPU sayılmaz.",
+      "note": "VRAM değerleri her bağdaştırıcının ayrılmış video belleğini tanımlar. Tümleşik bir GPU ile paylaşılan sistem belleği VRAM olarak bildirilmez. Sıcak nokta ve bellek sıcaklıkları ayrı sensörlerdir, asla GPU sıcaklığından türetilmez; fan hızı yalnızca sürücü gerçek dakikadaki devir sayısını bildirdiğinde gösterilir.",
+      "vramKnownOnly": "Takılı VRAM biliniyor; canlı kullanım için bu bağdaştırıcının sağlamadığı bir üretici sürücüsü gerekir.",
+      "perfUnavailable": "Performans telemetrisi kullanılamıyor",
+      "perfUnavailableDefault": "Bu bağdaştırıcının sürücüsü kullanım, video belleği ya da saat değerleri sunmuyor.",
+      "thermalRemain": "Isıl sensörler kullanılabilir olmaya devam ediyor."
+    },
+    "storage": {
+      "storageDetails": "Depolama ayrıntıları",
+      "storageDevices": "Depolama aygıtları",
+      "otherVolumes": "Diğer birimler",
+      "refreshStorageDetails": "Depolama ayrıntılarını yenile",
+      "read": "Okuma",
+      "write": "Yazma",
+      "readIops": "Okuma IOPS",
+      "writeIops": "Yazma IOPS",
+      "readLatency": "Okuma gecikmesi",
+      "writeLatency": "Yazma gecikmesi",
+      "temperature": "Sıcaklık",
+      "usedEndurance": "Kullanılan dayanıklılık",
+      "availableSpare": "Kullanılabilir yedek",
+      "powerOnHours": "Açık kalma saati",
+      "unsafeShutdowns": "Güvensiz kapanmalar",
+      "mediaErrors": "Ortam hataları",
+      "loading": "Depolama aygıtları bulunuyor…",
+      "none": "Fiziksel depolama aygıtı envantere alınmadı. Döngü aygıtları, RAM diskleri ve device-mapper birimleri bilerek disk sayılmaz.",
+      "otherVolumesHint": "PULSE'un yukarıdaki disklerden birine bağlayamadığı bağlanmış dosya sistemleri. Yanlış aygıta atfedilmek yerine ayrı listelenir.",
+      "note": "Aktarım hızı, IOPS ve gecikme iki örnek <em>arasında</em> ölçülür; bu yüzden yalnızca bir yenilemeden sonra görünür. Gecikme, gerçekten tamamlanan işlemlerin ortalamasıdır: hiç işlem olmayan bir aralığın gecikmesi yoktur ve 0 ms yerine <code>—</code> gösterilir. Kullanılan dayanıklılık ve kullanılabilir yedek, denetleyicinin kendi standart değerleridir — kullanılabilir yedek, yedek blok rezervidir; bir dosya sistemindeki boş alan değildir.",
+      "waitingHint": "Disk etkinliği iki okuma arasındaki farktır. Ölçmek için yenileyin.",
+      "free": "{{value}} boş",
+      "full": "{{name}} {{value}} dolu",
+      "healthUnavailable": "Sağlık raporu kullanılamıyor",
+      "noHealthLog": "Bu aygıt standart bir sağlık günlüğü bildirmiyor."
+    },
+    "waitingSample": "Başka bir örnek bekleniyor",
+    "network": {
+      "networkDetails": "Ağ ayrıntıları",
+      "networkInterfaces": "Ağ arabirimleri",
+      "virtualInterfaces": "Sanal arabirimler",
+      "virtualInterfaceList": "Sanal arabirim listesi",
+      "refreshNetworkDetails": "Ağ ayrıntılarını yenile",
+      "download": "İndirme",
+      "upload": "Yükleme",
+      "rxPackets": "RX paketleri",
+      "txPackets": "TX paketleri",
+      "errors": "Hatalar",
+      "dropped": "Düşürülen",
+      "linkRx": "Bağlantı RX",
+      "linkTx": "Bağlantı TX",
+      "signal": "Sinyal",
+      "quality": "Kalite",
+      "wiFiRx": "Wi-Fi RX",
+      "wiFiTx": "Wi-Fi TX",
+      "loading": "Ağ arabirimleri bulunuyor…",
+      "none": "Ağ arabirimi envantere alınmadı. Geri döngü arabirimi bilerek dışarıda bırakılır: her zaman vardır ve yalnızca bu makineden hiç çıkmamış trafiği taşır.",
+      "virtualCount": "Sanal arabirimler ({{count}})",
+      "virtualHint": "Köprüler, kapsayıcı bağlantıları ve diğer yazılım arabirimleri. Kapsayıcı çalıştıran bir makine gerçek bağdaştırıcılarını gömmesin diye daraltılmıştır — asla kaldırılmaz.",
+      "note": "İndirme bu makineye gelen, Yükleme ondan çıkan trafiktir. Trafik iki örnek <em>arasında</em> ölçülür; bu yüzden yalnızca bir yenilemeden sonra görünür. Bağlantı hızları, sürücünün anlaştığı saniyedeki bit cinsinden kapasitedir — bayt cinsinden olan, ne kadar aktığı değil. Düşürülen çerçeveler yerel bir sayaçtır ve PULSE'un ölçmediği İnternet paket kaybı <strong>değildir</strong>.",
+      "kinds": {
+        "Ethernet": "Ethernet",
+        "Wi-Fi": "Wi-Fi",
+        "Bridge": "Köprü",
+        "Tunnel": "Tünel",
+        "Virtual": "Sanal",
+        "Network": "Ağ"
+      },
+      "connected": "Bağlı",
+      "disconnected": "Bağlı değil",
+      "waitingHint": "Trafik iki okuma arasındaki farktır. Ölçmek için yenileyin.",
+      "wifiUnavailable": "Wi-Fi bağlantı ayrıntıları kullanılamıyor"
+    },
+    "live": {
+      "title": "Canlı sistem örneği",
+      "loading": "Örnekleniyor…",
+      "refresh": "Örneği yenile",
+      "reconcile": "kullanılan + kullanılabilir = toplam; bu yüzden yukarıdaki iki değer her zaman tutarlıdır.",
+      "waitingNext": "Sonraki örnek bekleniyor"
+    },
+    "engine": {
+      "title": "Ölçüm motoru",
+      "loading": "Motor sorgulanıyor…",
+      "unavailable": "Motor kullanılamıyor. Rust katmanına ulaşmak için PULSE'u <code>pnpm app:dev</code> ile çalıştırın.",
+      "status": "Durum",
+      "schema": "Şema",
+      "providers": "Sağlayıcılar",
+      "metrics": "Ölçümler",
+      "available_one": "({{count}} kullanılabilir)",
+      "available_other": "({{count}} kullanılabilir)",
+      "schemaMismatch": "Arka uç ölçüm şeması v{{backend}} kullanıyor; bu arayüz v{{expected}} bekliyor.",
+      "empty": "Henüz kayıtlı sağlayıcı yok — PULSE bu aşamada donanım ölçümü toplamıyor."
+    }
+  },
+  "tray": {
+    "open": "PULSE'u aç",
+    "edit": "Katmanları düzenle",
+    "lock": "Katmanları kilitle",
+    "toggle": "Katmanları göster / gizle",
+    "quit": "PULSE'tan çık"
+  }
+}

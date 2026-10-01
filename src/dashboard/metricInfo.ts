@@ -3,6 +3,12 @@ import type { DeepPartial, VisualizationConfig } from '@/visualization/config';
 import { BASE_CONFIG, mergeConfig } from '@/visualization/config';
 import { PERCENT_THRESHOLDS } from '@/visualization/color';
 import type { VisualizationMeta } from '@/visualization/types';
+import type { Text } from '@/i18n/text';
+import { display } from '@/i18n/text';
+import { metricName } from '@/i18n/metrics';
+
+/** Built-in short words, by id: `presets.text.<id>`. */
+const tx = (id: string): Text => ({ key: `presets.text.${id}` });
 
 /**
  * What a widget needs to know about a metric key to present it well: a short
@@ -11,39 +17,42 @@ import type { VisualizationMeta } from '@/visualization/types';
  */
 
 interface KeyInfo {
-  readonly label: string;
+  /** Language-neutral (`CPU`, `↓`) or a translated word. */
+  readonly label: Text;
   readonly unit: MetricUnit;
 }
 
 const KEYS: Readonly<Record<string, KeyInfo>> = {
   'cpu.usage.total': { label: 'CPU', unit: 'percent' },
-  'cpu.usage.logical': { label: 'Core', unit: 'percent' },
-  'cpu.frequency.current': { label: 'Freq', unit: 'hertz' },
-  'cpu.temperature.package': { label: 'CPU temp', unit: 'celsius' },
+  'cpu.usage.logical': { label: tx('core'), unit: 'percent' },
+  'cpu.frequency.current': { label: tx('freq'), unit: 'hertz' },
+  'cpu.temperature.package': { label: tx('cpuTemp'), unit: 'celsius' },
   'memory.usage.percent': { label: 'RAM', unit: 'percent' },
-  'memory.used': { label: 'RAM used', unit: 'bytes' },
-  'memory.available': { label: 'RAM free', unit: 'bytes' },
+  'memory.used': { label: tx('ramUsed'), unit: 'bytes' },
+  'memory.available': { label: tx('ramFree'), unit: 'bytes' },
   'gpu.usage.core': { label: 'GPU', unit: 'percent' },
   'gpu.memory.used': { label: 'VRAM', unit: 'bytes' },
   'gpu.memory.usage.percent': { label: 'VRAM', unit: 'percent' },
-  'gpu.temperature.core': { label: 'GPU temp', unit: 'celsius' },
-  'gpu.temperature.hotspot': { label: 'Hotspot', unit: 'celsius' },
-  'gpu.fan.speed': { label: 'GPU fan', unit: 'rpm' },
-  'storage.io.read.bytes_per_second': { label: 'Read', unit: 'bytesPerSecond' },
-  'storage.io.write.bytes_per_second': { label: 'Write', unit: 'bytesPerSecond' },
-  'storage.volume.usage.percent': { label: 'Disk', unit: 'percent' },
-  'storage.health.temperature': { label: 'SSD temp', unit: 'celsius' },
+  'gpu.temperature.core': { label: tx('gpuTemp'), unit: 'celsius' },
+  'gpu.temperature.hotspot': { label: tx('hotspot'), unit: 'celsius' },
+  'gpu.fan.speed': { label: tx('gpuFan'), unit: 'rpm' },
+  'storage.io.read.bytes_per_second': { label: tx('read'), unit: 'bytesPerSecond' },
+  'storage.io.write.bytes_per_second': { label: tx('write'), unit: 'bytesPerSecond' },
+  'storage.volume.usage.percent': { label: tx('disk'), unit: 'percent' },
+  'storage.health.temperature': { label: tx('ssdTemp'), unit: 'celsius' },
   'network.receive.bytes_per_second': { label: '↓', unit: 'bytesPerSecond' },
   'network.transmit.bytes_per_second': { label: '↑', unit: 'bytesPerSecond' },
   'network.wifi.signal.rssi': { label: 'Wi-Fi', unit: 'decibelMilliwatts' },
   'network.wifi.signal.quality': { label: 'Wi-Fi', unit: 'percent' },
-  'process.count.total': { label: 'Processes', unit: 'count' },
-  'process.count.running': { label: 'Running', unit: 'count' },
-  'process.thread.count.total': { label: 'Threads', unit: 'count' },
+  'process.count.total': { label: tx('processes'), unit: 'count' },
+  'process.count.running': { label: tx('running'), unit: 'count' },
+  'process.thread.count.total': { label: tx('threads'), unit: 'count' },
 };
 
 export function keyLabel(key: string, definition?: MetricDefinition): string {
-  return KEYS[key]?.label ?? definition?.displayName ?? key;
+  const known = KEYS[key]?.label;
+  if (known !== undefined) return display(known);
+  return definition ? metricName(definition) : key;
 }
 
 export function keyUnit(key: string, definition?: MetricDefinition): MetricUnit {

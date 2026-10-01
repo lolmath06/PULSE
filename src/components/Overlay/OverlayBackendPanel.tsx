@@ -1,21 +1,22 @@
 import { useState } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
 import type { DesktopStatus, GnomeBridgeStatus } from '@/overlay/desktop';
 import { refreshGnomeBridge, setGnomeBridgeEnabled } from '@/overlay/desktop';
 import {
-  BRIDGE_STATE_LABELS,
   HEADLINE_CAPABILITIES,
+  bridgeStateLabel,
   bridgeSteps,
   bridgeTone,
   uninstallCommand,
 } from '@/overlay/bridgeGuide';
+import {
+  backendDetail,
+  backendLabel,
+  bridgeGuidance,
+  bridgeSummary,
+  capabilityStatusLabel,
+} from '@/overlay/desktopText';
 import { copyText } from '@/utils/clipboard';
-
-const VERIFICATION_LABELS = {
-  physicallyVerified: 'Verified on real hardware',
-  implemented: 'Implemented · not yet verified on hardware',
-  bestEffort: 'Platform-dependent',
-  unsupported: 'Unavailable',
-} as const;
 
 /**
  * The overlay backend this session uses, what it can do, and — on GNOME
@@ -33,12 +34,13 @@ export function OverlayBackendPanel({
   readonly error: string | null;
   readonly onStatus: (status: DesktopStatus) => void;
 }) {
+  const { t } = useTranslation();
   if (!status) {
     return (
-      <section className="card backend-panel" aria-label="Overlay backend">
-        <h2 className="card__title">Overlay backend</h2>
+      <section className="card backend-panel" aria-label={t('overlays.backend.title')}>
+        <h2 className="card__title">{t('overlays.backend.title')}</h2>
         <p className="card__muted" title={error ?? undefined}>
-          {error ? 'Backend unavailable. Run PULSE with pnpm app:dev.' : 'Checking…'}
+          {error ? t('overlays.backend.unavailable') : t('common.checking')}
         </p>
       </section>
     );
@@ -46,22 +48,24 @@ export function OverlayBackendPanel({
   const backend = status.backend;
   const bridge = status.gnomeBridge;
   return (
-    <section className="card backend-panel" aria-label="Overlay backend">
+    <section className="card backend-panel" aria-label={t('overlays.backend.title')}>
       <div className="backend-panel__head">
         <div>
-          <h2 className="card__title">Overlay backend</h2>
-          <p className="backend-panel__name">{backend?.label ?? 'Desktop window'}</p>
+          <h2 className="card__title">{t('overlays.backend.title')}</h2>
+          <p className="backend-panel__name">
+            {backend ? backendLabel(backend) : t('overlays.backend.desktopWindow')}
+          </p>
         </div>
         {backend && (
           <span className={`pill pill--${backend.verification}`}>
-            {VERIFICATION_LABELS[backend.verification]}
+            {t(`overlays.verification.${backend.verification}`)}
           </span>
         )}
       </div>
-      {backend && <p className="card__muted backend-panel__detail">{backend.detail}</p>}
+      {backend && <p className="card__muted backend-panel__detail">{backendDetail(backend)}</p>}
 
-      <ul className="capability-chips" aria-label="What overlays can do here">
-        {HEADLINE_CAPABILITIES.map(({ key, label }) => {
+      <ul className="capability-chips" aria-label={t('overlays.backend.whatHere')}>
+        {HEADLINE_CAPABILITIES.map((key) => {
           const capability = status.capabilities[key];
           return (
             <li
@@ -76,8 +80,8 @@ export function OverlayBackendPanel({
                     ? '~'
                     : '×'}
               </span>
-              {label}
-              <span className="sr-only">{` — ${capability.status}: ${capability.reason}`}</span>
+              {t(`overlays.headline.${key}`)}
+              <span className="sr-only">{` — ${capabilityStatusLabel(capability.status)}: ${capability.reason}`}</span>
             </li>
           );
         })}
@@ -103,6 +107,7 @@ function GnomeBridgeSection({
   readonly sourceDir: string | null;
   readonly onStatus: (status: DesktopStatus) => void;
 }) {
+  const { t } = useTranslation();
   const [busy, setBusy] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
@@ -128,13 +133,15 @@ function GnomeBridgeSection({
     });
 
   return (
-    <div className="bridge" aria-label="GNOME bridge">
+    <div className="bridge" aria-label={t('overlays.bridge.title')}>
       <div className="bridge__head">
         <span className={`status-dot status-dot--${tone}`} aria-hidden="true" />
         <div className="bridge__title">
-          <strong>GNOME bridge</strong>
-          <span className={`pill pill--tone-${tone}`}>{BRIDGE_STATE_LABELS[bridge.state]}</span>
-          {bridge.connected && <span className="pill pill--tone-good">Connected</span>}
+          <strong>{t('overlays.bridge.title')}</strong>
+          <span className={`pill pill--tone-${tone}`}>{bridgeStateLabel(bridge.state)}</span>
+          {bridge.connected && (
+            <span className="pill pill--tone-good">{t('overlays.bridge.connected')}</span>
+          )}
         </div>
         <div className="bridge__actions">
           {bridge.canEnable && (
@@ -144,7 +151,7 @@ function GnomeBridgeSection({
               disabled={busy}
               onClick={() => run(() => setGnomeBridgeEnabled(true))}
             >
-              Enable
+              {t('overlays.bridge.enable')}
             </button>
           )}
           {bridge.canDisable && (
@@ -154,7 +161,7 @@ function GnomeBridgeSection({
               disabled={busy}
               onClick={() => run(() => setGnomeBridgeEnabled(false))}
             >
-              Disable
+              {t('overlays.bridge.disable')}
             </button>
           )}
           <button
@@ -163,12 +170,14 @@ function GnomeBridgeSection({
             disabled={busy}
             onClick={() => run(refreshGnomeBridge)}
           >
-            Refresh
+            {t('common.refresh')}
           </button>
         </div>
       </div>
-      <p className="bridge__summary">{bridge.summary}</p>
-      {bridge.guidance && <p className="card__note bridge__guidance">{bridge.guidance}</p>}
+      <p className="bridge__summary">{bridgeSummary(bridge)}</p>
+      {bridgeGuidance(bridge) && (
+        <p className="card__note bridge__guidance">{bridgeGuidance(bridge)}</p>
+      )}
       {bridge.error && (
         <p className="customize__error" role="alert">
           {bridge.error}
@@ -186,21 +195,21 @@ function GnomeBridgeSection({
           <dd>{bridge.shellVersion ?? '—'}</dd>
         </div>
         <div>
-          <dt>Running</dt>
+          <dt>{t('overlays.bridge.running')}</dt>
           <dd>{bridge.runningVersion !== null ? `v${bridge.runningVersion}` : '—'}</dd>
         </div>
         <div>
-          <dt>Installed</dt>
+          <dt>{t('overlays.bridge.installed')}</dt>
           <dd>{bridge.installedVersion !== null ? `v${bridge.installedVersion}` : '—'}</dd>
         </div>
         <div>
-          <dt>Ships with PULSE</dt>
+          <dt>{t('overlays.bridge.ships')}</dt>
           <dd>v{bridge.bundledVersion}</dd>
         </div>
       </dl>
 
       {steps.length > 0 && (
-        <ol className="bridge__steps" aria-label="Set up the GNOME bridge">
+        <ol className="bridge__steps" aria-label={t('overlays.bridge.setUp')}>
           {steps.map((step, index) => (
             <li key={step.id} className={`bridge__step bridge__step--${step.state}`}>
               <span className="bridge__step-mark" aria-hidden="true">
@@ -217,7 +226,7 @@ function GnomeBridgeSection({
                       className="button button--quiet command__copy"
                       onClick={() => copy(step.id, step.command!)}
                     >
-                      {copied === step.id ? 'Copied' : 'Copy'}
+                      {copied === step.id ? t('common.copied') : t('common.copy')}
                     </button>
                   </span>
                 )}
@@ -228,34 +237,16 @@ function GnomeBridgeSection({
       )}
 
       <details className="bridge__details">
-        <summary>What it does · troubleshooting · limits</summary>
+        <summary>{t('overlays.bridge.details.summary')}</summary>
         <div className="bridge__details-body">
-          <p>
-            <strong>Unlocks:</strong> overlays stay above the focused application (Mutter{' '}
-            <code>make_above</code>), and the overlay shortcut works whichever application has focus
-            — GNOME 45 has no global-shortcut portal. Click-through when locked is PULSE&apos;s own
-            and works with or without the bridge.
-          </p>
-          <p>
-            <strong>Safety:</strong> it only touches windows owned by the process holding
-            PULSE&apos;s bus name <em>and</em> titled exactly{' '}
-            <code>PULSE Overlay :: &lt;id&gt;</code>. No polling, no input interception, no files,
-            no network.
-          </p>
-          <p>
-            <strong>Troubleshooting:</strong> after installing or updating, log out and back in —
-            GNOME loads extension code only at login. Its log:{' '}
-            <code>
-              journalctl --user -b /usr/bin/gnome-shell | grep &quot;PULSE overlay bridge&quot;
-            </code>
-            . If GNOME Shell ever misbehaves at login, turn user extensions off from another session
-            with <code>gsettings set org.gnome.shell disable-user-extensions true</code>.
-          </p>
-          <p>
-            <strong>Limits:</strong> GNOME still places Wayland windows itself, so positions and
-            multi-monitor placement stay the compositor&apos;s; drag an overlay once in Edit mode.
-            Verified on GNOME 45 only.
-          </p>
+          {(['unlocks', 'safety', 'troubleshooting', 'limits'] as const).map((part) => (
+            <p key={part}>
+              <Trans
+                i18nKey={`overlays.bridge.details.${part}`}
+                components={{ strong: <strong />, code: <code />, em: <em /> }}
+              />
+            </p>
+          ))}
           <p className="command">
             <code className="command__text">{uninstallCommand(sourceDir)}</code>
             <button
@@ -263,7 +254,7 @@ function GnomeBridgeSection({
               className="button button--quiet command__copy"
               onClick={() => copy('uninstall', uninstallCommand(sourceDir))}
             >
-              {copied === 'uninstall' ? 'Copied' : 'Copy uninstall'}
+              {copied === 'uninstall' ? t('common.copied') : t('overlays.bridge.copyUninstall')}
             </button>
           </p>
         </div>

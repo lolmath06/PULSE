@@ -1,3 +1,5 @@
+import { useId } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { Look } from '@/design/look';
 import { StyleScope } from '@/design/LookContext';
 import { Icon } from '@/components/Icon';
@@ -33,14 +35,16 @@ export function StyleCard({
   readonly onSelect: () => void;
   readonly badge?: string;
 }) {
+  const { t } = useTranslation();
   const { line, area } = tracePath(160, 46);
-  const gradient = `style-card-fill-${look.style.id}-${name.replace(/[^a-z0-9]/gi, '')}`;
+  // Unique per card: a name in any script (or two cards of one style) never collides.
+  const gradient = `style-card-fill-${useId().replace(/[^a-z0-9]/gi, '')}`;
   return (
     <button
       type="button"
       className={`style-card${active ? ' style-card--active' : ''}`}
       aria-pressed={active}
-      aria-label={`${name} style`}
+      aria-label={t('appearance.styleAria', { name })}
       onClick={onSelect}
     >
       <StyleScope look={look} className="style-card__canvas">

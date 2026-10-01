@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { CSSProperties, ReactNode } from 'react';
 import type { VisualizationConfig } from '@/visualization/config';
 import { configuredHeight } from '@/visualization/config';
@@ -66,6 +67,7 @@ export function MetricVisualization({
   height,
   className,
 }: MetricVisualizationProps) {
+  const { t } = useTranslation();
   const [rootRef, measured] = useElementSize<HTMLDivElement>();
   const exact = width !== undefined && height !== undefined;
 
@@ -160,20 +162,26 @@ export function MetricVisualization({
   if (!support.ok) {
     body = message(support.reason, false, '—');
   } else if (data.status === 'loading' && points === 0 && !hasCurrent) {
-    body = message('Loading history…');
+    body = message(t('viz.status.loading'));
   } else if (data.status === 'unavailable' && (info.family === 'timeseries' || !hasCurrent)) {
-    body = message(`History unavailable: ${data.message ?? 'unknown reason'}`, true, '—');
+    body = message(
+      t('viz.status.unavailable', {
+        reason: data.message ?? t('history.status.unknownReason'),
+      }),
+      true,
+      '—',
+    );
   } else if (info.family === 'timeseries' && points === 0) {
-    body = message('Collecting history…');
+    body = message(t('viz.status.collecting'));
   } else if (info.family === 'timeseries' && points === 1) {
     const current = currentText ? formatValue(primary!.current!, meta.unit, decimals) : null;
     body = message(
-      `${current ? `${current} · ` : ''}Collecting history… one sample so far.`,
+      `${current ? `${current} · ` : ''}${t('viz.status.oneSample')}`,
       false,
       current ?? '…',
     );
   } else if (info.family === 'instant' && !hasCurrent) {
-    body = message('Collecting history…', false, '—');
+    body = message(t('viz.status.collecting'), false, '—');
   } else if (presentation.strip) {
     body = (
       <MicroStrip
@@ -218,10 +226,10 @@ export function MetricVisualization({
 
   const statistics = (
     [
-      ['Current', 'current'],
-      ['Min', 'min'],
-      ['Max', 'max'],
-      ['Avg', 'average'],
+      [t('viz.stats.current'), 'current'],
+      [t('viz.stats.min'), 'min'],
+      [t('viz.stats.max'), 'max'],
+      [t('viz.stats.average'), 'average'],
     ] as const
   ).filter(([, key]) => config.display[key]);
 
@@ -271,7 +279,7 @@ export function MetricVisualization({
               <span className="viz__swatch" style={{ background: colors.series(index) }} />
               {labels[index]}
               {series.points.length === 0 && !series.latest && (
-                <span className="viz__legend-empty"> · no data</span>
+                <span className="viz__legend-empty"> · {t('viz.status.noData')}</span>
               )}
             </li>
           ))}

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ConfirmDialog } from '@/components/ConfirmDialog/ConfirmDialog';
 import { onUiConfigChange } from '@/config/uiConfigEvents';
 import type { Overlay } from '@/overlay/model';
@@ -12,6 +13,7 @@ import {
   duplicateOverlay,
   fitToContent,
   moveOverlayWidget,
+  overlayName,
   removeOverlayWidget,
   updateOverlay,
   updateOverlayWidget,
@@ -27,7 +29,8 @@ import {
   setOverlayHotkey,
 } from '@/overlay/desktop';
 import { DEFAULT_HOTKEY, setCloseBehavior, useDesktopSettings } from '@/overlay/settings';
-import { addWidget } from '@/dashboard/dashboards';
+import { addWidget, dashboardName } from '@/dashboard/dashboards';
+import { englishText } from '@/i18n/i18n';
 import { updateDashboards, updateTemplates, useDashboards } from '@/dashboard/store';
 import { deleteUserPack, saveTemplate, saveUserPack } from '@/dashboard/templates';
 import { useTemplates } from '@/dashboard/store';
@@ -45,12 +48,14 @@ import { StylePicker } from '@/components/Appearance/StylePicker';
 import { overlayStyleChrome, resolveLook } from '@/design/look';
 import { readAppearance } from '@/design/store';
 import { OverlayPreview } from '@/components/Overlay/OverlayApp';
+import { formatFixed } from '@/i18n/format';
 
 /**
  * Desktop overlays: what this session can do, the global shortcut, what
  * closing the main window does, and the editor for every overlay.
  */
 export function OverlaysPage() {
+  const { t } = useTranslation();
   const overlays = useOverlays();
   const settings = useDesktopSettings();
   const [status, setStatus] = useState<DesktopStatus | null>(null);
@@ -94,51 +99,52 @@ export function OverlaysPage() {
 
   return (
     <section className="page page--wide overlays-page">
-      <h1 className="page__title">Overlays</h1>
-      <p className="page__subtitle">
-        Widgets in their own small windows on the desktop — above other apps where the system
-        allows, click-through when locked. A safe desktop window: PULSE never injects into games.
-      </p>
+      <h1 className="page__title">{t('nav.routes.overlays.label')}</h1>
+      <p className="page__subtitle">{t('overlays.page.subtitle')}</p>
 
-      <div className="overlays-page__actions" role="toolbar" aria-label="All overlays">
+      <div className="overlays-page__actions" role="toolbar" aria-label={t('overlays.page.all')}>
         <button type="button" className="button" onClick={() => act('editAll')}>
-          Edit all
+          {t('overlays.page.editAll')}
         </button>
         <button type="button" className="button" onClick={() => act('lockAll')}>
-          Lock all
+          {t('overlays.page.lockAll')}
         </button>
         <button type="button" className="button button--quiet" onClick={() => act('showAll')}>
-          Show all
+          {t('overlays.page.showAll')}
         </button>
         <button type="button" className="button button--quiet" onClick={() => act('hideAll')}>
-          Hide all
+          {t('overlays.page.hideAll')}
         </button>
         <button
           type="button"
           className="button button--quiet"
           onClick={() => void openMiniWindow().catch(() => undefined)}
         >
-          Open Mini window
+          {t('overlays.page.openMini')}
         </button>
       </div>
 
       <OverlayBackendPanel status={status} error={statusError} onStatus={setStatus} />
 
-      <section className="mode-section" aria-label="New overlay">
+      <section className="mode-section" aria-label={t('overlays.page.newOverlay')}>
         <div className="mode-section__head mode-section__head--row">
           <div>
-            <h2 className="section-title">Overlay packs</h2>
-            <p className="card__muted">
-              Twelve composed overlays — micro readouts, cards, full-width bars, rails and corner
-              HUDs. Everything stays editable.
-            </p>
+            <h2 className="section-title">{t('overlays.page.packs')}</h2>
+            <p className="card__muted">{t('overlays.page.packsHint')}</p>
           </div>
           <button
             type="button"
             className="button"
-            onClick={() => updateOverlays((section) => createOverlay(section, 'Overlay').section)}
+            onClick={() =>
+              updateOverlays(
+                (section) =>
+                  createOverlay(section, englishText('overlays.defaultName'), [], {
+                    nameKey: 'overlays.defaultName',
+                  }).section,
+              )
+            }
           >
-            <Icon name="plus" /> Empty overlay
+            <Icon name="plus" /> {t('overlays.page.emptyOverlay')}
           </button>
         </div>
         <PackGallery status={status} />
@@ -154,15 +160,13 @@ export function OverlaysPage() {
       ))}
 
       <div className="card">
-        <h2 className="card__title">Global shortcut</h2>
-        <p className="card__muted">
-          Toggles the visible overlays between Edit and Locked. Hidden overlays keep their state.
-        </p>
+        <h2 className="card__title">{t('overlays.capabilities.globalHotkey')}</h2>
+        <p className="card__muted">{t('overlays.hotkey.hint')}</p>
         <div className="customize__row">
           <input
             type="text"
             className="customize__text"
-            aria-label="Global shortcut"
+            aria-label={t('overlays.capabilities.globalHotkey')}
             placeholder={DEFAULT_HOTKEY}
             value={hotkey}
             onChange={(event) => setHotkey(event.target.value)}
@@ -182,7 +186,7 @@ export function OverlaysPage() {
                 })
             }
           >
-            Apply
+            {t('common.apply')}
           </button>
           <button
             type="button"
@@ -194,48 +198,41 @@ export function OverlaysPage() {
                 .catch(() => undefined);
             }}
           >
-            Disable
+            {t('overlays.bridge.disable')}
           </button>
         </div>
-        {bridgeHotkey && (
-          <p className="card__note">
-            Delivered by the GNOME bridge through Mutter, whichever application has focus. Applying
-            a shortcut here changes the bridge&apos;s own setting; GNOME uses it at once.
-          </p>
-        )}
+        {bridgeHotkey && <p className="card__note">{t('overlays.hotkey.viaBridge')}</p>}
         {!bridgeHotkey && backend?.kind === 'portal' && (
-          <p className="card__note">
-            Delivered by your desktop through the XDG Desktop Portal, whichever application has
-            focus. The desktop may ask you to approve it, and may let you change the keys in its own
-            keyboard settings.
-          </p>
+          <p className="card__note">{t('overlays.hotkey.viaPortal')}</p>
         )}
         {!bridgeHotkey && backend?.kind === 'unavailable' && (
           <p className="card__note" role="status">
-            {`Global shortcuts are not available on this session: ${backend.reason}`}
+            {t('overlays.hotkey.unavailable', { reason: backend.reason })}
           </p>
         )}
         {hotkeyError && (
           <p className="customize__error" role="alert">
             {backend?.kind === 'plugin' || !backend
-              ? `Not registered — ${hotkeyError}. The previous shortcut is still active.`
-              : `Not bound — ${hotkeyError}.`}
+              ? t('overlays.hotkey.notRegistered', { error: hotkeyError })
+              : t('overlays.hotkey.notBound', { error: hotkeyError })}
           </p>
         )}
         {status && (
           <p className="card__note">
-            {status.hotkey ? `Active: ${status.hotkey}.` : 'No global shortcut is active.'}
+            {status.hotkey
+              ? t('overlays.hotkey.active', { hotkey: status.hotkey })
+              : t('overlays.hotkey.none')}
           </p>
         )}
       </div>
 
       <div className="card">
-        <h2 className="card__title">Closing the main window</h2>
-        <div className="segmented" role="group" aria-label="When the main window is closed">
+        <h2 className="card__title">{t('overlays.close.title')}</h2>
+        <div className="segmented" role="group" aria-label={t('overlays.close.when')}>
           {(
             [
-              ['quit', 'Quit PULSE'],
-              ['keep-running', 'Keep running while overlays are visible'],
+              ['quit', t('overlays.close.quit')],
+              ['keep-running', t('overlays.close.keepRunning')],
             ] as const
           ).map(([value, text]) => (
             <button
@@ -249,19 +246,16 @@ export function OverlaysPage() {
             </button>
           ))}
         </div>
-        <p className="card__note">
-          Quit is the default. When PULSE keeps running, reopen it from the tray or an
-          overlay&apos;s “Open PULSE”; Quit from the tray stops everything.
-        </p>
+        <p className="card__note">{t('overlays.close.note')}</p>
       </div>
 
       <div className="card">
-        <h2 className="card__title">Every capability, in detail</h2>
+        <h2 className="card__title">{t('overlays.page.everyCapability')}</h2>
         {status ? (
           <CapabilityList capabilities={status.capabilities} />
         ) : (
           <p className="card__muted" title={statusError ?? undefined}>
-            {statusError ? 'Backend unavailable. Run PULSE with pnpm app:dev.' : 'Checking…'}
+            {statusError ? t('overlays.backend.unavailable') : t('common.checking')}
           </p>
         )}
       </div>
@@ -276,7 +270,9 @@ function OverlayEditor({
   readonly overlay: Overlay;
   readonly canPosition: boolean;
 }) {
+  const { t } = useTranslation();
   const dashboards = useDashboards();
+  const name = overlayName(overlay);
   const [library, setLibrary] = useState(false);
   const [customizing, setCustomizing] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -288,19 +284,22 @@ function OverlayEditor({
   const [packName, setPackName] = useState('');
 
   return (
-    <div className="card overlay-editor" aria-label={`Overlay ${overlay.name}`}>
+    <div className="card overlay-editor" aria-label={t('overlays.editor.aria', { name })}>
       <header className="overlay-editor__header">
         <input
           type="text"
           className="customize__text overlay-editor__name"
-          aria-label="Overlay name"
+          aria-label={t('overlays.editor.name')}
           maxLength={40}
-          value={overlay.name}
-          onChange={(event) => set((o) => ({ ...o, name: event.target.value }))}
+          value={name}
+          onChange={(event) =>
+            // Typed by the user: their words from now on, in every language.
+            set(({ nameKey: _builtIn, ...o }) => ({ ...o, name: event.target.value }))
+          }
         />
         <div className="customize__row">
           <Toggle
-            text="Visible"
+            text={t('overlays.editor.visible')}
             checked={overlay.visible}
             onChange={(visible) => set((o) => ({ ...o, visible }))}
           />
@@ -310,33 +309,35 @@ function OverlayEditor({
             aria-pressed={!overlay.locked}
             onClick={() => set((o) => ({ ...o, locked: !o.locked }))}
           >
-            {overlay.locked ? 'Edit overlay' : 'Lock overlay'}
+            {overlay.locked ? t('overlays.editor.edit') : t('overlays.editor.lock')}
           </button>
           <button
             type="button"
             className="button button--quiet"
             onClick={() => updateOverlays((section) => duplicateOverlay(section, overlay.id))}
           >
-            Duplicate
+            {t('common.duplicate')}
           </button>
           <button
             type="button"
             className="button button--quiet"
             onClick={() => {
-              setPackName(overlay.name);
+              setPackName(name);
               setSaving(true);
             }}
           >
-            Save as my pack
+            {t('overlays.editor.saveAsPack')}
           </button>
           <button type="button" className="button button--quiet" onClick={() => setDeleting(true)}>
-            Delete
+            {t('common.delete')}
           </button>
         </div>
       </header>
       {pack && (
         <p className="overlay-editor__origin">
-          <span className="chip">From “{pack.name}”</span>
+          <span className="chip">
+            {t('overlays.editor.fromPack', { name: t(`presets.packs.${pack.id}.name`) })}
+          </span>
           <button
             type="button"
             className="button button--quiet"
@@ -346,18 +347,18 @@ function OverlayEditor({
               )
             }
           >
-            Reset to pack
+            {t('overlays.editor.resetToPack')}
           </button>
         </p>
       )}
 
       <div className="overlay-editor__body">
-        <div className="overlay-editor__preview" aria-label="Preview">
+        <div className="overlay-editor__preview" aria-label={t('common.preview')}>
           <OverlayPreview overlay={overlay} />
         </div>
         <div className="overlay-editor__settings">
           <StylePicker
-            label="Overlay style"
+            label={t('overlays.editor.style')}
             value={overlay.styleId}
             onChange={(styleId) => {
               const appearance = readAppearance();
@@ -368,14 +369,14 @@ function OverlayEditor({
             }}
           />
           <Choice
-            ariaLabel="Overlay layout"
+            ariaLabel={t('overlays.editor.layout')}
             options={OVERLAY_LAYOUTS}
             value={overlay.layout}
-            labelFor={(value) => ({ horizontal: 'Row', vertical: 'Column', grid: 'Grid' })[value]}
+            labelFor={(value) => t(`overlays.layouts.${value}`)}
             onChange={(layout) => set((o) => ({ ...o, layout }))}
           />
           <Toggle
-            text="Background"
+            text={t('customize.background')}
             checked={overlay.chrome.background !== null}
             onChange={(on) =>
               set((o) => ({ ...o, chrome: { ...o.chrome, background: on ? '#0d1013' : null } }))
@@ -383,41 +384,41 @@ function OverlayEditor({
           />
           {overlay.chrome.background !== null && (
             <ColorField
-              text="Overlay background"
+              text={t('overlays.editor.background')}
               value={overlay.chrome.background}
               onChange={(background) => set((o) => ({ ...o, chrome: { ...o.chrome, background } }))}
             />
           )}
           <label className="customize__inline">
-            Background opacity
+            {t('customize.backgroundOpacity')}
             <Slider
-              ariaLabel="Overlay background opacity"
+              ariaLabel={t('overlays.editor.backgroundOpacity')}
               value={overlay.chrome.opacity}
               min={0}
               max={1}
               step={0.05}
-              format={(value) => `${Math.round(value * 100)} %`}
+              format={(value) => `${formatFixed(value * 100, 0)} %`}
               onChange={(opacity) => set((o) => ({ ...o, chrome: { ...o.chrome, opacity } }))}
             />
           </label>
           <div className="customize__toggles">
             <Toggle
-              text="Border"
+              text={t('customize.border')}
               checked={overlay.chrome.border === 'thin'}
               onChange={(on) =>
                 set((o) => ({ ...o, chrome: { ...o.chrome, border: on ? 'thin' : 'none' } }))
               }
             />
             <Toggle
-              text="Shadow"
+              text={t('customize.shadow')}
               checked={overlay.chrome.shadow}
               onChange={(shadow) => set((o) => ({ ...o, chrome: { ...o.chrome, shadow } }))}
             />
           </div>
           <label className="customize__inline">
-            Corners
+            {t('customize.corners')}
             <Slider
-              ariaLabel="Overlay corner radius"
+              ariaLabel={t('overlays.editor.cornerRadius')}
               value={overlay.chrome.radius}
               min={0}
               max={32}
@@ -427,9 +428,9 @@ function OverlayEditor({
             />
           </label>
           <label className="customize__inline">
-            Gap
+            {t('customize.gap')}
             <Slider
-              ariaLabel="Gap between widgets"
+              ariaLabel={t('overlays.editor.gapBetween')}
               value={overlay.gap}
               min={0}
               max={32}
@@ -440,10 +441,10 @@ function OverlayEditor({
           </label>
           <div className="customize__row">
             <label className="customize__inline">
-              W
+              {t('customize.widthShort')}
               <input
                 type="number"
-                aria-label="Overlay width"
+                aria-label={t('overlays.editor.width')}
                 value={Math.round(overlay.geometry.width)}
                 onChange={(event) =>
                   set((o) => ({
@@ -457,10 +458,10 @@ function OverlayEditor({
               />
             </label>
             <label className="customize__inline">
-              H
+              {t('customize.heightShort')}
               <input
                 type="number"
-                aria-label="Overlay height"
+                aria-label={t('overlays.editor.height')}
                 value={Math.round(overlay.geometry.height)}
                 onChange={(event) =>
                   set((o) => ({
@@ -478,7 +479,7 @@ function OverlayEditor({
               className="button button--quiet"
               onClick={() => updateOverlays((section) => fitToContent(section, overlay.id))}
             >
-              Fit to widgets
+              {t('overlays.editor.fit')}
             </button>
           </div>
           {canPosition ? (
@@ -487,7 +488,7 @@ function OverlayEditor({
                 X
                 <input
                   type="number"
-                  aria-label="Overlay x"
+                  aria-label={t('overlays.editor.x')}
                   value={Math.round(overlay.geometry.x)}
                   onChange={(event) =>
                     set((o) => ({
@@ -501,7 +502,7 @@ function OverlayEditor({
                 Y
                 <input
                   type="number"
-                  aria-label="Overlay y"
+                  aria-label={t('overlays.editor.y')}
                   value={Math.round(overlay.geometry.y)}
                   onChange={(event) =>
                     set((o) => ({
@@ -511,25 +512,25 @@ function OverlayEditor({
                   }
                 />
               </label>
-              <span className="card__note">{overlay.geometry.monitor ?? 'primary monitor'}</span>
+              <span className="card__note">
+                {overlay.geometry.monitor ?? t('overlays.editor.primaryMonitor')}
+              </span>
             </div>
           ) : (
-            <p className="card__note">
-              This session cannot place windows: drag the overlay by its bar in Edit mode.
-            </p>
+            <p className="card__note">{t('overlays.editor.cannotPlace')}</p>
           )}
         </div>
       </div>
 
-      <ul className="overlay-editor__widgets" aria-label={`${overlay.name} widgets`}>
+      <ul className="overlay-editor__widgets" aria-label={t('overlays.editor.widgets', { name })}>
         {overlay.widgets.map((widget, index) => (
           <li key={widget.id} className="overlay-editor__widget">
             <span className="overlay-editor__widget-name">{widgetTitle(widget)}</span>
             <label className="customize__inline">
-              W
+              {t('customize.widthShort')}
               <input
                 type="number"
-                aria-label={`${widgetTitle(widget)} width`}
+                aria-label={t('overlays.editor.widgetWidth', { name: widgetTitle(widget) })}
                 value={widget.size.width}
                 onChange={(event) =>
                   updateOverlays((section) =>
@@ -545,10 +546,10 @@ function OverlayEditor({
               />
             </label>
             <label className="customize__inline">
-              H
+              {t('customize.heightShort')}
               <input
                 type="number"
-                aria-label={`${widgetTitle(widget)} height`}
+                aria-label={t('overlays.editor.widgetHeight', { name: widgetTitle(widget) })}
                 value={widget.size.height}
                 onChange={(event) =>
                   updateOverlays((section) =>
@@ -568,12 +569,12 @@ function OverlayEditor({
               className="button button--quiet"
               onClick={() => setCustomizing(widget.id)}
             >
-              Customize
+              {t('common.customize')}
             </button>
             <button
               type="button"
               className="button button--quiet"
-              aria-label={`Move ${widgetTitle(widget)} earlier`}
+              aria-label={t('overlays.editor.moveEarlier', { name: widgetTitle(widget) })}
               disabled={index === 0}
               onClick={() =>
                 updateOverlays((section) => moveOverlayWidget(section, overlay.id, widget.id, -1))
@@ -584,7 +585,7 @@ function OverlayEditor({
             <button
               type="button"
               className="button button--quiet"
-              aria-label={`Move ${widgetTitle(widget)} later`}
+              aria-label={t('overlays.editor.moveLater', { name: widgetTitle(widget) })}
               disabled={index === overlay.widgets.length - 1}
               onClick={() =>
                 updateOverlays((section) => moveOverlayWidget(section, overlay.id, widget.id, 1))
@@ -601,12 +602,12 @@ function OverlayEditor({
                 )
               }
             >
-              Copy to dashboard
+              {t('overlays.editor.copyToDashboard')}
             </button>
             <button
               type="button"
               className="button button--quiet"
-              aria-label={`Remove ${widgetTitle(widget)}`}
+              aria-label={t('common.removeNamed', { name: widgetTitle(widget) })}
               onClick={() =>
                 updateOverlays((section) => removeOverlayWidget(section, overlay.id, widget.id))
               }
@@ -617,9 +618,16 @@ function OverlayEditor({
         ))}
       </ul>
       <button type="button" className="button" onClick={() => setLibrary(true)}>
-        Add widget
+        {t('dashboard.addWidget')}
       </button>
-      <span className="card__note">{` Copies go to the dashboard “${dashboards.items.find((d) => d.id === dashboards.activeId)?.name ?? ''}”.`}</span>
+      <span className="card__note">
+        {' '}
+        {t('overlays.editor.copiesGoTo', {
+          name: dashboardName(
+            dashboards.items.find((d) => d.id === dashboards.activeId) ?? { name: '' },
+          ),
+        })}
+      </span>
 
       {library && (
         <WidgetLibrary
@@ -646,9 +654,9 @@ function OverlayEditor({
       )}
       {saving && (
         <ConfirmDialog
-          title="Save as my pack"
-          body={['Its widgets, layout, style and chrome, to add again from Overlays.']}
-          confirmLabel="Save pack"
+          title={t('overlays.editor.saveAsPack')}
+          body={[t('overlays.editor.saveAsPackBody')]}
+          confirmLabel={t('overlays.editor.savePack')}
           tone="neutral"
           confirmDisabled={!packName.trim()}
           onCancel={() => setSaving(false)}
@@ -660,7 +668,7 @@ function OverlayEditor({
           <input
             type="text"
             className="customize__text dialog__input"
-            aria-label="Pack name"
+            aria-label={t('overlays.editor.packName')}
             maxLength={40}
             value={packName}
             onChange={(event) => setPackName(event.target.value)}
@@ -669,9 +677,9 @@ function OverlayEditor({
       )}
       {deleting && (
         <ConfirmDialog
-          title={`Delete overlay “${overlay.name}”?`}
-          body={['Its window closes and its widgets are removed.']}
-          confirmLabel="Delete overlay"
+          title={t('overlays.editor.deleteTitle', { name })}
+          body={[t('overlays.editor.deleteBody')]}
+          confirmLabel={t('overlays.editor.delete')}
           tone="danger"
           onCancel={() => setDeleting(false)}
           onConfirm={() => {
@@ -686,19 +694,18 @@ function OverlayEditor({
 
 /** The user's saved overlay packs. */
 function UserPacks() {
+  const { t } = useTranslation();
   const templates = useTemplates();
   if (templates.overlays.length === 0) return null;
   return (
     <div className="user-packs">
-      <h3 className="section-subtitle">Your packs</h3>
+      <h3 className="section-subtitle">{t('overlays.page.yourPacks')}</h3>
       <ul className="user-styles">
         {templates.overlays.map((pack) => (
           <li key={pack.id} className="user-style">
             <span className="user-style__name">
               {pack.name}
-              <small>
-                {pack.overlay.widgets.length} widget{pack.overlay.widgets.length === 1 ? '' : 's'}
-              </small>
+              <small>{t('common.widgetCount', { count: pack.overlay.widgets.length })}</small>
             </span>
             <button
               type="button"
@@ -709,12 +716,12 @@ function UserPacks() {
                 )
               }
             >
-              <Icon name="plus" /> Add
+              <Icon name="plus" /> {t('common.add')}
             </button>
             <button
               type="button"
               className="button button--quiet"
-              aria-label={`Delete pack ${pack.name}`}
+              aria-label={t('overlays.page.deletePack', { name: pack.name })}
               onClick={() => updateTemplates((current) => deleteUserPack(current, pack.id))}
             >
               <Icon name="close" />

@@ -1,4 +1,6 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { matchesMetricQuery, metricDescription, metricName, sourceLabel } from '@/i18n/metrics';
 import type { MetricDefinition } from '@/types/metrics';
 import { useMetricCatalog } from '@/hooks/useMetricCatalog';
 import type { Category } from '@/dashboard/library';
@@ -30,6 +32,7 @@ export function WidgetLibrary({
   readonly onAdd: (widget: WidgetInstance) => void;
   readonly onClose: () => void;
 }) {
+  const { t, i18n } = useTranslation();
   const { catalog, status } = useMetricCatalog();
   const templates = useTemplates();
   const refs = useSourceRefs();
@@ -47,13 +50,11 @@ export function WidgetLibrary({
             (!definition.metric.sourceId.startsWith('process:') ||
               definition.metric.sourceId === 'process:system'),
         )
-        .filter((definition) =>
-          `${definition.displayName} ${definition.sourceLabel} ${definition.metric.key}`
-            .toLowerCase()
-            .includes(query.trim().toLowerCase()),
-        )
+        .filter((definition) => matchesMetricQuery(definition, query))
         .slice(0, 200),
-    [catalog, query],
+    // The language is a dependency: names are matched as they are shown.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [catalog, query, i18n.language],
   );
 
   const addCustom = (definition: MetricDefinition) => {
@@ -78,20 +79,20 @@ export function WidgetLibrary({
         className="dialog library"
         role="dialog"
         aria-modal="true"
-        aria-label="Add widget"
+        aria-label={t('dashboard.addWidget')}
         onMouseDown={(event) => event.stopPropagation()}
         onKeyDown={(event) => {
           if (event.key === 'Escape') onClose();
         }}
       >
         <header className="library__header">
-          <h3 className="dialog__title">Add widget</h3>
+          <h3 className="dialog__title">{t('dashboard.addWidget')}</h3>
           <button type="button" className="button button--quiet" onClick={onClose}>
-            Close
+            {t('common.close')}
           </button>
         </header>
         <div className="library__body">
-          <nav className="library__categories" aria-label="Widget categories">
+          <nav className="library__categories" aria-label={t('library.categoriesLabel')}>
             {[...CATEGORIES, 'Templates' as const].map((name) => (
               <button
                 key={name}
@@ -100,12 +101,12 @@ export function WidgetLibrary({
                 aria-pressed={name === category}
                 onClick={() => setCategory(name)}
               >
-                {name}
+                {t(`library.categories.${name}`)}
               </button>
             ))}
           </nav>
           <div className="library__entries">
-            {status === 'loading' && <p className="card__muted">Reading the metric catalog…</p>}
+            {status === 'loading' && <p className="card__muted">{t('library.loading')}</p>}
 
             {category !== 'Templates' &&
               entries.map((blueprint) => {
@@ -116,8 +117,12 @@ export function WidgetLibrary({
                 return (
                   <div key={blueprint.id} className="library__entry">
                     <div>
-                      <p className="library__label">{blueprint.label}</p>
-                      <p className="library__description">{blueprint.description}</p>
+                      <p className="library__label">
+                        {t(`library.blueprints.${blueprint.id}.label`)}
+                      </p>
+                      <p className="library__description">
+                        {t(`library.blueprints.${blueprint.id}.description`)}
+                      </p>
                       {!availability.ok && <p className="library__reason">{availability.reason}</p>}
                       {availability.ok && liveNote && <p className="library__reason">{liveNote}</p>}
                     </div>
@@ -125,10 +130,12 @@ export function WidgetLibrary({
                       type="button"
                       className="button"
                       disabled={!availability.ok}
-                      aria-label={`Add ${blueprint.label}`}
+                      aria-label={t('library.addNamed', {
+                        name: t(`library.blueprints.${blueprint.id}.label`),
+                      })}
                       onClick={() => onAdd(createWidget(blueprint))}
                     >
-                      Add
+                      {t('common.add')}
                     </button>
                   </div>
                 );
@@ -136,12 +143,12 @@ export function WidgetLibrary({
 
             {category === 'Custom' && (
               <div className="library__custom">
-                <p className="library__label">Any metric</p>
+                <p className="library__label">{t('library.anyMetric')}</p>
                 <input
                   type="search"
                   className="customize__text"
-                  placeholder="Search the metric catalog"
-                  aria-label="Search metrics"
+                  placeholder={t('library.searchPlaceholder')}
+                  aria-label={t('library.searchLabel')}
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
                 />
@@ -154,11 +161,13 @@ export function WidgetLibrary({
                           type="button"
                           className="library__metric"
                           disabled={!readable}
-                          title={readable ? definition.description : 'Not readable on this machine'}
+                          title={
+                            readable ? metricDescription(definition) : t('library.notReadable')
+                          }
                           onClick={() => addCustom(definition)}
                         >
-                          <span>{definition.displayName}</span>
-                          <span className="library__metric-source">{definition.sourceLabel}</span>
+                          <span>{metricName(definition)}</span>
+                          <span className="library__metric-source">{sourceLabel(definition)}</span>
                         </button>
                       </li>
                     );
@@ -169,9 +178,7 @@ export function WidgetLibrary({
 
             {category === 'Templates' &&
               (templates.items.length === 0 ? (
-                <p className="card__muted">
-                  No template yet. Customize a widget and use “Save as template”.
-                </p>
+                <p className="card__muted">{t('library.noTemplates')}</p>
               ) : (
                 templates.items.map((template) => (
                   <div key={template.id} className="library__entry">
@@ -179,7 +186,7 @@ export function WidgetLibrary({
                       <input
                         type="text"
                         className="customize__text"
-                        aria-label="Template name"
+                        aria-label={t('library.templateName')}
                         value={renaming.name}
                         autoFocus
                         onChange={(event) =>
@@ -203,14 +210,14 @@ export function WidgetLibrary({
                         className="button"
                         onClick={() => onAdd(instantiateTemplate(template))}
                       >
-                        Add
+                        {t('common.add')}
                       </button>
                       <button
                         type="button"
                         className="button button--quiet"
                         onClick={() => setRenaming({ id: template.id, name: template.name })}
                       >
-                        Rename
+                        {t('common.rename')}
                       </button>
                       <button
                         type="button"
@@ -219,7 +226,7 @@ export function WidgetLibrary({
                           updateTemplates((section) => deleteTemplate(section, template.id))
                         }
                       >
-                        Delete
+                        {t('common.delete')}
                       </button>
                     </div>
                   </div>

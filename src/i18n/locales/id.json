@@ -1,0 +1,2005 @@
+{
+  "app": {
+    "tagline": "Sistem Anda, sekilas pandang."
+  },
+  "common": {
+    "comingLater": "Hadir di fase PULSE berikutnya.",
+    "active": "Aktif",
+    "copyOf": "{{name}} (salinan)",
+    "all": "Semua",
+    "checking": "Memeriksa…",
+    "refresh": "Segarkan",
+    "copy": "Salin",
+    "copied": "Disalin",
+    "apply": "Terapkan",
+    "duplicate": "Duplikat",
+    "delete": "Hapus",
+    "preview": "Pratinjau",
+    "customize": "Sesuaikan",
+    "removeNamed": "Lepas {{name}}",
+    "add": "Tambah",
+    "widgetCount_other": "{{count}} widget",
+    "cancel": "Batal",
+    "rename": "Ganti nama",
+    "reset": "Atur ulang",
+    "export": "Ekspor",
+    "import": "Impor",
+    "copyToClipboard": "Salin ke papan klip",
+    "invalidJson": "Ini bukan JSON yang valid.",
+    "remove": "Lepas",
+    "close": "Tutup",
+    "save": "Simpan",
+    "deleteNamed": "Hapus {{name}}",
+    "refreshing": "Menyegarkan…",
+    "hide": "Sembunyikan",
+    "showAll": "Tampilkan semua"
+  },
+  "nav": {
+    "main": "Navigasi utama",
+    "groups": {
+      "monitor": "Pemantauan",
+      "modes": "Mode",
+      "studio": "Studio"
+    },
+    "routes": {
+      "overview": {
+        "label": "Ikhtisar",
+        "description": "Dasbor bawaan PULSE."
+      },
+      "dashboard": {
+        "label": "Dasbor",
+        "description": "Dasbor Anda sendiri: widget yang Anda tambahkan, atur, dan gayakan."
+      },
+      "overlays": {
+        "label": "Overlay",
+        "description": "Widget di jendelanya sendiri di desktop."
+      },
+      "gaming": {
+        "label": "Gaming",
+        "description": "Tampilan ringan yang berfokus pada metrik penting saat bermain game."
+      },
+      "development": {
+        "label": "Pengembangan",
+        "description": "Tampilan yang berfokus pada beban build, kompilasi, dan kerja."
+      },
+      "personal": {
+        "label": "Pribadi",
+        "description": "Dasbor yang bebas disusun dengan banyak widget."
+      },
+      "mini": {
+        "label": "Mini",
+        "description": "Jendela PULSE kecil dan biasa yang menampilkan satu dasbor."
+      },
+      "appearance": {
+        "label": "Tampilan",
+        "description": "Gaya, warna, huruf, kerapatan, gerakan, dan bahasa — untuk setiap permukaan."
+      }
+    },
+    "changeStyle": "Ubah gaya",
+    "style": "Gaya"
+  },
+  "status": {
+    "backendStatus": "Status backend",
+    "querying": "Menanyai backend…",
+    "unavailableUiOnly": "Backend tidak tersedia — hanya antarmuka"
+  },
+  "notFound": {
+    "title": "Tidak ditemukan",
+    "subtitle": "Bagian PULSE ini tidak ada.",
+    "back": "Kembali ke Ikhtisar"
+  },
+  "overview": {
+    "version": "Versi {{version}}",
+    "systemDetails": "Detail sistem",
+    "detectedPlatform": "Platform terdeteksi",
+    "backendUnavailable": "Backend tidak tersedia. Jalankan PULSE dengan <code>pnpm app:dev</code> untuk menjangkau lapisan Rust.",
+    "os": "Sistem operasi",
+    "platformLayer": "Lapisan platform",
+    "architecture": "Arsitektur",
+    "displayServer": "Server tampilan",
+    "backendVersion": "Versi backend"
+  },
+  "home": {
+    "liveSystem": "Sistem langsung",
+    "links": {
+      "dashboards": "Dasbor",
+      "dashboardsHint": "templat, widget, tata letak",
+      "overlays": "Overlay",
+      "overlaysHint_other": "{{count}} paket, status backend",
+      "appearance": "Tampilan",
+      "appearanceHint_other": "{{count}} gaya, penyetelan mendalam"
+    }
+  },
+  "welcome": {
+    "title": "Selamat datang di PULSE",
+    "subtitle": "Pilih titik awal. Setiap pilihan bisa diubah nanti — di Tampilan, mode, Dasbor, dan Overlay.",
+    "label": "Selamat datang",
+    "skip": "Lewati",
+    "start": "Mulai PULSE",
+    "modeLabel": "Mode",
+    "howUse": "Bagaimana Anda akan menggunakannya?",
+    "justMonitor": "Hanya memantau",
+    "justMonitorHint": "Tanpa mode — satu gaya dan dasbor.",
+    "pickStyle": "Pilih gaya",
+    "styles": "Gaya sambutan",
+    "starters": "Untuk memulai",
+    "startWith": "Mulai dengan",
+    "dashboard": "Dasbor",
+    "starterDashboard": "Dasbor awal",
+    "keepDashboards": "Pertahankan dasbor saya saat ini",
+    "overlay": "Overlay",
+    "starterOverlay": "Overlay awal",
+    "noOverlay": "Belum ada overlay",
+    "overlaysHere": "Overlay di sini:",
+    "bridgeNotReady": "— jembatan GNOME: {{state}}. Lihat Overlay untuk menyiapkannya.",
+    "bridgeActive": "— overlay tetap di atas jendela lain.",
+    "noBackend": "Kemampuan overlay ditampilkan di Overlay setelah backend menjawab."
+  },
+  "language": {
+    "label": "Bahasa",
+    "system": "Sistem ({{language}})",
+    "hint": "Sistem mengikuti bahasa komputer Anda. Berlaku untuk semua jendela PULSE sekaligus."
+  },
+  "metrics": {
+    "catalog": {
+      "cpu": {
+        "count": {
+          "logical": {
+            "name": "Prosesor logis",
+            "description": "Jumlah prosesor logis (thread perangkat keras) tempat sistem operasi menjadwalkan pekerjaan. Dengan multithreading simultan, jumlahnya melebihi jumlah inti fisik."
+          },
+          "package": {
+            "name": "Paket prosesor",
+            "description": "Jumlah paket prosesor fisik (soket) yang terpasang."
+          },
+          "physical": {
+            "name": "Inti fisik",
+            "description": "Jumlah inti eksekusi fisik, dihitung sebagai pasangan (paket, inti) yang berbeda sehingga inti bernomor sama di dua paket berbeda tidak pernah digabungkan."
+          }
+        },
+        "frequency": {
+          "current": {
+            "name": "Frekuensi saat ini",
+            "description": "Frekuensi clock yang saat ini dilaporkan sistem operasi untuk prosesor logis ini. Penskalaan, boost, dan kebijakan daya terus mengubahnya, jadi ini angka terbaru dari platform, bukan pengukuran sesaat pada silikon."
+          },
+          "max": {
+            "name": "Frekuensi maksimum",
+            "description": "Frekuensi clock maksimum yang dilaporkan platform untuk prosesor logis ini. Pada CPU hibrida, nilainya berbeda antara inti performa dan inti efisiensi. Batas governor atau kebijakan daya tidak pernah dipublikasikan sebagai gantinya."
+          }
+        },
+        "temperature": {
+          "package": {
+            "name": "Suhu paket",
+            "description": "Suhu yang dilaporkan paket prosesor tentang dirinya sendiri. Ini sensor milik paket itu sendiri, bukan rata-rata inti dan bukan salah satu batas termal rancangan silikon."
+          }
+        },
+        "usage": {
+          "logical": {
+            "name": "Penggunaan CPU",
+            "description": "Porsi waktu CPU yang dipakai prosesor logis ini untuk bekerja, diukur sejak sampel sebelumnya. Dengan multithreading simultan, dua prosesor logis berbagi satu inti fisik."
+          },
+          "total": {
+            "name": "Penggunaan CPU",
+            "description": "Porsi waktu CPU yang dipakai untuk bekerja di seluruh mesin, diukur sejak sampel sebelumnya."
+          }
+        }
+      },
+      "gpu": {
+        "count": {
+          "name": "GPU",
+          "description": "Jumlah adaptor grafis perangkat keras yang diinventarisasi PULSE. Adaptor perangkat lunak seperti Microsoft Basic Render Driver dan WARP tidak dihitung."
+        },
+        "fan": {
+          "speed": {
+            "name": "Kipas",
+            "description": "Kecepatan putar kipas adaptor, dalam putaran per menit. Persentase kontrol kipas adalah siklus kerja, bukan kecepatan, dan tidak pernah dipublikasikan sebagai gantinya."
+          }
+        },
+        "frequency": {
+          "core": {
+            "name": "Clock inti",
+            "description": "Clock grafis saat ini yang dilaporkan driver. Perilaku boost dan kebijakan daya terus mengubahnya, jadi ini angka terbaru dari platform, bukan pengukuran sesaat pada silikon."
+          },
+          "memory": {
+            "name": "Clock memori",
+            "description": "Clock memori video saat ini yang dilaporkan driver."
+          }
+        },
+        "memory": {
+          "free": {
+            "name": "VRAM bebas",
+            "description": "Memori video khusus yang masih tersedia untuk dialokasikan."
+          },
+          "total": {
+            "name": "Total VRAM",
+            "description": "Memori video khusus yang terpasang pada adaptor ini. Memori sistem yang dibagi dengan GPU terintegrasi sengaja tidak dilaporkan di sini."
+          },
+          "usage": {
+            "percent": {
+              "name": "Penggunaan VRAM",
+              "description": "Porsi memori video khusus yang terpakai, dihitung dari byte terpakai dan total."
+            }
+          },
+          "used": {
+            "name": "VRAM terpakai",
+            "description": "Memori video khusus yang saat ini terpakai di seluruh sistem."
+          }
+        },
+        "temperature": {
+          "core": {
+            "name": "Suhu",
+            "description": "Suhu die prosesor grafis, menurut sensornya sendiri."
+          },
+          "hotspot": {
+            "name": "Hotspot",
+            "description": "Titik terpanas yang terukur pada paket prosesor grafis. Sensor terpisah dari suhu die, biasanya lebih tinggi saat terbebani, dan tidak pernah diturunkan darinya."
+          },
+          "memory": {
+            "name": "Suhu memori",
+            "description": "Suhu memori video khusus, dari sensornya sendiri."
+          }
+        },
+        "usage": {
+          "core": {
+            "name": "Penggunaan GPU",
+            "description": "Porsi kapasitas mesin grafis yang terpakai, sebagaimana dilaporkan driver."
+          }
+        }
+      },
+      "memory": {
+        "available": {
+          "name": "Memori tersedia",
+          "description": "Memori fisik yang dapat dialokasikan tanpa swap."
+        },
+        "total": {
+          "name": "Total memori",
+          "description": "Memori fisik terpasang yang dapat digunakan sistem operasi."
+        },
+        "usage": {
+          "percent": {
+            "name": "Penggunaan memori",
+            "description": "Porsi memori fisik yang terpakai, dihitung dari byte terpakai dan total."
+          }
+        },
+        "used": {
+          "name": "Memori terpakai",
+          "description": "Memori fisik yang terpakai, didefinisikan sebagai total dikurangi tersedia."
+        }
+      },
+      "network": {
+        "interface": {
+          "count": {
+            "name": "Antarmuka",
+            "description": "Jumlah antarmuka jaringan yang dipantau PULSE. Antarmuka loopback sengaja dikecualikan: ia selalu ada dan hanya membawa lalu lintas yang tidak pernah meninggalkan mesin ini."
+          },
+          "up_count": {
+            "name": "Terhubung",
+            "description": "Berapa banyak antarmuka yang dipantau yang saat ini memiliki tautan. Adaptor yang aktif tetapi tanpa kabel, atau radio yang tidak terasosiasi dengan jaringan, tidak dihitung."
+          }
+        },
+        "link": {
+          "receive_speed": {
+            "name": "Tautan RX",
+            "description": "Kapasitas masuk tautan, sebagaimana dinegosiasikan driver — bukan seberapa banyak yang mengalir. Sebuah gauge, bukan nilai tetap, karena Wi-Fi dan Ethernet sama-sama bernegosiasi ulang."
+          },
+          "transmit_speed": {
+            "name": "Tautan TX",
+            "description": "Kapasitas keluar tautan. Sama dengan kapasitas masuk pada Ethernet; sering berbeda pada Wi-Fi."
+          }
+        },
+        "mtu": {
+          "name": "MTU",
+          "description": "Muatan terbesar yang dibawa antarmuka ini dalam satu frame. Fakta konfigurasi, bukan pembacaan, jadi ini sebuah status."
+        },
+        "receive": {
+          "bytes_per_second": {
+            "name": "Unduh",
+            "description": "Byte yang tiba di mesin ini per detik, diturunkan dari penghitung kumulatif sistem operasi di antara dua sampel. Terima berarti masuk, dari sudut pandang mesin ini."
+          },
+          "dropped_per_second": {
+            "name": "RX dibuang",
+            "description": "Frame masuk yang tiba utuh tetapi tetap dibuang — buffer penuh, atau tidak ada penangan protokol yang menginginkannya. Ini penghitung lokal, bukan kehilangan paket Internet, yang tidak diukur PULSE."
+          },
+          "errors_per_second": {
+            "name": "Galat RX",
+            "description": "Frame masuk yang ditolak antarmuka karena ada yang salah — checksum buruk, galat framing. Penghitung yang berbeda dari frame dibuang; laju bukan nol yang terus-menerus biasanya berarti masalah kabel atau driver."
+          },
+          "packets_per_second": {
+            "name": "Paket RX",
+            "description": "Paket yang tiba per detik, unicast dan non-unicast bersama-sama. Nol adalah pengukuran nyata: tidak ada yang tiba selama interval."
+          }
+        },
+        "transmit": {
+          "bytes_per_second": {
+            "name": "Unggah",
+            "description": "Byte yang meninggalkan mesin ini per detik, diturunkan dari penghitung kumulatif sistem operasi di antara dua sampel. Kirim berarti keluar."
+          },
+          "dropped_per_second": {
+            "name": "TX dibuang",
+            "description": "Frame keluar yang dibuang sebelum dikirim, biasanya karena antrean penuh."
+          },
+          "errors_per_second": {
+            "name": "Galat TX",
+            "description": "Frame keluar yang gagal dikirim antarmuka."
+          },
+          "packets_per_second": {
+            "name": "Paket TX",
+            "description": "Paket yang keluar per detik, unicast dan non-unicast bersama-sama."
+          }
+        },
+        "wifi": {
+          "link": {
+            "receive_rate": {
+              "name": "Laju RX Wi-Fi",
+              "description": "Laju masuk yang dinegosiasikan dengan titik akses. Sebuah kapasitas, bukan lalu lintas: tautan 400 Mbit/s yang tidak membawa apa pun tetap melaporkan 400 Mbit/s."
+            },
+            "transmit_rate": {
+              "name": "Laju TX Wi-Fi",
+              "description": "Laju keluar yang dinegosiasikan dengan titik akses. Sering berbeda dari laju masuk."
+            }
+          },
+          "signal": {
+            "quality": {
+              "name": "Kualitas",
+              "description": "Angka kualitas tautan 0–100, hanya dipublikasikan jika sistem operasi menghitungnya sendiri. Tidak pernah diturunkan dari kekuatan sinyal: setiap rumus umum dBm-ke-persentase bersifat sembarang, dan angka yang dihasilkan dengan cara itu akan tampak seperti pengukuran padahal tebakan."
+            },
+            "rssi": {
+              "name": "Sinyal",
+              "description": "Kekuatan sinyal yang diterima dalam dBm, sebagaimana dilaporkan radio — skala logaritmik dengan −40 kuat dan −90 nyaris tak terpakai. Pada radio yang terasosiasi lewat beberapa tautan, ini pembacaan tautan aktif terkuat; nilai dBm tidak pernah dirata-ratakan."
+            }
+          }
+        }
+      },
+      "process": {
+        "count": {
+          "running": {
+            "name": "Berjalan",
+            "description": "Berapa banyak proses yang sedang berjalan di prosesor atau mengantre siap berjalan. Hampir setiap proses di desktop yang diam justru sedang menunggu — timer, input, disk — jadi angka kecil di sini normal dan bukan tanda mesin menganggur. Windows tidak melaporkan status tingkat proses, jadi angka ini tidak tersedia di sana alih-alih dikarang."
+          },
+          "total": {
+            "name": "Proses",
+            "description": "Berapa banyak proses yang ada di mesin ini saat ini, termasuk yang detailnya tidak dapat dibaca PULSE. Proses yang ditolak tetap ada dan tetap dihitung."
+          }
+        },
+        "thread": {
+          "count": {
+            "total": {
+              "name": "Thread",
+              "description": "Semua thread dari semua proses yang terlihat, dijumlahkan. Proses yang jumlah thread-nya tidak terbaca tidak menyumbang apa pun alih-alih tebakan, jadi di mesin penuh proses terlindungi angka ini lebih rendah dari sebenarnya, bukan karangan."
+            }
+          }
+        }
+      },
+      "storage": {
+        "capacity": {
+          "total": {
+            "name": "Kapasitas",
+            "description": "Total kapasitas teralamatkan perangkat fisik. Ini seluruh perangkat, bukan jumlah sistem berkas di dalamnya."
+          }
+        },
+        "device": {
+          "count": {
+            "name": "Perangkat penyimpanan",
+            "description": "Jumlah perangkat penyimpanan fisik yang diinventarisasi PULSE. Partisi, perangkat loop, disk RAM, dan volume device-mapper tidak dihitung sebagai perangkat tersendiri."
+          }
+        },
+        "health": {
+          "available_spare": {
+            "name": "Cadangan tersedia",
+            "description": "Porsi tersisa dari cadangan blok pengganti perangkat. Ini bukan ruang kosong di sistem berkas dan bukan kapasitas yang belum dialokasikan: drive yang penuh sekalipun biasanya tetap melaporkan cadangan 100 %."
+          },
+          "media_errors": {
+            "name": "Galat media",
+            "description": "Galat media dan integritas data yang dideteksi dan dihitung pengontrol selama masa pakai perangkat."
+          },
+          "percentage_used": {
+            "name": "Ketahanan terpakai",
+            "description": "Perkiraan pengontrol tentang seberapa banyak ketahanan tulis nominal perangkat yang telah terpakai. Dilaporkan persis seperti yang dinyatakan perangkat, termasuk nilai di atas 100 % setelah melampaui nominal, dan tidak pernah diubah menjadi skor kesehatan."
+          },
+          "power_on_hours": {
+            "name": "Jam menyala",
+            "description": "Jam pengontrol perangkat dalam keadaan menyala, menurut hitungannya sendiri."
+          },
+          "temperature": {
+            "name": "Suhu",
+            "description": "Suhu komposit pengontrol penyimpanan — satu angka yang diturunkan perangkat dari sensornya sendiri, bukan satu sensor individual dan bukan pembacaan komponen lain."
+          },
+          "unsafe_shutdowns": {
+            "name": "Pemadaman tidak aman",
+            "description": "Berapa kali perangkat kehilangan daya tanpa diminta mati terlebih dahulu."
+          }
+        },
+        "io": {
+          "read": {
+            "bytes_per_second": {
+              "name": "Baca",
+              "description": "Byte yang dibaca dari perangkat per detik, diturunkan dari penghitung kumulatif sistem operasi di antara dua sampel."
+            },
+            "iops": {
+              "name": "IOPS baca",
+              "description": "Operasi baca yang selesai per detik. Nol adalah pengukuran nyata: tidak ada pembacaan yang selesai selama interval."
+            },
+            "latency": {
+              "name": "Latensi baca",
+              "description": "Rata-rata waktu sebuah pembacaan, sebagaimana diamati sistem operasi — termasuk antrean, dan diukur dari host, bukan di dalam perangkat. Interval tanpa pembacaan selesai tidak memiliki latensi dan tidak melaporkannya alih-alih nol."
+            }
+          },
+          "write": {
+            "bytes_per_second": {
+              "name": "Tulis",
+              "description": "Byte yang ditulis ke perangkat per detik, diturunkan dari penghitung kumulatif sistem operasi di antara dua sampel."
+            },
+            "iops": {
+              "name": "IOPS tulis",
+              "description": "Operasi tulis yang selesai per detik. Nol adalah pengukuran nyata: tidak ada penulisan yang selesai selama interval."
+            },
+            "latency": {
+              "name": "Latensi tulis",
+              "description": "Rata-rata waktu sebuah penulisan, sebagaimana diamati sistem operasi. Interval tanpa penulisan selesai tidak melaporkan nilai alih-alih nol."
+            }
+          }
+        },
+        "volume": {
+          "capacity": {
+            "available": {
+              "name": "Tersedia",
+              "description": "Ruang yang benar-benar dapat ditulisi pengguna ini. Lebih kecil dari ruang kosong pada sistem berkas yang menyimpan cadangan untuk superuser, dan itu disengaja: cadangan tersebut tidak tersedia bagi Anda."
+            },
+            "total": {
+              "name": "Ukuran volume",
+              "description": "Total ukuran sistem berkas. Beberapa sistem berkas pada satu perangkat tidak berjumlah sama dengan kapasitas perangkat, dan satu sistem berkas dapat membentang di beberapa perangkat."
+            },
+            "used": {
+              "name": "Terpakai",
+              "description": "Ruang pada sistem berkas yang berisi data, didefinisikan sebagai total dikurangi blok bebas. Terpakai dan tersedia tidak berjumlah sama dengan total pada sistem berkas yang mencadangkan blok untuk superuser."
+            }
+          },
+          "count": {
+            "name": "Volume",
+            "description": "Jumlah sistem berkas terpasang yang diinventarisasi PULSE. Sistem berkas yang terjangkau dari beberapa jalur dihitung sekali; sistem berkas semu seperti proc dan sysfs tidak dihitung."
+          },
+          "usage": {
+            "percent": {
+              "name": "Penggunaan volume",
+              "description": "Porsi sistem berkas yang berisi data, dihitung dari byte terpakai dan total."
+            }
+          }
+        }
+      }
+    },
+    "sources": {
+      "cpuSystem": "CPU sistem",
+      "memorySystem": "Memori sistem",
+      "gpuSystem": "Grafis",
+      "processSystem": "Proses",
+      "networkSystem": "Jaringan",
+      "storageSystem": "Penyimpanan",
+      "cpuPackage": "Paket {{index}}"
+    },
+    "availability": {
+      "available": "Tersedia",
+      "unsupported": "Tidak didukung",
+      "notDetected": "Tidak terdeteksi",
+      "permissionDenied": "Perlu izin",
+      "temporarilyUnavailable": "Untuk sementara tidak tersedia",
+      "providerError": "Galat penyedia",
+      "notRegistered": "Tidak terdaftar"
+    },
+    "availabilityReason": {
+      "unsupported": "Tidak didukung: {{reason}}",
+      "notDetected": "Tidak terdeteksi: {{reason}}",
+      "permissionDenied": "Perlu izin: {{reason}}",
+      "temporarilyUnavailable": "Untuk sementara tidak tersedia: {{reason}}",
+      "providerError": "Galat penyedia: {{reason}}",
+      "notRegistered": "Tidak terdaftar: {{reason}}"
+    },
+    "engineState": {
+      "ready": "Siap",
+      "empty": "Kosong"
+    },
+    "notReported": "Mesin ini tidak melaporkan metrik ini.",
+    "noneSelected": "Tidak ada metrik yang dipilih.",
+    "sourceUnavailable": "Sumber tidak tersedia"
+  },
+  "styles": {
+    "clean": {
+      "name": "Bersih",
+      "tagline": "Modern, tenang, profesional",
+      "description": "Permukaan arang yang tenang, kedalaman lembut, dan satu aksen hijau toska. Bawaan: semuanya terbaca, tak ada yang berteriak."
+    },
+    "glass": {
+      "name": "Kaca",
+      "tagline": "Buram, bercahaya, premium",
+      "description": "Panel kaca buram tembus pandang di atas aurora yang dalam, kilau terang di tepi atas, dan sudut yang lapang. Andalan pameran."
+    },
+    "technical": {
+      "name": "Teknis",
+      "tagline": "Instrumentasi, padat dan tepat",
+      "description": "Meja kerja insinyur: kisi cetak biru, tepi persegi, angka monospasi, bacaan kuning amber, setiap sumbu dan penanda sampel."
+    },
+    "neon": {
+      "name": "Neon",
+      "tagline": "Kontras tinggi, elektrik",
+      "description": "Hampir hitam dengan cahaya magenta dan sian: garis menyala, tepi bercahaya, dan angka berpendar. Dramatis, tetap terbaca."
+    },
+    "gaming": {
+      "name": "Gaming",
+      "tagline": "Berani, cepat, energik",
+      "description": "Sudut terpotong, merah tua dan amber, huruf tebal yang ramping, dan angka besar: dibuat untuk dibaca sekilas di tengah permainan."
+    },
+    "stealth": {
+      "name": "Senyap",
+      "tagline": "Gelap, diskret, minim gangguan",
+      "description": "Nyaris tanpa bingkai, teks abu batu yang redup, tanpa isian dan kisi: ada saat Anda mencarinya, tak terlihat saat tidak."
+    },
+    "compact": {
+      "name": "Ringkas",
+      "tagline": "Rapat, efisien, cocok untuk yang mungil",
+      "description": "Jarak lebih rapat, teks lebih kecil, dan grafik tenang: informasi terbanyak per piksel untuk widget kecil dan overlay mikro."
+    },
+    "hud": {
+      "name": "HUD transparan",
+      "tagline": "Tanpa panel, hanya angka",
+      "description": "Tanpa bingkai: angka terang dengan pendar gelap lembut agar terbaca di atas wallpaper atau game apa pun, garis tipis, tanpa kisi."
+    },
+    "accents": {
+      "teal": "Hijau toska",
+      "sky": "Langit",
+      "blue": "Biru",
+      "violet": "Ungu",
+      "magenta": "Magenta",
+      "crimson": "Merah tua",
+      "amber": "Amber",
+      "lime": "Hijau limau",
+      "mint": "Mint",
+      "silver": "Perak"
+    },
+    "palettes": {
+      "aurora": "Aurora",
+      "ocean": "Samudra",
+      "ember": "Bara",
+      "forest": "Hutan",
+      "candy": "Permen",
+      "mono": "Mono"
+    }
+  },
+  "modes": {
+    "gaming": {
+      "name": "Gaming",
+      "tagline": "Overlay lebih dulu. Terbaca sekilas.",
+      "description": "Overlay ringkas dan tegas untuk performa dan suhu di samping game Anda — tidak pernah di dalamnya. Overlay terkunci meneruskan setiap klik dan tidak pernah mengambil fokus.",
+      "principles": {
+        "noFps": "Tanpa penghitung FPS: PULSE tidak punya sumber FPS yang nyata, jadi tidak menampilkannya.",
+        "safeOverlays": "Hanya overlay desktop yang aman — tanpa injeksi, tanpa hook DirectX/Vulkan/OpenGL.",
+        "borderless": "Game tanpa bingkai atau berjendela; layar penuh eksklusif menyembunyikan jendela desktop."
+      }
+    },
+    "development": {
+      "name": "Pengembangan",
+      "tagline": "Beban build, dengan resolusi rekayasa.",
+      "description": "CPU, memori, I/O disk, jaringan, dan jumlah proses dalam tata letak yang padat dan tepat — untuk kompilasi, kontainer, uji coba, dan sesi debugging.",
+      "principles": {
+        "realSamples": "Setiap angka adalah sampel nyata; riwayat berasal dari perekam PULSE sendiri.",
+        "processesNearby": "Tampilan Proses hanya satu klik untuk proses di balik lonjakan.",
+        "technicalStyle": "Gaya teknis: segmen lurus dan penanda sampel — tidak ada yang dihaluskan."
+      }
+    },
+    "personal": {
+      "name": "Pribadi",
+      "tagline": "Tampilan harian Anda, sesuai selera Anda.",
+      "description": "Titik awal yang menyenangkan dan seimbang untuk dikurasi: tambahkan yang Anda pedulikan, pilih gaya apa pun, biarkan di layar sepanjang hari.",
+      "principles": {
+        "editable": "Semua di sini dapat disunting: widget, gaya, tata letak, overlay.",
+        "saveLook": "Simpan tampilan yang Anda buat sebagai gaya Anda sendiri di Tampilan.",
+        "shareExport": "Bagikan dasbor dengan Ekspor — tidak membawa pengenal perangkat keras apa pun."
+      }
+    },
+    "mini": {
+      "name": "Mini",
+      "tagline": "Jendela pemantau yang kecil dan elegan.",
+      "description": "Jendela biasa yang ringkas dengan beberapa bacaan berukuran cermat. Interaktif, tidak pernah selalu di atas — untuk itu, gunakan overlay.",
+      "principles": {
+        "normalWindow": "Mini adalah jendela biasa: dapat dipindah, difokuskan, ada di bilah tugas.",
+        "pickLayout": "Pilih tata letak Mini di bawah, atau tampilkan salah satu dasbor Anda di dalamnya."
+      }
+    },
+    "miniLayouts": {
+      "vitals": {
+        "name": "Tanda vital",
+        "description": "CPU, memori, suhu, dan lalu lintas, masing-masing dengan trennya."
+      },
+      "thermals": {
+        "name": "Suhu",
+        "description": "Suhu dari waktu ke waktu, dengan pita warna, beserta SSD."
+      },
+      "network": {
+        "name": "Jaringan",
+        "description": "Unduh dan unggah, dengan sinyal Wi-Fi bila ada."
+      },
+      "focus": {
+        "name": "Fokus",
+        "description": "Satu cincin CPU besar, memori dan panas sebagai meter."
+      }
+    },
+    "page": {
+      "aria": "Mode {{mode}}",
+      "eyebrow": "Mode",
+      "leave": "Keluar dari mode",
+      "enter": "Masuk ke mode {{mode}}",
+      "style": "Gaya {{mode}}",
+      "modeDefault": "{{name}} (bawaan mode)",
+      "overlaysFor": "Overlay untuk {{mode}}",
+      "packsHint": "Disusun untuk mode {{mode}} — masing-masing menjadi overlay yang dapat disunting di jendelanya sendiri.",
+      "behaviour": "Perilaku",
+      "whenOn": "Saat mode ini aktif",
+      "lockOverlays": "Kunci setiap overlay saat masuk (klik diteruskan, tidak pernah difokuskan)",
+      "keepRunning": "Biarkan PULSE dan overlay-nya tetap berjalan saat jendela utama ditutup",
+      "keyMetrics": "Metrik utama {{mode}}",
+      "dashboardAria": "Dasbor {{mode}}",
+      "startDashboard": "Mulai dasbor {{mode}} dari templatnya — lalu ubah apa saja.",
+      "createDashboard": "Buat dasbor {{mode}}",
+      "editInDashboard": "Sunting di Dasbor",
+      "switchesKeepRunning": "Masuk ke mode ini mengubah \"menutup jendela utama\" menjadi tetap berjalan."
+    },
+    "miniPage": {
+      "subtitle": "Jendela PULSE yang kecil dan biasa. Mini interaktif dan berperilaku seperti jendela lain; untuk sesuatu yang tetap di atas dan meneruskan klik, tambahkan overlay.",
+      "useHere": "Gunakan mode Mini di sini juga",
+      "layouts": "Tata letak Mini",
+      "whatShows": "Yang ditampilkan Mini",
+      "layout": "Tata letak Mini",
+      "orDashboard": "Atau dasbor",
+      "dashboardShown": "Dasbor yang ditampilkan di Mini",
+      "style": "Gaya Mini",
+      "howLooks": "Tampilan Mini",
+      "followMode": "Mode Mini ({{name}})",
+      "modeStyle": "Gaya mode Mini",
+      "followsAtOnce": "Jendela Mini langsung mengikuti ini — tidak perlu dibuka ulang.",
+      "preview": "Pratinjau Mini",
+      "live": "Langsung · {{name}}",
+      "tinyOverlays": "Overlay mungil",
+      "tinyOverlaysHint": "Saat bacaan harus tetap di atas semuanya dan meneruskan klik, gunakan salah satunya."
+    }
+  },
+  "presets": {
+    "templates": {
+      "balanced": {
+        "name": "Seimbang bawaan",
+        "description": "Ikhtisar harian: strip ringkasan, CPU dan memori, panas, GPU, jaringan, disk."
+      },
+      "gaming": {
+        "name": "Dasbor gaming",
+        "description": "Beban dan panas lebih dulu: cincin CPU dan GPU, suhu, VRAM, memori, dan lalu lintas."
+      },
+      "development": {
+        "name": "Dasbor pengembangan",
+        "description": "Beban build dengan resolusi rekayasa: CPU, memori, I/O disk, jaringan, proses."
+      },
+      "personal": {
+        "name": "Awal pribadi",
+        "description": "Awal yang menyenangkan dan seimbang untuk dijadikan milik Anda: cincin, grafik, panas, dan jaringan."
+      },
+      "thermal": {
+        "name": "Fokus termal",
+        "description": "Setiap suhu yang dibaca PULSE, dengan pita warna, di samping beban yang memicunya."
+      },
+      "network-io": {
+        "name": "Jaringan & I/O",
+        "description": "Lalu lintas dan throughput disk dari dekat, dengan penggunaan sistem berkas dan Wi-Fi."
+      },
+      "minimal": {
+        "name": "Minimal bersih",
+        "description": "Empat angka besar dan satu grafik tenang. Tidak ada yang lain."
+      },
+      "showcase": {
+        "name": "Pameran memukau",
+        "description": "PULSE dalam wujud paling mencolok: kaca buram, cincin, tren gradien, dan strip langsung."
+      }
+    },
+    "packs": {
+      "tiny-thermals": {
+        "name": "Suhu mungil",
+        "description": "Suhu CPU dan GPU beserta memori, dalam blok sekecil bisikan.",
+        "sample": "CPU 64 °C|GPU 58 °C|RAM 42 %"
+      },
+      "tiny-stats": {
+        "name": "Statistik mungil",
+        "description": "CPU, GPU, RAM, dan suhu dalam satu baris ramping.",
+        "sample": "CPU 24 %|GPU 84 %|RAM 41 %|67 °C"
+      },
+      "top-bar": {
+        "name": "Bilah atas",
+        "description": "Strip ringkasan selebar layar di bagian atas, dengan tren langsung.",
+        "sample": "CPU 23 % ∿|GPU 61 % ∿|RAM 44 % ∿|CPU 67 °C ∿|↓ 2,1 MB/s ∿|↑ 180 kB/s ∿"
+      },
+      "bottom-bar": {
+        "name": "Bilah bawah",
+        "description": "Meter di sepanjang tepi bawah: bilah beban untuk CPU, GPU, dan memori, serta lalu lintas.",
+        "sample": "CPU ▰▰▰▱▱|GPU ▰▰▱▱▱|RAM ▰▰▰▰▱|↓ 2,1 MB/s|↑ 180 kB/s"
+      },
+      "left-rail": {
+        "name": "Kolom kiri",
+        "description": "Kolom setinggi layar berisi cincin dan tren di tepi kiri.",
+        "sample": "◔ CPU 23 %|◑ GPU 61 %|◕ RAM 44 %|CPU 67 °C|↓ 2,1 MB/s"
+      },
+      "right-rail": {
+        "name": "Kolom kanan",
+        "description": "Grafik pemantauan setinggi layar di kanan: CPU, memori, panas, jaringan, disk.",
+        "sample": "CPU ⌇⌇⌇|RAM ⌇⌇⌇|°C ⌇⌇⌇|↓↑ ⌇⌇⌇|B/T ⌇⌇⌇"
+      },
+      "gaming-corner": {
+        "name": "Pojok gaming",
+        "description": "HUD tegas enam angka untuk pojok atas: beban, panas, VRAM, dan RAM.",
+        "sample": "CPU 31 %|GPU 97 %|CPU 71 °C|GPU 74 °C|VRAM 6,1 GB|RAM 44 %"
+      },
+      "thermal-strip": {
+        "name": "Strip suhu",
+        "description": "Setiap suhu yang dapat dibaca PULSE, dengan pita warna dan tren.",
+        "sample": "CPU 71 °C ∿|GPU 64 °C ∿|SSD 41 °C"
+      },
+      "summary-card": {
+        "name": "Kartu ringkasan sistem",
+        "description": "Kartu mengambang yang elegan: cincin CPU dan memori, GPU dan jaringan dikelompokkan.",
+        "sample": "◔ CPU 23 %|◕ RAM 44 %|GPU 61 %|↓ 2,1 MB/s"
+      },
+      "network-strip": {
+        "name": "Strip jaringan",
+        "description": "Unduh dan unggah dengan trennya, dan sinyal Wi-Fi bila ada.",
+        "sample": "↓ 12 MB/s ∿|↑ 1,2 MB/s ∿|Wi-Fi −52 dBm"
+      },
+      "minimal-hud": {
+        "name": "HUD transparan minimal",
+        "description": "Tiga angka dan tidak ada yang lain — tanpa panel, pendar lembut agar terbaca.",
+        "sample": "CPU 23 %|GPU 61 %|RAM 44 %"
+      },
+      "dev-rail": {
+        "name": "Kolom pemantau dev",
+        "description": "Untuk sesi pemrograman: grafik CPU dan memori, I/O disk, jaringan, dan jumlah proses.",
+        "sample": "CPU ⌇⌇⌇|RAM ⌇⌇⌇|Baca ∿|Tulis ∿|Jar ↓ ∿|412 proses"
+      }
+    },
+    "footprints": {
+      "micro": "Mikro",
+      "card": "Kartu mengambang",
+      "top-strip": "Bilah atas",
+      "bottom-strip": "Bilah bawah",
+      "left-rail": "Kolom kiri",
+      "right-rail": "Kolom kanan",
+      "corner": "HUD pojok",
+      "block": "Blok ringkasan"
+    },
+    "overlayPresets": {
+      "tiny-stats": {
+        "name": "Statistik mungil",
+        "description": "CPU 24 % | GPU 84 % | RAM 41 %"
+      },
+      "thermal-strip": {
+        "name": "Strip suhu",
+        "description": "Suhu CPU dan GPU dalam satu baris."
+      },
+      "gaming": {
+        "name": "Gaming",
+        "description": "CPU, GPU, VRAM, RAM, dan jaringan, bertumpuk."
+      },
+      "minimal-corner": {
+        "name": "Pojok minimal",
+        "description": "CPU dan RAM, tanpa latar sama sekali."
+      }
+    },
+    "text": {
+      "system": "Sistem",
+      "temperatures": "Suhu",
+      "memory": "Memori",
+      "videoMemory": "Memori video",
+      "network": "Jaringan",
+      "cpuTotal": "CPU total",
+      "processes": "Proses",
+      "diskIo": "I/O disk",
+      "cpuTemperature": "Suhu CPU",
+      "filesystem": "Sistem berkas",
+      "processor": "Prosesor",
+      "temperature": "Suhu",
+      "storage": "Penyimpanan",
+      "cpuPackage": "Paket CPU",
+      "load": "Beban",
+      "graphics": "Grafis",
+      "heat": "Panas",
+      "thermals": "Suhu",
+      "temp": "Suhu",
+      "netDown": "Jar ↓",
+      "netDownCaps": "JAR ↓",
+      "diskDown": "Disk ↓",
+      "diskUp": "Disk ↑",
+      "download": "Unduh",
+      "upload": "Unggah",
+      "read": "Baca",
+      "write": "Tulis",
+      "disk": "Disk",
+      "running": "Berjalan",
+      "threads": "Thread",
+      "clock": "Clock",
+      "hotspot": "Hotspot",
+      "usage": "Penggunaan",
+      "gpuTemp": "Suhu GPU",
+      "ssdTemp": "Suhu SSD",
+      "down": "Turun",
+      "up": "Naik",
+      "core": "Inti",
+      "freq": "Frek",
+      "cpuTemp": "Suhu CPU",
+      "ramUsed": "RAM terpakai",
+      "ramFree": "RAM bebas",
+      "gpuFan": "Kipas GPU"
+    },
+    "packAria": "Paket overlay {{name}}",
+    "addOverlay": "Tambah overlay",
+    "footprint": "Jejak",
+    "templateAria": "Templat {{name}}",
+    "appStyle": "Gaya aplikasi",
+    "createDashboard": "Buat dasbor"
+  },
+  "library": {
+    "blueprints": {
+      "cpu-total": {
+        "label": "CPU total",
+        "description": "Penggunaan CPU seluruh mesin dari waktu ke waktu."
+      },
+      "cpu-value": {
+        "label": "CPU total — nilai",
+        "description": "Hanya angkanya: CPU 23 %."
+      },
+      "cpu-sparkline": {
+        "label": "CPU total — sparkline",
+        "description": "CPU 23 % dengan tren mungil."
+      },
+      "cpu-group": {
+        "label": "Grup CPU",
+        "description": "Penggunaan dan suhu paket bersama-sama."
+      },
+      "cpu-logical": {
+        "label": "Satu prosesor logis",
+        "description": "Satu prosesor logis; pilih yang mana di Sesuaikan."
+      },
+      "memory": {
+        "label": "Penggunaan memori",
+        "description": "Memori fisik yang terpakai, dalam persen."
+      },
+      "memory-value": {
+        "label": "Memori — nilai",
+        "description": "RAM 41 %."
+      },
+      "memory-used": {
+        "label": "Memori terpakai — nilai",
+        "description": "Byte terpakai, mis. 12,0 GiB."
+      },
+      "gpu": {
+        "label": "Penggunaan GPU",
+        "description": "Beban inti GPU dari waktu ke waktu."
+      },
+      "gpu-value": {
+        "label": "GPU — nilai",
+        "description": "GPU 97 %."
+      },
+      "gpu-group": {
+        "label": "Grup GPU",
+        "description": "Penggunaan, VRAM, dan suhu."
+      },
+      "thermal": {
+        "label": "Suhu CPU & GPU",
+        "description": "Kedua sensor dalam satu grafik; sensor yang tak terbaca cukup tidak ditampilkan."
+      },
+      "cpu-temp-value": {
+        "label": "Suhu CPU — nilai",
+        "description": "71 °C."
+      },
+      "gpu-temp-value": {
+        "label": "Suhu GPU — nilai",
+        "description": "72 °C."
+      },
+      "ssd-temp": {
+        "label": "Suhu drive — nilai",
+        "description": "Dibaca dari drive sesuai permintaan, tidak setiap detik."
+      },
+      "storage": {
+        "label": "Baca / tulis disk",
+        "description": "Throughput satu drive (otomatis atau dipilih)."
+      },
+      "volume": {
+        "label": "Penggunaan sistem berkas",
+        "description": "Seberapa penuh satu sistem berkas."
+      },
+      "network": {
+        "label": "Unduh / unggah",
+        "description": "Lalu lintas satu antarmuka (otomatis atau dipilih)."
+      },
+      "network-down-value": {
+        "label": "Unduh — nilai",
+        "description": "JAR ↓ 12 MiB/s."
+      },
+      "wifi": {
+        "label": "Sinyal Wi-Fi",
+        "description": "Kekuatan sinyal antarmuka nirkabel."
+      },
+      "processes": {
+        "label": "Jumlah proses & thread",
+        "description": "Jumlah untuk seluruh mesin; tidak pernah proses individual."
+      },
+      "summary": {
+        "label": "Ringkasan sistem",
+        "description": "CPU / GPU / RAM / JAR dalam satu strip, dengan tren mungil."
+      }
+    },
+    "categories": {
+      "CPU": "CPU",
+      "Memory": "Memori",
+      "GPU": "GPU",
+      "Thermals": "Suhu",
+      "Storage": "Penyimpanan",
+      "Network": "Jaringan",
+      "Processes": "Proses",
+      "Custom": "Kustom",
+      "Templates": "Templat"
+    },
+    "onDemand": "Dibaca dari drive sesuai permintaan (perintah admin NVMe), tidak pernah setiap detik: tidak menampilkan nilai langsung.",
+    "categoriesLabel": "Kategori widget",
+    "loading": "Membaca katalog metrik…",
+    "addNamed": "Tambah {{name}}",
+    "anyMetric": "Metrik apa pun",
+    "searchPlaceholder": "Cari di katalog metrik",
+    "searchLabel": "Cari metrik",
+    "notReadable": "Tidak terbaca di mesin ini",
+    "noTemplates": "Belum ada templat. Sesuaikan widget lalu gunakan \"Simpan sebagai templat\".",
+    "templateName": "Nama templat"
+  },
+  "visualization": {
+    "presets": {
+      "clean": {
+        "name": "Bersih",
+        "description": "Garis halus, gradien lembut, kisi samar di atas panel gelap."
+      },
+      "minimal": {
+        "name": "Minimal",
+        "description": "Garis tipis dan nilai saat ini. Tanpa kisi, sumbu, atau panel."
+      },
+      "technical": {
+        "name": "Teknis",
+        "description": "Segmen lurus, penanda sampel, sumbu lengkap, dan setiap statistik."
+      },
+      "gaming": {
+        "name": "Gaming",
+        "description": "Garis tebal terang, gradien kuat, pendar, dan angka tebal."
+      },
+      "compact": {
+        "name": "Ringkas",
+        "description": "Sparkline dengan angka kecil: dibuat untuk ruang mungil."
+      },
+      "neon": {
+        "name": "Neon",
+        "description": "Sian dan magenta di atas hampir hitam, dengan pendar lembut."
+      },
+      "transparent": {
+        "name": "Transparan",
+        "description": "Tanpa panel sama sekali — hanya garis dan angkanya. Siap untuk overlay."
+      }
+    },
+    "renderers": {
+      "line": {
+        "label": "Garis",
+        "description": "Nilai dari waktu ke waktu sebagai garis."
+      },
+      "area": {
+        "label": "Area",
+        "description": "Garis dengan area di bawahnya terisi."
+      },
+      "sparkline": {
+        "label": "Sparkline",
+        "description": "Tren mungil tanpa bingkai, untuk ruang kecil."
+      },
+      "value": {
+        "label": "Nilai",
+        "description": "Hanya angka saat ini."
+      },
+      "bar": {
+        "label": "Bilah",
+        "description": "Nilai saat ini sebagai bilah horizontal."
+      },
+      "gauge": {
+        "label": "Gauge",
+        "description": "Nilai saat ini pada cincin. Memerlukan batas yang diketahui."
+      }
+    },
+    "gaugeNeedsBounds": "Gauge memerlukan batas yang diketahui, dan metrik ini tidak memilikinya. Tetapkan skala tetap (minimum dan maksimum) terlebih dahulu.",
+    "scaleErrors": {
+      "both": "Masukkan minimum dan maksimum.",
+      "numbers": "Kedua batas harus berupa angka.",
+      "order": "Maksimum harus lebih besar dari minimum."
+    },
+    "savedByYou": "Disimpan oleh Anda."
+  },
+  "overlays": {
+    "limitReached_other": "Paling banyak {{count}} overlay. Hapus satu untuk menambah yang lain.",
+    "defaultName": "Overlay",
+    "session": "Sesi:",
+    "capabilityList": "Kemampuan overlay",
+    "capabilityStatus": {
+      "supported": "Didukung",
+      "limited": "Terbatas",
+      "unsupported": "Tidak didukung"
+    },
+    "capabilities": {
+      "alwaysOnTop": "Selalu di atas",
+      "clickThrough": "Klik diteruskan saat terkunci",
+      "positioning": "Penempatan absolut",
+      "transparentWindow": "Jendela transparan",
+      "globalHotkey": "Pintasan global",
+      "multiMonitorPositioning": "Penempatan multi-monitor",
+      "tray": "Baki sistem"
+    },
+    "headline": {
+      "alwaysOnTop": "Di atas jendela lain",
+      "globalHotkey": "Pintasan global",
+      "clickThrough": "Klik diteruskan",
+      "transparentWindow": "Transparan",
+      "multiMonitorPositioning": "Multi-monitor"
+    },
+    "displayServers": {
+      "windows": "Windows",
+      "x11": "X11",
+      "wayland": "Wayland (native)",
+      "xWayland": "XWayland (X11 di dalam sesi Wayland)",
+      "other": "Platform tidak didukung"
+    },
+    "verification": {
+      "physicallyVerified": "Diverifikasi pada perangkat keras nyata",
+      "implemented": "Diimplementasikan · belum diverifikasi pada perangkat keras",
+      "bestEffort": "Bergantung pada platform",
+      "unsupported": "Tidak tersedia"
+    },
+    "backend": {
+      "title": "Backend overlay",
+      "unavailable": "Backend tidak tersedia. Jalankan PULSE dengan pnpm app:dev.",
+      "desktopWindow": "Jendela desktop",
+      "whatHere": "Yang dapat dilakukan overlay di sini"
+    },
+    "backends": {
+      "windowsNative": {
+        "label": "Overlay native Windows",
+        "detail": "Jendela alat berlapis, paling atas, dan tidak mengaktifkan diri: HWND_TOPMOST menjaganya di atas, WS_EX_NOACTIVATE membiarkan fokus di tempatnya, dan WS_EX_TRANSPARENT meneruskan klik saat terkunci. Diimplementasikan dan dikompilasi; belum diverifikasi pada mesin Windows."
+      },
+      "gnomeBridge": {
+        "label": "Jembatan native GNOME",
+        "detail": "Ekstensi PULSE di dalam GNOME Shell menjaga overlay di atas jendela lain (Mutter make_above) dan mengirimkan pintasan overlay melalui Mutter; PULSE menjaga overlay terkunci tetap meneruskan klik. Diverifikasi di Fedora 39 / GNOME 45."
+      },
+      "standardWayland": {
+        "label": "Jendela Wayland standar",
+        "detail": "Jendela Wayland biasa: transparan, meneruskan klik saat terkunci, tetapi compositor yang memutuskan apakah ia tetap di atas aplikasi yang difokuskan dan ke mana ia ditempatkan."
+      },
+      "x11": {
+        "label": "Jendela X11",
+        "detail": "Jendela X11 yang selalu di atas (_NET_WM_STATE_ABOVE) dengan bentuk input kosong saat terkunci, ditempatkan di posisi yang dimintanya."
+      },
+      "unsupported": {
+        "label": "Tidak tersedia",
+        "detail": "Overlay desktop tidak didukung di platform ini."
+      }
+    },
+    "placementHints": {
+      "gnome": "Tetap di atas jendela lain di sini; seret sekali ke tepi dalam mode Sunting — GNOME menempatkan jendela Wayland sendiri.",
+      "notOnTop": "Paling baik dengan jembatan GNOME atau overlay native Windows: di sini compositor bisa menaruhnya di belakang aplikasi yang difokuskan.",
+      "noPositioning": "Seret sekali ke tempatnya dalam mode Sunting: sesi ini tidak dapat menempatkan jendela."
+    },
+    "bridge": {
+      "title": "Jembatan GNOME",
+      "connected": "Terhubung",
+      "enable": "Aktifkan",
+      "disable": "Nonaktifkan",
+      "running": "Berjalan",
+      "installed": "Terpasang",
+      "ships": "Disertakan bersama PULSE",
+      "setUp": "Siapkan jembatan GNOME",
+      "copyUninstall": "Salin perintah copot",
+      "sourcePlaceholder": "<sumber PULSE>",
+      "states": {
+        "notApplicable": "Tidak diperlukan di sini",
+        "unavailable": "Tidak tersedia",
+        "incompatible": "Tidak kompatibel",
+        "notInstalled": "Belum terpasang",
+        "installedNeedsLogin": "Terpasang — masuk ulang",
+        "extensionsOff": "Ekstensi nonaktif",
+        "disabled": "Dinonaktifkan",
+        "error": "Galat",
+        "active": "Aktif",
+        "changing": "Sedang berubah…"
+      },
+      "summaries": {
+        "notGnome": "Bukan sesi GNOME — jembatan GNOME tidak berlaku di sini",
+        "notWayland": "Tidak diperlukan di sesi ini — jembatan ini untuk GNOME di Wayland",
+        "shellNoAnswer": "Layanan ekstensi GNOME Shell tidak menjawab",
+        "notChecked": "Belum diperiksa",
+        "shellUnsupported": "GNOME Shell {{version}} tidak didukung oleh jembatan (diverifikasi di GNOME 45)",
+        "installedNeedsLogin": "Terpasang — keluar lalu masuk kembali sekali untuk memuatnya",
+        "notInstalled": "Belum terpasang",
+        "extensionsOff": "Ekstensi pengguna dimatikan untuk sesi ini",
+        "activeConnected": "Aktif — menjaga overlay di atas dan mengirimkan pintasan",
+        "active": "Aktif",
+        "disabled": "Terpasang tetapi dinonaktifkan",
+        "extensionError": "GNOME Shell melaporkan galat pada ekstensi",
+        "outOfDate": "GNOME Shell {{version}} menganggap ekstensi terpasang sudah usang",
+        "uninstalled": "Dicopot",
+        "changing": "GNOME Shell sedang mengubah status ekstensi"
+      },
+      "guidance": {
+        "checkShell": "Pastikan GNOME Shell menjalankan sesi ini, lalu segarkan.",
+        "standardWayland": "Overlay tetap berfungsi sebagai jendela Wayland standar: meneruskan klik saat terkunci, tetapi compositor yang menentukan urutan tumpukannya.",
+        "discoverAtLogin": "GNOME Shell 45 hanya menemukan ekstensi baru saat login. Setelah masuk kembali, aktifkan di sini.",
+        "installSteps": "Pasang ekstensi dengan perintah di bawah, keluar lalu masuk kembali sekali, kemudian aktifkan.",
+        "extensionsOn": "Hidupkan kembali ekstensi pengguna (aplikasi Ekstensi, atau gsettings set org.gnome.shell disable-user-extensions false).",
+        "newerCopyInstalled": "Salinan yang lebih baru telah terpasang. Keluar lalu masuk kembali untuk memuatnya.",
+        "reinstallNewer": "PULSE ini menyertakan jembatan yang lebih baru. Pasang ulang dengan perintah di bawah, lalu keluar dan masuk kembali.",
+        "notGreeted": "Berjalan. Belum menyapa PULSE ini: versi ekstensi sebelum 2 tidak pernah melakukannya; versi yang lebih baru melakukannya begitu PULSE dimulai.",
+        "enableIt": "Aktifkan agar overlay tetap di atas jendela lain.",
+        "reinstallAfterError": "Pasang ulang, lalu keluar dan masuk kembali. Galatnya juga ada di journalctl --user -b /usr/bin/gnome-shell.",
+        "reinstallShipped": "Pasang ulang versi yang disertakan PULSE ini.",
+        "refreshSoon": "Segarkan sebentar lagi."
+      },
+      "steps": {
+        "install": "Pasang ekstensi",
+        "update": "Perbarui ekstensi",
+        "installDetail": "Menyalinnya ke ~/.local/share/gnome-shell/extensions/ — hanya akun Anda, tanpa sudo.",
+        "updateDetail": "v{{installed}} terpasang; PULSE ini menyertakan v{{bundled}}.",
+        "login": "Keluar lalu masuk kembali sekali",
+        "loginDetail": "GNOME Shell 45 hanya memuat kode ekstensi saat login.",
+        "enable": "Aktifkan",
+        "enableDetail": "Dengan tombol di sini, atau di aplikasi Ekstensi GNOME.",
+        "connected": "Terhubung ke PULSE",
+        "connectedDetail": "Ekstensi yang berjalan telah menyapa PULSE ini.",
+        "notConnectedDetail": "Versi 2 ke atas menyapa PULSE begitu PULSE dimulai."
+      },
+      "details": {
+        "summary": "Fungsinya · pemecahan masalah · batasan",
+        "unlocks": "<strong>Membuka:</strong> overlay tetap di atas aplikasi yang difokuskan (Mutter <code>make_above</code>), dan pintasan overlay berfungsi aplikasi mana pun yang sedang fokus — GNOME 45 tidak punya portal pintasan global. Klik diteruskan saat terkunci adalah fitur PULSE sendiri dan berfungsi dengan atau tanpa jembatan.",
+        "safety": "<strong>Keamanan:</strong> hanya menyentuh jendela milik proses yang memegang nama bus PULSE <em>dan</em> berjudul persis <code>PULSE Overlay :: &lt;id&gt;</code>. Tanpa polling, tanpa penyadapan input, tanpa berkas, tanpa jaringan.",
+        "troubleshooting": "<strong>Pemecahan masalah:</strong> setelah memasang atau memperbarui, keluar lalu masuk kembali — GNOME hanya memuat kode ekstensi saat login. Log-nya: <code>journalctl --user -b /usr/bin/gnome-shell | grep \"PULSE overlay bridge\"</code>. Jika GNOME Shell bermasalah saat login, matikan ekstensi pengguna dari sesi lain dengan <code>gsettings set org.gnome.shell disable-user-extensions true</code>.",
+        "limits": "<strong>Batasan:</strong> GNOME tetap menempatkan jendela Wayland sendiri, jadi posisi dan penempatan multi-monitor tetap urusan compositor; seret overlay sekali dalam mode Sunting. Hanya diverifikasi di GNOME 45."
+      }
+    },
+    "layouts": {
+      "horizontal": "Baris",
+      "vertical": "Kolom",
+      "grid": "Kisi"
+    },
+    "page": {
+      "subtitle": "Widget dalam jendela kecilnya sendiri di desktop — di atas aplikasi lain bila sistem mengizinkan, meneruskan klik saat terkunci. Jendela desktop yang aman: PULSE tidak pernah menyuntik ke dalam game.",
+      "all": "Semua overlay",
+      "editAll": "Sunting semua",
+      "lockAll": "Kunci semua",
+      "showAll": "Tampilkan semua",
+      "hideAll": "Sembunyikan semua",
+      "openMini": "Buka jendela Mini",
+      "newOverlay": "Overlay baru",
+      "packs": "Paket overlay",
+      "packsHint": "Dua belas overlay siap pakai — bacaan mikro, kartu, bilah selebar layar, kolom, dan HUD pojok. Semuanya tetap dapat disunting.",
+      "emptyOverlay": "Overlay kosong",
+      "everyCapability": "Setiap kemampuan, secara rinci",
+      "yourPacks": "Paket Anda",
+      "deletePack": "Hapus paket {{name}}"
+    },
+    "hotkey": {
+      "hint": "Mengalihkan overlay yang terlihat antara Sunting dan Terkunci. Overlay tersembunyi mempertahankan statusnya.",
+      "viaBridge": "Dikirimkan oleh jembatan GNOME melalui Mutter, aplikasi mana pun yang sedang fokus. Menerapkan pintasan di sini mengubah pengaturan jembatan itu sendiri; GNOME langsung menggunakannya.",
+      "viaPortal": "Dikirimkan oleh desktop Anda melalui XDG Desktop Portal, aplikasi mana pun yang sedang fokus. Desktop mungkin meminta persetujuan dan memungkinkan Anda mengubah tombolnya di pengaturan papan ketiknya sendiri.",
+      "unavailable": "Pintasan global tidak tersedia di sesi ini: {{reason}}",
+      "notRegistered": "Tidak terdaftar — {{error}}. Pintasan sebelumnya masih aktif.",
+      "notBound": "Tidak terpasang — {{error}}.",
+      "active": "Aktif: {{hotkey}}.",
+      "none": "Tidak ada pintasan global yang aktif."
+    },
+    "close": {
+      "title": "Menutup jendela utama",
+      "when": "Saat jendela utama ditutup",
+      "quit": "Keluar dari PULSE",
+      "keepRunning": "Tetap berjalan selama overlay terlihat",
+      "note": "Keluar adalah bawaan. Saat PULSE tetap berjalan, buka kembali dari baki atau tombol \"Buka PULSE\" pada overlay; Keluar dari baki menghentikan semuanya."
+    },
+    "editor": {
+      "aria": "Overlay {{name}}",
+      "name": "Nama overlay",
+      "visible": "Terlihat",
+      "edit": "Sunting overlay",
+      "lock": "Kunci overlay",
+      "saveAsPack": "Simpan sebagai paket saya",
+      "saveAsPackBody": "Widget, tata letak, gaya, dan bingkainya, untuk ditambahkan lagi dari Overlay.",
+      "savePack": "Simpan paket",
+      "packName": "Nama paket",
+      "fromPack": "Dari \"{{name}}\"",
+      "resetToPack": "Atur ulang ke paket",
+      "style": "Gaya overlay",
+      "layout": "Tata letak overlay",
+      "background": "Latar overlay",
+      "backgroundOpacity": "Opasitas latar overlay",
+      "cornerRadius": "Radius sudut overlay",
+      "gapBetween": "Jarak antar-widget",
+      "width": "Lebar overlay",
+      "height": "Tinggi overlay",
+      "fit": "Sesuaikan dengan widget",
+      "x": "X overlay",
+      "y": "Y overlay",
+      "primaryMonitor": "monitor utama",
+      "cannotPlace": "Sesi ini tidak dapat menempatkan jendela: seret overlay melalui bilahnya dalam mode Sunting.",
+      "widgets": "Widget {{name}}",
+      "widgetWidth": "Lebar {{name}}",
+      "widgetHeight": "Tinggi {{name}}",
+      "moveEarlier": "Pindahkan {{name}} lebih awal",
+      "moveLater": "Pindahkan {{name}} lebih akhir",
+      "copyToDashboard": "Salin ke dasbor",
+      "copiesGoTo": "Salinan masuk ke dasbor \"{{name}}\".",
+      "deleteTitle": "Hapus overlay \"{{name}}\"?",
+      "deleteBody": "Jendelanya ditutup dan widgetnya dihapus.",
+      "delete": "Hapus overlay"
+    },
+    "surface": {
+      "aria": "Overlay {{name}}",
+      "empty": "Tambahkan widget dari PULSE → Overlay.",
+      "dragToMove": "{{name}} · seret untuk memindahkan",
+      "lock": "Kunci",
+      "openPulse": "Buka PULSE",
+      "dragToResize": "Seret untuk mengubah ukuran"
+    },
+    "send": {
+      "aria": "Kirim {{name}} ke overlay",
+      "title": "Kirim \"{{name}}\" ke overlay",
+      "addTo": "Tambahkan ke \"{{name}}\""
+    }
+  },
+  "customize": {
+    "background": "Latar",
+    "backgroundOpacity": "Opasitas latar",
+    "border": "Garis tepi",
+    "shadow": "Bayangan",
+    "corners": "Sudut",
+    "gap": "Jarak",
+    "widthShort": "L",
+    "heightShort": "T",
+    "padding": "Padding",
+    "layout": "Tata letak",
+    "borders": {
+      "none": "Tidak ada",
+      "thin": "Tipis"
+    },
+    "groupLayouts": {
+      "rows": "Baris",
+      "inline": "Sebaris"
+    },
+    "widget": {
+      "section": "Widget",
+      "title": "Judul",
+      "titleLabel": "Judul widget",
+      "showTitle": "Tampilkan judul",
+      "background": "Latar widget",
+      "opacity": "Opasitas widget",
+      "backgroundOpacity": "Opasitas latar widget",
+      "padding": "Padding widget",
+      "border": "Garis tepi widget",
+      "corners": "Sudut widget",
+      "cornerRadius": "Radius sudut widget"
+    },
+    "metrics": {
+      "section": "Metrik & sumber",
+      "label": "Label metrik {{index}}",
+      "source": "Sumber metrik {{index}}",
+      "automatic": "Otomatis",
+      "automaticNamed": "Otomatis — {{name}}",
+      "autoHint": "Dipilih otomatis — bawaan yang wajar, bukan klaim tentang mana yang penting.",
+      "groupLayout": "Tata letak grup",
+      "tinyTrends": "Tren mungil"
+    },
+    "data": {
+      "section": "Data",
+      "source": "Sumber data",
+      "nowLive": "Sekarang: langsung, 1 dtk, 5 menit terakhir di memori.",
+      "nowHistory": "Sekarang: riwayat, {{range}}.",
+      "modes": {
+        "auto": "Otomatis",
+        "history": "Riwayat",
+        "live": "Langsung"
+      }
+    },
+    "template": {
+      "section": "Templat",
+      "placeholder": "Nama templat, mis. CPU mungil saya",
+      "save": "Simpan sebagai templat"
+    }
+  },
+  "dashboard": {
+    "addWidget": "Tambah widget",
+    "defaultName": "Bawaan",
+    "fallbackName": "Dasbor",
+    "import": {
+      "notExport": "Ini bukan ekspor dasbor PULSE.",
+      "version": "Versi ekspor dasbor tidak didukung: {{version}}.",
+      "noDashboard": "Ekspor tidak berisi dasbor yang valid.",
+      "limit_other": "Paling banyak {{count}} dasbor."
+    },
+    "style": "Gaya dasbor",
+    "actions": "Tindakan dasbor",
+    "lockLayout": "Kunci tata letak",
+    "editLayout": "Sunting tata letak",
+    "new": "Baru",
+    "empty": "Dasbor ini kosong.",
+    "newTitle": "Dasbor baru",
+    "newSubtitle": "Mulai dari templat siap pakai, atau dari kisi kosong. Semuanya tetap dapat disunting.",
+    "name": "Nama dasbor",
+    "nameOptional": "Nama (opsional)",
+    "blank": "Dasbor kosong",
+    "renameTitle": "Ganti nama \"{{name}}\"",
+    "deleteTitle": "Hapus \"{{name}}\"?",
+    "deleteBody": "Widget dan tata letaknya dihapus. Templat dan overlay tetap disimpan.",
+    "deleteConfirm": "Hapus dasbor",
+    "resetTitle": "Atur ulang \"{{name}}\"?",
+    "resetToTemplate": "Templat \"{{name}}\" menggantikan widget dan gaya saat ini. Templat yang Anda simpan tetap ada.",
+    "resetToDefault": "Widget bawaan menggantikan yang sekarang. Templat Anda tetap ada.",
+    "resetConfirm": "Atur ulang dasbor",
+    "exportTitle": "Ekspor dasbor",
+    "exportBody": "Deskripsi JSON yang portabel. Tidak berisi pengenal perangkat keras, jalur, atau nama pengguna.",
+    "exportedJson": "JSON yang diekspor",
+    "importTitle": "Impor dasbor",
+    "importBody": "Tempelkan ekspor dasbor PULSE. Ini ditambahkan sebagai dasbor baru.",
+    "json": "JSON dasbor",
+    "widgets": "Widget {{name}}",
+    "widenToEdit": "Lebarkan jendela untuk menata ulang widget; tata letak sempit hanya untuk melihat."
+  },
+  "widget": {
+    "actions": "Tindakan {{name}}",
+    "actionsMenu": "Menu tindakan {{name}}",
+    "dragToMoveNamed": "Seret untuk memindahkan {{name}}",
+    "dragToMove": "Seret untuk memindahkan (atau gunakan tombol panah)",
+    "dragToResize": "Seret untuk mengubah ukuran (atau Shift + tombol panah)",
+    "toOverlay": "Ke overlay"
+  },
+  "history": {
+    "ranges": {
+      "15m": "15 mnt",
+      "1h": "1 jam",
+      "6h": "6 jam",
+      "24h": "24 jam",
+      "7d": "7 hr"
+    },
+    "cpu": {
+      "view": "Tampilan CPU",
+      "total": "Total",
+      "title": "Riwayat CPU",
+      "totalNote": "CPU total adalah penggunaan seluruh mesin yang diukur backend di setiap prosesor logis — bukan rata-rata yang dihitung ulang darinya.",
+      "logicalNote": "Prosesor logis paling aktif dalam rentang yang dipilih. CPU total tetap menjadi acuan.",
+      "loading": "Membaca prosesor…",
+      "logicalHistory": "Riwayat prosesor logis",
+      "showMostActive_other": "Tampilkan {{count}} yang paling aktif"
+    },
+    "gpu": {
+      "title": "Riwayat GPU",
+      "none": "Tidak ada GPU yang terdeteksi.",
+      "telemetryUnavailable": "Telemetri tidak tersedia — {{reason}}"
+    },
+    "thermal": {
+      "title": "Riwayat suhu",
+      "none": "Tidak ada sensor suhu yang terbaca di mesin ini.",
+      "notCharted": "Tidak digrafikkan — {{list}}"
+    },
+    "storage": {
+      "title": "Riwayat penyimpanan",
+      "none": "Tidak ada perangkat penyimpanan yang terdeteksi.",
+      "device": "Perangkat penyimpanan"
+    },
+    "network": {
+      "title": "Riwayat jaringan",
+      "none": "Tidak ada antarmuka jaringan yang terdeteksi.",
+      "interface": "Antarmuka jaringan"
+    },
+    "memory": {
+      "title": "Riwayat memori",
+      "used": "{{value}} terpakai"
+    },
+    "processes": {
+      "count": "Jumlah proses",
+      "title": "Riwayat jumlah proses",
+      "footnote": "Hanya jumlah untuk seluruh mesin. PULSE tidak pernah merekam riwayat proses individual."
+    },
+    "status": {
+      "title": "Perekam riwayat",
+      "loading": "Menanyai riwayat…",
+      "unavailable": "Riwayat tidak tersedia: {{reason}}. Pemantauan langsung tidak terpengaruh.",
+      "unknownReason": "alasan tidak diketahui",
+      "state": "Status",
+      "recording": "Merekam",
+      "stateUnavailable": "Tidak tersedia",
+      "cadence": "Irama",
+      "every": "Setiap {{value}} dtk",
+      "historized": "Metrik yang direkam",
+      "batches": "Batch sesi ini",
+      "lastBatch": "Batch terakhir",
+      "lastBatchValue_other": "{{time}} · {{count}} baris",
+      "sampleWrite": "Sampel / tulis",
+      "median": "median {{sample}} ms / {{write}} ms",
+      "database": "Basis data",
+      "size": "Ukuran",
+      "rows": "Baris",
+      "rowsValue": "{{raw}} mentah · {{aggregated}} teragregasi · {{series}} seri",
+      "schemaJournal": "Skema / jurnal",
+      "lastError": "Galat terakhir: {{error}}",
+      "scheduler": "Ditulis oleh satu penjadwal latar belakang; tombol Segarkan tidak pernah merekam.",
+      "counting": "Menghitung…",
+      "details": "Detail basis data"
+    }
+  },
+  "viz": {
+    "ui": {
+      "preview": "Pratinjau",
+      "preset": "Prasetel",
+      "presetName": "Nama prasetel",
+      "newPresetName": "Nama prasetel baru",
+      "visualization": "Visualisasi",
+      "visualizationType": "Jenis visualisasi",
+      "timeRange": "Rentang waktu",
+      "size": "Ukuran",
+      "compactMode": "Mode ringkas",
+      "lineFill": "Garis & isian",
+      "lineWidth": "Lebar garis",
+      "curve": "Kurva",
+      "points": "Titik",
+      "pointMarkers": "Penanda titik",
+      "fillOpacity": "Opasitas isian",
+      "smoothing": "Penghalusan",
+      "colors": "Warna",
+      "colorMode": "Mode warna",
+      "primary": "Utama",
+      "secondary": "Sekunder",
+      "text": "Teks",
+      "grid": "Kisi",
+      "background": "Latar",
+      "border": "Garis tepi",
+      "gradientStart": "Awal gradien",
+      "gradientEnd": "Akhir gradien",
+      "above": "di atas",
+      "backgroundFrame": "Latar & bingkai",
+      "backgroundOpacity": "Opasitas latar",
+      "cornerRadius": "Radius sudut",
+      "shadow": "Bayangan",
+      "textSize": "Ukuran teks",
+      "weight": "Ketebalan",
+      "fontWeight": "Ketebalan huruf",
+      "decimals": "Desimal",
+      "decimalPrecision": "Presisi desimal",
+      "label": "Label",
+      "unit": "Satuan",
+      "axesGridScale": "Sumbu, kisi & skala",
+      "xAxis": "Sumbu X",
+      "yAxis": "Sumbu Y",
+      "yScale": "Skala Y",
+      "legendTooltipStatistics": "Legenda, tooltip & statistik",
+      "legend": "Legenda",
+      "tooltip": "Tooltip",
+      "current": "Saat ini",
+      "minimum": "Minimum",
+      "maximum": "Maksimum",
+      "average": "Rata-rata",
+      "gauge": "Gauge",
+      "ringThickness": "Ketebalan cincin",
+      "arc": "Busur",
+      "gaugeArc": "Busur gauge",
+      "fillPlaceholder": "isian",
+      "fill": "Isian",
+      "colourOf": "Warna {{name}}",
+      "hexOf": "Nilai heksa {{name}}",
+      "labelOf": "Label {{name}}",
+      "customFrom": "Kustom (dari {{name}})",
+      "presetWord": "prasetel",
+      "customizeNamed": "Sesuaikan {{name}}",
+      "resetVisualization": "Atur ulang visualisasi",
+      "deletePreset": "Hapus prasetel",
+      "saveAsPreset": "Simpan sebagai prasetel",
+      "gaugeUnavailable": "Gauge tidak tersedia: metrik ini tidak memiliki batas alami. Tetapkan skala tetap untuk menggunakannya.",
+      "height": "Tinggi",
+      "width": "Lebar",
+      "followingTheme": "Mengikuti tema PULSE. Memilih warna apa pun beralih ke Manual.",
+      "series": "Seri",
+      "thresholdBands": "Pita ambang",
+      "thresholdHint": "Pita visual pilihan Anda — bukan penilaian tentang apa yang terlalu tinggi di mesin Anda.",
+      "bandColour": "Warna pita {{index}}",
+      "bandUpper": "Batas atas pita {{index}}",
+      "removeBand": "Lepas pita {{index}}",
+      "addBand": "Tambah pita",
+      "compactHides": "Mode ringkas dan sparkline menyembunyikan sumbu, kisi, dan legenda.",
+      "min": "Min",
+      "max": "Maks",
+      "smoothingHint": "Hanya visual: sampel tersimpan dan tooltip tetap memakai nilai sebenarnya.",
+      "fillFollowsLine": "Isian mengikuti warna garis"
+    },
+    "lineWidths": {
+      "thin": "Tipis",
+      "medium": "Sedang",
+      "thick": "Tebal"
+    },
+    "options": {
+      "small": "Kecil",
+      "medium": "Sedang",
+      "large": "Besar",
+      "custom": "Kustom",
+      "straight": "Lurus",
+      "smooth": "Halus",
+      "stepped": "Bertangga",
+      "none": "Tidak ada",
+      "visible": "Terlihat",
+      "solid": "Padat",
+      "gradient": "Gradien",
+      "theme": "Tema",
+      "manual": "Manual",
+      "threshold": "Ambang",
+      "light": "Ringan",
+      "thin": "Tipis",
+      "subtle": "Samar",
+      "glow": "Pendar",
+      "regular": "Biasa",
+      "bold": "Tebal",
+      "full": "Lingkaran penuh",
+      "three-quarter": "Tiga perempat",
+      "half": "Setengah",
+      "auto": "Otomatis",
+      "fixed": "Tetap"
+    },
+    "status": {
+      "loading": "Memuat riwayat…",
+      "unavailable": "Riwayat tidak tersedia: {{reason}}",
+      "collecting": "Mengumpulkan riwayat…",
+      "oneSample": "Mengumpulkan riwayat… baru satu sampel.",
+      "noData": "tidak ada data",
+      "scaledToPeak": "Diskalakan ke puncak rentang, {{value}}",
+      "overTime": "{{name}} dari waktu ke waktu"
+    },
+    "stats": {
+      "current": "Saat ini",
+      "min": "Min",
+      "max": "Maks",
+      "average": "Rata²"
+    }
+  },
+  "appearance": {
+    "styleAria": "Gaya {{name}}",
+    "ui": {
+      "styles": "Gaya",
+      "yourStyles": "Gaya Anda",
+      "colour": "Warna",
+      "accentColour": "Warna aksen",
+      "accent": "Aksen",
+      "chartPalette": "Palet grafik",
+      "surfaces": "Permukaan",
+      "panelOpacity": "Opasitas panel",
+      "glassBlur": "Keburaman kaca",
+      "borderStrength": "Ketegasan garis tepi",
+      "shadowDepth": "Kedalaman bayangan",
+      "shapeType": "Bentuk & huruf",
+      "cornerRoundness": "Kebulatan sudut",
+      "font": "Huruf",
+      "textSize": "Ukuran teks",
+      "layoutDensity": "Tata letak & kerapatan",
+      "density": "Kerapatan",
+      "widgetPadding": "Padding widget",
+      "gapBetweenWidgets": "Jarak antar-widget",
+      "overlayPadding": "Padding overlay",
+      "overlayGap": "Jarak overlay",
+      "charts": "Grafik",
+      "lineThickness": "Ketebalan garis",
+      "fillOpacity": "Opasitas isian",
+      "lineShape": "Bentuk garis",
+      "contentMotion": "Konten & gerakan",
+      "widgetTitles": "Judul widget",
+      "labelsInTinyWidgets": "Label di widget mungil",
+      "motion": "Gerakan",
+      "livePreview": "Pratinjau langsung",
+      "styleName": "Nama gaya",
+      "deleteThisStyle": "Hapus gaya ini?",
+      "exportStyle": "Ekspor gaya",
+      "exportedStyle": "Gaya yang diekspor",
+      "importStyle": "Impor gaya",
+      "styleJson": "JSON gaya",
+      "overlayPaddingNote": "Dipakai saat overlay mengambil sebuah gaya."
+    },
+    "subtitle": "Delapan gaya yang mengubah permukaan, kedalaman, huruf, kerapatan, dan grafik — bukan hanya warna. Setel yang mana saja; simpan hasilnya sebagai milik Anda.",
+    "modeOn": "<strong>Mode {{mode}}</strong> aktif: gaya yang Anda pilih berlaku untuknya.",
+    "leaveMode": "Keluar dari mode {{mode}}",
+    "myStyle": "{{name}} saya",
+    "saveCurrent": "Simpan tampilan saat ini",
+    "noUserStyles": "Setel sebuah gaya di bawah, lalu simpan di sini. Gaya tersimpan dapat diduplikat, diganti nama, diekspor, dan dibagikan.",
+    "basedOn": "berdasarkan {{name}}",
+    "inUse": "Sedang dipakai",
+    "use": "Pakai",
+    "styleAccentTitle": "Aksen gaya ({{color}})",
+    "styleAccent": "Aksen gaya",
+    "fonts": {
+      "style": "Gaya",
+      "sans": "Sans",
+      "rounded": "Membulat",
+      "condensed": "Ramping",
+      "mono": "Mono"
+    },
+    "styleWith": "Gaya ({{value}})",
+    "densities": {
+      "compact": "Ringkas",
+      "comfortable": "Nyaman",
+      "spacious": "Lapang"
+    },
+    "chartsNote": "Berlaku untuk setiap grafik yang masih memakai prasetelnya. Grafik yang Anda sesuaikan mempertahankan pengaturannya sendiri.",
+    "motionLevels": {
+      "full": "Penuh",
+      "reduced": "Dikurangi",
+      "none": "Tidak ada"
+    },
+    "resetAll": "Atur ulang setiap penyesuaian ke {{name}}",
+    "livePreviewNamed": "Pratinjau langsung · {{name}}",
+    "saveLook": "Simpan tampilan ini",
+    "renameStyle": "Ganti nama gaya",
+    "deleteBody": "Apa pun yang memakainya sekarang tetap berpenampilan sama sampai Anda memilih yang lain.",
+    "deleteStyle": "Hapus gaya",
+    "exportBody": "Deskripsi JSON portabel dari gaya: hanya warna, huruf, dan penyetelan.",
+    "importBody": "Tempelkan ekspor gaya PULSE. Ini ditambahkan ke gaya Anda.",
+    "useStyle": "Pakai gaya",
+    "import": {
+      "notExport": "Ini bukan ekspor gaya PULSE.",
+      "version": "Versi ekspor gaya tidak didukung: {{version}}.",
+      "noName": "Ekspor tidak memiliki nama gaya.",
+      "limit_other": "Paling banyak {{count}} gaya tersimpan."
+    }
+  },
+  "mini": {
+    "shownIn": "Ditampilkan di Mini"
+  },
+  "processes": {
+    "nice": {
+      "title": "Nilai nice kustom — {{name}}",
+      "range": "PID {{pid}}. Nilai nice berkisar dari {{min}} (paling diutamakan) hingga {{max}} (paling tidak).",
+      "privileges": "Menurunkan nilai biasanya memerlukan hak yang tidak dimiliki PULSE.",
+      "value": "Nilai nice"
+    },
+    "affinity": {
+      "title": "Afinitas CPU — {{name}}",
+      "body": "Pilih prosesor logis tempat PID {{pid}} boleh berjalan.",
+      "selectAll": "Pilih semua",
+      "keepOne": "Sisakan setidaknya satu CPU: proses yang tidak diizinkan di CPU mana pun tidak dapat berjalan."
+    },
+    "status": {
+      "success": "Selesai",
+      "permissionDenied": "Izin ditolak",
+      "staleProcess": "Tidak dilakukan — PID itu kini milik proses lain",
+      "processGone": "Proses sudah berakhir",
+      "unsupported": "Tidak didukung",
+      "partialFailure": "Sebagian dilakukan",
+      "invalidRequest": "Tidak dilakukan",
+      "platformError": "Gagal"
+    },
+    "outcome": {
+      "suspend": "Proses {{pid}} ditangguhkan.",
+      "resume": "Proses {{pid}} dilanjutkan.",
+      "terminate": "Proses {{pid}} diminta untuk berakhir.",
+      "forceKill": "Proses {{pid}} dihentikan paksa.",
+      "priority": "Prioritas proses {{pid}} diubah.",
+      "affinity": "Afinitas proses {{pid}} diubah.",
+      "terminateTree": "Pohon proses {{pid}} diakhiri.",
+      "openLocation": "Lokasi berkas eksekusi dibuka.",
+      "priorityPartial": "Prioritas diubah pada {{applied}} thread proses {{pid}}; {{failed}} thread menolak.",
+      "affinityPartial": "Afinitas diubah pada {{applied}} thread proses {{pid}}; {{failed}} thread menolak.",
+      "tree_other": "{{terminated}} dari {{count}} proses diakhiri; {{gone}} sudah berakhir, {{refused}} menolak, {{stale}} dilewati karena usang, {{failed}} gagal."
+    },
+    "hash": {
+      "computed": "Dihitung",
+      "changedWhileHashing": "Berkas berubah saat sedang dibaca",
+      "permissionDenied": "Izin ditolak",
+      "notFound": "Berkas tidak ditemukan",
+      "notAFile": "Bukan berkas biasa",
+      "readError": "Galat baca"
+    },
+    "confirm": {
+      "who": "{{name}} (PID {{pid}})",
+      "selfWarning": "Mengakhiri PULSE akan menutup aplikasi ini.",
+      "endTitle": "Akhiri {{name}}?",
+      "endSigterm": "{{who}} akan dikirimi SIGTERM dan diminta keluar. Mungkin perlu sesaat, atau ditolak.",
+      "endImmediate": "{{who}} akan segera diakhiri. Pekerjaan yang belum disimpan di dalamnya akan hilang.",
+      "forceKillTitle": "Hentikan paksa {{name}}?",
+      "forceKillBody": "{{who}} akan dikirimi SIGKILL. Sinyal ini tidak dapat ditangkap atau diabaikan: proses tidak sempat menyimpan atau membereskan apa pun.",
+      "treeTitle": "Akhiri {{name}} dan pohon prosesnya?",
+      "treeRoot": "Proses akar: {{who}}.",
+      "treeBody_other": "Sekitar {{count}} proses turunan akan diakhiri lebih dulu, mulai dari yang terdalam, lalu akarnya. Setiap proses diperiksa ulang tepat sebelum diakhiri; PID yang berpindah tangan dilewati.",
+      "realtimeTitle": "Setel prioritas Realtime?",
+      "realtimeWarning": "Prioritas Realtime dapat membuat sistem tidak responsif.",
+      "realtimeBody": "Berlaku untuk {{who}}. Tanpa hak yang diperlukan, Windows menerapkan Tinggi sebagai gantinya, dan PULSE akan memberi tahu.",
+      "realtimeConfirm": "Setel Realtime"
+    },
+    "copy": {
+      "done": "{{label}} disalin.",
+      "failed": "{{label}} tidak dapat disalin."
+    },
+    "category": {
+      "user": "Pengguna",
+      "system": "Sistem",
+      "kernel": "Thread kernel",
+      "unknown": "Tidak diketahui"
+    },
+    "state": {
+      "running": "Berjalan",
+      "sleeping": "Tidur",
+      "stopped": "Berhenti",
+      "zombie": "Zombi"
+    },
+    "priority": {
+      "realtime": "Realtime",
+      "high": "Tinggi",
+      "aboveNormal": "Di atas normal",
+      "normal": "Normal",
+      "belowNormal": "Di bawah normal",
+      "low": "Rendah"
+    },
+    "affinityNone": "tidak ada",
+    "affinitySummary_other": "CPU {{list}} ({{count}} dari {{total}})",
+    "trust": {
+      "trusted": "Tanda tangan tepercaya",
+      "signedButUntrusted": "Bertanda tangan, tidak tepercaya",
+      "invalid": "Tanda tangan tidak valid",
+      "unsigned": "Tanpa tanda tangan",
+      "permissionDenied": "Izin ditolak",
+      "unavailable": "Tidak tersedia"
+    },
+    "provenance": {
+      "userHome": "Berkas eksekusi pengguna/lokal (di direktori home Anda, bukan dari paket)",
+      "localInstall": "Berkas eksekusi pengguna/lokal (dipasang di luar manajer paket)",
+      "notDetected": "Paket tidak terdeteksi"
+    },
+    "menu": {
+      "exited": "Proses sudah berakhir.",
+      "unavailable": "Tidak tersedia.",
+      "checking": "Memeriksa izin…",
+      "nicePreset": "{{level}} (nice {{value}})",
+      "customNice": "Nilai nice kustom…",
+      "forceKill": "Hentikan paksa",
+      "inspect": "Periksa detail",
+      "search": "Cari daring",
+      "openLocation": "Buka lokasi berkas",
+      "processName": "Nama proses",
+      "executablePath": "Jalur berkas eksekusi",
+      "executableUnavailable": "Berkas eksekusi tidak tersedia.",
+      "instanceId": "ID instans proses",
+      "suspend": "Tangguhkan",
+      "resume": "Lanjutkan",
+      "end": "Akhiri proses",
+      "endTree": "Akhiri pohon proses",
+      "setPriority": "Setel prioritas",
+      "setAffinity": "Setel afinitas…",
+      "affinityUnreadable": "Afinitas saat ini tidak dapat dibaca.",
+      "actionsFor": "Tindakan untuk {{name}}",
+      "inspectApplication": "Periksa aplikasi",
+      "showProcesses": "Tampilkan proses"
+    },
+    "table": {
+      "processDetails": "Detail proses",
+      "dismiss": "Tutup",
+      "processView": "Tampilan proses",
+      "processCategory": "Kategori proses",
+      "refreshProcessDetails": "Segarkan detail proses",
+      "applications": "Aplikasi",
+      "application": "Aplikasi",
+      "processes": "Proses",
+      "memory": "Memori",
+      "read": "Baca",
+      "write": "Tulis",
+      "process": "Proses",
+      "threads": "Thread",
+      "state": "Status",
+      "searchPlaceholder": "Cari berdasarkan nama atau PID",
+      "searchLabel": "Cari proses berdasarkan nama atau PID"
+    },
+    "filters": {
+      "all": "Semua",
+      "user": "Pengguna",
+      "system": "Sistem",
+      "kernel": "Kernel"
+    },
+    "oneOf_other": "1 dari {{count}} proses {{name}}",
+    "loading": "Menelusuri tabel proses…",
+    "showAll_other": "Tampilkan semua {{count}} proses",
+    "updated": "Diperbarui {{time}} · dikumpulkan dalam {{ms}} ms",
+    "note": "CPU adalah porsi dari kapasitas <strong>seluruh</strong> mesin ini, jadi satu thread yang memenuhi satu prosesor logis hanyalah persentase kecil, dan kolomnya kira-kira berjumlah sama dengan yang ditunjukkan gauge CPU sistem. Baca dan Tulis adalah penghitung I/O per proses dari platform (lihat dokumentasi untuk perbedaan Fedora dan Windows). Laju diukur <em>di antara</em> dua snapshot, jadi baru muncul setelah penyegaran. Klik proses untuk memeriksanya; klik kanan (atau Shift+F10) untuk tindakan. Setiap tindakan menyasar instans proses yang persis itu, dikonfirmasi bila bersifat merusak, dan tidak pernah berjalan sendiri. Baris perintah sengaja tidak dikumpulkan.",
+    "noApplicationMatch": "Tidak ada aplikasi yang cocok dengan pencarian ini.",
+    "noProcessMatch": "Tidak ada proses yang cocok dengan pencarian ini.",
+    "groupedByName": "Dikelompokkan berdasarkan nama proses: PULSE tidak dapat membaca berkas eksekusi proses-proses ini, jadi dua program yang tidak berkaitan dengan nama sama akan dihitung bersama.",
+    "inspector": {
+      "processInspector": "Pemeriksa proses",
+      "closeInspector": "Tutup pemeriksa",
+      "identity": "Identitas",
+      "processName": "Nama proses",
+      "product": "Produk",
+      "parent": "Induk",
+      "instanceId": "ID instans",
+      "state": "Status",
+      "started": "Dimulai",
+      "owner": "Pemilik",
+      "category": "Kategori",
+      "architecture": "Arsitektur",
+      "resourceUsage": "Penggunaan sumber daya",
+      "memory": "Memori",
+      "threads": "Thread",
+      "read": "Baca",
+      "write": "Tulis",
+      "executable": "Berkas eksekusi",
+      "path": "Jalur",
+      "file": "Berkas",
+      "size": "Ukuran",
+      "modified": "Diubah",
+      "securityProvenance": "Keamanan & asal-usul",
+      "description": "Deskripsi",
+      "company": "Perusahaan",
+      "version": "Versi",
+      "scheduling": "Penjadwalan",
+      "priority": "Prioritas",
+      "cpuAffinity": "Afinitas CPU",
+      "processControl": "Kontrol proses",
+      "suspend": "Tangguhkan",
+      "resume": "Lanjutkan",
+      "endProcess": "Akhiri proses",
+      "endProcessTree": "Akhiri pohon proses",
+      "forceKill": "Hentikan paksa",
+      "provenance": "Asal-usul",
+      "package": "Paket",
+      "signature": "Tanda tangan",
+      "publisher": "Penerbit",
+      "setPriority": "Setel prioritas",
+      "stale": "Proses ini telah berakhir, dan PID-nya kini milik proses lain. PULSE tidak akan bertindak terhadapnya.",
+      "exited": "Proses berakhir. Tidak ada lagi yang bisa dilakukan terhadapnya.",
+      "reading": "Membaca proses ini…",
+      "self": "Ini PULSE sendiri. Mengakhirinya akan menutup aplikasi ini.",
+      "kernelThread": "Thread kernel berjalan di dalam kernel: tidak punya berkas eksekusi, tidak punya paket, dan tidak dapat dikendalikan dari PULSE.",
+      "notInSnapshot": "Tidak ada di snapshot terbaru.",
+      "replaced": "Berkas tempat proses ini dimulai sejak itu telah dihapus atau diganti di disk.",
+      "copyPath": "Salin jalur",
+      "versionNote": "Deskripsi, produk, dan perusahaan dinyatakan oleh berkas itu sendiri dan tidak membuktikan apa pun; tanda tangan adalah apa yang diverifikasi Windows.",
+      "computing": "Menghitung…",
+      "computeHash": "Hitung SHA-256",
+      "provenanceNote": "Asal-usul adalah petunjuk, bukan vonis: paket atau tanda tangan yang valid tidak membuat program aman, dan ketiadaannya tidak membuatnya berbahaya.",
+      "changeAffinity": "Ubah afinitas…",
+      "suspendedByPulse": "PULSE menangguhkan proses ini selama sesi ini.",
+      "suspendedState": "{{state}} (ditangguhkan oleh PULSE)",
+      "notApplicableKernel": "Tidak berlaku untuk thread kernel",
+      "catalog": "(katalog sistem)",
+      "claimed": "(diklaim, tidak tepercaya)",
+      "notComputed": "Belum dihitung",
+      "copyHash": "Salin SHA-256",
+      "searchHash": "Cari hash secara daring",
+      "checkVirusTotal": "Periksa hash di VirusTotal",
+      "custom": "Kustom…",
+      "memoryPercent": "Memori %",
+      "searchHint": "Membuka peramban Anda dengan pencarian web untuk nama program",
+      "virusTotalHint": "Membuka halaman VirusTotal untuk hash ini di peramban Anda. Berkasnya tidak pernah diunggah."
+    }
+  },
+  "cards": {
+    "updated": "Diperbarui {{time}}",
+    "notReported": "Tidak dilaporkan",
+    "notReportedByBackend": "Tidak dilaporkan oleh backend",
+    "cpu": {
+      "title": "Detail CPU",
+      "loading": "Membaca topologi CPU…",
+      "packages": "Paket",
+      "packageTemperature": "Suhu {{name}}",
+      "showAll_other": "Tampilkan semua {{count}} prosesor",
+      "noProcessors": "Tidak ada prosesor logis individual yang ditampilkan di mesin ini.",
+      "refresh": "Segarkan detail CPU",
+      "note": "Satu inti fisik dapat membawa beberapa prosesor logis, jadi penggunaan dilaporkan per prosesor logis. Frekuensi adalah yang dilaporkan sistem operasi. Suhu paket adalah sensor milik prosesor sendiri, bukan rata-rata intinya.",
+      "maxFor": "Maksimum yang dilaporkan untuk {{name}}: {{value}}",
+      "noMax": "tidak ada frekuensi maksimum yang dipublikasikan untuk prosesor ini"
+    },
+    "gpu": {
+      "gpuDetails": "Detail GPU",
+      "graphicsAdapters": "Adaptor grafis",
+      "refreshGpuDetails": "Segarkan detail GPU",
+      "gpuUsage": "Penggunaan GPU",
+      "vramUsage": "Penggunaan VRAM",
+      "coreClock": "Clock inti",
+      "memoryClock": "Clock memori",
+      "temperature": "Suhu",
+      "hotspot": "Hotspot",
+      "memoryTemperature": "Suhu memori",
+      "fan": "Kipas",
+      "loading": "Menemukan adaptor grafis…",
+      "none": "Tidak ada adaptor grafis perangkat keras yang terdeteksi. Perender perangkat lunak sengaja tidak dihitung sebagai GPU.",
+      "note": "Angka VRAM menggambarkan memori video khusus tiap adaptor. Memori sistem yang dibagi dengan GPU terintegrasi tidak dilaporkan sebagai VRAM. Suhu hotspot dan memori adalah sensor terpisah, tidak pernah diturunkan dari suhu GPU, dan kecepatan kipas hanya ditampilkan bila driver melaporkan putaran per menit yang sebenarnya.",
+      "vramKnownOnly": "VRAM terpasang diketahui; penggunaan langsung memerlukan driver vendor yang tidak disediakan adaptor ini.",
+      "perfUnavailable": "Telemetri performa tidak tersedia",
+      "perfUnavailableDefault": "Driver adaptor ini tidak menyediakan angka penggunaan, memori video, atau clock.",
+      "thermalRemain": "Sensor termal tetap tersedia."
+    },
+    "storage": {
+      "storageDetails": "Detail penyimpanan",
+      "storageDevices": "Perangkat penyimpanan",
+      "otherVolumes": "Volume lain",
+      "refreshStorageDetails": "Segarkan detail penyimpanan",
+      "read": "Baca",
+      "write": "Tulis",
+      "readIops": "IOPS baca",
+      "writeIops": "IOPS tulis",
+      "readLatency": "Latensi baca",
+      "writeLatency": "Latensi tulis",
+      "temperature": "Suhu",
+      "usedEndurance": "Ketahanan terpakai",
+      "availableSpare": "Cadangan tersedia",
+      "powerOnHours": "Jam menyala",
+      "unsafeShutdowns": "Pemadaman tidak aman",
+      "mediaErrors": "Galat media",
+      "loading": "Menemukan perangkat penyimpanan…",
+      "none": "Tidak ada perangkat penyimpanan fisik yang diinventarisasi. Perangkat loop, disk RAM, dan volume device-mapper sengaja tidak dihitung sebagai disk.",
+      "otherVolumesHint": "Sistem berkas terpasang yang tidak dapat dikaitkan PULSE ke salah satu disk di atas. Dicantumkan terpisah alih-alih dikaitkan ke perangkat yang salah.",
+      "note": "Throughput, IOPS, dan latensi diukur <em>di antara</em> dua sampel, jadi baru muncul setelah penyegaran. Latensi adalah rata-rata operasi yang benar-benar selesai: interval tanpa operasi tidak memiliki latensi dan menampilkan <code>—</code>, bukan 0 ms. Ketahanan terpakai dan cadangan tersedia adalah angka standar milik pengontrol — cadangan tersedia adalah persediaan blok pengganti, bukan ruang kosong di sistem berkas.",
+      "waitingHint": "Aktivitas disk adalah selisih antara dua pembacaan. Segarkan untuk mengukurnya.",
+      "free": "{{value}} bebas",
+      "full": "{{name}} terisi {{value}}",
+      "healthUnavailable": "Laporan kesehatan tidak tersedia",
+      "noHealthLog": "Perangkat ini tidak melaporkan log kesehatan standar."
+    },
+    "waitingSample": "Menunggu sampel berikutnya",
+    "network": {
+      "networkDetails": "Detail jaringan",
+      "networkInterfaces": "Antarmuka jaringan",
+      "virtualInterfaces": "Antarmuka virtual",
+      "virtualInterfaceList": "Daftar antarmuka virtual",
+      "refreshNetworkDetails": "Segarkan detail jaringan",
+      "download": "Unduh",
+      "upload": "Unggah",
+      "rxPackets": "Paket RX",
+      "txPackets": "Paket TX",
+      "errors": "Galat",
+      "dropped": "Dibuang",
+      "linkRx": "Tautan RX",
+      "linkTx": "Tautan TX",
+      "signal": "Sinyal",
+      "quality": "Kualitas",
+      "wiFiRx": "Wi-Fi RX",
+      "wiFiTx": "Wi-Fi TX",
+      "loading": "Menemukan antarmuka jaringan…",
+      "none": "Tidak ada antarmuka jaringan yang diinventarisasi. Antarmuka loopback sengaja dikecualikan: ia selalu ada dan hanya membawa lalu lintas yang tidak pernah meninggalkan mesin ini.",
+      "virtualCount": "Antarmuka virtual ({{count}})",
+      "virtualHint": "Bridge, tautan kontainer, dan antarmuka perangkat lunak lainnya. Diciutkan agar mesin yang menjalankan kontainer tidak mengubur adaptor aslinya — tidak pernah dihapus.",
+      "note": "Unduh adalah yang tiba di mesin ini dan Unggah adalah yang meninggalkannya. Lalu lintas diukur <em>di antara</em> dua sampel, jadi baru muncul setelah penyegaran. Kecepatan tautan adalah kapasitas yang dinegosiasikan driver, dalam bit per detik — bukan seberapa banyak yang mengalir, yang dalam byte. Frame dibuang adalah penghitung lokal dan <strong>bukan</strong> kehilangan paket Internet, yang tidak diukur PULSE.",
+      "kinds": {
+        "Ethernet": "Ethernet",
+        "Wi-Fi": "Wi-Fi",
+        "Bridge": "Bridge",
+        "Tunnel": "Tunnel",
+        "Virtual": "Virtual",
+        "Network": "Jaringan"
+      },
+      "connected": "Terhubung",
+      "disconnected": "Terputus",
+      "waitingHint": "Lalu lintas adalah selisih antara dua pembacaan. Segarkan untuk mengukurnya.",
+      "wifiUnavailable": "Detail tautan Wi-Fi tidak tersedia"
+    },
+    "live": {
+      "title": "Sampel sistem langsung",
+      "loading": "Mengambil sampel…",
+      "refresh": "Segarkan sampel",
+      "reconcile": "terpakai + tersedia = total, jadi kedua angka di atas selalu cocok.",
+      "waitingNext": "Menunggu sampel berikutnya"
+    },
+    "engine": {
+      "title": "Mesin metrik",
+      "loading": "Menanyai mesin…",
+      "unavailable": "Mesin tidak tersedia. Jalankan PULSE dengan <code>pnpm app:dev</code> untuk menjangkau lapisan Rust.",
+      "status": "Status",
+      "schema": "Skema",
+      "providers": "Penyedia",
+      "metrics": "Metrik",
+      "available_other": "({{count}} tersedia)",
+      "schemaMismatch": "Backend memakai skema metrik v{{backend}}; antarmuka ini mengharapkan v{{expected}}.",
+      "empty": "Belum ada penyedia yang terdaftar — PULSE tidak mengumpulkan metrik perangkat keras di fase ini."
+    }
+  },
+  "tray": {
+    "open": "Buka PULSE",
+    "edit": "Sunting overlay",
+    "lock": "Kunci overlay",
+    "toggle": "Tampilkan / sembunyikan overlay",
+    "quit": "Keluar dari PULSE"
+  }
+}

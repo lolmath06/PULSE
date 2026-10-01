@@ -1,7 +1,7 @@
 import type { IconName } from '@/components/Icon';
 import type { Density, StyleId } from '@/design/styles';
 import type { MetricSpec } from '@/presets/widgets';
-import { K } from '@/presets/widgets';
+import { K, tx } from '@/presets/widgets';
 
 /**
  * PULSE's modes: Gaming, Development, Personal and Mini.
@@ -15,12 +15,14 @@ import { K } from '@/presets/widgets';
 export const MODE_IDS = ['gaming', 'development', 'personal', 'mini'] as const;
 export type ModeId = (typeof MODE_IDS)[number];
 
+/**
+ * A mode. Its name, tagline, description and principles are translations
+ * keyed by id (`modes.<id>.name` / `.tagline` / `.description` /
+ * `.principles.<principle>`).
+ */
 export interface ModeDefinition {
   readonly id: ModeId;
-  readonly name: string;
   readonly icon: IconName;
-  readonly tagline: string;
-  readonly description: string;
   readonly style: StyleId;
   readonly density: Density;
   /** The dashboard template the mode starts from. */
@@ -36,17 +38,14 @@ export interface ModeDefinition {
     /** Keep PULSE running with its overlays when the main window closes. */
     readonly keepRunning: boolean;
   };
+  /** Principle ids, in order. */
   readonly principles: readonly string[];
 }
 
 export const MODES: readonly ModeDefinition[] = [
   {
     id: 'gaming',
-    name: 'Gaming',
     icon: 'gaming',
-    tagline: 'Overlay-first. Read it in a glance.',
-    description:
-      'Bold, compact overlays for performance and thermals next to your game — never inside it. Locked overlays let every click through and never take focus.',
     style: 'gaming',
     density: 'compact',
     template: 'gaming',
@@ -67,19 +66,11 @@ export const MODES: readonly ModeDefinition[] = [
       K.ram,
     ],
     defaults: { lockOverlays: true, keepRunning: true },
-    principles: [
-      'No FPS counter: PULSE has no real FPS source, so it shows none.',
-      'Safe desktop overlays only — no injection, no DirectX/Vulkan/OpenGL hooks.',
-      'Borderless or windowed games; exclusive fullscreen hides desktop windows.',
-    ],
+    principles: ['noFps', 'safeOverlays', 'borderless'],
   },
   {
     id: 'development',
-    name: 'Development',
     icon: 'development',
-    tagline: 'Build pressure, at engineering resolution.',
-    description:
-      'CPU, memory, disk I/O, network and process counts in a dense, exact layout — for compiles, containers, test runs and debugging sessions.',
     style: 'technical',
     density: 'compact',
     template: 'development',
@@ -87,54 +78,40 @@ export const MODES: readonly ModeDefinition[] = [
     emphasis: [
       K.cpu,
       K.ram,
-      { ...K.read, label: 'Disk ↓' },
-      { ...K.write, label: 'Disk ↑' },
-      { ...K.down, label: 'Net ↓' },
+      { ...K.read, label: tx('diskDown') },
+      { ...K.write, label: tx('diskUp') },
+      { ...K.down, label: tx('netDown') },
       K.procs,
     ],
     defaults: { lockOverlays: false, keepRunning: false },
-    principles: [
-      'Every figure is a real sample; history comes from PULSE’s own recorder.',
-      'The Processes view is one click away for the process behind a spike.',
-      'Technical style: straight segments and sample markers — nothing smoothed.',
-    ],
+    principles: ['realSamples', 'processesNearby', 'technicalStyle'],
   },
   {
     id: 'personal',
-    name: 'Personal',
     icon: 'personal',
-    tagline: 'Your everyday view, made yours.',
-    description:
-      'A pleasant, balanced starting point to curate: add what you care about, pick any style, keep it on screen all day.',
     style: 'glass',
     density: 'comfortable',
     template: 'personal',
     packs: ['summary-card', 'minimal-hud', 'tiny-stats', 'left-rail'],
-    emphasis: [K.cpu, K.ram, { ...K.cpuTemp, label: 'Temp' }, { ...K.down, label: 'Net ↓' }],
-    defaults: { lockOverlays: false, keepRunning: false },
-    principles: [
-      'Everything here is editable: widgets, style, layout, overlays.',
-      'Save the look you build as your own style in Appearance.',
-      'Share a dashboard with Export — it carries no hardware identifier.',
+    emphasis: [
+      K.cpu,
+      K.ram,
+      { ...K.cpuTemp, label: tx('temp') },
+      { ...K.down, label: tx('netDown') },
     ],
+    defaults: { lockOverlays: false, keepRunning: false },
+    principles: ['editable', 'saveLook', 'shareExport'],
   },
   {
     id: 'mini',
-    name: 'Mini',
     icon: 'mini',
-    tagline: 'A small, elegant monitor window.',
-    description:
-      'A compact, ordinary window with a handful of carefully sized readings. Interactive, never always-on-top — for that, use an overlay.',
     style: 'compact',
     density: 'compact',
     template: 'minimal',
     packs: ['tiny-stats', 'tiny-thermals', 'minimal-hud'],
-    emphasis: [K.cpu, K.ram, { ...K.cpuTemp, label: 'Temp' }],
+    emphasis: [K.cpu, K.ram, { ...K.cpuTemp, label: tx('temp') }],
     defaults: { lockOverlays: false, keepRunning: false },
-    principles: [
-      'Mini is a normal window: movable, focusable, in the taskbar.',
-      'Pick a Mini layout below, or show one of your dashboards in it.',
-    ],
+    principles: ['normalWindow', 'pickLayout'],
   },
 ];
 

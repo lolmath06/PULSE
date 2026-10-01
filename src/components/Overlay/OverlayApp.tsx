@@ -1,9 +1,10 @@
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { isTauriRuntime } from '@/services/tauri';
 import type { Overlay } from '@/overlay/model';
 import { overlayChromeStyle } from '@/overlay/style';
-import { overlayLayout, updateOverlay } from '@/overlay/model';
+import { overlayLayout, overlayName, updateOverlay } from '@/overlay/model';
 import { useElementSize } from '@/visualization/useElementSize';
 import { updateOverlays, useOverlays } from '@/overlay/store';
 import { openMainWindow } from '@/overlay/desktop';
@@ -53,6 +54,8 @@ export function OverlaySurface({
   readonly overlay: Overlay;
   readonly preview?: boolean;
 }) {
+  const { t } = useTranslation();
+  const name = overlayName(overlay);
   const editing = !overlay.locked && !preview;
   const layout = overlayLayout(overlay);
   const byId = new Map(overlay.widgets.map((widget) => [widget.id, widget]));
@@ -61,7 +64,7 @@ export function OverlaySurface({
     <div
       className={`overlay${editing ? ' overlay--editing' : ''}${preview ? ' overlay--preview' : ''}`}
       style={overlayChromeStyle(overlay)}
-      aria-label={`${overlay.name} overlay`}
+      aria-label={t('overlays.surface.aria', { name })}
     >
       {overlay.chrome.background && (
         <span
@@ -99,13 +102,13 @@ export function OverlaySurface({
           );
         })}
         {overlay.widgets.length === 0 && (
-          <p className="overlay__empty">Add widgets from PULSE → Overlays.</p>
+          <p className="overlay__empty">{t('overlays.surface.empty')}</p>
         )}
       </div>
       {editing && (
         <div className="overlay__bar" data-tauri-drag-region>
           <span className="overlay__name" data-tauri-drag-region>
-            {overlay.name} · drag to move
+            {t('overlays.surface.dragToMove', { name })}
           </span>
           <button
             type="button"
@@ -116,21 +119,21 @@ export function OverlaySurface({
               )
             }
           >
-            Lock
+            {t('overlays.surface.lock')}
           </button>
           <button
             type="button"
             className="overlay__button"
             onClick={() => void openMainWindow().catch(() => undefined)}
           >
-            Open PULSE
+            {t('overlays.surface.openPulse')}
           </button>
         </div>
       )}
       {editing && (
         <span
           className="overlay__resize"
-          title="Drag to resize"
+          title={t('overlays.surface.dragToResize')}
           onPointerDown={(event) => {
             event.preventDefault();
             if (isTauriRuntime())

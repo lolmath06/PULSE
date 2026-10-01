@@ -1,3 +1,4 @@
+import { t } from '@/i18n/i18n';
 import type { VisualizationConfig } from '@/visualization/config';
 import type { ResolvedColors } from '@/visualization/color';
 import { thresholdColor } from '@/visualization/color';
@@ -216,7 +217,9 @@ export function BarView({
         summaries.some((summary) => summary.current !== null) &&
         !config.display.compact && (
           <span className="viz-bar__note" style={{ color: colors.muted }}>
-            {`Scaled to the window's peak, ${formatValue(bounds.max, meta.unit, decimalsOf(config, meta))}`}
+            {t('viz.status.scaledToPeak', {
+              value: formatValue(bounds.max, meta.unit, decimalsOf(config, meta)),
+            })}
           </span>
         )}
     </div>

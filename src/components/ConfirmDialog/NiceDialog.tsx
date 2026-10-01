@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ConfirmDialog } from '@/components/ConfirmDialog/ConfirmDialog';
 import { NICE_MAX, NICE_MIN } from '@/utils/processes';
 
@@ -22,6 +23,7 @@ export function NiceDialog({
   readonly onApply: (value: number) => void;
   readonly onCancel: () => void;
 }) {
+  const { t } = useTranslation();
   const [text, setText] = useState(String(current ?? 0));
   const value = Number(text);
   const valid =
@@ -29,19 +31,19 @@ export function NiceDialog({
 
   return (
     <ConfirmDialog
-      title={`Custom nice value — ${name}`}
+      title={t('processes.nice.title', { name })}
       body={[
-        `PID ${pid}. Nice values run from ${NICE_MIN} (most favoured) to ${NICE_MAX} (least).`,
-        'Lowering the value usually requires privileges PULSE does not have.',
+        t('processes.nice.range', { pid, min: NICE_MIN, max: NICE_MAX }),
+        t('processes.nice.privileges'),
       ]}
-      confirmLabel="Apply"
+      confirmLabel={t('common.apply')}
       tone="neutral"
       confirmDisabled={!valid}
       onConfirm={() => onApply(value)}
       onCancel={onCancel}
     >
       <label className="nice-input">
-        Nice value
+        {t('processes.nice.value')}
         <input
           type="number"
           min={NICE_MIN}

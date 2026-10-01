@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 
 /**
  * A modal confirmation.
@@ -27,6 +28,7 @@ export function ConfirmDialog({
   readonly children?: ReactNode;
   readonly confirmDisabled?: boolean;
 }) {
+  const { t } = useTranslation();
   const cancelRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -59,7 +61,7 @@ export function ConfirmDialog({
         {children}
         <div className="dialog__actions">
           <button ref={cancelRef} type="button" className="button button--quiet" onClick={onCancel}>
-            Cancel
+            {t('common.cancel')}
           </button>
           <button
             type="button"

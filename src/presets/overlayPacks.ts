@@ -13,7 +13,8 @@ import type {
   OverlaysSection,
 } from '@/overlay/model';
 import { contentSize, createOverlay, updateOverlay } from '@/overlay/model';
-import { K, chart, meter, ring, rows, spark, strip, value } from '@/presets/widgets';
+import { K, chart, meter, ring, rows, spark, strip, tx, value } from '@/presets/widgets';
+import { englishText } from '@/i18n/i18n';
 
 /**
  * PULSE's built-in overlay packs: composed, styled, ready-to-use overlays.
@@ -37,24 +38,20 @@ export const FOOTPRINTS = [
 ] as const;
 export type Footprint = (typeof FOOTPRINTS)[number];
 
-export const FOOTPRINT_LABELS: Readonly<Record<Footprint, string>> = {
-  micro: 'Micro',
-  card: 'Floating card',
-  'top-strip': 'Top bar',
-  'bottom-strip': 'Bottom bar',
-  'left-rail': 'Left rail',
-  'right-rail': 'Right rail',
-  corner: 'Corner HUD',
-  block: 'Summary block',
-};
+/** A footprint's name: `presets.footprints.<footprint>`. */
+export function footprintLabelKey(footprint: Footprint): string {
+  return `presets.footprints.${footprint}`;
+}
 
 /** What the pack needs from the session to look as designed (never enforced). */
 export type PackNeed = 'placement' | 'above' | null;
 
+/**
+ * A built-in pack. Its name, description and card sample are translations
+ * keyed by id (`presets.packs.<id>.name` / `.description` / `.sample`).
+ */
 export interface OverlayPack {
   readonly id: string;
-  readonly name: string;
-  readonly description: string;
   readonly footprint: Footprint;
   readonly styleId: StyleId;
   readonly modes: readonly ModeId[];
@@ -65,40 +62,30 @@ export interface OverlayPack {
   /** Adjustments over the style's chrome for this composition. */
   readonly chrome?: Partial<OverlayChrome>;
   readonly gap?: number;
-  /** What it reads like, item by item, for the pack card. */
-  readonly sample: readonly string[];
   readonly widgets: () => WidgetInstance[];
 }
 
 export const OVERLAY_PACKS: readonly OverlayPack[] = [
   {
     id: 'tiny-thermals',
-    name: 'Tiny Thermals',
-    description: 'CPU and GPU temperature with memory, in a whisper-small block.',
     footprint: 'micro',
     styleId: 'compact',
     modes: ['gaming', 'mini'],
     needs: 'above',
     layout: 'vertical',
-    sample: ['CPU 64 °C', 'GPU 58 °C', 'RAM 42 %'],
-    widgets: () => [rows('Thermals', [K.cpuTemp, K.gpuTemp, K.ram], [150, 60])],
+    widgets: () => [rows(tx('thermals'), [K.cpuTemp, K.gpuTemp, K.ram], [150, 60])],
   },
   {
     id: 'tiny-stats',
-    name: 'Tiny Stats',
-    description: 'CPU, GPU, RAM and temperature in one slim line.',
     footprint: 'micro',
     styleId: 'compact',
     modes: ['gaming', 'personal', 'mini'],
     needs: 'above',
     layout: 'horizontal',
-    sample: ['CPU 24 %', 'GPU 84 %', 'RAM 41 %', '67 °C'],
     widgets: () => [strip([K.cpu, K.gpu, K.ram, { ...K.cpuTemp, label: '°C' }], [360, 30])],
   },
   {
     id: 'top-bar',
-    name: 'Top Bar',
-    description: 'A full-width summary strip across the top of the screen, with live trends.',
     footprint: 'top-strip',
     styleId: 'clean',
     modes: ['gaming', 'personal'],
@@ -107,14 +94,6 @@ export const OVERLAY_PACKS: readonly OverlayPack[] = [
     span: 'fill',
     chrome: { radius: 0, padding: 3, shadow: false },
     gap: 12,
-    sample: [
-      'CPU 23 % ∿',
-      'GPU 61 % ∿',
-      'RAM 44 % ∿',
-      'CPU 67 °C ∿',
-      '↓ 2.1 MB/s ∿',
-      '↑ 180 kB/s ∿',
-    ],
     widgets: () => [
       spark([K.cpu], [150, 26]),
       spark([K.gpu], [150, 26]),
@@ -126,8 +105,6 @@ export const OVERLAY_PACKS: readonly OverlayPack[] = [
   },
   {
     id: 'bottom-bar',
-    name: 'Bottom Bar',
-    description: 'Meters along the bottom edge: load bars for CPU, GPU and memory, and traffic.',
     footprint: 'bottom-strip',
     styleId: 'stealth',
     modes: ['development'],
@@ -136,7 +113,6 @@ export const OVERLAY_PACKS: readonly OverlayPack[] = [
     span: 'fill',
     chrome: { radius: 0, padding: 3 },
     gap: 16,
-    sample: ['CPU ▰▰▰▱▱', 'GPU ▰▰▱▱▱', 'RAM ▰▰▰▰▱', '↓ 2.1 MB/s', '↑ 180 kB/s'],
     widgets: () => [
       meter(K.cpu, [200, 24]),
       meter(K.gpu, [200, 24]),
@@ -147,8 +123,6 @@ export const OVERLAY_PACKS: readonly OverlayPack[] = [
   },
   {
     id: 'left-rail',
-    name: 'Left Rail',
-    description: 'A full-height column of rings and trends down the left edge.',
     footprint: 'left-rail',
     styleId: 'neon',
     modes: ['personal'],
@@ -157,19 +131,16 @@ export const OVERLAY_PACKS: readonly OverlayPack[] = [
     span: 'fill',
     chrome: { radius: 0 },
     gap: 10,
-    sample: ['◔ CPU 23 %', '◑ GPU 61 %', '◕ RAM 44 %', 'CPU 67 °C', '↓ 2.1 MB/s'],
     widgets: () => [
       ring(K.cpu, [150, 118]),
       ring(K.gpu, [150, 118]),
       ring(K.ram, [150, 118]),
-      rows('Temperatures', [K.cpuTemp, K.gpuTemp], [150, 48]),
+      rows(tx('temperatures'), [K.cpuTemp, K.gpuTemp], [150, 48]),
       spark([K.down], [150, 32]),
     ],
   },
   {
     id: 'right-rail',
-    name: 'Right Rail',
-    description: 'Full-height monitoring charts on the right: CPU, memory, heat, network, disk.',
     footprint: 'right-rail',
     styleId: 'clean',
     modes: ['development'],
@@ -178,15 +149,14 @@ export const OVERLAY_PACKS: readonly OverlayPack[] = [
     span: 'fill',
     chrome: { radius: 0 },
     gap: 8,
-    sample: ['CPU ⌇⌇⌇', 'RAM ⌇⌇⌇', '°C ⌇⌇⌇', '↓↑ ⌇⌇⌇', 'R/W ⌇⌇⌇'],
     widgets: () => [
       chart([K.cpu], [230, 104]),
       chart([K.ram], [230, 104]),
       chart([K.cpuTemp, K.gpuTemp], [230, 104], 'line', true),
       chart(
         [
-          { ...K.down, label: 'Download' },
-          { ...K.up, label: 'Upload' },
+          { ...K.down, label: tx('download') },
+          { ...K.up, label: tx('upload') },
         ],
         [230, 104],
       ),
@@ -195,8 +165,6 @@ export const OVERLAY_PACKS: readonly OverlayPack[] = [
   },
   {
     id: 'gaming-corner',
-    name: 'Gaming Corner',
-    description: 'A bold six-figure HUD for a top corner: load, heat, VRAM and RAM.',
     footprint: 'corner',
     styleId: 'gaming',
     modes: ['gaming'],
@@ -204,7 +172,6 @@ export const OVERLAY_PACKS: readonly OverlayPack[] = [
     layout: 'grid',
     columns: 2,
     gap: 6,
-    sample: ['CPU 31 %', 'GPU 97 %', 'CPU 71 °C', 'GPU 74 °C', 'VRAM 6.1 GB', 'RAM 44 %'],
     widgets: () => [
       value(K.cpu, [112, 40]),
       value(K.gpu, [112, 40]),
@@ -216,15 +183,12 @@ export const OVERLAY_PACKS: readonly OverlayPack[] = [
   },
   {
     id: 'thermal-strip',
-    name: 'Thermal Strip',
-    description: 'Every temperature PULSE can read, colour-banded, with trends.',
     footprint: 'card',
     styleId: 'neon',
     modes: ['gaming'],
     needs: 'above',
     layout: 'horizontal',
     gap: 10,
-    sample: ['CPU 71 °C ∿', 'GPU 64 °C ∿', 'SSD 41 °C'],
     widgets: () => [
       spark([{ ...K.cpuTemp, label: 'CPU' }], [176, 34], true),
       spark([{ ...K.gpuTemp, label: 'GPU' }], [176, 34], true),
@@ -233,8 +197,6 @@ export const OVERLAY_PACKS: readonly OverlayPack[] = [
   },
   {
     id: 'summary-card',
-    name: 'System Summary Card',
-    description: 'An elegant floating card: CPU and memory rings, GPU and network grouped.',
     footprint: 'block',
     styleId: 'glass',
     modes: ['personal'],
@@ -242,20 +204,19 @@ export const OVERLAY_PACKS: readonly OverlayPack[] = [
     layout: 'grid',
     columns: 2,
     gap: 10,
-    sample: ['◔ CPU 23 %', '◕ RAM 44 %', 'GPU 61 %', '↓ 2.1 MB/s'],
     widgets: () => [
       ring(K.cpu, [150, 124]),
       ring(K.ram, [150, 124]),
       rows(
         'GPU',
-        [{ ...K.gpu, label: 'Usage' }, K.vram, { ...K.gpuTemp, label: 'Temp' }],
+        [{ ...K.gpu, label: tx('usage') }, K.vram, { ...K.gpuTemp, label: tx('temp') }],
         [150, 64],
       ),
       rows(
-        'Network',
+        tx('network'),
         [
-          { ...K.down, label: 'Down' },
-          { ...K.up, label: 'Up' },
+          { ...K.down, label: tx('down') },
+          { ...K.up, label: tx('up') },
         ],
         [150, 64],
       ),
@@ -263,15 +224,12 @@ export const OVERLAY_PACKS: readonly OverlayPack[] = [
   },
   {
     id: 'network-strip',
-    name: 'Network Strip',
-    description: 'Download and upload with their trends, and Wi-Fi signal where there is one.',
     footprint: 'card',
     styleId: 'technical',
     modes: ['development'],
     needs: 'above',
     layout: 'horizontal',
     gap: 10,
-    sample: ['↓ 12 MB/s ∿', '↑ 1.2 MB/s ∿', 'Wi-Fi −52 dBm'],
     widgets: () => [
       spark([{ ...K.down, label: '↓' }], [180, 34]),
       spark([{ ...K.up, label: '↑' }], [180, 34]),
@@ -280,39 +238,36 @@ export const OVERLAY_PACKS: readonly OverlayPack[] = [
   },
   {
     id: 'minimal-hud',
-    name: 'Minimal Transparent HUD',
-    description: 'Three figures and nothing else — no panel, a soft halo for legibility.',
     footprint: 'micro',
     styleId: 'hud',
     modes: ['gaming', 'personal', 'mini'],
     needs: 'above',
     layout: 'vertical',
     gap: 2,
-    sample: ['CPU 23 %', 'GPU 61 %', 'RAM 44 %'],
     widgets: () => [value(K.cpu, [120, 30]), value(K.gpu, [120, 30]), value(K.ram, [120, 30])],
   },
   {
     id: 'dev-rail',
-    name: 'Dev Monitor Rail',
-    description:
-      'For coding sessions: CPU and memory charts, disk I/O, network and process counts.',
     footprint: 'right-rail',
     styleId: 'technical',
     modes: ['development'],
     needs: 'placement',
     layout: 'vertical',
     gap: 6,
-    sample: ['CPU ⌇⌇⌇', 'RAM ⌇⌇⌇', 'Read ∿', 'Write ∿', 'Net ↓ ∿', '412 processes'],
     widgets: () => [
       chart([K.cpu], [240, 92]),
       chart([K.ram], [240, 92]),
-      spark([{ ...K.read, label: 'Read' }], [240, 30]),
-      spark([{ ...K.write, label: 'Write' }], [240, 30]),
-      spark([{ ...K.down, label: 'Net ↓' }], [240, 30]),
-      rows('Processes', [K.procs, K.running, K.threads], [240, 62]),
+      spark([{ ...K.read, label: tx('read') }], [240, 30]),
+      spark([{ ...K.write, label: tx('write') }], [240, 30]),
+      spark([{ ...K.down, label: tx('netDown') }], [240, 30]),
+      rows(tx('processes'), [K.procs, K.running, K.threads], [240, 62]),
     ],
   },
 ];
+
+export function packNameKey(id: string): string {
+  return `presets.packs.${id}.name`;
+}
 
 export function findPack(id: unknown): OverlayPack | undefined {
   return OVERLAY_PACKS.find((pack) => pack.id === id);
@@ -379,7 +334,9 @@ export function createOverlayFromPack(
 ): { section: OverlaysSection; id: string | null } {
   const look = overlayStyleChrome(resolveLook(pack.styleId, custom));
   const chrome: OverlayChrome = { ...look.chrome, ...pack.chrome };
-  const created = createOverlay(section, pack.name, pack.widgets(), {
+  const nameKey = packNameKey(pack.id);
+  const created = createOverlay(section, englishText(nameKey), pack.widgets(), {
+    nameKey,
     styleId: pack.styleId,
     layout: pack.layout,
     columns: pack.columns ?? 2,
@@ -410,10 +367,13 @@ export function resetOverlayToPack(
   const fresh = createOverlayFromPack({ ...section, items: [] }, pack, FALLBACK_SCREEN, custom);
   const rebuilt = fresh.section.items[0];
   if (!rebuilt) return section;
+  // The name stays the overlay's: the pack's while never renamed, else the user's.
+  const { nameKey: _packName, ...base } = rebuilt;
   return updateOverlay(section, id, () => ({
-    ...rebuilt,
+    ...base,
     id: overlay.id,
     name: overlay.name,
+    ...(overlay.nameKey ? { nameKey: overlay.nameKey } : {}),
     visible: overlay.visible,
     locked: overlay.locked,
     geometry:

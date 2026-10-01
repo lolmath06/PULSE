@@ -120,9 +120,7 @@ describe('CPU history', () => {
     expect(CPU_TOTAL_SERIES.map((spec) => spec.ref)).toEqual([CPU_USAGE_TOTAL]);
 
     await waitFor(() =>
-      expect(screen.getByRole('region', { name: 'CPU history history' }).textContent).toContain(
-        '27.4',
-      ),
+      expect(screen.getByRole('region', { name: 'CPU history' }).textContent).toContain('27.4'),
     );
   });
 
@@ -148,7 +146,7 @@ describe('CPU history', () => {
     const { unmount } = render(<CpuHistory />);
     await waitFor(() => expect(historySpy).toHaveBeenCalledTimes(1));
 
-    const panel = screen.getByRole('region', { name: 'CPU history history' });
+    const panel = screen.getByRole('region', { name: 'CPU history' });
     await user.click(within(panel).getByRole('button', { name: '6h' }));
     await waitFor(() => expect(historySpy.mock.calls.at(-1)![1]).toBe('6h'));
 

@@ -1,0 +1,2020 @@
+{
+  "app": {
+    "tagline": "Your system, at a glance."
+  },
+  "common": {
+    "comingLater": "Coming in a future PULSE phase.",
+    "active": "Active",
+    "copyOf": "{{name}} copy",
+    "all": "All",
+    "checking": "Checking…",
+    "refresh": "Refresh",
+    "copy": "Copy",
+    "copied": "Copied",
+    "apply": "Apply",
+    "duplicate": "Duplicate",
+    "delete": "Delete",
+    "preview": "Preview",
+    "customize": "Customize",
+    "removeNamed": "Remove {{name}}",
+    "add": "Add",
+    "widgetCount_one": "{{count}} widget",
+    "widgetCount_other": "{{count}} widgets",
+    "cancel": "Cancel",
+    "rename": "Rename",
+    "reset": "Reset",
+    "export": "Export",
+    "import": "Import",
+    "copyToClipboard": "Copy to clipboard",
+    "invalidJson": "This is not valid JSON.",
+    "remove": "Remove",
+    "close": "Close",
+    "save": "Save",
+    "deleteNamed": "Delete {{name}}",
+    "refreshing": "Refreshing…",
+    "hide": "Hide",
+    "showAll": "Show all"
+  },
+  "nav": {
+    "main": "Main",
+    "groups": {
+      "monitor": "Monitor",
+      "modes": "Modes",
+      "studio": "Studio"
+    },
+    "routes": {
+      "overview": {
+        "label": "Overview",
+        "description": "The default PULSE dashboard."
+      },
+      "dashboard": {
+        "label": "Dashboard",
+        "description": "Your own dashboards: widgets you add, arrange and style."
+      },
+      "overlays": {
+        "label": "Overlays",
+        "description": "Widgets in their own windows on the desktop."
+      },
+      "gaming": {
+        "label": "Gaming",
+        "description": "A low-overhead view focused on in-game relevant metrics."
+      },
+      "development": {
+        "label": "Development",
+        "description": "A view focused on build, compile and workload pressure."
+      },
+      "personal": {
+        "label": "Personal",
+        "description": "A freely composable dashboard with many widgets."
+      },
+      "mini": {
+        "label": "Mini",
+        "description": "A small, ordinary PULSE window showing one dashboard."
+      },
+      "appearance": {
+        "label": "Appearance",
+        "description": "Styles, colours, type, density, motion and language — for every surface."
+      }
+    },
+    "changeStyle": "Change the style",
+    "style": "Style"
+  },
+  "status": {
+    "backendStatus": "Backend status",
+    "querying": "Querying backend…",
+    "unavailableUiOnly": "Backend unavailable — UI-only mode"
+  },
+  "notFound": {
+    "title": "Not found",
+    "subtitle": "This part of PULSE does not exist.",
+    "back": "Back to Overview"
+  },
+  "overview": {
+    "version": "Version {{version}}",
+    "systemDetails": "System details",
+    "detectedPlatform": "Detected platform",
+    "backendUnavailable": "Backend unavailable. Run PULSE with <code>pnpm app:dev</code> to reach the Rust layer.",
+    "os": "Operating system",
+    "platformLayer": "Platform layer",
+    "architecture": "Architecture",
+    "displayServer": "Display server",
+    "backendVersion": "Backend version"
+  },
+  "home": {
+    "liveSystem": "Live system",
+    "links": {
+      "dashboards": "Dashboards",
+      "dashboardsHint": "templates, widgets, layouts",
+      "overlays": "Overlays",
+      "overlaysHint_one": "{{count}} pack, backend status",
+      "overlaysHint_other": "{{count}} packs, backend status",
+      "appearance": "Appearance",
+      "appearanceHint_one": "{{count}} style, deep tuning",
+      "appearanceHint_other": "{{count}} styles, deep tuning"
+    }
+  },
+  "welcome": {
+    "title": "Welcome to PULSE",
+    "subtitle": "Choose a starting point. Every choice can be changed later — in Appearance, the modes, Dashboard and Overlays.",
+    "label": "Welcome",
+    "skip": "Skip",
+    "start": "Start PULSE",
+    "modeLabel": "Mode",
+    "howUse": "How will you use it?",
+    "justMonitor": "Just monitor",
+    "justMonitorHint": "No mode — a style and the dashboards.",
+    "pickStyle": "Pick a style",
+    "styles": "Welcome styles",
+    "starters": "Starters",
+    "startWith": "Start with",
+    "dashboard": "Dashboard",
+    "starterDashboard": "Starter dashboard",
+    "keepDashboards": "Keep my current dashboards",
+    "overlay": "Overlay",
+    "starterOverlay": "Starter overlay",
+    "noOverlay": "No overlay for now",
+    "overlaysHere": "Overlays here:",
+    "bridgeNotReady": "— GNOME bridge: {{state}}. See Overlays to set it up.",
+    "bridgeActive": "— overlays stay above other windows.",
+    "noBackend": "Overlay capabilities are shown in Overlays once the backend answers."
+  },
+  "language": {
+    "label": "Language",
+    "system": "System ({{language}})",
+    "hint": "System follows your computer's language. Applies to every PULSE window at once."
+  },
+  "metrics": {
+    "catalog": {
+      "cpu": {
+        "count": {
+          "logical": {
+            "name": "Logical processors",
+            "description": "Number of logical processors (hardware threads) the operating system schedules work on. With simultaneous multithreading this exceeds the number of physical cores."
+          },
+          "package": {
+            "name": "Processor packages",
+            "description": "Number of physical processor packages (sockets) installed."
+          },
+          "physical": {
+            "name": "Physical cores",
+            "description": "Number of physical execution cores, counted as distinct (package, core) pairs so that identically numbered cores in two different packages are never merged."
+          }
+        },
+        "frequency": {
+          "current": {
+            "name": "Current frequency",
+            "description": "Clock frequency the operating system currently reports for this logical processor. Scaling, boost and power policies move it continuously, so it is the platform's latest figure rather than an instantaneous measurement of the silicon."
+          },
+          "max": {
+            "name": "Maximum frequency",
+            "description": "Maximum clock frequency the platform reports for this logical processor. On a hybrid CPU this differs between performance and efficiency cores. A governor or power-policy ceiling is never published here in its place."
+          }
+        },
+        "temperature": {
+          "package": {
+            "name": "Package temperature",
+            "description": "Temperature the processor package reports for itself. It is the package's own sensor, never an average of the individual cores, and never one of the thermal limits the silicon is designed around."
+          }
+        },
+        "usage": {
+          "logical": {
+            "name": "CPU usage",
+            "description": "Share of CPU time this logical processor spent doing work, measured since the previous sample. With simultaneous multithreading, two logical processors share one physical core."
+          },
+          "total": {
+            "name": "CPU usage",
+            "description": "Share of CPU time spent doing work across the whole machine, measured since the previous sample."
+          }
+        }
+      },
+      "gpu": {
+        "count": {
+          "name": "GPUs",
+          "description": "Number of hardware graphics adapters PULSE inventoried. Software adapters such as Microsoft Basic Render Driver and WARP are not counted."
+        },
+        "fan": {
+          "speed": {
+            "name": "Fan",
+            "description": "Speed the adapter's fan is turning at, in revolutions per minute. A fan control percentage is a duty cycle rather than a speed, and is never published in its place."
+          }
+        },
+        "frequency": {
+          "core": {
+            "name": "Core clock",
+            "description": "Current graphics clock the driver reports. Boost behaviour and power policies move it continuously, so it is the platform's latest figure rather than an instantaneous measurement of the silicon."
+          },
+          "memory": {
+            "name": "Memory clock",
+            "description": "Current video memory clock the driver reports."
+          }
+        },
+        "memory": {
+          "free": {
+            "name": "Free VRAM",
+            "description": "Dedicated video memory still available for allocation."
+          },
+          "total": {
+            "name": "Total VRAM",
+            "description": "Dedicated video memory installed on this adapter. System memory shared with an integrated GPU is deliberately not reported here."
+          },
+          "usage": {
+            "percent": {
+              "name": "VRAM usage",
+              "description": "Share of dedicated video memory in use, computed from used and total bytes."
+            }
+          },
+          "used": {
+            "name": "Used VRAM",
+            "description": "Dedicated video memory currently in use across the whole system."
+          }
+        },
+        "temperature": {
+          "core": {
+            "name": "Temperature",
+            "description": "Temperature of the graphics processor die, as its own sensor reports it."
+          },
+          "hotspot": {
+            "name": "Hotspot",
+            "description": "Hottest point measured on the graphics processor package. A separate sensor from the die temperature, typically reading higher under load, and never derived from it."
+          },
+          "memory": {
+            "name": "Memory temperature",
+            "description": "Temperature of the dedicated video memory, from its own sensor."
+          }
+        },
+        "usage": {
+          "core": {
+            "name": "GPU usage",
+            "description": "Share of the graphics engine's capacity in use, as the driver reports it."
+          }
+        }
+      },
+      "memory": {
+        "available": {
+          "name": "Available memory",
+          "description": "Physical memory that can be allocated without swapping."
+        },
+        "total": {
+          "name": "Total memory",
+          "description": "Installed physical memory usable by the operating system."
+        },
+        "usage": {
+          "percent": {
+            "name": "Memory usage",
+            "description": "Share of physical memory in use, computed from used and total bytes."
+          }
+        },
+        "used": {
+          "name": "Used memory",
+          "description": "Physical memory in use, defined as total minus available."
+        }
+      },
+      "network": {
+        "interface": {
+          "count": {
+            "name": "Interfaces",
+            "description": "Number of network interfaces PULSE monitors. The loopback interface is deliberately excluded: it always exists and only ever carries traffic that never left this machine."
+          },
+          "up_count": {
+            "name": "Connected",
+            "description": "How many of the monitored interfaces currently carry a link. An adapter that is enabled but has no cable, or a radio not associated with a network, is not counted."
+          }
+        },
+        "link": {
+          "receive_speed": {
+            "name": "Link RX",
+            "description": "The inbound capacity of the link, as the driver negotiated it — not how much is flowing. A gauge rather than a fixed value because Wi-Fi and Ethernet both renegotiate."
+          },
+          "transmit_speed": {
+            "name": "Link TX",
+            "description": "The outbound capacity of the link. Equal to the inbound figure on Ethernet; frequently different on Wi-Fi."
+          }
+        },
+        "mtu": {
+          "name": "MTU",
+          "description": "The largest payload this interface carries in a single frame. A configuration fact rather than a reading, so it is a state."
+        },
+        "receive": {
+          "bytes_per_second": {
+            "name": "Download",
+            "description": "Bytes arriving at this machine per second, derived from the operating system's cumulative counters between two samples. Receive means inbound, from this machine's point of view."
+          },
+          "dropped_per_second": {
+            "name": "RX dropped",
+            "description": "Inbound frames that arrived intact and were discarded anyway — a full buffer, or no protocol handler wanting them. This is a local counter and is not Internet packet loss, which PULSE does not measure."
+          },
+          "errors_per_second": {
+            "name": "RX errors",
+            "description": "Inbound frames the interface rejected because something was wrong with them — a bad checksum, a framing error. A different counter from dropped frames, and a persistent non-zero rate usually means a cable or a driver problem."
+          },
+          "packets_per_second": {
+            "name": "RX packets",
+            "description": "Packets arriving per second, unicast and non-unicast together. Zero is a real measurement: it means nothing arrived during the interval."
+          }
+        },
+        "transmit": {
+          "bytes_per_second": {
+            "name": "Upload",
+            "description": "Bytes leaving this machine per second, derived from the operating system's cumulative counters between two samples. Transmit means outbound."
+          },
+          "dropped_per_second": {
+            "name": "TX dropped",
+            "description": "Outbound frames discarded before transmission, usually because a queue was full."
+          },
+          "errors_per_second": {
+            "name": "TX errors",
+            "description": "Outbound frames the interface failed to transmit."
+          },
+          "packets_per_second": {
+            "name": "TX packets",
+            "description": "Packets leaving per second, unicast and non-unicast together."
+          }
+        },
+        "wifi": {
+          "link": {
+            "receive_rate": {
+              "name": "Wi-Fi RX rate",
+              "description": "The inbound rate negotiated with the access point. A capacity, not traffic: a link negotiated at 400 Mbit/s carrying nothing still reports 400 Mbit/s."
+            },
+            "transmit_rate": {
+              "name": "Wi-Fi TX rate",
+              "description": "The outbound rate negotiated with the access point. Frequently different from the inbound rate."
+            }
+          },
+          "signal": {
+            "quality": {
+              "name": "Quality",
+              "description": "A 0–100 link quality figure, published only where the operating system computes one itself. It is never derived from the signal strength: every common dBm-to-percentage formula is arbitrary, and a number produced that way would look like a measurement while being a guess."
+            },
+            "rssi": {
+              "name": "Signal",
+              "description": "Received signal strength in dBm, as the radio reports it — a logarithmic scale where −40 is strong and −90 is barely usable. On a radio associated over several links, this is the strongest active link's reading; dBm values are never averaged together."
+            }
+          }
+        }
+      },
+      "process": {
+        "count": {
+          "running": {
+            "name": "Running",
+            "description": "How many processes are executing on a processor or queued and ready to. Nearly every process on an idle desktop is waiting instead — for a timer, for input, for a disk — so a small number here is normal and not a sign of an idle machine. Windows reports no process-level state, so this figure is unavailable there rather than fabricated."
+          },
+          "total": {
+            "name": "Processes",
+            "description": "How many processes exist on this machine right now, including the ones PULSE cannot read the details of. A process that is refused still exists and is still counted."
+          }
+        },
+        "thread": {
+          "count": {
+            "total": {
+              "name": "Threads",
+              "description": "Every thread of every visible process, added up. Processes whose thread count could not be read contribute nothing rather than a guess, so on a machine full of protected processes this is an understatement rather than an invention."
+            }
+          }
+        }
+      },
+      "storage": {
+        "capacity": {
+          "total": {
+            "name": "Capacity",
+            "description": "Total addressable capacity of the physical device. This is the whole device, not the sum of the filesystems on it."
+          }
+        },
+        "device": {
+          "count": {
+            "name": "Storage devices",
+            "description": "Number of physical storage devices PULSE inventoried. Partitions, loop devices, RAM disks and device-mapper volumes are not counted as devices of their own."
+          }
+        },
+        "health": {
+          "available_spare": {
+            "name": "Available spare",
+            "description": "Share of the device's reserve of replacement blocks that remains. This is not free space on the filesystem and not unallocated capacity: a completely full drive normally still reports 100 % spare."
+          },
+          "media_errors": {
+            "name": "Media errors",
+            "description": "Media and data integrity errors the controller has detected and counted over the device's life."
+          },
+          "percentage_used": {
+            "name": "Used endurance",
+            "description": "The controller's estimate of how much of the device's rated write endurance has been consumed. Reported exactly as the device states it, including values above 100 % once the rating has been exceeded, and never converted into a health score."
+          },
+          "power_on_hours": {
+            "name": "Power-on hours",
+            "description": "Hours the device's controller has been powered on, as it counts them."
+          },
+          "temperature": {
+            "name": "Temperature",
+            "description": "The storage controller's composite temperature — a single figure the device derives from its own sensors, not one individual sensor and not any other component's reading."
+          },
+          "unsafe_shutdowns": {
+            "name": "Unsafe shutdowns",
+            "description": "Times the device lost power without being told to shut down first."
+          }
+        },
+        "io": {
+          "read": {
+            "bytes_per_second": {
+              "name": "Read",
+              "description": "Bytes read from the device per second, derived from the operating system's cumulative counters between two samples."
+            },
+            "iops": {
+              "name": "Read IOPS",
+              "description": "Read operations completing per second. Zero is a real measurement: it means no read completed during the interval."
+            },
+            "latency": {
+              "name": "Read latency",
+              "description": "Mean time a read took, as the operating system observed it — queueing included, and measured from the host rather than inside the device. An interval in which no read completed has no latency at all, and reports none rather than zero."
+            }
+          },
+          "write": {
+            "bytes_per_second": {
+              "name": "Write",
+              "description": "Bytes written to the device per second, derived from the operating system's cumulative counters between two samples."
+            },
+            "iops": {
+              "name": "Write IOPS",
+              "description": "Write operations completing per second. Zero is a real measurement: it means no write completed during the interval."
+            },
+            "latency": {
+              "name": "Write latency",
+              "description": "Mean time a write took, as the operating system observed it. An interval in which no write completed reports no value rather than zero."
+            }
+          }
+        },
+        "volume": {
+          "capacity": {
+            "available": {
+              "name": "Available",
+              "description": "Space this user can actually write to. Lower than the free space on filesystems that keep a reserve for the superuser, which is deliberate: the reserve is not available to you."
+            },
+            "total": {
+              "name": "Volume size",
+              "description": "Total size of the filesystem. Several filesystems on one device do not add up to the device's capacity, and a filesystem may span devices."
+            },
+            "used": {
+              "name": "Used",
+              "description": "Space on the filesystem that holds data, defined as total minus free blocks. Used and available do not sum to the total on filesystems that reserve blocks for the superuser."
+            }
+          },
+          "count": {
+            "name": "Volumes",
+            "description": "Number of mounted filesystems PULSE inventoried. A filesystem reachable at several paths counts once; pseudo-filesystems such as proc and sysfs are not counted."
+          },
+          "usage": {
+            "percent": {
+              "name": "Volume usage",
+              "description": "Share of the filesystem that holds data, computed from used and total bytes."
+            }
+          }
+        }
+      }
+    },
+    "sources": {
+      "cpuSystem": "System CPU",
+      "memorySystem": "System memory",
+      "gpuSystem": "Graphics",
+      "processSystem": "Processes",
+      "networkSystem": "Network",
+      "storageSystem": "Storage",
+      "cpuPackage": "Package {{index}}"
+    },
+    "availability": {
+      "available": "Available",
+      "unsupported": "Not supported",
+      "notDetected": "Not detected",
+      "permissionDenied": "Permission required",
+      "temporarilyUnavailable": "Temporarily unavailable",
+      "providerError": "Provider error",
+      "notRegistered": "Not registered"
+    },
+    "availabilityReason": {
+      "unsupported": "Not supported: {{reason}}",
+      "notDetected": "Not detected: {{reason}}",
+      "permissionDenied": "Permission required: {{reason}}",
+      "temporarilyUnavailable": "Temporarily unavailable: {{reason}}",
+      "providerError": "Provider error: {{reason}}",
+      "notRegistered": "Not registered: {{reason}}"
+    },
+    "engineState": {
+      "ready": "Ready",
+      "empty": "Empty"
+    },
+    "notReported": "This machine does not report this metric.",
+    "noneSelected": "No metric selected.",
+    "sourceUnavailable": "Source unavailable"
+  },
+  "styles": {
+    "clean": {
+      "name": "Clean",
+      "tagline": "Modern, calm, professional",
+      "description": "Quiet charcoal surfaces, soft depth and a single teal accent. The default: everything readable, nothing shouting."
+    },
+    "glass": {
+      "name": "Glass",
+      "tagline": "Frosted, luminous, premium",
+      "description": "Translucent frosted panels over a deep aurora, a bright top-edge highlight and airy corners. The showpiece."
+    },
+    "technical": {
+      "name": "Technical",
+      "tagline": "Instrumentation, dense and exact",
+      "description": "An engineering bench: blueprint grid, square edges, monospaced figures, amber readouts, every axis and sample marker."
+    },
+    "neon": {
+      "name": "Neon",
+      "tagline": "High contrast, electric",
+      "description": "Near-black with magenta and cyan light: glowing lines, lit edges and luminous numbers. Dramatic, still legible."
+    },
+    "gaming": {
+      "name": "Gaming",
+      "tagline": "Bold, fast, energetic",
+      "description": "Cut corners, crimson and amber, condensed heavy type and big numbers: built to be read in a glance mid-game."
+    },
+    "stealth": {
+      "name": "Stealth",
+      "tagline": "Dark, discreet, low noise",
+      "description": "Almost no chrome, muted slate type, no fills and no grids: present when you look for it, invisible when you do not."
+    },
+    "compact": {
+      "name": "Compact",
+      "tagline": "Tight, efficient, tiny-friendly",
+      "description": "Denser spacing, smaller type and quiet charts: the most information per pixel for small widgets and micro overlays."
+    },
+    "hud": {
+      "name": "Transparent HUD",
+      "tagline": "No panels, only the numbers",
+      "description": "Chrome-free: bright figures with a soft dark halo so they read over any wallpaper or game, thin lines, no grid."
+    },
+    "accents": {
+      "teal": "Teal",
+      "sky": "Sky",
+      "blue": "Blue",
+      "violet": "Violet",
+      "magenta": "Magenta",
+      "crimson": "Crimson",
+      "amber": "Amber",
+      "lime": "Lime",
+      "mint": "Mint",
+      "silver": "Silver"
+    },
+    "palettes": {
+      "aurora": "Aurora",
+      "ocean": "Ocean",
+      "ember": "Ember",
+      "forest": "Forest",
+      "candy": "Candy",
+      "mono": "Mono"
+    }
+  },
+  "modes": {
+    "gaming": {
+      "name": "Gaming",
+      "tagline": "Overlay-first. Read it in a glance.",
+      "description": "Bold, compact overlays for performance and thermals next to your game — never inside it. Locked overlays let every click through and never take focus.",
+      "principles": {
+        "noFps": "No FPS counter: PULSE has no real FPS source, so it shows none.",
+        "safeOverlays": "Safe desktop overlays only — no injection, no DirectX/Vulkan/OpenGL hooks.",
+        "borderless": "Borderless or windowed games; exclusive fullscreen hides desktop windows."
+      }
+    },
+    "development": {
+      "name": "Development",
+      "tagline": "Build pressure, at engineering resolution.",
+      "description": "CPU, memory, disk I/O, network and process counts in a dense, exact layout — for compiles, containers, test runs and debugging sessions.",
+      "principles": {
+        "realSamples": "Every figure is a real sample; history comes from PULSE’s own recorder.",
+        "processesNearby": "The Processes view is one click away for the process behind a spike.",
+        "technicalStyle": "Technical style: straight segments and sample markers — nothing smoothed."
+      }
+    },
+    "personal": {
+      "name": "Personal",
+      "tagline": "Your everyday view, made yours.",
+      "description": "A pleasant, balanced starting point to curate: add what you care about, pick any style, keep it on screen all day.",
+      "principles": {
+        "editable": "Everything here is editable: widgets, style, layout, overlays.",
+        "saveLook": "Save the look you build as your own style in Appearance.",
+        "shareExport": "Share a dashboard with Export — it carries no hardware identifier."
+      }
+    },
+    "mini": {
+      "name": "Mini",
+      "tagline": "A small, elegant monitor window.",
+      "description": "A compact, ordinary window with a handful of carefully sized readings. Interactive, never always-on-top — for that, use an overlay.",
+      "principles": {
+        "normalWindow": "Mini is a normal window: movable, focusable, in the taskbar.",
+        "pickLayout": "Pick a Mini layout below, or show one of your dashboards in it."
+      }
+    },
+    "miniLayouts": {
+      "vitals": {
+        "name": "Vitals",
+        "description": "CPU, memory, temperature and traffic, each with its trend."
+      },
+      "thermals": {
+        "name": "Thermals",
+        "description": "Temperatures over time, colour-banded, with the SSD."
+      },
+      "network": {
+        "name": "Network",
+        "description": "Download and upload, with Wi-Fi signal where there is one."
+      },
+      "focus": {
+        "name": "Focus",
+        "description": "One big CPU ring, memory and heat as meters."
+      }
+    },
+    "page": {
+      "aria": "{{mode}} mode",
+      "eyebrow": "Mode",
+      "leave": "Leave mode",
+      "enter": "Enter {{mode}} mode",
+      "style": "{{mode}} style",
+      "modeDefault": "{{name}} (mode default)",
+      "overlaysFor": "Overlays for {{mode}}",
+      "packsHint": "Composed for the {{mode}} mode — each becomes an editable overlay in its own window.",
+      "behaviour": "Behaviour",
+      "whenOn": "When this mode is on",
+      "lockOverlays": "Lock every overlay on entering (click-through, never focused)",
+      "keepRunning": "Keep PULSE and its overlays running when the main window closes",
+      "keyMetrics": "{{mode}} key metrics",
+      "dashboardAria": "{{mode}} dashboard",
+      "startDashboard": "Start the {{mode}} dashboard from its template — then change anything.",
+      "createDashboard": "Create {{mode}} dashboard",
+      "editInDashboard": "Edit in Dashboard",
+      "switchesKeepRunning": "Entering the mode switches “closing the main window” to keep running."
+    },
+    "miniPage": {
+      "subtitle": "A small, normal PULSE window. Mini is interactive and behaves like any other window; for something that stays on top and lets clicks through, add an overlay.",
+      "useHere": "Use Mini mode here too",
+      "layouts": "Mini layouts",
+      "whatShows": "What Mini shows",
+      "layout": "Mini layout",
+      "orDashboard": "Or a dashboard",
+      "dashboardShown": "Dashboard shown in Mini",
+      "style": "Mini style",
+      "howLooks": "How Mini looks",
+      "followMode": "Mini mode ({{name}})",
+      "modeStyle": "Mini mode style",
+      "followsAtOnce": "The Mini window follows these at once — no need to reopen it.",
+      "preview": "Mini preview",
+      "live": "Live · {{name}}",
+      "tinyOverlays": "Tiny overlays",
+      "tinyOverlaysHint": "When the reading must stay above everything and let clicks through, use one of these."
+    }
+  },
+  "presets": {
+    "templates": {
+      "balanced": {
+        "name": "Default balanced",
+        "description": "The everyday overview: a summary strip, CPU and memory, heat, GPU, network, disk."
+      },
+      "gaming": {
+        "name": "Gaming dashboard",
+        "description": "Load and heat first: CPU and GPU rings, temperatures, VRAM, memory and traffic."
+      },
+      "development": {
+        "name": "Development dashboard",
+        "description": "Build pressure at engineering resolution: CPU, memory, disk I/O, network, processes."
+      },
+      "personal": {
+        "name": "Personal starter",
+        "description": "A pleasant, balanced start to make yours: rings, a chart, heat and network."
+      },
+      "thermal": {
+        "name": "Thermal focus",
+        "description": "Every temperature PULSE reads, colour-banded, beside the load that drives it."
+      },
+      "network-io": {
+        "name": "Network & I/O",
+        "description": "Traffic and disk throughput up close, with filesystem usage and Wi-Fi."
+      },
+      "minimal": {
+        "name": "Minimal clean",
+        "description": "Four big numbers and one quiet chart. Nothing else."
+      },
+      "showcase": {
+        "name": "Fancy showcase",
+        "description": "PULSE at its most striking: frosted glass, rings, gradient trends and a live strip."
+      }
+    },
+    "packs": {
+      "tiny-thermals": {
+        "name": "Tiny Thermals",
+        "description": "CPU and GPU temperature with memory, in a whisper-small block.",
+        "sample": "CPU 64 °C|GPU 58 °C|RAM 42 %"
+      },
+      "tiny-stats": {
+        "name": "Tiny Stats",
+        "description": "CPU, GPU, RAM and temperature in one slim line.",
+        "sample": "CPU 24 %|GPU 84 %|RAM 41 %|67 °C"
+      },
+      "top-bar": {
+        "name": "Top Bar",
+        "description": "A full-width summary strip across the top of the screen, with live trends.",
+        "sample": "CPU 23 % ∿|GPU 61 % ∿|RAM 44 % ∿|CPU 67 °C ∿|↓ 2.1 MB/s ∿|↑ 180 kB/s ∿"
+      },
+      "bottom-bar": {
+        "name": "Bottom Bar",
+        "description": "Meters along the bottom edge: load bars for CPU, GPU and memory, and traffic.",
+        "sample": "CPU ▰▰▰▱▱|GPU ▰▰▱▱▱|RAM ▰▰▰▰▱|↓ 2.1 MB/s|↑ 180 kB/s"
+      },
+      "left-rail": {
+        "name": "Left Rail",
+        "description": "A full-height column of rings and trends down the left edge.",
+        "sample": "◔ CPU 23 %|◑ GPU 61 %|◕ RAM 44 %|CPU 67 °C|↓ 2.1 MB/s"
+      },
+      "right-rail": {
+        "name": "Right Rail",
+        "description": "Full-height monitoring charts on the right: CPU, memory, heat, network, disk.",
+        "sample": "CPU ⌇⌇⌇|RAM ⌇⌇⌇|°C ⌇⌇⌇|↓↑ ⌇⌇⌇|R/W ⌇⌇⌇"
+      },
+      "gaming-corner": {
+        "name": "Gaming Corner",
+        "description": "A bold six-figure HUD for a top corner: load, heat, VRAM and RAM.",
+        "sample": "CPU 31 %|GPU 97 %|CPU 71 °C|GPU 74 °C|VRAM 6.1 GB|RAM 44 %"
+      },
+      "thermal-strip": {
+        "name": "Thermal Strip",
+        "description": "Every temperature PULSE can read, colour-banded, with trends.",
+        "sample": "CPU 71 °C ∿|GPU 64 °C ∿|SSD 41 °C"
+      },
+      "summary-card": {
+        "name": "System Summary Card",
+        "description": "An elegant floating card: CPU and memory rings, GPU and network grouped.",
+        "sample": "◔ CPU 23 %|◕ RAM 44 %|GPU 61 %|↓ 2.1 MB/s"
+      },
+      "network-strip": {
+        "name": "Network Strip",
+        "description": "Download and upload with their trends, and Wi-Fi signal where there is one.",
+        "sample": "↓ 12 MB/s ∿|↑ 1.2 MB/s ∿|Wi-Fi −52 dBm"
+      },
+      "minimal-hud": {
+        "name": "Minimal Transparent HUD",
+        "description": "Three figures and nothing else — no panel, a soft halo for legibility.",
+        "sample": "CPU 23 %|GPU 61 %|RAM 44 %"
+      },
+      "dev-rail": {
+        "name": "Dev Monitor Rail",
+        "description": "For coding sessions: CPU and memory charts, disk I/O, network and process counts.",
+        "sample": "CPU ⌇⌇⌇|RAM ⌇⌇⌇|Read ∿|Write ∿|Net ↓ ∿|412 processes"
+      }
+    },
+    "footprints": {
+      "micro": "Micro",
+      "card": "Floating card",
+      "top-strip": "Top bar",
+      "bottom-strip": "Bottom bar",
+      "left-rail": "Left rail",
+      "right-rail": "Right rail",
+      "corner": "Corner HUD",
+      "block": "Summary block"
+    },
+    "overlayPresets": {
+      "tiny-stats": {
+        "name": "Tiny stats",
+        "description": "CPU 24 % | GPU 84 % | RAM 41 %"
+      },
+      "thermal-strip": {
+        "name": "Thermal strip",
+        "description": "CPU and GPU temperatures in a row."
+      },
+      "gaming": {
+        "name": "Gaming",
+        "description": "CPU, GPU, VRAM, RAM and network, stacked."
+      },
+      "minimal-corner": {
+        "name": "Minimal corner",
+        "description": "CPU and RAM, no background at all."
+      }
+    },
+    "text": {
+      "system": "System",
+      "temperatures": "Temperatures",
+      "memory": "Memory",
+      "videoMemory": "Video memory",
+      "network": "Network",
+      "cpuTotal": "CPU total",
+      "processes": "Processes",
+      "diskIo": "Disk I/O",
+      "cpuTemperature": "CPU temperature",
+      "filesystem": "Filesystem",
+      "processor": "Processor",
+      "temperature": "Temperature",
+      "storage": "Storage",
+      "cpuPackage": "CPU package",
+      "load": "Load",
+      "graphics": "Graphics",
+      "heat": "Heat",
+      "thermals": "Thermals",
+      "temp": "Temp",
+      "netDown": "Net ↓",
+      "netDownCaps": "NET ↓",
+      "diskDown": "Disk ↓",
+      "diskUp": "Disk ↑",
+      "download": "Download",
+      "upload": "Upload",
+      "read": "Read",
+      "write": "Write",
+      "disk": "Disk",
+      "running": "Running",
+      "threads": "Threads",
+      "clock": "Clock",
+      "hotspot": "Hotspot",
+      "usage": "Usage",
+      "gpuTemp": "GPU temp",
+      "ssdTemp": "SSD temp",
+      "down": "Down",
+      "up": "Up",
+      "core": "Core",
+      "freq": "Freq",
+      "cpuTemp": "CPU temp",
+      "ramUsed": "RAM used",
+      "ramFree": "RAM free",
+      "gpuFan": "GPU fan"
+    },
+    "packAria": "{{name}} overlay pack",
+    "addOverlay": "Add overlay",
+    "footprint": "Footprint",
+    "templateAria": "{{name}} template",
+    "appStyle": "App style",
+    "createDashboard": "Create dashboard"
+  },
+  "library": {
+    "blueprints": {
+      "cpu-total": {
+        "label": "CPU Total",
+        "description": "Machine-wide CPU usage over time."
+      },
+      "cpu-value": {
+        "label": "CPU Total — value",
+        "description": "Just the number: CPU 23 %."
+      },
+      "cpu-sparkline": {
+        "label": "CPU Total — sparkline",
+        "description": "CPU 23 % with a tiny trend."
+      },
+      "cpu-group": {
+        "label": "CPU group",
+        "description": "Usage and package temperature together."
+      },
+      "cpu-logical": {
+        "label": "One logical processor",
+        "description": "A single logical processor; pick which one in Customize."
+      },
+      "memory": {
+        "label": "Memory usage",
+        "description": "Physical memory in use, as a percentage."
+      },
+      "memory-value": {
+        "label": "Memory — value",
+        "description": "RAM 41 %."
+      },
+      "memory-used": {
+        "label": "Memory used — value",
+        "description": "Bytes in use, e.g. 12.0 GiB."
+      },
+      "gpu": {
+        "label": "GPU usage",
+        "description": "GPU core load over time."
+      },
+      "gpu-value": {
+        "label": "GPU — value",
+        "description": "GPU 97 %."
+      },
+      "gpu-group": {
+        "label": "GPU group",
+        "description": "Usage, VRAM and temperature."
+      },
+      "thermal": {
+        "label": "CPU & GPU temperature",
+        "description": "Both sensors on one chart; an unreadable one is simply absent."
+      },
+      "cpu-temp-value": {
+        "label": "CPU temperature — value",
+        "description": "71 °C."
+      },
+      "gpu-temp-value": {
+        "label": "GPU temperature — value",
+        "description": "72 °C."
+      },
+      "ssd-temp": {
+        "label": "Drive temperature — value",
+        "description": "Read from the drive on demand, not every second."
+      },
+      "storage": {
+        "label": "Disk read / write",
+        "description": "Throughput of one drive (automatic or chosen)."
+      },
+      "volume": {
+        "label": "Filesystem usage",
+        "description": "How full one filesystem is."
+      },
+      "network": {
+        "label": "Download / upload",
+        "description": "Traffic of one interface (automatic or chosen)."
+      },
+      "network-down-value": {
+        "label": "Download — value",
+        "description": "NET ↓ 12 MiB/s."
+      },
+      "wifi": {
+        "label": "Wi-Fi signal",
+        "description": "Signal strength of a wireless interface."
+      },
+      "processes": {
+        "label": "Process & thread counts",
+        "description": "Machine-wide counts; never an individual process."
+      },
+      "summary": {
+        "label": "System summary",
+        "description": "CPU / GPU / RAM / NET in one strip, with tiny trends."
+      }
+    },
+    "categories": {
+      "CPU": "CPU",
+      "Memory": "Memory",
+      "GPU": "GPU",
+      "Thermals": "Thermals",
+      "Storage": "Storage",
+      "Network": "Network",
+      "Processes": "Processes",
+      "Custom": "Custom",
+      "Templates": "Templates"
+    },
+    "onDemand": "Read from the drive on demand (an NVMe admin command), never every second: it shows no live value.",
+    "categoriesLabel": "Widget categories",
+    "loading": "Reading the metric catalog…",
+    "addNamed": "Add {{name}}",
+    "anyMetric": "Any metric",
+    "searchPlaceholder": "Search the metric catalog",
+    "searchLabel": "Search metrics",
+    "notReadable": "Not readable on this machine",
+    "noTemplates": "No template yet. Customize a widget and use “Save as template”.",
+    "templateName": "Template name"
+  },
+  "visualization": {
+    "presets": {
+      "clean": {
+        "name": "Clean",
+        "description": "Smooth line, soft gradient, subtle grid on a dark panel."
+      },
+      "minimal": {
+        "name": "Minimal",
+        "description": "A thin line and the current value. No grid, no axes, no panel."
+      },
+      "technical": {
+        "name": "Technical",
+        "description": "Straight segments, sample markers, full axes and every statistic."
+      },
+      "gaming": {
+        "name": "Gaming",
+        "description": "Thick bright line, strong gradient, glow and bold numbers."
+      },
+      "compact": {
+        "name": "Compact",
+        "description": "A sparkline with a small number: built for tiny spaces."
+      },
+      "neon": {
+        "name": "Neon",
+        "description": "Cyan and magenta on near-black, with a soft glow."
+      },
+      "transparent": {
+        "name": "Transparent",
+        "description": "No panel at all — only the line and its number. Overlay-ready."
+      }
+    },
+    "renderers": {
+      "line": {
+        "label": "Line",
+        "description": "Values over time as a line."
+      },
+      "area": {
+        "label": "Area",
+        "description": "A line with the area beneath it filled."
+      },
+      "sparkline": {
+        "label": "Sparkline",
+        "description": "A tiny chrome-less trend, for small spaces."
+      },
+      "value": {
+        "label": "Value",
+        "description": "Just the current number."
+      },
+      "bar": {
+        "label": "Bar",
+        "description": "The current value as a horizontal bar."
+      },
+      "gauge": {
+        "label": "Gauge",
+        "description": "The current value on a ring. Needs known bounds."
+      }
+    },
+    "gaugeNeedsBounds": "A gauge needs known bounds, and this metric has none. Set a fixed scale (minimum and maximum) first.",
+    "scaleErrors": {
+      "both": "Enter both a minimum and a maximum.",
+      "numbers": "Both bounds must be numbers.",
+      "order": "The maximum must be greater than the minimum."
+    },
+    "savedByYou": "Saved by you."
+  },
+  "overlays": {
+    "limitReached_one": "At most {{count}} overlay. Delete one to add another.",
+    "limitReached_other": "At most {{count}} overlays. Delete one to add another.",
+    "defaultName": "Overlay",
+    "session": "Session:",
+    "capabilityList": "Overlay capabilities",
+    "capabilityStatus": {
+      "supported": "Supported",
+      "limited": "Limited",
+      "unsupported": "Unsupported"
+    },
+    "capabilities": {
+      "alwaysOnTop": "Always on top",
+      "clickThrough": "Click-through when locked",
+      "positioning": "Absolute positioning",
+      "transparentWindow": "Transparent window",
+      "globalHotkey": "Global shortcut",
+      "multiMonitorPositioning": "Multi-monitor placement",
+      "tray": "System tray"
+    },
+    "headline": {
+      "alwaysOnTop": "Above other windows",
+      "globalHotkey": "Global shortcut",
+      "clickThrough": "Click-through",
+      "transparentWindow": "Transparent",
+      "multiMonitorPositioning": "Multi-monitor"
+    },
+    "displayServers": {
+      "windows": "Windows",
+      "x11": "X11",
+      "wayland": "Wayland (native)",
+      "xWayland": "XWayland (X11 inside a Wayland session)",
+      "other": "Unsupported platform"
+    },
+    "verification": {
+      "physicallyVerified": "Verified on real hardware",
+      "implemented": "Implemented · not yet verified on hardware",
+      "bestEffort": "Platform-dependent",
+      "unsupported": "Unavailable"
+    },
+    "backend": {
+      "title": "Overlay backend",
+      "unavailable": "Backend unavailable. Run PULSE with pnpm app:dev.",
+      "desktopWindow": "Desktop window",
+      "whatHere": "What overlays can do here"
+    },
+    "backends": {
+      "windowsNative": {
+        "label": "Windows native overlay",
+        "detail": "A layered, topmost, no-activate tool window: HWND_TOPMOST keeps it above, WS_EX_NOACTIVATE keeps focus where it is, and WS_EX_TRANSPARENT passes clicks through while locked. Implemented and compiled; not yet verified on a Windows machine."
+      },
+      "gnomeBridge": {
+        "label": "GNOME native bridge",
+        "detail": "The PULSE extension inside GNOME Shell keeps overlays above other windows (Mutter make_above) and delivers the overlay shortcut through Mutter; PULSE keeps locked overlays click-through. Verified on Fedora 39 / GNOME 45."
+      },
+      "standardWayland": {
+        "label": "Standard Wayland window",
+        "detail": "An ordinary Wayland window: transparent, click-through when locked, but the compositor decides whether it stays above a focused application and where it goes."
+      },
+      "x11": {
+        "label": "X11 window",
+        "detail": "An always-on-top X11 window (_NET_WM_STATE_ABOVE) with an empty input shape when locked, placed where it asks."
+      },
+      "unsupported": {
+        "label": "Unavailable",
+        "detail": "Desktop overlays are not supported on this platform."
+      }
+    },
+    "placementHints": {
+      "gnome": "Stays above other windows here; drag it to the edge once in Edit mode — GNOME places Wayland windows itself.",
+      "notOnTop": "Best with the GNOME bridge or Windows native overlays: here the compositor may put it behind a focused app.",
+      "noPositioning": "Drag it into place once in Edit mode: this session cannot position windows."
+    },
+    "bridge": {
+      "title": "GNOME bridge",
+      "connected": "Connected",
+      "enable": "Enable",
+      "disable": "Disable",
+      "running": "Running",
+      "installed": "Installed",
+      "ships": "Ships with PULSE",
+      "setUp": "Set up the GNOME bridge",
+      "copyUninstall": "Copy uninstall",
+      "sourcePlaceholder": "<PULSE source>",
+      "states": {
+        "notApplicable": "Not needed here",
+        "unavailable": "Unavailable",
+        "incompatible": "Incompatible",
+        "notInstalled": "Not installed",
+        "installedNeedsLogin": "Installed — log in again",
+        "extensionsOff": "Extensions off",
+        "disabled": "Disabled",
+        "error": "Error",
+        "active": "Active",
+        "changing": "Changing…"
+      },
+      "summaries": {
+        "notGnome": "Not a GNOME session — the GNOME bridge does not apply here",
+        "notWayland": "Not needed on this session — the bridge is for GNOME on Wayland",
+        "shellNoAnswer": "GNOME Shell's extension service did not answer",
+        "notChecked": "Not checked yet",
+        "shellUnsupported": "GNOME Shell {{version}} is not supported by the bridge (verified on GNOME 45)",
+        "installedNeedsLogin": "Installed — log out and back in once to load it",
+        "notInstalled": "Not installed",
+        "extensionsOff": "User extensions are switched off for this session",
+        "activeConnected": "Active — keeping overlays above and delivering the shortcut",
+        "active": "Active",
+        "disabled": "Installed but disabled",
+        "extensionError": "GNOME Shell reported an error in the extension",
+        "outOfDate": "GNOME Shell {{version}} considers the installed extension out of date",
+        "uninstalled": "Uninstalled",
+        "changing": "GNOME Shell is changing the extension's state"
+      },
+      "guidance": {
+        "checkShell": "Check that GNOME Shell is running this session, then refresh.",
+        "standardWayland": "Overlays still work as standard Wayland windows: click-through when locked, but the compositor decides their stacking.",
+        "discoverAtLogin": "GNOME Shell 45 discovers new extensions only at login. After logging back in, enable it here.",
+        "installSteps": "Install the extension with the command below, log out and back in once, then enable it.",
+        "extensionsOn": "Turn user extensions back on (Extensions app, or gsettings set org.gnome.shell disable-user-extensions false).",
+        "newerCopyInstalled": "A newer copy is installed. Log out and back in to load it.",
+        "reinstallNewer": "This PULSE ships a newer bridge. Reinstall it with the command below, then log out and back in.",
+        "notGreeted": "Running. It has not greeted this PULSE yet: extension versions before 2 never do; newer ones do as soon as PULSE starts.",
+        "enableIt": "Enable it to keep overlays above other windows.",
+        "reinstallAfterError": "Reinstall it, log out and back in. The error is also in journalctl --user -b /usr/bin/gnome-shell.",
+        "reinstallShipped": "Reinstall the version this PULSE ships.",
+        "refreshSoon": "Refresh in a moment."
+      },
+      "steps": {
+        "install": "Install the extension",
+        "update": "Update the extension",
+        "installDetail": "Copies it to ~/.local/share/gnome-shell/extensions/ — your account only, no sudo.",
+        "updateDetail": "v{{installed}} is installed; this PULSE ships v{{bundled}}.",
+        "login": "Log out and back in once",
+        "loginDetail": "GNOME Shell 45 loads extension code only at login.",
+        "enable": "Enable it",
+        "enableDetail": "With the button here, or in GNOME’s Extensions app.",
+        "connected": "Connected to PULSE",
+        "connectedDetail": "The running extension greeted this PULSE.",
+        "notConnectedDetail": "Versions from 2 greet PULSE as soon as it starts."
+      },
+      "details": {
+        "summary": "What it does · troubleshooting · limits",
+        "unlocks": "<strong>Unlocks:</strong> overlays stay above the focused application (Mutter <code>make_above</code>), and the overlay shortcut works whichever application has focus — GNOME 45 has no global-shortcut portal. Click-through when locked is PULSE's own and works with or without the bridge.",
+        "safety": "<strong>Safety:</strong> it only touches windows owned by the process holding PULSE's bus name <em>and</em> titled exactly <code>PULSE Overlay :: &lt;id&gt;</code>. No polling, no input interception, no files, no network.",
+        "troubleshooting": "<strong>Troubleshooting:</strong> after installing or updating, log out and back in — GNOME loads extension code only at login. Its log: <code>journalctl --user -b /usr/bin/gnome-shell | grep \"PULSE overlay bridge\"</code>. If GNOME Shell ever misbehaves at login, turn user extensions off from another session with <code>gsettings set org.gnome.shell disable-user-extensions true</code>.",
+        "limits": "<strong>Limits:</strong> GNOME still places Wayland windows itself, so positions and multi-monitor placement stay the compositor's; drag an overlay once in Edit mode. Verified on GNOME 45 only."
+      }
+    },
+    "layouts": {
+      "horizontal": "Row",
+      "vertical": "Column",
+      "grid": "Grid"
+    },
+    "page": {
+      "subtitle": "Widgets in their own small windows on the desktop — above other apps where the system allows, click-through when locked. A safe desktop window: PULSE never injects into games.",
+      "all": "All overlays",
+      "editAll": "Edit all",
+      "lockAll": "Lock all",
+      "showAll": "Show all",
+      "hideAll": "Hide all",
+      "openMini": "Open Mini window",
+      "newOverlay": "New overlay",
+      "packs": "Overlay packs",
+      "packsHint": "Twelve composed overlays — micro readouts, cards, full-width bars, rails and corner HUDs. Everything stays editable.",
+      "emptyOverlay": "Empty overlay",
+      "everyCapability": "Every capability, in detail",
+      "yourPacks": "Your packs",
+      "deletePack": "Delete pack {{name}}"
+    },
+    "hotkey": {
+      "hint": "Toggles the visible overlays between Edit and Locked. Hidden overlays keep their state.",
+      "viaBridge": "Delivered by the GNOME bridge through Mutter, whichever application has focus. Applying a shortcut here changes the bridge's own setting; GNOME uses it at once.",
+      "viaPortal": "Delivered by your desktop through the XDG Desktop Portal, whichever application has focus. The desktop may ask you to approve it, and may let you change the keys in its own keyboard settings.",
+      "unavailable": "Global shortcuts are not available on this session: {{reason}}",
+      "notRegistered": "Not registered — {{error}}. The previous shortcut is still active.",
+      "notBound": "Not bound — {{error}}.",
+      "active": "Active: {{hotkey}}.",
+      "none": "No global shortcut is active."
+    },
+    "close": {
+      "title": "Closing the main window",
+      "when": "When the main window is closed",
+      "quit": "Quit PULSE",
+      "keepRunning": "Keep running while overlays are visible",
+      "note": "Quit is the default. When PULSE keeps running, reopen it from the tray or an overlay's “Open PULSE”; Quit from the tray stops everything."
+    },
+    "editor": {
+      "aria": "Overlay {{name}}",
+      "name": "Overlay name",
+      "visible": "Visible",
+      "edit": "Edit overlay",
+      "lock": "Lock overlay",
+      "saveAsPack": "Save as my pack",
+      "saveAsPackBody": "Its widgets, layout, style and chrome, to add again from Overlays.",
+      "savePack": "Save pack",
+      "packName": "Pack name",
+      "fromPack": "From “{{name}}”",
+      "resetToPack": "Reset to pack",
+      "style": "Overlay style",
+      "layout": "Overlay layout",
+      "background": "Overlay background",
+      "backgroundOpacity": "Overlay background opacity",
+      "cornerRadius": "Overlay corner radius",
+      "gapBetween": "Gap between widgets",
+      "width": "Overlay width",
+      "height": "Overlay height",
+      "fit": "Fit to widgets",
+      "x": "Overlay x",
+      "y": "Overlay y",
+      "primaryMonitor": "primary monitor",
+      "cannotPlace": "This session cannot place windows: drag the overlay by its bar in Edit mode.",
+      "widgets": "{{name}} widgets",
+      "widgetWidth": "{{name}} width",
+      "widgetHeight": "{{name}} height",
+      "moveEarlier": "Move {{name}} earlier",
+      "moveLater": "Move {{name}} later",
+      "copyToDashboard": "Copy to dashboard",
+      "copiesGoTo": "Copies go to the dashboard “{{name}}”.",
+      "deleteTitle": "Delete overlay “{{name}}”?",
+      "deleteBody": "Its window closes and its widgets are removed.",
+      "delete": "Delete overlay"
+    },
+    "surface": {
+      "aria": "{{name}} overlay",
+      "empty": "Add widgets from PULSE → Overlays.",
+      "dragToMove": "{{name}} · drag to move",
+      "lock": "Lock",
+      "openPulse": "Open PULSE",
+      "dragToResize": "Drag to resize"
+    },
+    "send": {
+      "aria": "Send {{name}} to an overlay",
+      "title": "Send “{{name}}” to an overlay",
+      "addTo": "Add to “{{name}}”"
+    }
+  },
+  "customize": {
+    "background": "Background",
+    "backgroundOpacity": "Background opacity",
+    "border": "Border",
+    "shadow": "Shadow",
+    "corners": "Corners",
+    "gap": "Gap",
+    "widthShort": "W",
+    "heightShort": "H",
+    "padding": "Padding",
+    "layout": "Layout",
+    "borders": {
+      "none": "None",
+      "thin": "Thin"
+    },
+    "groupLayouts": {
+      "rows": "Rows",
+      "inline": "Inline"
+    },
+    "widget": {
+      "section": "Widget",
+      "title": "Title",
+      "titleLabel": "Widget title",
+      "showTitle": "Show title",
+      "background": "Widget background",
+      "opacity": "Widget opacity",
+      "backgroundOpacity": "Widget background opacity",
+      "padding": "Widget padding",
+      "border": "Widget border",
+      "corners": "Widget corners",
+      "cornerRadius": "Widget corner radius"
+    },
+    "metrics": {
+      "section": "Metrics & source",
+      "label": "Label of metric {{index}}",
+      "source": "Source of metric {{index}}",
+      "automatic": "Automatic",
+      "automaticNamed": "Automatic — {{name}}",
+      "autoHint": "Chosen automatically — a reasonable default, not a claim about which one matters.",
+      "groupLayout": "Group layout",
+      "tinyTrends": "Tiny trends"
+    },
+    "data": {
+      "section": "Data",
+      "source": "Data source",
+      "nowLive": "Now: live, 1 s, last 5 minutes in memory.",
+      "nowHistory": "Now: history, {{range}}.",
+      "modes": {
+        "auto": "Automatic",
+        "history": "History",
+        "live": "Live"
+      }
+    },
+    "template": {
+      "section": "Template",
+      "placeholder": "Template name, e.g. My CPU tiny",
+      "save": "Save as template"
+    }
+  },
+  "dashboard": {
+    "addWidget": "Add widget",
+    "defaultName": "Default",
+    "fallbackName": "Dashboard",
+    "import": {
+      "notExport": "This is not a PULSE dashboard export.",
+      "version": "Unsupported dashboard export version: {{version}}.",
+      "noDashboard": "The export contains no valid dashboard.",
+      "limit_one": "At most {{count}} dashboard.",
+      "limit_other": "At most {{count}} dashboards."
+    },
+    "style": "Dashboard style",
+    "actions": "Dashboard actions",
+    "lockLayout": "Lock layout",
+    "editLayout": "Edit layout",
+    "new": "New",
+    "empty": "This dashboard is empty.",
+    "newTitle": "New dashboard",
+    "newSubtitle": "Start from a composed template, or from a blank grid. Everything stays editable.",
+    "name": "Dashboard name",
+    "nameOptional": "Name (optional)",
+    "blank": "Blank dashboard",
+    "renameTitle": "Rename “{{name}}”",
+    "deleteTitle": "Delete “{{name}}”?",
+    "deleteBody": "Its widgets and layout are removed. Templates and overlays are kept.",
+    "deleteConfirm": "Delete dashboard",
+    "resetTitle": "Reset “{{name}}”?",
+    "resetToTemplate": "The “{{name}}” template replaces the current widgets and style. Your saved templates are kept.",
+    "resetToDefault": "The default widgets replace the current ones. Your templates are kept.",
+    "resetConfirm": "Reset dashboard",
+    "exportTitle": "Export dashboard",
+    "exportBody": "A portable JSON description. It contains no hardware identifier, path or user name.",
+    "exportedJson": "Exported JSON",
+    "importTitle": "Import dashboard",
+    "importBody": "Paste a PULSE dashboard export. It is added as a new dashboard.",
+    "json": "Dashboard JSON",
+    "widgets": "{{name}} widgets",
+    "widenToEdit": "Widen the window to rearrange widgets; narrow layouts are for viewing."
+  },
+  "widget": {
+    "actions": "{{name}} actions",
+    "actionsMenu": "{{name}} actions menu",
+    "dragToMoveNamed": "Drag to move {{name}}",
+    "dragToMove": "Drag to move (or use the arrow keys)",
+    "dragToResize": "Drag to resize (or Shift + arrow keys)",
+    "toOverlay": "To overlay"
+  },
+  "history": {
+    "ranges": {
+      "15m": "15m",
+      "1h": "1h",
+      "6h": "6h",
+      "24h": "24h",
+      "7d": "7d"
+    },
+    "cpu": {
+      "view": "CPU view",
+      "total": "Total",
+      "title": "CPU history",
+      "totalNote": "CPU Total is the machine-wide usage the backend measures across every logical processor — not an average rebuilt from them.",
+      "logicalNote": "The most active logical processors over the selected window. CPU Total stays the reference.",
+      "loading": "Reading processors…",
+      "logicalHistory": "Logical processor history",
+      "showMostActive_one": "Show the {{count}} most active",
+      "showMostActive_other": "Show the {{count}} most active"
+    },
+    "gpu": {
+      "title": "GPU history",
+      "none": "No GPU was detected.",
+      "telemetryUnavailable": "Telemetry unavailable — {{reason}}"
+    },
+    "thermal": {
+      "title": "Thermal history",
+      "none": "No temperature sensor is readable on this machine.",
+      "notCharted": "Not charted — {{list}}"
+    },
+    "storage": {
+      "title": "Storage history",
+      "none": "No storage device was detected.",
+      "device": "Storage device"
+    },
+    "network": {
+      "title": "Network history",
+      "none": "No network interface was detected.",
+      "interface": "Network interface"
+    },
+    "memory": {
+      "title": "Memory history",
+      "used": "{{value}} used"
+    },
+    "processes": {
+      "count": "Process count",
+      "title": "Process count history",
+      "footnote": "Machine-wide counts only. PULSE never records the history of an individual process."
+    },
+    "status": {
+      "title": "History recorder",
+      "loading": "Querying history…",
+      "unavailable": "History unavailable: {{reason}}. Live monitoring is unaffected.",
+      "unknownReason": "unknown reason",
+      "state": "State",
+      "recording": "Recording",
+      "stateUnavailable": "Unavailable",
+      "cadence": "Cadence",
+      "every": "Every {{value}} s",
+      "historized": "Historized metrics",
+      "batches": "Batches this session",
+      "lastBatch": "Last batch",
+      "lastBatchValue_one": "{{time}} · {{count}} row",
+      "lastBatchValue_other": "{{time}} · {{count}} rows",
+      "sampleWrite": "Sample / write",
+      "median": "{{sample}} ms / {{write}} ms median",
+      "database": "Database",
+      "size": "Size",
+      "rows": "Rows",
+      "rowsValue": "{{raw}} raw · {{aggregated}} aggregated · {{series}} series",
+      "schemaJournal": "Schema / journal",
+      "lastError": "Last error: {{error}}",
+      "scheduler": "Written by one background scheduler; Refresh buttons never record.",
+      "counting": "Counting…",
+      "details": "Database details"
+    }
+  },
+  "viz": {
+    "ui": {
+      "preview": "Preview",
+      "preset": "Preset",
+      "presetName": "Preset name",
+      "newPresetName": "New preset name",
+      "visualization": "Visualization",
+      "visualizationType": "Visualization type",
+      "timeRange": "Time range",
+      "size": "Size",
+      "compactMode": "Compact mode",
+      "lineFill": "Line & fill",
+      "lineWidth": "Line width",
+      "curve": "Curve",
+      "points": "Points",
+      "pointMarkers": "Point markers",
+      "fillOpacity": "Fill opacity",
+      "smoothing": "Smoothing",
+      "colors": "Colors",
+      "colorMode": "Color mode",
+      "primary": "Primary",
+      "secondary": "Secondary",
+      "text": "Text",
+      "grid": "Grid",
+      "background": "Background",
+      "border": "Border",
+      "gradientStart": "Gradient start",
+      "gradientEnd": "Gradient end",
+      "above": "above",
+      "backgroundFrame": "Background & frame",
+      "backgroundOpacity": "Background opacity",
+      "cornerRadius": "Corner radius",
+      "shadow": "Shadow",
+      "textSize": "Text size",
+      "weight": "Weight",
+      "fontWeight": "Font weight",
+      "decimals": "Decimals",
+      "decimalPrecision": "Decimal precision",
+      "label": "Label",
+      "unit": "Unit",
+      "axesGridScale": "Axes, grid & scale",
+      "xAxis": "X axis",
+      "yAxis": "Y axis",
+      "yScale": "Y scale",
+      "legendTooltipStatistics": "Legend, tooltip & statistics",
+      "legend": "Legend",
+      "tooltip": "Tooltip",
+      "current": "Current",
+      "minimum": "Minimum",
+      "maximum": "Maximum",
+      "average": "Average",
+      "gauge": "Gauge",
+      "ringThickness": "Ring thickness",
+      "arc": "Arc",
+      "gaugeArc": "Gauge arc",
+      "fillPlaceholder": "fill",
+      "fill": "Fill",
+      "colourOf": "{{name}} colour",
+      "hexOf": "{{name}} hex value",
+      "labelOf": "{{name}} label",
+      "customFrom": "Custom (from {{name}})",
+      "presetWord": "preset",
+      "customizeNamed": "Customize {{name}}",
+      "resetVisualization": "Reset visualization",
+      "deletePreset": "Delete preset",
+      "saveAsPreset": "Save as preset",
+      "gaugeUnavailable": "Gauge is unavailable: this metric has no natural bounds. Set a fixed scale to use it.",
+      "height": "Height",
+      "width": "Width",
+      "followingTheme": "Following PULSE's theme. Picking any colour switches to Manual.",
+      "series": "Series",
+      "thresholdBands": "Threshold bands",
+      "thresholdHint": "Visual bands you choose — not a judgement of what is too high on your machine.",
+      "bandColour": "Band {{index}} colour",
+      "bandUpper": "Band {{index}} upper bound",
+      "removeBand": "Remove band {{index}}",
+      "addBand": "Add band",
+      "compactHides": "Compact mode and sparklines hide axes, grid and legend.",
+      "min": "Min",
+      "max": "Max",
+      "smoothingHint": "Visual only: stored samples and the tooltip keep the real values.",
+      "fillFollowsLine": "Fill follows the line colour"
+    },
+    "lineWidths": {
+      "thin": "Thin",
+      "medium": "Medium",
+      "thick": "Thick"
+    },
+    "options": {
+      "small": "Small",
+      "medium": "Medium",
+      "large": "Large",
+      "custom": "Custom",
+      "straight": "Straight",
+      "smooth": "Smooth",
+      "stepped": "Stepped",
+      "none": "None",
+      "visible": "Visible",
+      "solid": "Solid",
+      "gradient": "Gradient",
+      "theme": "Theme",
+      "manual": "Manual",
+      "threshold": "Threshold",
+      "light": "Light",
+      "thin": "Thin",
+      "subtle": "Subtle",
+      "glow": "Glow",
+      "regular": "Regular",
+      "bold": "Bold",
+      "full": "Full circle",
+      "three-quarter": "Three quarters",
+      "half": "Half",
+      "auto": "Auto",
+      "fixed": "Fixed"
+    },
+    "status": {
+      "loading": "Loading history…",
+      "unavailable": "History unavailable: {{reason}}",
+      "collecting": "Collecting history…",
+      "oneSample": "Collecting history… one sample so far.",
+      "noData": "no data",
+      "scaledToPeak": "Scaled to the window's peak, {{value}}",
+      "overTime": "{{name}} over time"
+    },
+    "stats": {
+      "current": "Current",
+      "min": "Min",
+      "max": "Max",
+      "average": "Avg"
+    }
+  },
+  "appearance": {
+    "styleAria": "{{name}} style",
+    "ui": {
+      "styles": "Styles",
+      "yourStyles": "Your styles",
+      "colour": "Colour",
+      "accentColour": "Accent colour",
+      "accent": "Accent",
+      "chartPalette": "Chart palette",
+      "surfaces": "Surfaces",
+      "panelOpacity": "Panel opacity",
+      "glassBlur": "Glass blur",
+      "borderStrength": "Border strength",
+      "shadowDepth": "Shadow depth",
+      "shapeType": "Shape & type",
+      "cornerRoundness": "Corner roundness",
+      "font": "Font",
+      "textSize": "Text size",
+      "layoutDensity": "Layout & density",
+      "density": "Density",
+      "widgetPadding": "Widget padding",
+      "gapBetweenWidgets": "Gap between widgets",
+      "overlayPadding": "Overlay padding",
+      "overlayGap": "Overlay gap",
+      "charts": "Charts",
+      "lineThickness": "Line thickness",
+      "fillOpacity": "Fill opacity",
+      "lineShape": "Line shape",
+      "contentMotion": "Content & motion",
+      "widgetTitles": "Widget titles",
+      "labelsInTinyWidgets": "Labels in tiny widgets",
+      "motion": "Motion",
+      "livePreview": "Live preview",
+      "styleName": "Style name",
+      "deleteThisStyle": "Delete this style?",
+      "exportStyle": "Export style",
+      "exportedStyle": "Exported style",
+      "importStyle": "Import style",
+      "styleJson": "Style JSON",
+      "overlayPaddingNote": "Used when an overlay takes a style."
+    },
+    "subtitle": "Eight styles that change surfaces, depth, type, density and charts — not just colours. Tune any of them; save the result as your own.",
+    "modeOn": "<strong>{{mode}} mode</strong> is on: the style you pick applies to it.",
+    "leaveMode": "Leave {{mode}} mode",
+    "myStyle": "My {{name}}",
+    "saveCurrent": "Save current look",
+    "noUserStyles": "Tune a style below, then save it here. Saved styles can be duplicated, renamed, exported and shared.",
+    "basedOn": "based on {{name}}",
+    "inUse": "In use",
+    "use": "Use",
+    "styleAccentTitle": "The style's accent ({{color}})",
+    "styleAccent": "Style accent",
+    "fonts": {
+      "style": "Style",
+      "sans": "Sans",
+      "rounded": "Rounded",
+      "condensed": "Condensed",
+      "mono": "Mono"
+    },
+    "styleWith": "Style ({{value}})",
+    "densities": {
+      "compact": "Compact",
+      "comfortable": "Comfortable",
+      "spacious": "Spacious"
+    },
+    "chartsNote": "Applies to every chart still on its preset. Charts you customised keep their own settings.",
+    "motionLevels": {
+      "full": "Full",
+      "reduced": "Reduced",
+      "none": "None"
+    },
+    "resetAll": "Reset every tweak to {{name}}",
+    "livePreviewNamed": "Live preview · {{name}}",
+    "saveLook": "Save this look",
+    "renameStyle": "Rename style",
+    "deleteBody": "Whatever wears it now keeps its look until you choose another.",
+    "deleteStyle": "Delete style",
+    "exportBody": "A portable JSON description of the style: colours, type and tuning only.",
+    "importBody": "Paste a PULSE style export. It is added to your styles.",
+    "useStyle": "Use style",
+    "import": {
+      "notExport": "This is not a PULSE style export.",
+      "version": "Unsupported style export version: {{version}}.",
+      "noName": "The export has no style name.",
+      "limit_one": "At most {{count}} saved style.",
+      "limit_other": "At most {{count}} saved styles."
+    }
+  },
+  "mini": {
+    "shownIn": "Shown in Mini"
+  },
+  "processes": {
+    "nice": {
+      "title": "Custom nice value — {{name}}",
+      "range": "PID {{pid}}. Nice values run from {{min}} (most favoured) to {{max}} (least).",
+      "privileges": "Lowering the value usually requires privileges PULSE does not have.",
+      "value": "Nice value"
+    },
+    "affinity": {
+      "title": "CPU affinity — {{name}}",
+      "body": "Choose the logical processors PID {{pid}} may run on.",
+      "selectAll": "Select all",
+      "keepOne": "Keep at least one CPU: a process allowed on none cannot run."
+    },
+    "status": {
+      "success": "Done",
+      "permissionDenied": "Permission denied",
+      "staleProcess": "Not done — the PID now belongs to another process",
+      "processGone": "Process already exited",
+      "unsupported": "Unsupported",
+      "partialFailure": "Partly done",
+      "invalidRequest": "Not done",
+      "platformError": "Failed"
+    },
+    "outcome": {
+      "suspend": "Suspended process {{pid}}.",
+      "resume": "Resumed process {{pid}}.",
+      "terminate": "Asked process {{pid}} to end.",
+      "forceKill": "Force-killed process {{pid}}.",
+      "priority": "Priority changed for process {{pid}}.",
+      "affinity": "Affinity changed for process {{pid}}.",
+      "terminateTree": "Process tree of {{pid}} ended.",
+      "openLocation": "Opened the executable's location.",
+      "priorityPartial": "Priority changed on {{applied}} threads of process {{pid}}; {{failed}} threads refused.",
+      "affinityPartial": "Affinity changed on {{applied}} threads of process {{pid}}; {{failed}} threads refused.",
+      "tree_one": "{{terminated}} of {{count}} process ended; {{gone}} had already exited, {{refused}} refused, {{stale}} skipped as stale, {{failed}} failed.",
+      "tree_other": "{{terminated}} of {{count}} processes ended; {{gone}} had already exited, {{refused}} refused, {{stale}} skipped as stale, {{failed}} failed."
+    },
+    "hash": {
+      "computed": "Computed",
+      "changedWhileHashing": "The file changed while it was being read",
+      "permissionDenied": "Permission denied",
+      "notFound": "File not found",
+      "notAFile": "Not a regular file",
+      "readError": "Read error"
+    },
+    "confirm": {
+      "who": "{{name}} (PID {{pid}})",
+      "selfWarning": "Ending PULSE will close this application.",
+      "endTitle": "End {{name}}?",
+      "endSigterm": "{{who}} will be sent SIGTERM and asked to exit. It may take a moment, or refuse.",
+      "endImmediate": "{{who}} will be terminated immediately. Unsaved work in it will be lost.",
+      "forceKillTitle": "Force kill {{name}}?",
+      "forceKillBody": "{{who}} will be sent SIGKILL. It cannot be caught or ignored: the process gets no chance to save anything or clean up.",
+      "treeTitle": "End {{name}} and its process tree?",
+      "treeRoot": "Root process: {{who}}.",
+      "treeBody_one": "About {{count}} descendant process will be ended first, deepest first, then the root. Each one is re-checked just before it is ended; a PID that changed hands is skipped.",
+      "treeBody_other": "About {{count}} descendant processes will be ended first, deepest first, then the root. Each one is re-checked just before it is ended; a PID that changed hands is skipped.",
+      "realtimeTitle": "Set Realtime priority?",
+      "realtimeWarning": "Realtime priority can make the system unresponsive.",
+      "realtimeBody": "It applies to {{who}}. Without the required privilege, Windows applies High instead, and PULSE will say so.",
+      "realtimeConfirm": "Set Realtime"
+    },
+    "copy": {
+      "done": "{{label}} copied.",
+      "failed": "{{label}} could not be copied."
+    },
+    "category": {
+      "user": "User",
+      "system": "System",
+      "kernel": "Kernel thread",
+      "unknown": "Unknown"
+    },
+    "state": {
+      "running": "Running",
+      "sleeping": "Sleeping",
+      "stopped": "Stopped",
+      "zombie": "Zombie"
+    },
+    "priority": {
+      "realtime": "Realtime",
+      "high": "High",
+      "aboveNormal": "Above normal",
+      "normal": "Normal",
+      "belowNormal": "Below normal",
+      "low": "Low"
+    },
+    "affinityNone": "none",
+    "affinitySummary_one": "CPU {{list}} ({{count}} of {{total}})",
+    "affinitySummary_other": "CPU {{list}} ({{count}} of {{total}})",
+    "trust": {
+      "trusted": "Trusted signature",
+      "signedButUntrusted": "Signed, not trusted",
+      "invalid": "Invalid signature",
+      "unsigned": "Unsigned",
+      "permissionDenied": "Permission denied",
+      "unavailable": "Unavailable"
+    },
+    "provenance": {
+      "userHome": "User/local executable (in your home directory, not from a package)",
+      "localInstall": "User/local executable (installed outside the package manager)",
+      "notDetected": "Package not detected"
+    },
+    "menu": {
+      "exited": "Process already exited.",
+      "unavailable": "Unavailable.",
+      "checking": "Checking permissions…",
+      "nicePreset": "{{level}} (nice {{value}})",
+      "customNice": "Custom nice value…",
+      "forceKill": "Force kill",
+      "inspect": "Inspect details",
+      "search": "Search online",
+      "openLocation": "Open file location",
+      "processName": "Process name",
+      "executablePath": "Executable path",
+      "executableUnavailable": "Executable unavailable.",
+      "instanceId": "Process instance ID",
+      "suspend": "Suspend",
+      "resume": "Resume",
+      "end": "End process",
+      "endTree": "End process tree",
+      "setPriority": "Set priority",
+      "setAffinity": "Set affinity…",
+      "affinityUnreadable": "The current affinity could not be read.",
+      "actionsFor": "Actions for {{name}}",
+      "inspectApplication": "Inspect application",
+      "showProcesses": "Show processes"
+    },
+    "table": {
+      "processDetails": "Process details",
+      "dismiss": "Dismiss",
+      "processView": "Process view",
+      "processCategory": "Process category",
+      "refreshProcessDetails": "Refresh process details",
+      "applications": "Applications",
+      "application": "Application",
+      "processes": "Processes",
+      "memory": "Memory",
+      "read": "Read",
+      "write": "Write",
+      "process": "Process",
+      "threads": "Threads",
+      "state": "State",
+      "searchPlaceholder": "Search by name or PID",
+      "searchLabel": "Search processes by name or PID"
+    },
+    "filters": {
+      "all": "All",
+      "user": "User",
+      "system": "System",
+      "kernel": "Kernel"
+    },
+    "oneOf_one": "1 of {{count}} process of {{name}}",
+    "oneOf_other": "1 of {{count}} processes of {{name}}",
+    "loading": "Walking the process table…",
+    "showAll_one": "Show all {{count}} process",
+    "showAll_other": "Show all {{count}} processes",
+    "updated": "Updated {{time}} · collected in {{ms}} ms",
+    "note": "CPU is a share of this machine's <strong>entire</strong> capacity, so one thread saturating one logical processor is a small percentage, and the column adds up to roughly what the system CPU gauge shows. Read and Write are the platform's per-process I/O counters (see the documentation for how Fedora and Windows differ). Rates are measured <em>between</em> two snapshots, so they appear only after a refresh. Click a process to inspect it; right-click (or Shift+F10) for actions. Every action targets that exact process instance, is confirmed when destructive, and never runs on its own. Command lines are deliberately not collected.",
+    "noApplicationMatch": "No application matches this search.",
+    "noProcessMatch": "No process matches this search.",
+    "groupedByName": "Grouped by process name: PULSE could not read these processes’ executables, so two unrelated programs with the same name would be counted together.",
+    "inspector": {
+      "processInspector": "Process inspector",
+      "closeInspector": "Close inspector",
+      "identity": "Identity",
+      "processName": "Process name",
+      "product": "Product",
+      "parent": "Parent",
+      "instanceId": "Instance ID",
+      "state": "State",
+      "started": "Started",
+      "owner": "Owner",
+      "category": "Category",
+      "architecture": "Architecture",
+      "resourceUsage": "Resource usage",
+      "memory": "Memory",
+      "threads": "Threads",
+      "read": "Read",
+      "write": "Write",
+      "executable": "Executable",
+      "path": "Path",
+      "file": "File",
+      "size": "Size",
+      "modified": "Modified",
+      "securityProvenance": "Security & provenance",
+      "description": "Description",
+      "company": "Company",
+      "version": "Version",
+      "scheduling": "Scheduling",
+      "priority": "Priority",
+      "cpuAffinity": "CPU affinity",
+      "processControl": "Process control",
+      "suspend": "Suspend",
+      "resume": "Resume",
+      "endProcess": "End process",
+      "endProcessTree": "End process tree",
+      "forceKill": "Force kill",
+      "provenance": "Provenance",
+      "package": "Package",
+      "signature": "Signature",
+      "publisher": "Publisher",
+      "setPriority": "Set priority",
+      "stale": "This process has exited, and its PID now belongs to a different process. PULSE will not act on it.",
+      "exited": "Process exited. Nothing further can be done to it.",
+      "reading": "Reading this process…",
+      "self": "This is PULSE itself. Ending it will close this application.",
+      "kernelThread": "A kernel thread runs inside the kernel: it has no executable, no package and cannot be controlled from PULSE.",
+      "notInSnapshot": "Not in the latest snapshot.",
+      "replaced": "The file this process started from has since been deleted or replaced on disk.",
+      "copyPath": "Copy path",
+      "versionNote": "Description, product and company are declared by the file itself and are not proof of anything; the signature is what Windows verified.",
+      "computing": "Computing…",
+      "computeHash": "Compute SHA-256",
+      "provenanceNote": "Provenance is evidence, not a verdict: a package or a valid signature does not make a program safe, and their absence does not make it malicious.",
+      "changeAffinity": "Change affinity…",
+      "suspendedByPulse": "PULSE suspended this process during this session.",
+      "suspendedState": "{{state}} (suspended by PULSE)",
+      "notApplicableKernel": "Not applicable to a kernel thread",
+      "catalog": "(system catalog)",
+      "claimed": "(claimed, not trusted)",
+      "notComputed": "Not computed",
+      "copyHash": "Copy SHA-256",
+      "searchHash": "Search hash online",
+      "checkVirusTotal": "Check hash on VirusTotal",
+      "custom": "Custom…",
+      "memoryPercent": "Memory %",
+      "searchHint": "Opens your browser on a web search for the program's name",
+      "virusTotalHint": "Opens VirusTotal's page for this hash in your browser. The file is never uploaded."
+    }
+  },
+  "cards": {
+    "updated": "Updated {{time}}",
+    "notReported": "Not reported",
+    "notReportedByBackend": "Not reported by the backend",
+    "cpu": {
+      "title": "CPU details",
+      "loading": "Reading CPU topology…",
+      "packages": "Packages",
+      "packageTemperature": "{{name}} temperature",
+      "showAll_one": "Show all {{count}} processor",
+      "showAll_other": "Show all {{count}} processors",
+      "noProcessors": "No individual logical processor is exposed on this machine.",
+      "refresh": "Refresh CPU details",
+      "note": "One physical core can carry several logical processors, so usage is reported per logical processor. Frequencies are what the operating system reports. The package temperature is the processor's own sensor, never an average of its cores.",
+      "maxFor": "Maximum reported for {{name}}: {{value}}",
+      "noMax": "no maximum frequency is published for this processor"
+    },
+    "gpu": {
+      "gpuDetails": "GPU details",
+      "graphicsAdapters": "Graphics adapters",
+      "refreshGpuDetails": "Refresh GPU details",
+      "gpuUsage": "GPU usage",
+      "vramUsage": "VRAM usage",
+      "coreClock": "Core clock",
+      "memoryClock": "Memory clock",
+      "temperature": "Temperature",
+      "hotspot": "Hotspot",
+      "memoryTemperature": "Memory temperature",
+      "fan": "Fan",
+      "loading": "Discovering graphics adapters…",
+      "none": "No hardware graphics adapter was detected. Software renderers are deliberately not counted as GPUs.",
+      "note": "VRAM figures describe each adapter's dedicated video memory. System memory shared with an integrated GPU is not reported as VRAM. Hotspot and memory temperatures are separate sensors, never derived from the GPU temperature, and a fan speed is shown only when the driver reports genuine revolutions per minute.",
+      "vramKnownOnly": "Installed VRAM is known; live usage needs a vendor driver this adapter does not provide.",
+      "perfUnavailable": "Performance telemetry unavailable",
+      "perfUnavailableDefault": "This adapter’s driver exposes no utilisation, video memory or clock figures.",
+      "thermalRemain": "Thermal sensors remain available."
+    },
+    "storage": {
+      "storageDetails": "Storage details",
+      "storageDevices": "Storage devices",
+      "otherVolumes": "Other volumes",
+      "refreshStorageDetails": "Refresh storage details",
+      "read": "Read",
+      "write": "Write",
+      "readIops": "Read IOPS",
+      "writeIops": "Write IOPS",
+      "readLatency": "Read latency",
+      "writeLatency": "Write latency",
+      "temperature": "Temperature",
+      "usedEndurance": "Used endurance",
+      "availableSpare": "Available spare",
+      "powerOnHours": "Power-on hours",
+      "unsafeShutdowns": "Unsafe shutdowns",
+      "mediaErrors": "Media errors",
+      "loading": "Discovering storage devices…",
+      "none": "No physical storage device was inventoried. Loop devices, RAM disks and device-mapper volumes are deliberately not counted as disks.",
+      "otherVolumesHint": "Mounted filesystems PULSE could not tie to one of the disks above. They are listed separately rather than attributed to the wrong device.",
+      "note": "Throughput, IOPS and latency are measured <em>between</em> two samples, so they appear only after a refresh. A latency is the mean over operations that actually completed: an interval with none has no latency at all, and shows <code>—</code> rather than 0 ms. Used endurance and available spare are the controller's own standardised figures — available spare is the reserve of replacement blocks, not free space on a filesystem.",
+      "waitingHint": "Disk activity is the difference between two readings. Refresh to measure it.",
+      "free": "{{value}} free",
+      "full": "{{name}} is {{value}} full",
+      "healthUnavailable": "Health reporting unavailable",
+      "noHealthLog": "This device reports no standardised health log."
+    },
+    "waitingSample": "Waiting for another sample",
+    "network": {
+      "networkDetails": "Network details",
+      "networkInterfaces": "Network interfaces",
+      "virtualInterfaces": "Virtual interfaces",
+      "virtualInterfaceList": "Virtual interface list",
+      "refreshNetworkDetails": "Refresh network details",
+      "download": "Download",
+      "upload": "Upload",
+      "rxPackets": "RX packets",
+      "txPackets": "TX packets",
+      "errors": "Errors",
+      "dropped": "Dropped",
+      "linkRx": "Link RX",
+      "linkTx": "Link TX",
+      "signal": "Signal",
+      "quality": "Quality",
+      "wiFiRx": "Wi-Fi RX",
+      "wiFiTx": "Wi-Fi TX",
+      "loading": "Discovering network interfaces…",
+      "none": "No network interface was inventoried. The loopback interface is deliberately excluded: it always exists and only ever carries traffic that never left this machine.",
+      "virtualCount": "Virtual interfaces ({{count}})",
+      "virtualHint": "Bridges, container links and other software interfaces. Collapsed so a machine running containers does not bury its real adapters — never removed.",
+      "note": "Download is what arrives at this machine and Upload is what leaves it. Traffic is measured <em>between</em> two samples, so it appears only after a refresh. Link speeds are the capacity the driver negotiated, in bits per second — not how much is flowing, which is in bytes. Dropped frames are a local counter and are <strong>not</strong> Internet packet loss, which PULSE does not measure.",
+      "kinds": {
+        "Ethernet": "Ethernet",
+        "Wi-Fi": "Wi-Fi",
+        "Bridge": "Bridge",
+        "Tunnel": "Tunnel",
+        "Virtual": "Virtual",
+        "Network": "Network"
+      },
+      "connected": "Connected",
+      "disconnected": "Disconnected",
+      "waitingHint": "Traffic is the difference between two readings. Refresh to measure it.",
+      "wifiUnavailable": "Wi-Fi link details unavailable"
+    },
+    "live": {
+      "title": "Live system sample",
+      "loading": "Sampling…",
+      "refresh": "Refresh sample",
+      "reconcile": "used + available = total, so the two figures above always reconcile.",
+      "waitingNext": "Waiting for next sample"
+    },
+    "engine": {
+      "title": "Metrics engine",
+      "loading": "Querying engine…",
+      "unavailable": "Engine unavailable. Run PULSE with <code>pnpm app:dev</code> to reach the Rust layer.",
+      "status": "Status",
+      "schema": "Schema",
+      "providers": "Providers",
+      "metrics": "Metrics",
+      "available_one": "({{count}} available)",
+      "available_other": "({{count}} available)",
+      "schemaMismatch": "Backend speaks metrics schema v{{backend}}; this interface expects v{{expected}}.",
+      "empty": "No providers registered yet — PULSE collects no hardware metrics in this phase."
+    }
+  },
+  "tray": {
+    "open": "Open PULSE",
+    "edit": "Edit overlays",
+    "lock": "Lock overlays",
+    "toggle": "Show / hide overlays",
+    "quit": "Quit PULSE"
+  }
+}

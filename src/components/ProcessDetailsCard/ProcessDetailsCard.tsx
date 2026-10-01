@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 import type { KeyboardEvent as ReactKeyboardEvent, MouseEvent as ReactMouseEvent } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
 import type {
   ApplicationEntry,
   ProcessDetails,
@@ -37,6 +38,7 @@ import {
   formatSampleTime,
   formatThroughput,
 } from '@/utils/units';
+import { formatInteger } from '@/i18n/format';
 import { ProcessInspector } from '@/components/ProcessInspector/ProcessInspector';
 import {
   ApplicationContextMenu,
@@ -81,12 +83,8 @@ interface Selection {
   readonly context?: string;
 }
 
-const CATEGORY_FILTERS: readonly { readonly value: CategoryFilter; readonly label: string }[] = [
-  { value: 'all', label: 'All' },
-  { value: 'user', label: 'User' },
-  { value: 'system', label: 'System' },
-  { value: 'kernel', label: 'Kernel' },
-];
+/** The category filters, in order. Labels: `processes.filters.<value>`. */
+const CATEGORY_FILTERS: readonly CategoryFilter[] = ['all', 'user', 'system', 'kernel'];
 
 /**
  * What is running on this machine, what it is using — and, since Phase 9,
@@ -107,6 +105,7 @@ const CATEGORY_FILTERS: readonly { readonly value: CategoryFilter; readonly labe
  * in both directions. The choice survives Refresh.
  */
 export function ProcessDetailsCard() {
+  const { t } = useTranslation();
   const { status, snapshot, message, refreshing, refresh } = useProcessDetails();
   const actions = useProcessActions(refresh);
   const [view, setView] = useState<'applications' | 'processes'>('applications');
@@ -205,20 +204,23 @@ export function ProcessDetailsCard() {
       setSelection({
         instanceId: first.instanceId,
         name: first.name,
-        context: `1 of ${application.processCount} processes of ${application.displayName}`,
+        context: t('processes.oneOf', {
+          count: application.processCount,
+          name: application.displayName,
+        }),
       });
     }
   };
 
   return (
-    <div className="card" aria-label="Process details">
-      <h2 className="card__title">Process details</h2>
+    <div className="card" aria-label={t('processes.table.processDetails')}>
+      <h2 className="card__title">{t('processes.table.processDetails')}</h2>
 
-      {status === 'loading' && <p className="card__muted">Walking the process table…</p>}
+      {status === 'loading' && <p className="card__muted">{t('processes.loading')}</p>}
 
       {status === 'error' && (
         <p className="card__muted" title={message}>
-          Backend unavailable. Run PULSE with <code>pnpm app:dev</code> to reach the Rust layer.
+          <Trans i18nKey="overview.backendUnavailable" components={{ code: <code /> }} />
         </p>
       )}
 
@@ -226,15 +228,15 @@ export function ProcessDetailsCard() {
         <>
           <dl className="kv">
             <div className="kv__row">
-              <dt>Processes</dt>
+              <dt>{t('presets.text.processes')}</dt>
               <dd>{formatCount(snapshot.counts.total)}</dd>
             </div>
             <div className="kv__row">
-              <dt>Running</dt>
+              <dt>{t('presets.text.running')}</dt>
               <dd>{formatCount(snapshot.counts.running)}</dd>
             </div>
             <div className="kv__row">
-              <dt>Threads</dt>
+              <dt>{t('presets.text.threads')}</dt>
               <dd>{formatCount(snapshot.counts.threads)}</dd>
             </div>
           </dl>
@@ -249,7 +251,7 @@ export function ProcessDetailsCard() {
               <button
                 type="button"
                 className="process-notice__dismiss"
-                aria-label="Dismiss"
+                aria-label={t('processes.table.dismiss')}
                 onClick={actions.dismissNotice}
               >
                 ×
@@ -258,14 +260,18 @@ export function ProcessDetailsCard() {
           )}
 
           <div className="process-controls">
-            <div className="process-views" role="group" aria-label="Process view">
+            <div
+              className="process-views"
+              role="group"
+              aria-label={t('processes.table.processView')}
+            >
               <button
                 type="button"
                 className={viewClass(view === 'applications')}
                 aria-pressed={view === 'applications'}
                 onClick={() => setView('applications')}
               >
-                Applications
+                {t('processes.table.applications')}
               </button>
               <button
                 type="button"
@@ -273,20 +279,24 @@ export function ProcessDetailsCard() {
                 aria-pressed={view === 'processes'}
                 onClick={() => setView('processes')}
               >
-                Processes
+                {t('presets.text.processes')}
               </button>
             </div>
 
-            <div className="process-views" role="group" aria-label="Process category">
+            <div
+              className="process-views"
+              role="group"
+              aria-label={t('processes.table.processCategory')}
+            >
               {CATEGORY_FILTERS.map((filter) => (
                 <button
-                  key={filter.value}
+                  key={filter}
                   type="button"
-                  className={viewClass(category === filter.value)}
-                  aria-pressed={category === filter.value}
-                  onClick={() => setCategory(filter.value)}
+                  className={viewClass(category === filter)}
+                  aria-pressed={category === filter}
+                  onClick={() => setCategory(filter)}
                 >
-                  {filter.label}
+                  {t(`processes.filters.${filter}`)}
                 </button>
               ))}
             </div>
@@ -294,8 +304,8 @@ export function ProcessDetailsCard() {
             <input
               type="search"
               className="process-search"
-              placeholder="Search by name or PID"
-              aria-label="Search processes by name or PID"
+              placeholder={t('processes.table.searchPlaceholder')}
+              aria-label={t('processes.table.searchLabel')}
               value={query}
               onChange={(event) => setQuery(event.target.value)}
             />
@@ -326,7 +336,7 @@ export function ProcessDetailsCard() {
                   className="button button--quiet"
                   onClick={() => setShowAll(true)}
                 >
-                  Show all {processes.length} processes
+                  {t('processes.showAll', { count: processes.length })}
                 </button>
               )}
             </>
@@ -334,28 +344,24 @@ export function ProcessDetailsCard() {
 
           <div className="card__footer">
             <span className="card__muted">
-              {`Updated ${formatSampleTime(snapshot.takenAt)} · collected in ${snapshot.durationMs} ms`}
+              {t('processes.updated', {
+                time: formatSampleTime(snapshot.takenAt),
+                ms: formatInteger(snapshot.durationMs),
+              })}
             </span>
             <button
               type="button"
               className="button"
               onClick={refresh}
               disabled={refreshing}
-              aria-label="Refresh process details"
+              aria-label={t('processes.table.refreshProcessDetails')}
             >
-              {refreshing ? 'Refreshing…' : 'Refresh'}
+              {refreshing ? t('common.refreshing') : t('common.refresh')}
             </button>
           </div>
 
           <p className="card__note">
-            CPU is a share of this machine&rsquo;s <strong>entire</strong> capacity, so one thread
-            saturating one logical processor is a small percentage, and the column adds up to
-            roughly what the system CPU gauge shows. Read and Write are the platform&rsquo;s
-            per-process I/O counters (see the documentation for how Fedora and Windows differ).
-            Rates are measured <em>between</em> two snapshots, so they appear only after a refresh.
-            Click a process to inspect it; right-click (or Shift+F10) for actions. Every action
-            targets that exact process instance, is confirmed when destructive, and never runs on
-            its own. Command lines are deliberately not collected.
+            <Trans i18nKey="processes.note" components={{ strong: <strong />, em: <em /> }} />
           </p>
         </>
       )}
@@ -590,26 +596,42 @@ function ApplicationTable({
     origin: HTMLElement,
   ) => void;
 }) {
+  const { t } = useTranslation();
   if (applications.length === 0) {
-    return <p className="card__muted">No application matches this search.</p>;
+    return <p className="card__muted">{t('processes.noApplicationMatch')}</p>;
   }
 
   return (
-    <table className="process-table" aria-label="Applications">
+    <table className="process-table" aria-label={t('processes.table.applications')}>
       <thead>
         <tr>
           <SortHeader
-            label="Application"
+            label={t('processes.table.application')}
             column="name"
             sort={sort}
             onSort={onSort}
             numeric={false}
           />
-          <SortHeader label="Processes" column="processes" sort={sort} onSort={onSort} />
+          <SortHeader
+            label={t('processes.table.processes')}
+            column="processes"
+            sort={sort}
+            onSort={onSort}
+          />
           <SortHeader label="CPU" column="cpu" sort={sort} onSort={onSort} />
-          <SortHeader label="Memory" column="memory" sort={sort} onSort={onSort} />
-          <SortHeader label="Read" column="read" sort={sort} onSort={onSort} />
-          <SortHeader label="Write" column="write" sort={sort} onSort={onSort} />
+          <SortHeader
+            label={t('processes.table.memory')}
+            column="memory"
+            sort={sort}
+            onSort={onSort}
+          />
+          <SortHeader label={t('processes.table.read')} column="read" sort={sort} onSort={onSort} />
+          <SortHeader
+            label={t('processes.table.write')}
+            column="write"
+            sort={sort}
+            onSort={onSort}
+          />
         </tr>
       </thead>
       <tbody>
@@ -633,12 +655,7 @@ function ApplicationTable({
             <th scope="row" className="process-table__name">
               <span
                 className="process-table__label"
-                title={
-                  application.identity === 'name'
-                    ? 'Grouped by process name: PULSE could not read these processes’ executables, ' +
-                      'so two unrelated programs with the same name would be counted together.'
-                    : undefined
-                }
+                title={application.identity === 'name' ? t('processes.groupedByName') : undefined}
               >
                 {application.displayName}
               </span>
@@ -670,30 +687,47 @@ function ProcessTable({
   readonly onSelect: (entry: ProcessEntry) => void;
   readonly onMenu: (entry: ProcessEntry, x: number, y: number, origin: HTMLElement) => void;
 }) {
+  const { t } = useTranslation();
   if (processes.length === 0) {
-    return <p className="card__muted">No process matches this search.</p>;
+    return <p className="card__muted">{t('processes.noProcessMatch')}</p>;
   }
 
   return (
-    <table className="process-table" aria-label="Processes">
+    <table className="process-table" aria-label={t('processes.table.processes')}>
       <thead>
         <tr>
-          <SortHeader label="Process" column="name" sort={sort} onSort={onSort} numeric={false} />
+          <SortHeader
+            label={t('processes.table.process')}
+            column="name"
+            sort={sort}
+            onSort={onSort}
+            numeric={false}
+          />
           <SortHeader label="PID" column="pid" sort={sort} onSort={onSort} />
           <th scope="col" className="process-table__secondary">
-            State
+            {t('processes.table.state')}
           </th>
           <SortHeader label="CPU" column="cpu" sort={sort} onSort={onSort} />
-          <SortHeader label="Memory" column="memory" sort={sort} onSort={onSort} />
           <SortHeader
-            label="Threads"
+            label={t('processes.table.memory')}
+            column="memory"
+            sort={sort}
+            onSort={onSort}
+          />
+          <SortHeader
+            label={t('processes.table.threads')}
             column="threads"
             sort={sort}
             onSort={onSort}
             className="process-table__secondary"
           />
-          <SortHeader label="Read" column="read" sort={sort} onSort={onSort} />
-          <SortHeader label="Write" column="write" sort={sort} onSort={onSort} />
+          <SortHeader label={t('processes.table.read')} column="read" sort={sort} onSort={onSort} />
+          <SortHeader
+            label={t('processes.table.write')}
+            column="write"
+            sort={sort}
+            onSort={onSort}
+          />
         </tr>
       </thead>
       <tbody>

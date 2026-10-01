@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
+import { t } from '@/i18n/i18n';
 import type { MetricSample } from '@/types/metrics';
 import {
   NETWORK_INTERFACE_COUNT,
@@ -60,6 +62,7 @@ import {
  * the backend's own descriptions state it too.
  */
 export function NetworkDetailsCard() {
+  useTranslation();
   const { status, interfaces, samples, message, refreshing, refresh } = useNetworkDetails();
   const [showAll, setShowAll] = useState(false);
 
@@ -83,14 +86,14 @@ export function NetworkDetailsCard() {
   const timestamp = samples.values().next().value?.timestamp;
 
   return (
-    <div className="card" aria-label="Network details">
-      <h2 className="card__title">Network details</h2>
+    <div className="card" aria-label={t('cards.network.networkDetails')}>
+      <h2 className="card__title">{t('cards.network.networkDetails')}</h2>
 
-      {status === 'loading' && <p className="card__muted">Discovering network interfaces…</p>}
+      {status === 'loading' && <p className="card__muted">{t('cards.network.loading')}</p>}
 
       {status === 'error' && (
         <p className="card__muted" title={message}>
-          Backend unavailable. Run PULSE with <code>pnpm app:dev</code> to reach the Rust layer.
+          <Trans i18nKey="overview.backendUnavailable" components={{ code: <code /> }} />
         </p>
       )}
 
@@ -98,22 +101,19 @@ export function NetworkDetailsCard() {
         <>
           <dl className="kv">
             <div className="kv__row">
-              <dt>Interfaces</dt>
+              <dt>{t('metrics.catalog.network.interface.count.name')}</dt>
               <dd>{interfaceCount}</dd>
             </div>
             <div className="kv__row">
-              <dt>Connected</dt>
+              <dt>{t('metrics.catalog.network.interface.up_count.name')}</dt>
               <dd>{connectedCount}</dd>
             </div>
           </dl>
 
           {interfaces.length === 0 ? (
-            <p className="card__note">
-              No network interface was inventoried. The loopback interface is deliberately excluded:
-              it always exists and only ever carries traffic that never left this machine.
-            </p>
+            <p className="card__note">{t('cards.network.none')}</p>
           ) : (
-            <ul className="network-grid" aria-label="Network interfaces">
+            <ul className="network-grid" aria-label={t('cards.network.networkInterfaces')}>
               {primary.map((entry) => (
                 <NetworkEntry key={entry.sourceId} entry={entry} samples={samples} />
               ))}
@@ -121,25 +121,24 @@ export function NetworkDetailsCard() {
           )}
 
           {other.length > 0 && (
-            <section className="network-other" aria-label="Virtual interfaces">
+            <section className="network-other" aria-label={t('cards.network.virtualInterfaces')}>
               <div className="network-other__header">
-                <h3 className="network-other__title">Virtual interfaces ({other.length})</h3>
+                <h3 className="network-other__title">
+                  {t('cards.network.virtualCount', { count: other.length })}
+                </h3>
                 <button
                   type="button"
                   className="button button--quiet"
                   onClick={() => setShowAll((current) => !current)}
                   aria-expanded={showAll}
                 >
-                  {showAll ? 'Hide' : 'Show all'}
+                  {showAll ? t('common.hide') : t('common.showAll')}
                 </button>
               </div>
-              <p className="card__muted">
-                Bridges, container links and other software interfaces. Collapsed so a machine
-                running containers does not bury its real adapters — never removed.
-              </p>
+              <p className="card__muted">{t('cards.network.virtualHint')}</p>
 
               {showAll && (
-                <ul className="network-grid" aria-label="Virtual interface list">
+                <ul className="network-grid" aria-label={t('cards.network.virtualInterfaceList')}>
                   {other.map((entry) => (
                     <NetworkEntry key={entry.sourceId} entry={entry} samples={samples} />
                   ))}
@@ -150,25 +149,23 @@ export function NetworkDetailsCard() {
 
           <div className="card__footer">
             <span className="card__muted">
-              {typeof timestamp === 'number' ? `Updated ${formatSampleTime(timestamp)}` : ''}
+              {typeof timestamp === 'number'
+                ? t('cards.updated', { time: formatSampleTime(timestamp) })
+                : ''}
             </span>
             <button
               type="button"
               className="button"
               onClick={refresh}
               disabled={refreshing}
-              aria-label="Refresh network details"
+              aria-label={t('cards.network.refreshNetworkDetails')}
             >
-              {refreshing ? 'Refreshing…' : 'Refresh'}
+              {refreshing ? t('common.refreshing') : t('common.refresh')}
             </button>
           </div>
 
           <p className="card__note">
-            Download is what arrives at this machine and Upload is what leaves it. Traffic is
-            measured <em>between</em> two samples, so it appears only after a refresh. Link speeds
-            are the capacity the driver negotiated, in bits per second — not how much is flowing,
-            which is in bytes. Dropped frames are a local counter and are <strong>not</strong>{' '}
-            Internet packet loss, which PULSE does not measure.
+            <Trans i18nKey="cards.network.note" components={{ em: <em />, strong: <strong /> }} />
           </p>
         </>
       )}
@@ -207,50 +204,50 @@ function NetworkEntry({
         {entry.label}
       </h4>
       <p className="network-grid__meta">
-        {entry.kind}
+        {t(`cards.network.kinds.${entry.kind}`)}
         {' · '}
         <span className={connected ? 'network-grid__up' : 'network-grid__down'}>
-          {connected ? 'Connected' : 'Disconnected'}
+          {connected ? t('cards.network.connected') : t('cards.network.disconnected')}
         </span>
         {mtu !== null && <span className="network-grid__mtu"> · MTU {formatBytes(mtu, 0)}</span>}
       </p>
 
       {telemetry.awaitingBaseline && (
         <p className="network-grid__notice" role="note">
-          <strong>Waiting for another sample</strong>
-          Traffic is the difference between two readings. Refresh to measure it.
+          <strong>{t('cards.waitingSample')}</strong>
+          {t('cards.network.waitingHint')}
         </p>
       )}
 
       <dl className="kv kv--compact">
-        <Row label="Download">
+        <Row label={t('cards.network.download')}>
           <Throughput sample={sampleOf(NETWORK_RECEIVE_BYTES_KEY)} />
         </Row>
-        <Row label="Upload">
+        <Row label={t('cards.network.upload')}>
           <Throughput sample={sampleOf(NETWORK_TRANSMIT_BYTES_KEY)} />
         </Row>
-        <Row label="RX packets">
+        <Row label={t('cards.network.rxPackets')}>
           <PacketRate sample={sampleOf(NETWORK_RECEIVE_PACKETS_KEY)} />
         </Row>
-        <Row label="TX packets">
+        <Row label={t('cards.network.txPackets')}>
           <PacketRate sample={sampleOf(NETWORK_TRANSMIT_PACKETS_KEY)} />
         </Row>
-        <Row label="Errors">
+        <Row label={t('cards.network.errors')}>
           <ErrorPair
             receive={sampleOf(NETWORK_RECEIVE_ERRORS_KEY)}
             transmit={sampleOf(NETWORK_TRANSMIT_ERRORS_KEY)}
           />
         </Row>
-        <Row label="Dropped">
+        <Row label={t('cards.network.dropped')}>
           <ErrorPair
             receive={sampleOf(NETWORK_RECEIVE_DROPPED_KEY)}
             transmit={sampleOf(NETWORK_TRANSMIT_DROPPED_KEY)}
           />
         </Row>
-        <Row label="Link RX">
+        <Row label={t('cards.network.linkRx')}>
           <LinkSpeed sample={sampleOf(NETWORK_LINK_RECEIVE_SPEED_KEY)} />
         </Row>
-        <Row label="Link TX">
+        <Row label={t('cards.network.linkTx')}>
           <LinkSpeed sample={sampleOf(NETWORK_LINK_TRANSMIT_SPEED_KEY)} />
         </Row>
       </dl>
@@ -258,22 +255,22 @@ function NetworkEntry({
       {entry.wireless &&
         (wifiReason === null ? (
           <dl className="kv kv--compact">
-            <Row label="Signal">
+            <Row label={t('cards.network.signal')}>
               <Dbm sample={sampleOf(NETWORK_WIFI_SIGNAL_RSSI_KEY)} />
             </Row>
-            <Row label="Quality">
+            <Row label={t('cards.network.quality')}>
               <Quality sample={sampleOf(NETWORK_WIFI_SIGNAL_QUALITY_KEY)} />
             </Row>
-            <Row label="Wi-Fi RX">
+            <Row label={t('cards.network.wiFiRx')}>
               <LinkSpeed sample={sampleOf(NETWORK_WIFI_LINK_RECEIVE_RATE_KEY)} />
             </Row>
-            <Row label="Wi-Fi TX">
+            <Row label={t('cards.network.wiFiTx')}>
               <LinkSpeed sample={sampleOf(NETWORK_WIFI_LINK_TRANSMIT_RATE_KEY)} />
             </Row>
           </dl>
         ) : (
           <p className="network-grid__notice" role="note">
-            <strong>Wi-Fi link details unavailable</strong>
+            <strong>{t('cards.network.wifiUnavailable')}</strong>
             {wifiReason}
           </p>
         ))}
@@ -392,7 +389,9 @@ function Quality({ sample }: { readonly sample: MetricSample | undefined }) {
  * the tooltip, while the cell itself stays a plain dash.
  */
 function Unavailable({ sample }: { readonly sample: MetricSample | undefined }) {
-  const reason = sample ? describeAvailability(sample.availability) : 'Not reported by the backend';
+  const reason = sample
+    ? describeAvailability(sample.availability)
+    : t('cards.notReportedByBackend');
 
   return (
     <span className="value--unavailable" title={reason}>

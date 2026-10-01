@@ -112,7 +112,6 @@ export function parseStore(input: unknown): StoreShape {
       customPresets.push({
         id: preset.id,
         name: preset.name.slice(0, 40),
-        description: 'Saved by you.',
         style: styleOf(normalizeConfig(preset.style)),
         custom: true,
       });
@@ -172,7 +171,6 @@ export function saveCustomPreset(name: string, config: VisualizationConfig): str
   const preset: VisualizationPreset = {
     id: `custom:${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
     name: trimmed,
-    description: 'Saved by you.',
     style: styleOf(config),
     custom: true,
   };
@@ -308,7 +306,6 @@ export function useChartVisualization(
       const preset: VisualizationPreset = {
         id: `custom:${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
         name: trimmed,
-        description: 'Saved by you.',
         style: styleOf(now.config),
         custom: true,
       };

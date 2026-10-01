@@ -174,7 +174,7 @@ describe('formatCelsius', () => {
 
 describe('formatRpm', () => {
   it('formats a fan speed with its unit', () => {
-    expect(formatRpm(2187)).toBe(`${(2187).toLocaleString()} RPM`);
+    expect(formatRpm(2187)).toBe('2,187 RPM');
   });
 
   it('shows a stopped fan as zero rather than as an absence', () => {
@@ -184,7 +184,7 @@ describe('formatRpm', () => {
   });
 
   it('rounds to whole revolutions', () => {
-    expect(formatRpm(1200.6)).toBe(`${(1201).toLocaleString()} RPM`);
+    expect(formatRpm(1200.6)).toBe('1,201 RPM');
   });
 
   it('refuses what is not a fan speed', () => {
@@ -249,7 +249,7 @@ describe('formatIops', () => {
   });
 
   it('groups large figures', () => {
-    expect(formatIops(125_000)).toBe((125_000).toLocaleString() + ' IOPS');
+    expect(formatIops(125_000)).toBe('125,000 IOPS');
   });
 
   it('refuses a negative or non-finite rate', () => {
@@ -297,7 +297,7 @@ describe('formatHours', () => {
   });
 
   it('groups above a thousand', () => {
-    expect(formatHours(12_847)).toBe((12_847).toLocaleString() + ' h');
+    expect(formatHours(12_847)).toBe('12,847 h');
   });
 
   it('refuses a negative or non-finite duration', () => {
@@ -313,7 +313,7 @@ describe('formatCount', () => {
   });
 
   it('groups large counts', () => {
-    expect(formatCount(1284)).toBe((1284).toLocaleString());
+    expect(formatCount(1284)).toBe('1,284');
   });
 
   it('refuses a negative or non-finite count', () => {

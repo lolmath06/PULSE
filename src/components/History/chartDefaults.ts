@@ -58,43 +58,50 @@ export const LOGICAL_CELL_STYLE: DeepPartial<VisualizationConfig> = {
   display: { compact: true },
 };
 
-export const CPU_META: VisualizationMeta = {
+/** A chart's meta, with the translation key of its label (`label` stays English). */
+export type HistoryMeta = VisualizationMeta & { readonly labelKey?: string };
+
+export const CPU_META: HistoryMeta = {
   label: 'CPU',
   unit: 'percent',
   bounds: { min: 0, max: 100 },
   decimals: 1,
 };
 
-export const MEMORY_META: VisualizationMeta = {
+export const MEMORY_META: HistoryMeta = {
   label: 'Memory',
+  labelKey: 'presets.text.memory',
   unit: 'percent',
   bounds: { min: 0, max: 100 },
   decimals: 1,
 };
 
-export const GPU_META: VisualizationMeta = {
+export const GPU_META: HistoryMeta = {
   label: 'GPU',
   unit: 'percent',
   bounds: { min: 0, max: 100 },
   decimals: 0,
 };
 
-export const THERMAL_META: VisualizationMeta = {
+export const THERMAL_META: HistoryMeta = {
   label: 'Temperature',
+  labelKey: 'presets.text.temperature',
   unit: 'celsius',
   bounds: null,
   decimals: 0,
 };
 
-export const STORAGE_META: VisualizationMeta = {
+export const STORAGE_META: HistoryMeta = {
   label: 'Disk',
+  labelKey: 'presets.text.disk',
   unit: 'bytesPerSecond',
   bounds: null,
   decimals: 1,
 };
 
-export const NETWORK_META: VisualizationMeta = {
+export const NETWORK_META: HistoryMeta = {
   label: 'Network',
+  labelKey: 'presets.text.network',
   unit: 'bytesPerSecond',
   bounds: null,
   decimals: 1,

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { usePlatformInfo } from '@/hooks/usePlatformInfo';
 import { formatDisplayServer, formatPlatformLabel } from '@/utils/format';
 import { APP_VERSION } from '@/app/constants';
@@ -8,15 +9,18 @@ import { APP_VERSION } from '@/app/constants';
  * Phase 0 only: this is not the metrics surface, it is the integration check.
  */
 export function StatusBar() {
+  const { t } = useTranslation();
   const state = usePlatformInfo();
 
   return (
-    <footer className="status-bar" aria-label="Backend status">
-      {state.status === 'loading' && <span className="status-bar__muted">Querying backend…</span>}
+    <footer className="status-bar" aria-label={t('status.backendStatus')}>
+      {state.status === 'loading' && (
+        <span className="status-bar__muted">{t('status.querying')}</span>
+      )}
 
       {state.status === 'error' && (
         <span className="status-bar__muted" title={state.message}>
-          Backend unavailable — UI-only mode
+          {t('status.unavailableUiOnly')}
         </span>
       )}
 

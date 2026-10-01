@@ -26,7 +26,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Mutex, MutexGuard};
 use std::time::Duration;
 
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use tauri::{
     AppHandle, Emitter, Manager, PhysicalPosition, Runtime, WebviewUrl, WebviewWindow,
@@ -796,20 +796,77 @@ pub fn on_shortcut<R: Runtime>(app: &AppHandle<R>, shortcut: &Shortcut, pressed:
 
 // --- tray --------------------------------------------------------------------------
 
+/// The tray menu's words. English until the interface sends its own
+/// language's (`set_tray_labels`): the native menu cannot read the frontend's
+/// translations, so the main window hands them over whenever its language
+/// changes. Only the labels change; the item ids and actions never do.
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TrayLabels {
+    pub open: String,
+    pub edit: String,
+    pub lock: String,
+    pub toggle: String,
+    pub quit: String,
+}
+
+impl Default for TrayLabels {
+    fn default() -> Self {
+        Self {
+            open: "Open PULSE".into(),
+            edit: "Edit overlays".into(),
+            lock: "Lock overlays".into(),
+            toggle: "Show / hide overlays".into(),
+            quit: "Quit PULSE".into(),
+        }
+    }
+}
+
+impl TrayLabels {
+    /// Each label trimmed and bounded; a blank or oversized one keeps its
+    /// English default rather than leaving an empty menu entry.
+    pub fn sanitized(self) -> Self {
+        let defaults = Self::default();
+        let pick = |text: String, fallback: String| {
+            let trimmed = text.trim();
+            if trimmed.is_empty() || trimmed.chars().count() > 64 || trimmed.contains('\n') {
+                fallback
+            } else {
+                trimmed.to_string()
+            }
+        };
+        Self {
+            open: pick(self.open, defaults.open),
+            edit: pick(self.edit, defaults.edit),
+            lock: pick(self.lock, defaults.lock),
+            toggle: pick(self.toggle, defaults.toggle),
+            quit: pick(self.quit, defaults.quit),
+        }
+    }
+}
+
+fn tray_menu<R: Runtime>(
+    app: &AppHandle<R>,
+    labels: &TrayLabels,
+) -> tauri::Result<tauri::menu::Menu<R>> {
+    use tauri::menu::{Menu, MenuItem, PredefinedMenuItem};
+
+    let open = MenuItem::with_id(app, "open", &labels.open, true, None::<&str>)?;
+    let edit = MenuItem::with_id(app, "edit", &labels.edit, true, None::<&str>)?;
+    let lock_all = MenuItem::with_id(app, "lock", &labels.lock, true, None::<&str>)?;
+    let toggle = MenuItem::with_id(app, "toggle", &labels.toggle, true, None::<&str>)?;
+    let separator = PredefinedMenuItem::separator(app)?;
+    let quit = MenuItem::with_id(app, "quit", &labels.quit, true, None::<&str>)?;
+    Menu::with_items(app, &[&open, &edit, &lock_all, &toggle, &separator, &quit])
+}
+
 /// Builds the tray once. A failure (no StatusNotifier host, no icon) is
 /// recorded as a capability fact, never fatal.
 pub fn build_tray<R: Runtime>(app: &AppHandle<R>) {
-    use tauri::menu::{Menu, MenuItem, PredefinedMenuItem};
     use tauri::tray::TrayIconBuilder;
 
     let result = (|| -> tauri::Result<()> {
-        let open = MenuItem::with_id(app, "open", "Open PULSE", true, None::<&str>)?;
-        let edit = MenuItem::with_id(app, "edit", "Edit overlays", true, None::<&str>)?;
-        let lock_all = MenuItem::with_id(app, "lock", "Lock overlays", true, None::<&str>)?;
-        let toggle = MenuItem::with_id(app, "toggle", "Show / hide overlays", true, None::<&str>)?;
-        let separator = PredefinedMenuItem::separator(app)?;
-        let quit = MenuItem::with_id(app, "quit", "Quit PULSE", true, None::<&str>)?;
-        let menu = Menu::with_items(app, &[&open, &edit, &lock_all, &toggle, &separator, &quit])?;
+        let menu = tray_menu(app, &TrayLabels::default())?;
         let mut builder = TrayIconBuilder::with_id("pulse")
             .tooltip("PULSE")
             .menu(&menu)
@@ -839,6 +896,16 @@ pub fn build_tray<R: Runtime>(app: &AppHandle<R>) {
     if let Err(error) = result {
         eprintln!("PULSE: tray unavailable: {error}");
     }
+}
+
+/// Relabels the tray menu in the interface's language. Without a tray (it
+/// could not be created) there is nothing to relabel, which is not an error.
+pub fn set_tray_labels<R: Runtime>(app: &AppHandle<R>, labels: TrayLabels) -> tauri::Result<()> {
+    let Some(tray) = app.tray_by_id("pulse") else {
+        return Ok(());
+    };
+    let menu = tray_menu(app, &labels.sanitized())?;
+    tray.set_menu(Some(menu))
 }
 
 // --- capabilities -------------------------------------------------------------------
@@ -950,4 +1017,36 @@ pub fn setup<R: Runtime>(app: &AppHandle<R>) {
             );
         }
     });
+}
+
+#[cfg(test)]
+mod tests {
+    use super::TrayLabels;
+
+    #[test]
+    fn tray_labels_keep_a_translation_and_refuse_an_empty_or_odd_one() {
+        let labels = TrayLabels {
+            open: "  Ouvrir PULSE ".into(),
+            edit: String::new(),
+            lock: "x".repeat(65),
+            toggle: "two\nlines".into(),
+            quit: "Quitter PULSE".into(),
+        }
+        .sanitized();
+        let defaults = TrayLabels::default();
+        assert_eq!(labels.open, "Ouvrir PULSE");
+        assert_eq!(labels.edit, defaults.edit);
+        assert_eq!(labels.lock, defaults.lock);
+        assert_eq!(labels.toggle, defaults.toggle);
+        assert_eq!(labels.quit, "Quitter PULSE");
+    }
+
+    #[test]
+    fn tray_labels_arrive_in_camel_case() {
+        let labels: TrayLabels = serde_json::from_value(serde_json::json!({
+            "open": "a", "edit": "b", "lock": "c", "toggle": "d", "quit": "e"
+        }))
+        .expect("deserialise");
+        assert_eq!(labels.toggle, "d");
+    }
 }

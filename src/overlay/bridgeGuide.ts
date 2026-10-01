@@ -4,6 +4,7 @@ import type {
   GnomeBridgeStatus,
   OverlayCapabilities,
 } from '@/overlay/desktop';
+import { t } from '@/i18n/i18n';
 
 /**
  * What the overlay backend panel says and offers, decided from the backend's
@@ -31,18 +32,10 @@ export function bridgeTone(state: BridgeState): Tone {
   }
 }
 
-export const BRIDGE_STATE_LABELS: Readonly<Record<BridgeState, string>> = {
-  notApplicable: 'Not needed here',
-  unavailable: 'Unavailable',
-  incompatible: 'Incompatible',
-  notInstalled: 'Not installed',
-  installedNeedsLogin: 'Installed — log in again',
-  extensionsOff: 'Extensions off',
-  disabled: 'Disabled',
-  error: 'Error',
-  active: 'Active',
-  changing: 'Changing…',
-};
+/** A bridge state's short name, for a chip. */
+export function bridgeStateLabel(state: BridgeState): string {
+  return t(`overlays.bridge.states.${state}`);
+}
 
 export type StepState = 'done' | 'current' | 'todo';
 
@@ -63,13 +56,13 @@ function quoted(path: string): string {
 export function installCommand(sourceDir: string | null | undefined): string {
   return sourceDir
     ? `cd ${quoted(sourceDir)} && ./install.sh install`
-    : 'cd <PULSE source>/integrations/gnome-shell && ./install.sh install';
+    : `cd ${t('overlays.bridge.sourcePlaceholder')}/integrations/gnome-shell && ./install.sh install`;
 }
 
 export function uninstallCommand(sourceDir: string | null | undefined): string {
   return sourceDir
     ? `cd ${quoted(sourceDir)} && ./install.sh uninstall`
-    : 'cd <PULSE source>/integrations/gnome-shell && ./install.sh uninstall';
+    : `cd ${t('overlays.bridge.sourcePlaceholder')}/integrations/gnome-shell && ./install.sh uninstall`;
 }
 
 /**
@@ -91,17 +84,20 @@ export function bridgeSteps(
   return [
     {
       id: 'install',
-      title: needsUpdate ? 'Update the extension' : 'Install the extension',
+      title: needsUpdate ? t('overlays.bridge.steps.update') : t('overlays.bridge.steps.install'),
       detail: needsUpdate
-        ? `v${bridge.installedVersion ?? '?'} is installed; this PULSE ships v${bridge.bundledVersion}.`
-        : 'Copies it to ~/.local/share/gnome-shell/extensions/ — your account only, no sudo.',
+        ? t('overlays.bridge.steps.updateDetail', {
+            installed: bridge.installedVersion ?? '?',
+            bundled: bridge.bundledVersion,
+          })
+        : t('overlays.bridge.steps.installDetail'),
       state: at(installed && !needsUpdate, !installed || needsUpdate),
       command: installCommand(sourceDir),
     },
     {
       id: 'login',
-      title: 'Log out and back in once',
-      detail: 'GNOME Shell 45 loads extension code only at login.',
+      title: t('overlays.bridge.steps.login'),
+      detail: t('overlays.bridge.steps.loginDetail'),
       state: at(
         loaded && !bridge.restartPending,
         bridge.state === 'installedNeedsLogin' || bridge.restartPending,
@@ -109,31 +105,31 @@ export function bridgeSteps(
     },
     {
       id: 'enable',
-      title: 'Enable it',
-      detail: 'With the button here, or in GNOME’s Extensions app.',
+      title: t('overlays.bridge.steps.enable'),
+      detail: t('overlays.bridge.steps.enableDetail'),
       state: at(enabled, loaded && !enabled),
     },
     {
       id: 'connected',
-      title: 'Connected to PULSE',
+      title: t('overlays.bridge.steps.connected'),
       detail: bridge.connected
-        ? 'The running extension greeted this PULSE.'
-        : 'Versions from 2 greet PULSE as soon as it starts.',
+        ? t('overlays.bridge.steps.connectedDetail')
+        : t('overlays.bridge.steps.notConnectedDetail'),
       state: at(bridge.connected, enabled && !bridge.connected),
     },
   ];
 }
 
-/** The capabilities the backend panel headlines, in order. */
-export const HEADLINE_CAPABILITIES: readonly {
-  readonly key: keyof Omit<OverlayCapabilities, 'displayServer' | 'tray' | 'positioning'>;
-  readonly label: string;
-}[] = [
-  { key: 'alwaysOnTop', label: 'Above other windows' },
-  { key: 'globalHotkey', label: 'Global shortcut' },
-  { key: 'clickThrough', label: 'Click-through' },
-  { key: 'transparentWindow', label: 'Transparent' },
-  { key: 'multiMonitorPositioning', label: 'Multi-monitor' },
+/** The capabilities the backend panel headlines, in order. Labels: `overlays.headline.<key>`. */
+export const HEADLINE_CAPABILITIES: readonly (keyof Omit<
+  OverlayCapabilities,
+  'displayServer' | 'tray' | 'positioning'
+>)[] = [
+  'alwaysOnTop',
+  'globalHotkey',
+  'clickThrough',
+  'transparentWindow',
+  'multiMonitorPositioning',
 ];
 
 /**
@@ -148,10 +144,10 @@ export function placementHint(status: DesktopStatus | null): string | null {
     return null;
   }
   if (status.backend?.kind === 'gnomeBridge') {
-    return 'Stays above other windows here; drag it to the edge once in Edit mode — GNOME places Wayland windows itself.';
+    return t('overlays.placementHints.gnome');
   }
   if (caps.alwaysOnTop.status !== 'supported') {
-    return 'Best with the GNOME bridge or Windows native overlays: here the compositor may put it behind a focused app.';
+    return t('overlays.placementHints.notOnTop');
   }
-  return 'Drag it into place once in Edit mode: this session cannot position windows.';
+  return t('overlays.placementHints.noPositioning');
 }

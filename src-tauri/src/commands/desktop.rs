@@ -2,7 +2,7 @@
 
 use tauri::AppHandle;
 
-use crate::desktop::{self, DesktopStatus, OverlayAction};
+use crate::desktop::{self, DesktopStatus, OverlayAction, TrayLabels};
 
 /// What overlays can do on this session, and the global shortcut's state.
 #[tauri::command]
@@ -58,6 +58,13 @@ pub async fn set_gnome_bridge_enabled(
 ) -> Result<Option<DesktopStatus>, String> {
     desktop::set_gnome_bridge_enabled(&app, enabled)?;
     Ok(desktop::status(&app))
+}
+
+/// Relabels the tray menu in the interface language (sent by the main window
+/// at startup and whenever the language changes).
+#[tauri::command]
+pub fn set_tray_labels(app: AppHandle, labels: TrayLabels) -> Result<(), String> {
+    desktop::set_tray_labels(&app, labels).map_err(|error| error.to_string())
 }
 
 /// Locks, unlocks, shows or hides every overlay.

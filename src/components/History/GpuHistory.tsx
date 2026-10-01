@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { GPU_USAGE_CORE_KEY } from '@/types/wellknown';
 import { useMetricCatalog } from '@/hooks/useMetricCatalog';
 import { disambiguateLabels, discoverGpus, gpuMetric } from '@/utils/gpu';
@@ -16,6 +17,7 @@ import { SourceSelect } from '@/components/History/SourceSelect';
  * that looks like an idle one.
  */
 export function GpuHistory() {
+  const { t } = useTranslation();
   const { catalog, status } = useMetricCatalog();
   const devices = useMemo(() => discoverGpus(catalog), [catalog]);
   const labels = useMemo(() => disambiguateLabels(devices), [devices]);
@@ -36,11 +38,13 @@ export function GpuHistory() {
 
   let replacement;
   if (status === 'ready' && !device) {
-    replacement = <p className="card__muted">No GPU was detected.</p>;
+    replacement = <p className="card__muted">{t('history.gpu.none')}</p>;
   } else if (definition && definition.availability.status !== 'available') {
     replacement = (
       <p className="card__muted" role="status">
-        {`Telemetry unavailable — ${describeAvailability(definition.availability)}`}
+        {t('history.gpu.telemetryUnavailable', {
+          reason: describeAvailability(definition.availability),
+        })}
       </p>
     );
   }
@@ -48,7 +52,7 @@ export function GpuHistory() {
   return (
     <HistoryPanel
       chartId="gpu"
-      title="GPU history"
+      title={t('history.gpu.title')}
       meta={GPU_META}
       series={series}
       defaults={GPU_DEFAULTS}

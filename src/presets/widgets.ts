@@ -1,6 +1,7 @@
 import type { DeepPartial, ThresholdBand, VisualizationConfig } from '@/visualization/config';
 import type { GridRect, WidgetFrame, WidgetInstance, WidgetKind } from '@/dashboard/model';
-import { createWidget } from '@/dashboard/library';
+import { createWidget, tx } from '@/dashboard/library';
+import type { Text } from '@/i18n/text';
 
 /**
  * Building blocks for PULSE's curated overlay packs and dashboard templates.
@@ -34,13 +35,14 @@ const MICRO: DeepPartial<VisualizationConfig> = {
 
 export interface MetricSpec {
   readonly key: string;
-  readonly label?: string;
+  /** Language-neutral (`CPU`, `↓`) or a built-in word (`tx('download')`). */
+  readonly label?: Text;
 }
 
 export interface WidgetSpec {
   readonly metrics: readonly MetricSpec[];
   readonly kind?: WidgetKind;
-  readonly title?: string;
+  readonly title?: Text;
   /** Pixel size in an overlay or Mini. */
   readonly size?: readonly [number, number];
   /** Grid rectangle on a dashboard: x, y, w, h. */
@@ -66,8 +68,6 @@ export function widget(spec: WidgetSpec): WidgetInstance {
   const created = createWidget({
     id: 'preset',
     category: 'Custom',
-    label: spec.title ?? spec.metrics[0]?.label ?? spec.metrics[0]?.key ?? '',
-    description: '',
     kind,
     title: spec.title,
     bindings: spec.metrics.map((metric) => ({ key: metric.key, label: metric.label })),
@@ -110,26 +110,28 @@ function mergeStyles(
 
 // --- shorthands ---------------------------------------------------------------
 
+export { tx };
+
 export const K = {
   cpu: { key: 'cpu.usage.total', label: 'CPU' },
   cpuTemp: { key: 'cpu.temperature.package', label: 'CPU' },
   gpu: { key: 'gpu.usage.core', label: 'GPU' },
   gpuTemp: { key: 'gpu.temperature.core', label: 'GPU' },
-  hotspot: { key: 'gpu.temperature.hotspot', label: 'Hotspot' },
+  hotspot: { key: 'gpu.temperature.hotspot', label: tx('hotspot') },
   vram: { key: 'gpu.memory.used', label: 'VRAM' },
   ram: { key: 'memory.usage.percent', label: 'RAM' },
   ramUsed: { key: 'memory.used', label: 'RAM' },
   down: { key: 'network.receive.bytes_per_second', label: '↓' },
   up: { key: 'network.transmit.bytes_per_second', label: '↑' },
-  read: { key: 'storage.io.read.bytes_per_second', label: 'Read' },
-  write: { key: 'storage.io.write.bytes_per_second', label: 'Write' },
-  disk: { key: 'storage.volume.usage.percent', label: 'Disk' },
+  read: { key: 'storage.io.read.bytes_per_second', label: tx('read') },
+  write: { key: 'storage.io.write.bytes_per_second', label: tx('write') },
+  disk: { key: 'storage.volume.usage.percent', label: tx('disk') },
   ssdTemp: { key: 'storage.health.temperature', label: 'SSD' },
   wifi: { key: 'network.wifi.signal.rssi', label: 'Wi-Fi' },
-  procs: { key: 'process.count.total', label: 'Processes' },
-  running: { key: 'process.count.running', label: 'Running' },
-  threads: { key: 'process.thread.count.total', label: 'Threads' },
-  freq: { key: 'cpu.frequency.current', label: 'Clock' },
+  procs: { key: 'process.count.total', label: tx('processes') },
+  running: { key: 'process.count.running', label: tx('running') },
+  threads: { key: 'process.thread.count.total', label: tx('threads') },
+  freq: { key: 'cpu.frequency.current', label: tx('clock') },
 } as const satisfies Record<string, MetricSpec>;
 
 /** `CPU 23 %` — a number, as large as its box allows. */
@@ -173,7 +175,7 @@ export const ring = (metric: MetricSpec, size: readonly [number, number], therma
 
 /** Several values in rows (`Usage 37 %` / `Temp 68 °C`). */
 export const rows = (
-  title: string,
+  title: Text,
   metrics: readonly MetricSpec[],
   size: readonly [number, number],
 ) =>
@@ -194,7 +196,7 @@ export const strip = (
   widget({
     metrics,
     kind: 'summary',
-    title: 'System',
+    title: tx('system'),
     size,
     group: { orientation: 'inline', sparklines },
   });

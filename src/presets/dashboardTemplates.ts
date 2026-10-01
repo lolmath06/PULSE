@@ -5,7 +5,9 @@ import { repairLayout } from '@/dashboard/layout';
 import { newId } from '@/dashboard/ids';
 import type { StyleId } from '@/design/styles';
 import type { ModeId } from '@/modes/modes';
-import { K, widget } from '@/presets/widgets';
+import type { Text } from '@/i18n/text';
+import { K, tx, widget } from '@/presets/widgets';
+import { englishText } from '@/i18n/i18n';
 
 /**
  * PULSE's built-in dashboard templates. Each is a composed layout on the
@@ -15,10 +17,12 @@ import { K, widget } from '@/presets/widgets';
 
 export const TEMPLATES_VERSION = 1;
 
+/**
+ * A built-in template. Its name and description are translations keyed by id
+ * (`presets.templates.<id>.name` / `.description`).
+ */
 export interface DashboardTemplate {
   readonly id: string;
-  readonly name: string;
-  readonly description: string;
   /** `null`: follows the app's style. */
   readonly styleId: StyleId | null;
   readonly modes: readonly ModeId[];
@@ -30,19 +34,19 @@ export interface DashboardTemplate {
 const area = (
   metrics: Parameters<typeof widget>[0]['metrics'],
   rect: [number, number, number, number],
-  title?: string,
+  title?: Text,
   thermal = false,
 ) => widget({ metrics, rect, title, thermal, style: { renderer: 'area' } });
 const line = (
   metrics: Parameters<typeof widget>[0]['metrics'],
   rect: [number, number, number, number],
-  title?: string,
+  title?: Text,
   thermal = false,
 ) => widget({ metrics, rect, title, thermal, style: { renderer: 'line' } });
 const gauge = (
   metric: Parameters<typeof widget>[0]['metrics'][number],
   rect: [number, number, number, number],
-  title?: string,
+  title?: Text,
   thermal = false,
 ) =>
   widget({
@@ -66,7 +70,7 @@ const tile = (
 const bar = (
   metric: Parameters<typeof widget>[0]['metrics'][number],
   rect: [number, number, number, number],
-  title?: string,
+  title?: Text,
 ) => widget({ metrics: [metric], rect, title, style: { renderer: 'bar' } });
 const summary = (
   metrics: Parameters<typeof widget>[0]['metrics'],
@@ -75,13 +79,13 @@ const summary = (
   widget({
     metrics,
     kind: 'summary',
-    title: 'System',
+    title: tx('system'),
     rect,
     titled: false,
     group: { orientation: 'inline', sparklines: true },
   });
 const group = (
-  title: string,
+  title: Text,
   metrics: Parameters<typeof widget>[0]['metrics'],
   rect: [number, number, number, number],
 ) =>
@@ -90,17 +94,12 @@ const group = (
 export const DASHBOARD_TEMPLATES: readonly DashboardTemplate[] = [
   {
     id: 'balanced',
-    name: 'Default balanced',
-    description:
-      'The everyday overview: a summary strip, CPU and memory, heat, GPU, network, disk.',
     styleId: null,
     modes: ['personal'],
     widgets: () => defaultWidgets(),
   },
   {
     id: 'gaming',
-    name: 'Gaming dashboard',
-    description: 'Load and heat first: CPU and GPU rings, temperatures, VRAM, memory and traffic.',
     styleId: 'gaming',
     modes: ['gaming'],
     widgets: () => [
@@ -110,28 +109,25 @@ export const DASHBOARD_TEMPLATES: readonly DashboardTemplate[] = [
       ),
       gauge(K.cpu, [0, 2, 3, 4], 'CPU'),
       gauge(K.gpu, [3, 2, 3, 4], 'GPU'),
-      line([K.cpuTemp, K.gpuTemp], [6, 2, 6, 4], 'Temperatures', true),
-      area([K.ram], [0, 6, 4, 4], 'Memory'),
+      line([K.cpuTemp, K.gpuTemp], [6, 2, 6, 4], tx('temperatures'), true),
+      area([K.ram], [0, 6, 4, 4], tx('memory')),
       group(
-        'Video memory',
-        [K.vram, { ...K.gpuTemp, label: 'GPU temp' }, { ...K.hotspot, label: 'Hotspot' }],
+        tx('videoMemory'),
+        [K.vram, { ...K.gpuTemp, label: tx('gpuTemp') }, { ...K.hotspot, label: tx('hotspot') }],
         [4, 6, 4, 4],
       ),
       area(
         [
-          { ...K.down, label: 'Download' },
-          { ...K.up, label: 'Upload' },
+          { ...K.down, label: tx('download') },
+          { ...K.up, label: tx('upload') },
         ],
         [8, 6, 4, 4],
-        'Network',
+        tx('network'),
       ),
     ],
   },
   {
     id: 'development',
-    name: 'Development dashboard',
-    description:
-      'Build pressure at engineering resolution: CPU, memory, disk I/O, network, processes.',
     styleId: 'technical',
     modes: ['development'],
     widgets: () => [
@@ -139,127 +135,122 @@ export const DASHBOARD_TEMPLATES: readonly DashboardTemplate[] = [
         [
           K.cpu,
           K.ram,
-          { ...K.read, label: 'Read' },
-          { ...K.write, label: 'Write' },
-          { ...K.down, label: 'Net ↓' },
+          { ...K.read, label: tx('read') },
+          { ...K.write, label: tx('write') },
+          { ...K.down, label: tx('netDown') },
         ],
         [0, 0, 12, 2],
       ),
-      area([K.cpu], [0, 2, 8, 4], 'CPU total'),
-      group('Processes', [K.procs, K.running, K.threads], [8, 2, 4, 4]),
-      area([K.ram], [0, 6, 4, 4], 'Memory'),
-      area([K.read, K.write], [4, 6, 4, 4], 'Disk I/O'),
+      area([K.cpu], [0, 2, 8, 4], tx('cpuTotal')),
+      group(tx('processes'), [K.procs, K.running, K.threads], [8, 2, 4, 4]),
+      area([K.ram], [0, 6, 4, 4], tx('memory')),
+      area([K.read, K.write], [4, 6, 4, 4], tx('diskIo')),
       area(
         [
-          { ...K.down, label: 'Download' },
-          { ...K.up, label: 'Upload' },
+          { ...K.down, label: tx('download') },
+          { ...K.up, label: tx('upload') },
         ],
         [8, 6, 4, 4],
-        'Network',
+        tx('network'),
       ),
-      line([K.cpuTemp], [0, 10, 6, 3], 'CPU temperature', true),
-      bar(K.disk, [6, 10, 6, 3], 'Filesystem'),
+      line([K.cpuTemp], [0, 10, 6, 3], tx('cpuTemperature'), true),
+      bar(K.disk, [6, 10, 6, 3], tx('filesystem')),
     ],
   },
   {
     id: 'personal',
-    name: 'Personal starter',
-    description: 'A pleasant, balanced start to make yours: rings, a chart, heat and network.',
     styleId: 'glass',
     modes: ['personal'],
     widgets: () => [
-      summary([K.cpu, K.gpu, K.ram, { ...K.down, label: 'Net ↓' }], [0, 0, 12, 2]),
-      area([K.cpu], [0, 2, 6, 4], 'Processor'),
-      gauge(K.ram, [6, 2, 3, 4], 'Memory'),
-      gauge({ ...K.cpuTemp, label: 'Temp' }, [9, 2, 3, 4], 'Temperature', true),
+      summary([K.cpu, K.gpu, K.ram, { ...K.down, label: tx('netDown') }], [0, 0, 12, 2]),
+      area([K.cpu], [0, 2, 6, 4], tx('processor')),
+      gauge(K.ram, [6, 2, 3, 4], tx('memory')),
+      gauge({ ...K.cpuTemp, label: tx('temp') }, [9, 2, 3, 4], tx('temperature'), true),
       area(
         [
-          { ...K.down, label: 'Download' },
-          { ...K.up, label: 'Upload' },
+          { ...K.down, label: tx('download') },
+          { ...K.up, label: tx('upload') },
         ],
         [0, 6, 8, 4],
-        'Network',
+        tx('network'),
       ),
-      group('Storage', [K.disk, { ...K.ssdTemp, label: 'SSD temp' }], [8, 6, 4, 4]),
+      group(tx('storage'), [K.disk, { ...K.ssdTemp, label: tx('ssdTemp') }], [8, 6, 4, 4]),
     ],
   },
   {
     id: 'thermal',
-    name: 'Thermal focus',
-    description: 'Every temperature PULSE reads, colour-banded, beside the load that drives it.',
     styleId: 'neon',
     modes: ['gaming'],
     widgets: () => [
-      line([K.cpuTemp, K.gpuTemp, K.hotspot], [0, 0, 8, 5], 'Temperatures', true),
-      gauge({ ...K.cpuTemp, label: 'CPU' }, [8, 0, 4, 5], 'CPU package', true),
+      line([K.cpuTemp, K.gpuTemp, K.hotspot], [0, 0, 8, 5], tx('temperatures'), true),
+      gauge({ ...K.cpuTemp, label: 'CPU' }, [8, 0, 4, 5], tx('cpuPackage'), true),
       tile({ ...K.cpuTemp, label: 'CPU' }, [0, 5, 3, 2], true),
       tile({ ...K.gpuTemp, label: 'GPU' }, [3, 5, 3, 2], true),
-      tile({ ...K.hotspot, label: 'Hotspot' }, [6, 5, 3, 2], true),
+      tile({ ...K.hotspot, label: tx('hotspot') }, [6, 5, 3, 2], true),
       tile({ ...K.ssdTemp, label: 'SSD' }, [9, 5, 3, 2], true),
-      area([K.cpu, K.gpu], [0, 7, 12, 4], 'Load'),
+      area([K.cpu, K.gpu], [0, 7, 12, 4], tx('load')),
     ],
   },
   {
     id: 'network-io',
-    name: 'Network & I/O',
-    description: 'Traffic and disk throughput up close, with filesystem usage and Wi-Fi.',
     styleId: 'technical',
     modes: ['development'],
     widgets: () => [
       area(
         [
-          { ...K.down, label: 'Download' },
-          { ...K.up, label: 'Upload' },
+          { ...K.down, label: tx('download') },
+          { ...K.up, label: tx('upload') },
         ],
         [0, 0, 6, 5],
-        'Network',
+        tx('network'),
       ),
-      area([K.read, K.write], [6, 0, 6, 5], 'Disk I/O'),
+      area([K.read, K.write], [6, 0, 6, 5], tx('diskIo')),
       tile({ ...K.down, label: '↓' }, [0, 5, 3, 2]),
       tile({ ...K.up, label: '↑' }, [3, 5, 3, 2]),
       tile(K.wifi, [6, 5, 3, 2]),
       tile(K.ssdTemp, [9, 5, 3, 2], true),
-      bar(K.disk, [0, 7, 12, 2], 'Filesystem'),
+      bar(K.disk, [0, 7, 12, 2], tx('filesystem')),
     ],
   },
   {
     id: 'minimal',
-    name: 'Minimal clean',
-    description: 'Four big numbers and one quiet chart. Nothing else.',
     styleId: 'stealth',
     modes: ['mini'],
     widgets: () => [
       tile(K.cpu, [0, 0, 3, 3]),
       tile(K.ram, [3, 0, 3, 3]),
-      tile({ ...K.cpuTemp, label: 'Temp' }, [6, 0, 3, 3]),
+      tile({ ...K.cpuTemp, label: tx('temp') }, [6, 0, 3, 3]),
       tile({ ...K.down, label: '↓' }, [9, 0, 3, 3]),
-      area([K.cpu, K.ram], [0, 3, 12, 5], 'Load'),
+      area([K.cpu, K.ram], [0, 3, 12, 5], tx('load')),
     ],
   },
   {
     id: 'showcase',
-    name: 'Fancy showcase',
-    description:
-      'PULSE at its most striking: frosted glass, rings, gradient trends and a live strip.',
     styleId: 'glass',
     modes: ['personal'],
     featured: true,
     widgets: () => [
       summary(
-        [K.cpu, K.gpu, K.ram, { ...K.cpuTemp, label: 'Temp' }, { ...K.down, label: 'Net ↓' }],
+        [
+          K.cpu,
+          K.gpu,
+          K.ram,
+          { ...K.cpuTemp, label: tx('temp') },
+          { ...K.down, label: tx('netDown') },
+        ],
         [0, 0, 12, 2],
       ),
-      area([K.cpu], [0, 2, 7, 5], 'Processor'),
-      gauge(K.ram, [7, 2, 5, 5], 'Memory'),
-      gauge(K.gpu, [0, 7, 3, 4], 'Graphics'),
-      gauge({ ...K.cpuTemp, label: 'Temp' }, [3, 7, 3, 4], 'Heat', true),
+      area([K.cpu], [0, 2, 7, 5], tx('processor')),
+      gauge(K.ram, [7, 2, 5, 5], tx('memory')),
+      gauge(K.gpu, [0, 7, 3, 4], tx('graphics')),
+      gauge({ ...K.cpuTemp, label: tx('temp') }, [3, 7, 3, 4], tx('heat'), true),
       area(
         [
-          { ...K.down, label: 'Download' },
-          { ...K.up, label: 'Upload' },
+          { ...K.down, label: tx('download') },
+          { ...K.up, label: tx('upload') },
         ],
         [6, 7, 6, 4],
-        'Network',
+        tx('network'),
       ),
       tile(K.vram, [0, 11, 4, 2]),
       tile(K.procs, [4, 11, 4, 2]),
@@ -277,16 +268,26 @@ export function templateWidgets(template: DashboardTemplate): WidgetInstance[] {
   return repairLayout(template.widgets().map((w) => ({ ...w, id: newId('w') })));
 }
 
-/** Adds a dashboard made from `template` and shows it. */
+export function templateNameKey(id: string): string {
+  return `presets.templates.${id}.name`;
+}
+
+/**
+ * Adds a dashboard made from `template` and shows it. Without a name of the
+ * user's, it is named after the template — by key, so the name follows the
+ * interface language until the user renames it.
+ */
 export function createDashboardFromTemplate(
   section: DashboardsSection,
   template: DashboardTemplate,
-  name = template.name,
+  name?: Text,
 ): { section: DashboardsSection; id: string | null } {
   if (section.items.length >= MAX_DASHBOARDS) return { section, id: null };
+  const own = typeof name === 'string' ? name.trim().slice(0, 40) : '';
+  const builtIn = typeof name === 'object' ? name.key : templateNameKey(template.id);
   const dashboard: Dashboard = {
     id: newId('d'),
-    name: name.trim().slice(0, 40) || template.name,
+    ...(own ? { name: own } : { name: englishText(builtIn), nameKey: builtIn }),
     locked: true,
     styleId: template.styleId,
     origin: { template: template.id, version: TEMPLATES_VERSION },

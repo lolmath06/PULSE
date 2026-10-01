@@ -1,3 +1,4 @@
+import { t } from '@/i18n/i18n';
 import { useId, useMemo, useState } from 'react';
 import type { PointerEvent } from 'react';
 import {
@@ -217,7 +218,7 @@ export function TimeSeriesChart({
         height={height}
         viewBox={`0 0 ${width} ${height}`}
         role="img"
-        aria-label={`${meta.label} over time`}
+        aria-label={t('viz.status.overTime', { name: meta.label })}
       >
         <defs>
           {data.series.map((_, index) => (

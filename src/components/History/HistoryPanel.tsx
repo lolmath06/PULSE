@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { MetricRef } from '@/types/metrics';
 import type { HistoryRange } from '@/types/history';
 import { HISTORY_RANGES } from '@/types/history';
@@ -27,7 +28,8 @@ export interface HistoryPanelProps {
   /** Stable id the visualization choices are saved under, e.g. `cpu.total`. */
   readonly chartId: string;
   readonly title: string;
-  readonly meta: VisualizationMeta;
+  /** `labelKey`, when set, is translated; `label` is its English fallback. */
+  readonly meta: VisualizationMeta & { readonly labelKey?: string };
   readonly series: readonly HistorySeriesSpec[];
   /** Module constant: the chart's first look. */
   readonly defaults: DeepPartial<VisualizationConfig>;
@@ -55,8 +57,9 @@ export function RangeSelector({
   readonly value: HistoryRange;
   readonly onChange: (range: HistoryRange) => void;
 }) {
+  const { t } = useTranslation();
   return (
-    <div className="segmented" role="group" aria-label="Time range">
+    <div className="segmented" role="group" aria-label={t('viz.ui.timeRange')}>
       {HISTORY_RANGES.map((range) => (
         <button
           key={range}
@@ -65,7 +68,7 @@ export function RangeSelector({
           aria-pressed={range === value}
           onClick={() => onChange(range)}
         >
-          {range}
+          {t(`history.ranges.${range}`)}
         </button>
       ))}
     </div>
@@ -117,7 +120,15 @@ export function HistoryPanel({
   secondary,
   children,
 }: HistoryPanelProps) {
+  const { t, i18n } = useTranslation();
   const chart = useChartVisualization(chartId, defaults);
+  // Labels are PULSE's words: translated here, so the series and meta passed
+  // in can stay module constants (their identity is what the memos key on).
+  const shownSeries = useMemo(
+    () => series.map((spec) => (spec.labelKey ? { ...spec, label: t(spec.labelKey) } : spec)),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [series, i18n.language],
+  );
   const [panelRef, visible] = useInViewport<HTMLElement>();
   const [customizing, setCustomizing] = useState(false);
 
@@ -132,13 +143,13 @@ export function HistoryPanel({
   );
 
   const data: VisualizationData = useMemo(() => {
-    const base = toVisualizationData(history.response, series, history.status, history.reason);
+    const base = toVisualizationData(history.response, shownSeries, history.status, history.reason);
     if (history.status !== 'unavailable') return base;
     return {
       ...base,
       series: base.series.map((entry) => ({ ...entry, latest: live.get(entry.id) ?? null })),
     };
-  }, [history, series, live]);
+  }, [history, shownSeries, live]);
 
   const secondaryText = useMemo(() => {
     if (!secondary || !history.response) return undefined;
@@ -148,13 +159,15 @@ export function HistoryPanel({
     return found?.latest ? secondary.format(found.latest.v) : undefined;
   }, [secondary, history.response]);
 
-  const effectiveMeta = useMemo(
-    () => (secondaryText ? { ...meta, secondary: secondaryText } : meta),
-    [meta, secondaryText],
-  );
+  const effectiveMeta = useMemo(() => {
+    const { labelKey, ...base } = meta;
+    const labelled = labelKey ? { ...base, label: t(labelKey) } : base;
+    return secondaryText ? { ...labelled, secondary: secondaryText } : labelled;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [meta, secondaryText, i18n.language]);
 
   return (
-    <section ref={panelRef} className="card history-panel" aria-label={`${title} history`}>
+    <section ref={panelRef} className="card history-panel" aria-label={title}>
       <header className="history-panel__header">
         <h2 className="card__title history-panel__title">{title}</h2>
         <div className="history-panel__tools">
@@ -166,7 +179,7 @@ export function HistoryPanel({
             aria-expanded={customizing}
             onClick={() => setCustomizing((open) => !open)}
           >
-            Customize
+            {t('common.customize')}
           </button>
         </div>
       </header>

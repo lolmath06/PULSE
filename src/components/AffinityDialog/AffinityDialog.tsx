@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { ProcessAffinity } from '@/types/processes';
 import { ConfirmDialog } from '@/components/ConfirmDialog/ConfirmDialog';
 
@@ -23,6 +24,7 @@ export function AffinityDialog({
   readonly onApply: (cpus: number[]) => void;
   readonly onCancel: () => void;
 }) {
+  const { t } = useTranslation();
   const [selected, setSelected] = useState<ReadonlySet<number>>(new Set(affinity.cpus));
   const limited = affinity.limitation !== null;
 
@@ -36,9 +38,9 @@ export function AffinityDialog({
 
   return (
     <ConfirmDialog
-      title={`CPU affinity — ${name}`}
-      body={[`Choose the logical processors PID ${pid} may run on.`]}
-      confirmLabel="Apply"
+      title={t('processes.affinity.title', { name })}
+      body={[t('processes.affinity.body', { pid })]}
+      confirmLabel={t('common.apply')}
       tone="neutral"
       confirmDisabled={selected.size === 0 || limited}
       onConfirm={() => onApply([...selected].sort((a, b) => a - b))}
@@ -48,7 +50,11 @@ export function AffinityDialog({
         <p className="dialog__text dialog__text--warning">{affinity.limitation}</p>
       ) : (
         <>
-          <div className="affinity-grid" role="group" aria-label="Logical processors">
+          <div
+            className="affinity-grid"
+            role="group"
+            aria-label={t('metrics.catalog.cpu.count.logical.name')}
+          >
             {affinity.available.map((cpu) => (
               <label key={cpu} className="affinity-grid__cpu">
                 <input type="checkbox" checked={selected.has(cpu)} onChange={() => toggle(cpu)} />
@@ -62,11 +68,11 @@ export function AffinityDialog({
               className="button button--quiet"
               onClick={() => setSelected(new Set(affinity.available))}
             >
-              Select all
+              {t('processes.affinity.selectAll')}
             </button>
             {selected.size === 0 && (
               <span className="dialog__text--warning" role="alert">
-                Keep at least one CPU: a process allowed on none cannot run.
+                {t('processes.affinity.keepOne')}
               </span>
             )}
           </div>

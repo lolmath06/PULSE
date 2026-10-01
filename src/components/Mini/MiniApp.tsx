@@ -1,4 +1,6 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { dashboardName } from '@/dashboard/dashboards';
 import { openMainWindow } from '@/overlay/desktop';
 import { MINI_LAYOUT_IDS, modeStyle, setMini } from '@/design/appearance';
 import type { MiniLayoutId } from '@/design/appearance';
@@ -30,6 +32,7 @@ export function MiniApp() {
 }
 
 function MiniContent() {
+  const { t } = useTranslation();
   const appearance = useAppearance();
   const dashboards = useDashboards();
   const source = appearance.mini.source;
@@ -41,7 +44,7 @@ function MiniContent() {
         <span className="mini__brand" aria-hidden="true" />
         <select
           className="history-panel__select mini__select"
-          aria-label="Shown in Mini"
+          aria-label={t('mini.shownIn')}
           value={value}
           onChange={(event) => {
             const [kind, id] = event.target.value.split(':') as [string, string];
@@ -55,17 +58,17 @@ function MiniContent() {
             );
           }}
         >
-          <optgroup label="Mini layouts">
+          <optgroup label={t('modes.miniPage.layouts')}>
             {MINI_LAYOUT_IDS.map((id) => (
               <option key={id} value={`layout:${id}`}>
-                {findMiniLayout(id).name}
+                {t(`modes.miniLayouts.${findMiniLayout(id).id}.name`)}
               </option>
             ))}
           </optgroup>
-          <optgroup label="Dashboards">
+          <optgroup label={t('home.links.dashboards')}>
             {dashboards.items.map((item) => (
               <option key={item.id} value={`dashboard:${item.id}`}>
-                {item.name}
+                {dashboardName(item)}
               </option>
             ))}
           </optgroup>
@@ -73,8 +76,8 @@ function MiniContent() {
         <button
           type="button"
           className="button button--quiet mini__open"
-          title="Open PULSE"
-          aria-label="Open PULSE"
+          title={t('overlays.surface.openPulse')}
+          aria-label={t('overlays.surface.openPulse')}
           onClick={() => void openMainWindow().catch(() => undefined)}
         >
           <Icon name="arrowRight" />

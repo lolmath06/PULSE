@@ -1,0 +1,2005 @@
+{
+  "app": {
+    "tagline": "你的系統,一目了然。"
+  },
+  "common": {
+    "comingLater": "將在 PULSE 後續階段推出。",
+    "active": "已啟用",
+    "copyOf": "{{name}} 副本",
+    "all": "全部",
+    "checking": "正在檢查…",
+    "refresh": "重新整理",
+    "copy": "複製",
+    "copied": "已複製",
+    "apply": "套用",
+    "duplicate": "建立副本",
+    "delete": "刪除",
+    "preview": "預覽",
+    "customize": "自訂",
+    "removeNamed": "移除 {{name}}",
+    "add": "新增",
+    "widgetCount_other": "{{count}} 個小工具",
+    "cancel": "取消",
+    "rename": "重新命名",
+    "reset": "重設",
+    "export": "匯出",
+    "import": "匯入",
+    "copyToClipboard": "複製到剪貼簿",
+    "invalidJson": "這不是有效的 JSON。",
+    "remove": "移除",
+    "close": "關閉",
+    "save": "儲存",
+    "deleteNamed": "刪除 {{name}}",
+    "refreshing": "正在重新整理…",
+    "hide": "隱藏",
+    "showAll": "全部顯示"
+  },
+  "nav": {
+    "main": "主要導覽",
+    "groups": {
+      "monitor": "監控",
+      "modes": "模式",
+      "studio": "工作室"
+    },
+    "routes": {
+      "overview": {
+        "label": "總覽",
+        "description": "PULSE 預設儀表板。"
+      },
+      "dashboard": {
+        "label": "儀表板",
+        "description": "你自己的儀表板:可新增、排列與設定樣式的小工具。"
+      },
+      "overlays": {
+        "label": "覆疊層",
+        "description": "在桌面上各自獨立視窗中的小工具。"
+      },
+      "gaming": {
+        "label": "遊戲",
+        "description": "輕量檢視,專注於遊戲中相關的指標。"
+      },
+      "development": {
+        "label": "開發",
+        "description": "專注於建置、編譯與工作負載壓力的檢視。"
+      },
+      "personal": {
+        "label": "個人",
+        "description": "可自由組合大量小工具的儀表板。"
+      },
+      "mini": {
+        "label": "迷你",
+        "description": "顯示一個儀表板的一般小型 PULSE 視窗。"
+      },
+      "appearance": {
+        "label": "外觀",
+        "description": "樣式、色彩、字型、密度、動態效果與語言 — 適用於所有介面。"
+      }
+    },
+    "changeStyle": "變更樣式",
+    "style": "樣式"
+  },
+  "status": {
+    "backendStatus": "後端狀態",
+    "querying": "正在查詢後端…",
+    "unavailableUiOnly": "後端無法使用 — 僅介面模式"
+  },
+  "notFound": {
+    "title": "找不到",
+    "subtitle": "PULSE 中沒有這個頁面。",
+    "back": "返回總覽"
+  },
+  "overview": {
+    "version": "版本 {{version}}",
+    "systemDetails": "系統詳細資料",
+    "detectedPlatform": "偵測到的平台",
+    "backendUnavailable": "後端無法使用。請使用 <code>pnpm app:dev</code> 執行 PULSE 以連線 Rust 層。",
+    "os": "作業系統",
+    "platformLayer": "平台層",
+    "architecture": "架構",
+    "displayServer": "顯示伺服器",
+    "backendVersion": "後端版本"
+  },
+  "home": {
+    "liveSystem": "即時系統",
+    "links": {
+      "dashboards": "儀表板",
+      "dashboardsHint": "範本、小工具、版面配置",
+      "overlays": "覆疊層",
+      "overlaysHint_other": "{{count}} 個套件,後端狀態",
+      "appearance": "外觀",
+      "appearanceHint_other": "{{count}} 種樣式,深度調整"
+    }
+  },
+  "welcome": {
+    "title": "歡迎使用 PULSE",
+    "subtitle": "選擇一個起點。所有選擇之後都可以變更 — 在外觀、各模式、儀表板與覆疊層中。",
+    "label": "歡迎",
+    "skip": "略過",
+    "start": "啟動 PULSE",
+    "modeLabel": "模式",
+    "howUse": "你打算怎麼使用?",
+    "justMonitor": "僅監控",
+    "justMonitorHint": "不選模式 — 一種樣式加上儀表板。",
+    "pickStyle": "選擇樣式",
+    "styles": "歡迎頁樣式",
+    "starters": "入門預設",
+    "startWith": "初始內容",
+    "dashboard": "儀表板",
+    "starterDashboard": "入門儀表板",
+    "keepDashboards": "保留我目前的儀表板",
+    "overlay": "覆疊層",
+    "starterOverlay": "入門覆疊層",
+    "noOverlay": "暫不新增覆疊層",
+    "overlaysHere": "本機覆疊層:",
+    "bridgeNotReady": "— GNOME 橋接:{{state}}。請在覆疊層中進行設定。",
+    "bridgeActive": "— 覆疊層會保持在其他視窗之上。",
+    "noBackend": "後端回應後,覆疊層功能會顯示在覆疊層頁面中。"
+  },
+  "language": {
+    "label": "語言",
+    "system": "跟隨系統({{language}})",
+    "hint": "跟隨系統會使用電腦的語言。會同時套用到所有 PULSE 視窗。"
+  },
+  "metrics": {
+    "catalog": {
+      "cpu": {
+        "count": {
+          "logical": {
+            "name": "邏輯處理器",
+            "description": "作業系統排程工作的邏輯處理器(硬體執行緒)數量。啟用同時多執行緒時,會多於實體核心數。"
+          },
+          "package": {
+            "name": "處理器封裝",
+            "description": "已安裝的實體處理器封裝(插槽)數量。"
+          },
+          "physical": {
+            "name": "實體核心",
+            "description": "實體執行核心數量,依不同的 (封裝, 核心) 組合計數,因此兩個封裝中編號相同的核心絕不會被合併。"
+          }
+        },
+        "frequency": {
+          "current": {
+            "name": "目前頻率",
+            "description": "作業系統目前為此邏輯處理器回報的時脈頻率。縮放、加速與電源原則會持續改變它,因此它是平台的最新數值,而非對晶片的瞬間量測。"
+          },
+          "max": {
+            "name": "最大頻率",
+            "description": "平台為此邏輯處理器回報的最大時脈頻率。在混合架構 CPU 上,效能核心與節能核心不同。絕不會以調速器或電源原則的上限代替它發布。"
+          }
+        },
+        "temperature": {
+          "package": {
+            "name": "封裝溫度",
+            "description": "處理器封裝自身回報的溫度。這是封裝自己的感測器,絕不是各核心的平均值,也絕不是晶片設計所依據的溫度上限。"
+          }
+        },
+        "usage": {
+          "logical": {
+            "name": "CPU 使用率",
+            "description": "自上一次取樣以來,此邏輯處理器用於執行工作的 CPU 時間比例。啟用同時多執行緒時,兩個邏輯處理器共用一個實體核心。"
+          },
+          "total": {
+            "name": "CPU 使用率",
+            "description": "自上一次取樣以來,整台機器用於執行工作的 CPU 時間比例。"
+          }
+        }
+      },
+      "gpu": {
+        "count": {
+          "name": "GPU",
+          "description": "PULSE 統計到的硬體顯示卡數量。Microsoft Basic Render Driver 與 WARP 等軟體轉接器不計入。"
+        },
+        "fan": {
+          "speed": {
+            "name": "風扇",
+            "description": "顯示卡風扇的轉速,單位為每分鐘轉數。風扇控制百分比是工作週期而非轉速,絕不會代替轉速發布。"
+          }
+        },
+        "frequency": {
+          "core": {
+            "name": "核心時脈",
+            "description": "驅動程式回報的目前圖形時脈。加速行為與電源原則會持續改變它,因此它是平台的最新數值,而非對晶片的瞬間量測。"
+          },
+          "memory": {
+            "name": "記憶體時脈",
+            "description": "驅動程式回報的目前視訊記憶體時脈。"
+          }
+        },
+        "memory": {
+          "free": {
+            "name": "可用 VRAM",
+            "description": "仍可配置的專用視訊記憶體。"
+          },
+          "total": {
+            "name": "VRAM 總量",
+            "description": "此顯示卡上安裝的專用視訊記憶體。與內建 GPU 共用的系統記憶體刻意不計入此處。"
+          },
+          "usage": {
+            "percent": {
+              "name": "VRAM 使用率",
+              "description": "已使用專用視訊記憶體的比例,由已使用位元組與總位元組計算而得。"
+            }
+          },
+          "used": {
+            "name": "已使用 VRAM",
+            "description": "整個系統目前使用中的專用視訊記憶體。"
+          }
+        },
+        "temperature": {
+          "core": {
+            "name": "溫度",
+            "description": "圖形處理器晶粒的溫度,來自其自身的感測器。"
+          },
+          "hotspot": {
+            "name": "熱點",
+            "description": "圖形處理器封裝上量測到的最熱點。與晶粒溫度是不同的感測器,負載下通常較高,且絕不由晶粒溫度推算。"
+          },
+          "memory": {
+            "name": "記憶體溫度",
+            "description": "專用視訊記憶體的溫度,來自其自身的感測器。"
+          }
+        },
+        "usage": {
+          "core": {
+            "name": "GPU 使用率",
+            "description": "驅動程式回報的圖形引擎容量使用比例。"
+          }
+        }
+      },
+      "memory": {
+        "available": {
+          "name": "可用記憶體",
+          "description": "不需置換即可配置的實體記憶體。"
+        },
+        "total": {
+          "name": "記憶體總量",
+          "description": "作業系統可使用的已安裝實體記憶體。"
+        },
+        "usage": {
+          "percent": {
+            "name": "記憶體使用率",
+            "description": "已使用實體記憶體的比例,由已使用位元組與總位元組計算而得。"
+          }
+        },
+        "used": {
+          "name": "已使用記憶體",
+          "description": "使用中的實體記憶體,定義為總量減去可用量。"
+        }
+      },
+      "network": {
+        "interface": {
+          "count": {
+            "name": "介面",
+            "description": "PULSE 監控的網路介面數量。迴路介面刻意排除:它一直存在,只承載從未離開本機的流量。"
+          },
+          "up_count": {
+            "name": "已連線",
+            "description": "受監控介面中目前有連結的數量。已啟用但未接網路線的介面卡,或未關聯到任何網路的無線網卡,不計入。"
+          }
+        },
+        "link": {
+          "receive_speed": {
+            "name": "連結 RX",
+            "description": "驅動程式協商得到的連結接收能力 — 而非實際流量。由於 Wi-Fi 與乙太網路都會重新協商,它是一個量表值而非固定值。"
+          },
+          "transmit_speed": {
+            "name": "連結 TX",
+            "description": "連結的傳送能力。在乙太網路上與接收相同;在 Wi-Fi 上常常不同。"
+          }
+        },
+        "mtu": {
+          "name": "MTU",
+          "description": "此介面單一訊框可承載的最大酬載。它是設定事實而非讀數,因此是一種狀態。"
+        },
+        "receive": {
+          "bytes_per_second": {
+            "name": "下載",
+            "description": "每秒抵達本機的位元組數,由作業系統累計計數器在兩次取樣之間的差值求得。接收是指從本機角度看的傳入流量。"
+          },
+          "dropped_per_second": {
+            "name": "RX 捨棄",
+            "description": "完整抵達卻仍被捨棄的傳入訊框 — 緩衝區已滿,或沒有協定處理常式需要它們。這是本機計數器,不是網際網路封包遺失;PULSE 不量測網際網路封包遺失。"
+          },
+          "errors_per_second": {
+            "name": "RX 錯誤",
+            "description": "因內容有問題而被介面拒絕的傳入訊框 — 總和檢查碼錯誤、訊框錯誤等。這與捨棄的訊框是不同的計數器;持續非零通常代表網路線或驅動程式有問題。"
+          },
+          "packets_per_second": {
+            "name": "RX 封包",
+            "description": "每秒抵達的封包,單點傳播與非單點傳播合計。零是真實的量測值:表示該期間沒有任何資料抵達。"
+          }
+        },
+        "transmit": {
+          "bytes_per_second": {
+            "name": "上傳",
+            "description": "每秒離開本機的位元組數,由作業系統累計計數器在兩次取樣之間的差值求得。傳送是指傳出流量。"
+          },
+          "dropped_per_second": {
+            "name": "TX 捨棄",
+            "description": "在傳送前被捨棄的傳出訊框,通常是因為佇列已滿。"
+          },
+          "errors_per_second": {
+            "name": "TX 錯誤",
+            "description": "介面未能傳送的傳出訊框。"
+          },
+          "packets_per_second": {
+            "name": "TX 封包",
+            "description": "每秒離開的封包,單點傳播與非單點傳播合計。"
+          }
+        },
+        "wifi": {
+          "link": {
+            "receive_rate": {
+              "name": "Wi-Fi 接收速率",
+              "description": "與存取點協商的接收速率。這是能力而非流量:協商為 400 Mbit/s 的連結即使沒有任何流量,仍回報 400 Mbit/s。"
+            },
+            "transmit_rate": {
+              "name": "Wi-Fi 傳送速率",
+              "description": "與存取點協商的傳送速率。常與接收速率不同。"
+            }
+          },
+          "signal": {
+            "quality": {
+              "name": "品質",
+              "description": "0–100 的連結品質數值,僅在作業系統自行計算時發布。絕不由訊號強度推算:所有常見的 dBm 轉百分比公式都很隨意,這樣得到的數字看似量測值,其實只是猜測。"
+            },
+            "rssi": {
+              "name": "訊號",
+              "description": "無線網卡回報的接收訊號強度(dBm)— 一種對數刻度,−40 為強,−90 幾乎無法使用。對於透過多條連結關聯的網卡,取最強的作用中連結讀數;dBm 值絕不取平均。"
+            }
+          }
+        }
+      },
+      "process": {
+        "count": {
+          "running": {
+            "name": "執行中",
+            "description": "正在處理器上執行或已就緒排隊的處理程序數量。閒置桌面上幾乎所有處理程序都在等待 — 等待計時器、輸入或磁碟 — 因此這裡數字很小是正常的,並不代表機器閒置。Windows 不回報處理程序層級的狀態,因此在那裡此數值顯示為無法使用,而不是捏造。"
+          },
+          "total": {
+            "name": "處理程序",
+            "description": "此刻本機上存在的處理程序數量,包括 PULSE 無法讀取詳細資料的處理程序。被拒絕存取的處理程序依然存在,也依然計入。"
+          }
+        },
+        "thread": {
+          "count": {
+            "total": {
+              "name": "執行緒",
+              "description": "所有可見處理程序的全部執行緒總和。無法讀取執行緒數的處理程序不貢獻任何值,而不是猜測值;因此在充滿受保護處理程序的機器上,這是一個偏低的數值,而不是捏造的數值。"
+            }
+          }
+        }
+      },
+      "storage": {
+        "capacity": {
+          "total": {
+            "name": "容量",
+            "description": "實體裝置的總可定址容量。這是整個裝置,而非其上檔案系統的總和。"
+          }
+        },
+        "device": {
+          "count": {
+            "name": "儲存裝置",
+            "description": "PULSE 統計到的實體儲存裝置數量。分割區、迴圈裝置、RAM 磁碟與 device-mapper 磁碟區不單獨計為裝置。"
+          }
+        },
+        "health": {
+          "available_spare": {
+            "name": "可用備用空間",
+            "description": "裝置替換區塊儲備中剩餘的比例。它不是檔案系統的可用空間,也不是未配置容量:完全寫滿的磁碟通常仍回報 100 % 備用空間。"
+          },
+          "media_errors": {
+            "name": "媒體錯誤",
+            "description": "控制器在裝置整個壽命期間偵測並記錄的媒體與資料完整性錯誤。"
+          },
+          "percentage_used": {
+            "name": "已用壽命",
+            "description": "控制器對裝置額定寫入壽命已消耗比例的估計。完全依照裝置宣告回報,超過額定值後可能高於 100 %,且絕不轉換為健康評分。"
+          },
+          "power_on_hours": {
+            "name": "通電時數",
+            "description": "裝置控制器自行統計的通電小時數。"
+          },
+          "temperature": {
+            "name": "溫度",
+            "description": "儲存控制器的綜合溫度 — 裝置由自身感測器得出的單一數值,不是某個單獨的感測器,也不是其他元件的讀數。"
+          },
+          "unsafe_shutdowns": {
+            "name": "不安全關機",
+            "description": "裝置在收到關機指令前就斷電的次數。"
+          }
+        },
+        "io": {
+          "read": {
+            "bytes_per_second": {
+              "name": "讀取",
+              "description": "每秒從裝置讀取的位元組數,由作業系統累計計數器在兩次取樣之間的差值求得。"
+            },
+            "iops": {
+              "name": "讀取 IOPS",
+              "description": "每秒完成的讀取作業數。零是真實的量測值:表示該期間沒有完成任何讀取。"
+            },
+            "latency": {
+              "name": "讀取延遲",
+              "description": "作業系統觀察到的單次讀取平均耗時 — 包含排隊,並在主機端而非裝置內部量測。沒有完成任何讀取的期間根本沒有延遲,因此不回報數值,而不是回報零。"
+            }
+          },
+          "write": {
+            "bytes_per_second": {
+              "name": "寫入",
+              "description": "每秒寫入裝置的位元組數,由作業系統累計計數器在兩次取樣之間的差值求得。"
+            },
+            "iops": {
+              "name": "寫入 IOPS",
+              "description": "每秒完成的寫入作業數。零是真實的量測值:表示該期間沒有完成任何寫入。"
+            },
+            "latency": {
+              "name": "寫入延遲",
+              "description": "作業系統觀察到的單次寫入平均耗時。沒有完成任何寫入的期間不回報數值,而不是回報零。"
+            }
+          }
+        },
+        "volume": {
+          "capacity": {
+            "available": {
+              "name": "可用",
+              "description": "目前使用者實際可寫入的空間。在為超級使用者保留空間的檔案系統上會小於剩餘空間,這是刻意的:那部分保留空間你無法使用。"
+            },
+            "total": {
+              "name": "磁碟區大小",
+              "description": "檔案系統的總大小。同一裝置上多個檔案系統相加並不等於裝置容量,一個檔案系統也可能橫跨多個裝置。"
+            },
+            "used": {
+              "name": "已使用",
+              "description": "檔案系統中存放資料的空間,定義為總量減去可用區塊。在為超級使用者保留區塊的檔案系統上,已使用與可用之和不等於總量。"
+            }
+          },
+          "count": {
+            "name": "磁碟區",
+            "description": "PULSE 統計到的已掛載檔案系統數量。可透過多個路徑存取的檔案系統只計一次;proc 與 sysfs 等虛擬檔案系統不計入。"
+          },
+          "usage": {
+            "percent": {
+              "name": "磁碟區使用率",
+              "description": "檔案系統中存放資料的比例,由已使用位元組與總位元組計算而得。"
+            }
+          }
+        }
+      }
+    },
+    "sources": {
+      "cpuSystem": "系統 CPU",
+      "memorySystem": "系統記憶體",
+      "gpuSystem": "圖形",
+      "processSystem": "處理程序",
+      "networkSystem": "網路",
+      "storageSystem": "儲存空間",
+      "cpuPackage": "封裝 {{index}}"
+    },
+    "availability": {
+      "available": "可用",
+      "unsupported": "不支援",
+      "notDetected": "未偵測到",
+      "permissionDenied": "需要權限",
+      "temporarilyUnavailable": "暫時無法使用",
+      "providerError": "提供者錯誤",
+      "notRegistered": "未註冊"
+    },
+    "availabilityReason": {
+      "unsupported": "不支援:{{reason}}",
+      "notDetected": "未偵測到:{{reason}}",
+      "permissionDenied": "需要權限:{{reason}}",
+      "temporarilyUnavailable": "暫時無法使用:{{reason}}",
+      "providerError": "提供者錯誤:{{reason}}",
+      "notRegistered": "未註冊:{{reason}}"
+    },
+    "engineState": {
+      "ready": "就緒",
+      "empty": "空"
+    },
+    "notReported": "本機未回報此指標。",
+    "noneSelected": "未選取指標。",
+    "sourceUnavailable": "資料來源無法使用"
+  },
+  "styles": {
+    "clean": {
+      "name": "簡潔",
+      "tagline": "現代、沉穩、專業",
+      "description": "安靜的炭灰色介面、柔和的層次與唯一的藍綠色強調色。預設樣式:一切清晰可讀,沒有喧譁。"
+    },
+    "glass": {
+      "name": "玻璃",
+      "tagline": "霧面、通透、高級",
+      "description": "深邃極光之上的半透明霧面面板、明亮的頂部高光與舒展的圓角。展示之作。"
+    },
+    "technical": {
+      "name": "技術",
+      "tagline": "儀表風格,緊湊而精確",
+      "description": "工程工作台:藍圖格線、直角邊緣、等寬數字、琥珀色讀數、每一條座標軸與取樣標記。"
+    },
+    "neon": {
+      "name": "霓虹",
+      "tagline": "高對比,電光感",
+      "description": "近乎純黑,搭配洋紅與青色光線:發光的線條、被照亮的邊緣與閃耀的數字。富有戲劇性,依然清晰。"
+    },
+    "gaming": {
+      "name": "遊戲",
+      "tagline": "大膽、迅捷、充滿活力",
+      "description": "切角、深紅與琥珀、緊湊的粗體字與大型數字:專為遊戲中一瞥即讀而生。"
+    },
+    "stealth": {
+      "name": "隱匿",
+      "tagline": "深色、低調、少干擾",
+      "description": "幾乎沒有裝飾,柔和的石板灰文字,沒有填色與格線:需要時就在,不需要時隱形。"
+    },
+    "compact": {
+      "name": "緊湊",
+      "tagline": "緊湊高效,適合小尺寸",
+      "description": "更緊密的間距、更小的文字與安靜的圖表:讓小工具與微型覆疊層的每個像素承載最多資訊。"
+    },
+    "hud": {
+      "name": "透明 HUD",
+      "tagline": "沒有面板,只有數字",
+      "description": "無裝飾:帶柔和深色光暈的明亮數字,在任何桌布或遊戲上都清晰可讀,細線條,無格線。"
+    },
+    "accents": {
+      "teal": "藍綠",
+      "sky": "天藍",
+      "blue": "藍",
+      "violet": "紫羅蘭",
+      "magenta": "洋紅",
+      "crimson": "深紅",
+      "amber": "琥珀",
+      "lime": "萊姆",
+      "mint": "薄荷",
+      "silver": "銀"
+    },
+    "palettes": {
+      "aurora": "極光",
+      "ocean": "海洋",
+      "ember": "餘燼",
+      "forest": "森林",
+      "candy": "糖果",
+      "mono": "單色"
+    }
+  },
+  "modes": {
+    "gaming": {
+      "name": "遊戲",
+      "tagline": "覆疊層優先。一瞥即讀。",
+      "description": "大膽緊湊的效能與溫度覆疊層,放在遊戲旁邊 — 絕不進入遊戲內部。鎖定的覆疊層會讓所有點選穿透,且絕不搶走焦點。",
+      "principles": {
+        "noFps": "沒有 FPS 計數器:PULSE 沒有真實的 FPS 資料來源,因此不顯示。",
+        "safeOverlays": "只使用安全的桌面覆疊層 — 不注入,不掛鉤 DirectX/Vulkan/OpenGL。",
+        "borderless": "適用於無邊框或視窗化遊戲;獨佔全螢幕會遮住桌面視窗。"
+      }
+    },
+    "development": {
+      "name": "開發",
+      "tagline": "建置壓力,以工程精度呈現。",
+      "description": "CPU、記憶體、磁碟 I/O、網路與處理程序數,以緊湊精確的版面呈現 — 適用於編譯、容器、測試執行與偵錯。",
+      "principles": {
+        "realSamples": "每個數值都是真實取樣;歷史資料來自 PULSE 自己的記錄器。",
+        "processesNearby": "要找出峰值背後的處理程序,處理程序檢視只需一鍵。",
+        "technicalStyle": "技術樣式:直線段與取樣標記 — 不做任何平滑化。"
+      }
+    },
+    "personal": {
+      "name": "個人",
+      "tagline": "你的日常檢視,照你的方式。",
+      "description": "一個舒適均衡、便於打磨的起點:新增你在意的內容,選擇任意樣式,整天放在螢幕上。",
+      "principles": {
+        "editable": "這裡的一切都可編輯:小工具、樣式、版面配置、覆疊層。",
+        "saveLook": "在外觀中把你打造的外觀儲存為自己的樣式。",
+        "shareExport": "以匯出分享儀表板 — 不包含任何硬體識別碼。"
+      }
+    },
+    "mini": {
+      "name": "迷你",
+      "tagline": "小巧精緻的監控視窗。",
+      "description": "一個緊湊的一般視窗,顯示幾項精心排布的讀數。可互動,絕不永遠置頂 — 需要置頂請使用覆疊層。",
+      "principles": {
+        "normalWindow": "迷你是一般視窗:可移動、可聚焦、顯示在工作列中。",
+        "pickLayout": "在下方選擇迷你版面配置,或在其中顯示你的某個儀表板。"
+      }
+    },
+    "miniLayouts": {
+      "vitals": {
+        "name": "生命徵象",
+        "description": "CPU、記憶體、溫度與流量,各自帶有趨勢。"
+      },
+      "thermals": {
+        "name": "溫度",
+        "description": "隨時間變化的溫度,依色彩分段,包含 SSD。"
+      },
+      "network": {
+        "name": "網路",
+        "description": "下載與上傳,有 Wi-Fi 時附帶訊號。"
+      },
+      "focus": {
+        "name": "專注",
+        "description": "一個大型 CPU 圓環,記憶體與溫度以量表顯示。"
+      }
+    },
+    "page": {
+      "aria": "{{mode}}模式",
+      "eyebrow": "模式",
+      "leave": "離開模式",
+      "enter": "進入{{mode}}模式",
+      "style": "{{mode}}樣式",
+      "modeDefault": "{{name}}(模式預設)",
+      "overlaysFor": "適用於{{mode}}的覆疊層",
+      "packsHint": "為{{mode}}模式編排 — 每個都會成為獨立視窗中可編輯的覆疊層。",
+      "behaviour": "行為",
+      "whenOn": "開啟此模式時",
+      "lockOverlays": "進入時鎖定所有覆疊層(點選穿透,絕不聚焦)",
+      "keepRunning": "關閉主視窗時讓 PULSE 及其覆疊層繼續執行",
+      "keyMetrics": "{{mode}}關鍵指標",
+      "dashboardAria": "{{mode}}儀表板",
+      "startDashboard": "從範本建立{{mode}}儀表板 — 之後可隨意修改。",
+      "createDashboard": "建立{{mode}}儀表板",
+      "editInDashboard": "在儀表板中編輯",
+      "switchesKeepRunning": "進入此模式會將「關閉主視窗」切換為繼續執行。"
+    },
+    "miniPage": {
+      "subtitle": "一個一般的小型 PULSE 視窗。迷你可互動,行為與其他視窗相同;如需永遠置頂並讓點選穿透,請新增覆疊層。",
+      "useHere": "這裡也使用迷你模式",
+      "layouts": "迷你版面配置",
+      "whatShows": "迷你顯示的內容",
+      "layout": "迷你版面配置",
+      "orDashboard": "或一個儀表板",
+      "dashboardShown": "迷你中顯示的儀表板",
+      "style": "迷你樣式",
+      "howLooks": "迷你的外觀",
+      "followMode": "迷你模式({{name}})",
+      "modeStyle": "迷你模式樣式",
+      "followsAtOnce": "迷你視窗會立即套用這些變更 — 無需重新開啟。",
+      "preview": "迷你預覽",
+      "live": "即時 · {{name}}",
+      "tinyOverlays": "微型覆疊層",
+      "tinyOverlaysHint": "當讀數必須位於最上層並讓點選穿透時,請使用這些。"
+    }
+  },
+  "presets": {
+    "templates": {
+      "balanced": {
+        "name": "預設均衡",
+        "description": "日常總覽:摘要列、CPU 與記憶體、溫度、GPU、網路、磁碟。"
+      },
+      "gaming": {
+        "name": "遊戲儀表板",
+        "description": "負載與溫度優先:CPU 與 GPU 圓環、溫度、VRAM、記憶體與流量。"
+      },
+      "development": {
+        "name": "開發儀表板",
+        "description": "以工程精度呈現建置壓力:CPU、記憶體、磁碟 I/O、網路、處理程序。"
+      },
+      "personal": {
+        "name": "個人入門",
+        "description": "舒適均衡的起點,任你打造:圓環、圖表、溫度與網路。"
+      },
+      "thermal": {
+        "name": "溫度焦點",
+        "description": "PULSE 讀取的每個溫度,依色彩分段,並與造成升溫的負載並列。"
+      },
+      "network-io": {
+        "name": "網路與 I/O",
+        "description": "近距離查看流量與磁碟傳輸量,附帶檔案系統用量與 Wi-Fi。"
+      },
+      "minimal": {
+        "name": "極簡",
+        "description": "四個大型數字與一張安靜的圖表。別無其他。"
+      },
+      "showcase": {
+        "name": "華麗展示",
+        "description": "PULSE 最驚豔的樣子:霧面玻璃、圓環、漸層趨勢與即時列。"
+      }
+    },
+    "packs": {
+      "tiny-thermals": {
+        "name": "微型溫度",
+        "description": "CPU 與 GPU 溫度及記憶體,放在一個極小的區塊中。",
+        "sample": "CPU 64 °C|GPU 58 °C|RAM 42 %"
+      },
+      "tiny-stats": {
+        "name": "微型狀態",
+        "description": "CPU、GPU、RAM 與溫度,集中在一行細條中。",
+        "sample": "CPU 24 %|GPU 84 %|RAM 41 %|67 °C"
+      },
+      "top-bar": {
+        "name": "頂部列",
+        "description": "橫跨螢幕頂部的全寬摘要列,帶即時趨勢。",
+        "sample": "CPU 23 % ∿|GPU 61 % ∿|RAM 44 % ∿|CPU 67 °C ∿|↓ 2.1 MB/s ∿|↑ 180 kB/s ∿"
+      },
+      "bottom-bar": {
+        "name": "底部列",
+        "description": "沿底邊排列的量表:CPU、GPU 與記憶體負載條,以及流量。",
+        "sample": "CPU ▰▰▰▱▱|GPU ▰▰▱▱▱|RAM ▰▰▰▰▱|↓ 2.1 MB/s|↑ 180 kB/s"
+      },
+      "left-rail": {
+        "name": "左側欄",
+        "description": "沿左邊緣的全高圓環與趨勢欄。",
+        "sample": "◔ CPU 23 %|◑ GPU 61 %|◕ RAM 44 %|CPU 67 °C|↓ 2.1 MB/s"
+      },
+      "right-rail": {
+        "name": "右側欄",
+        "description": "右側全高監控圖表:CPU、記憶體、溫度、網路、磁碟。",
+        "sample": "CPU ⌇⌇⌇|RAM ⌇⌇⌇|°C ⌇⌇⌇|↓↑ ⌇⌇⌇|讀/寫 ⌇⌇⌇"
+      },
+      "gaming-corner": {
+        "name": "遊戲角落",
+        "description": "放在上方角落的醒目六項 HUD:負載、溫度、VRAM 與 RAM。",
+        "sample": "CPU 31 %|GPU 97 %|CPU 71 °C|GPU 74 °C|VRAM 6.1 GB|RAM 44 %"
+      },
+      "thermal-strip": {
+        "name": "溫度列",
+        "description": "PULSE 能讀取的每個溫度,依色彩分段並帶趨勢。",
+        "sample": "CPU 71 °C ∿|GPU 64 °C ∿|SSD 41 °C"
+      },
+      "summary-card": {
+        "name": "系統摘要卡片",
+        "description": "一張精緻的浮動卡片:CPU 與記憶體圓環,GPU 與網路分組顯示。",
+        "sample": "◔ CPU 23 %|◕ RAM 44 %|GPU 61 %|↓ 2.1 MB/s"
+      },
+      "network-strip": {
+        "name": "網路列",
+        "description": "下載與上傳及其趨勢,有 Wi-Fi 時附帶訊號。",
+        "sample": "↓ 12 MB/s ∿|↑ 1.2 MB/s ∿|Wi-Fi −52 dBm"
+      },
+      "minimal-hud": {
+        "name": "極簡透明 HUD",
+        "description": "只有三個數值 — 沒有面板,以柔和光暈確保可讀性。",
+        "sample": "CPU 23 %|GPU 61 %|RAM 44 %"
+      },
+      "dev-rail": {
+        "name": "開發監控欄",
+        "description": "適合寫程式時使用:CPU 與記憶體圖表、磁碟 I/O、網路與處理程序數。",
+        "sample": "CPU ⌇⌇⌇|RAM ⌇⌇⌇|讀取 ∿|寫入 ∿|網路 ↓ ∿|412 個處理程序"
+      }
+    },
+    "footprints": {
+      "micro": "微型",
+      "card": "浮動卡片",
+      "top-strip": "頂部列",
+      "bottom-strip": "底部列",
+      "left-rail": "左側欄",
+      "right-rail": "右側欄",
+      "corner": "角落 HUD",
+      "block": "摘要區塊"
+    },
+    "overlayPresets": {
+      "tiny-stats": {
+        "name": "微型狀態",
+        "description": "CPU 24 % | GPU 84 % | RAM 41 %"
+      },
+      "thermal-strip": {
+        "name": "溫度列",
+        "description": "CPU 與 GPU 溫度排成一列。"
+      },
+      "gaming": {
+        "name": "遊戲",
+        "description": "CPU、GPU、VRAM、RAM 與網路,垂直堆疊。"
+      },
+      "minimal-corner": {
+        "name": "極簡角落",
+        "description": "CPU 與 RAM,完全沒有背景。"
+      }
+    },
+    "text": {
+      "system": "系統",
+      "temperatures": "溫度",
+      "memory": "記憶體",
+      "videoMemory": "視訊記憶體",
+      "network": "網路",
+      "cpuTotal": "CPU 總計",
+      "processes": "處理程序",
+      "diskIo": "磁碟 I/O",
+      "cpuTemperature": "CPU 溫度",
+      "filesystem": "檔案系統",
+      "processor": "處理器",
+      "temperature": "溫度",
+      "storage": "儲存空間",
+      "cpuPackage": "CPU 封裝",
+      "load": "負載",
+      "graphics": "圖形",
+      "heat": "溫度",
+      "thermals": "溫度",
+      "temp": "溫度",
+      "netDown": "網路 ↓",
+      "netDownCaps": "網路 ↓",
+      "diskDown": "磁碟 ↓",
+      "diskUp": "磁碟 ↑",
+      "download": "下載",
+      "upload": "上傳",
+      "read": "讀取",
+      "write": "寫入",
+      "disk": "磁碟",
+      "running": "執行中",
+      "threads": "執行緒",
+      "clock": "時脈",
+      "hotspot": "熱點",
+      "usage": "使用率",
+      "gpuTemp": "GPU 溫度",
+      "ssdTemp": "SSD 溫度",
+      "down": "下行",
+      "up": "上行",
+      "core": "核心",
+      "freq": "頻率",
+      "cpuTemp": "CPU 溫度",
+      "ramUsed": "已用記憶體",
+      "ramFree": "可用記憶體",
+      "gpuFan": "GPU 風扇"
+    },
+    "packAria": "{{name}} 覆疊層套件",
+    "addOverlay": "新增覆疊層",
+    "footprint": "佔用區域",
+    "templateAria": "{{name}} 範本",
+    "appStyle": "應用程式樣式",
+    "createDashboard": "建立儀表板"
+  },
+  "library": {
+    "blueprints": {
+      "cpu-total": {
+        "label": "CPU 總計",
+        "description": "整機 CPU 使用率隨時間的變化。"
+      },
+      "cpu-value": {
+        "label": "CPU 總計 — 數值",
+        "description": "只顯示數字:CPU 23 %。"
+      },
+      "cpu-sparkline": {
+        "label": "CPU 總計 — 迷你走勢",
+        "description": "CPU 23 %,附帶小型趨勢。"
+      },
+      "cpu-group": {
+        "label": "CPU 群組",
+        "description": "使用率與封裝溫度一起顯示。"
+      },
+      "cpu-logical": {
+        "label": "單一邏輯處理器",
+        "description": "單一邏輯處理器;在自訂中選擇是哪一個。"
+      },
+      "memory": {
+        "label": "記憶體使用率",
+        "description": "使用中的實體記憶體,以百分比表示。"
+      },
+      "memory-value": {
+        "label": "記憶體 — 數值",
+        "description": "RAM 41 %。"
+      },
+      "memory-used": {
+        "label": "已使用記憶體 — 數值",
+        "description": "使用中的位元組,例如 12.0 GiB。"
+      },
+      "gpu": {
+        "label": "GPU 使用率",
+        "description": "GPU 核心負載隨時間的變化。"
+      },
+      "gpu-value": {
+        "label": "GPU — 數值",
+        "description": "GPU 97 %。"
+      },
+      "gpu-group": {
+        "label": "GPU 群組",
+        "description": "使用率、VRAM 與溫度。"
+      },
+      "thermal": {
+        "label": "CPU 與 GPU 溫度",
+        "description": "兩個感測器在同一張圖表中;無法讀取的感測器直接不顯示。"
+      },
+      "cpu-temp-value": {
+        "label": "CPU 溫度 — 數值",
+        "description": "71 °C。"
+      },
+      "gpu-temp-value": {
+        "label": "GPU 溫度 — 數值",
+        "description": "72 °C。"
+      },
+      "ssd-temp": {
+        "label": "磁碟機溫度 — 數值",
+        "description": "依需要從磁碟機讀取,而非每秒讀取。"
+      },
+      "storage": {
+        "label": "磁碟讀取 / 寫入",
+        "description": "一台磁碟機的傳輸量(自動或手動選擇)。"
+      },
+      "volume": {
+        "label": "檔案系統用量",
+        "description": "一個檔案系統的使用程度。"
+      },
+      "network": {
+        "label": "下載 / 上傳",
+        "description": "一個介面的流量(自動或手動選擇)。"
+      },
+      "network-down-value": {
+        "label": "下載 — 數值",
+        "description": "網路 ↓ 12 MiB/s。"
+      },
+      "wifi": {
+        "label": "Wi-Fi 訊號",
+        "description": "無線介面的訊號強度。"
+      },
+      "processes": {
+        "label": "處理程序與執行緒數",
+        "description": "整機計數;絕不涉及單一處理程序。"
+      },
+      "summary": {
+        "label": "系統摘要",
+        "description": "CPU / GPU / RAM / 網路集中在一列中,附帶小型趨勢。"
+      }
+    },
+    "categories": {
+      "CPU": "CPU",
+      "Memory": "記憶體",
+      "GPU": "GPU",
+      "Thermals": "溫度",
+      "Storage": "儲存空間",
+      "Network": "網路",
+      "Processes": "處理程序",
+      "Custom": "自訂",
+      "Templates": "範本"
+    },
+    "onDemand": "依需要從磁碟機讀取(一道 NVMe 管理命令),絕不每秒讀取:因此不顯示即時值。",
+    "categoriesLabel": "小工具類別",
+    "loading": "正在讀取指標目錄…",
+    "addNamed": "新增 {{name}}",
+    "anyMetric": "任意指標",
+    "searchPlaceholder": "搜尋指標目錄",
+    "searchLabel": "搜尋指標",
+    "notReadable": "本機無法讀取",
+    "noTemplates": "還沒有範本。自訂一個小工具,然後使用「另存為範本」。",
+    "templateName": "範本名稱"
+  },
+  "visualization": {
+    "presets": {
+      "clean": {
+        "name": "簡潔",
+        "description": "深色面板上的平滑線條、柔和漸層與淡淡格線。"
+      },
+      "minimal": {
+        "name": "極簡",
+        "description": "一條細線與目前數值。沒有格線、座標軸或面板。"
+      },
+      "technical": {
+        "name": "技術",
+        "description": "直線段、取樣標記、完整座標軸與所有統計。"
+      },
+      "gaming": {
+        "name": "遊戲",
+        "description": "粗亮線條、強烈漸層、光暈與粗體數字。"
+      },
+      "compact": {
+        "name": "緊湊",
+        "description": "帶小型數字的迷你走勢:專為狹小空間設計。"
+      },
+      "neon": {
+        "name": "霓虹",
+        "description": "近乎純黑上的青色與洋紅,帶柔和光暈。"
+      },
+      "transparent": {
+        "name": "透明",
+        "description": "完全沒有面板 — 只有線條與數字。適合覆疊層。"
+      }
+    },
+    "renderers": {
+      "line": {
+        "label": "折線",
+        "description": "以折線顯示隨時間變化的數值。"
+      },
+      "area": {
+        "label": "區域",
+        "description": "下方區域被填滿的折線。"
+      },
+      "sparkline": {
+        "label": "迷你走勢",
+        "description": "無裝飾的小型趨勢,適合狹小空間。"
+      },
+      "value": {
+        "label": "數值",
+        "description": "只顯示目前數字。"
+      },
+      "bar": {
+        "label": "長條",
+        "description": "以水平長條顯示目前數值。"
+      },
+      "gauge": {
+        "label": "量表",
+        "description": "在圓環上顯示目前數值。需要已知範圍。"
+      }
+    },
+    "gaugeNeedsBounds": "量表需要已知範圍,而此指標沒有。請先設定固定刻度(最小值與最大值)。",
+    "scaleErrors": {
+      "both": "請同時輸入最小值與最大值。",
+      "numbers": "兩個邊界都必須是數字。",
+      "order": "最大值必須大於最小值。"
+    },
+    "savedByYou": "由你儲存。"
+  },
+  "overlays": {
+    "limitReached_other": "最多 {{count}} 個覆疊層。請刪除一個再新增。",
+    "defaultName": "覆疊層",
+    "session": "工作階段:",
+    "capabilityList": "覆疊層功能",
+    "capabilityStatus": {
+      "supported": "支援",
+      "limited": "受限",
+      "unsupported": "不支援"
+    },
+    "capabilities": {
+      "alwaysOnTop": "永遠置頂",
+      "clickThrough": "鎖定時點選穿透",
+      "positioning": "絕對定位",
+      "transparentWindow": "透明視窗",
+      "globalHotkey": "全域快速鍵",
+      "multiMonitorPositioning": "多螢幕定位",
+      "tray": "系統匣"
+    },
+    "headline": {
+      "alwaysOnTop": "位於其他視窗之上",
+      "globalHotkey": "全域快速鍵",
+      "clickThrough": "點選穿透",
+      "transparentWindow": "透明",
+      "multiMonitorPositioning": "多螢幕"
+    },
+    "displayServers": {
+      "windows": "Windows",
+      "x11": "X11",
+      "wayland": "Wayland(原生)",
+      "xWayland": "XWayland(Wayland 工作階段中的 X11)",
+      "other": "不支援的平台"
+    },
+    "verification": {
+      "physicallyVerified": "已在實體硬體上驗證",
+      "implemented": "已實作 · 尚未在硬體上驗證",
+      "bestEffort": "視平台而定",
+      "unsupported": "無法使用"
+    },
+    "backend": {
+      "title": "覆疊層後端",
+      "unavailable": "後端無法使用。請使用 pnpm app:dev 執行 PULSE。",
+      "desktopWindow": "桌面視窗",
+      "whatHere": "覆疊層在此處能做什麼"
+    },
+    "backends": {
+      "windowsNative": {
+        "label": "Windows 原生覆疊層",
+        "detail": "分層、置頂、不啟用的工具視窗:HWND_TOPMOST 讓它保持在上層,WS_EX_NOACTIVATE 讓焦點留在原處,WS_EX_TRANSPARENT 在鎖定時讓點選穿透。已實作並編譯;尚未在 Windows 電腦上驗證。"
+      },
+      "gnomeBridge": {
+        "label": "GNOME 原生橋接",
+        "detail": "GNOME Shell 中的 PULSE 擴充功能讓覆疊層保持在其他視窗之上(Mutter make_above),並透過 Mutter 傳遞覆疊層快速鍵;鎖定覆疊層的點選穿透由 PULSE 負責。已在 Fedora 39 / GNOME 45 上驗證。"
+      },
+      "standardWayland": {
+        "label": "標準 Wayland 視窗",
+        "detail": "一般的 Wayland 視窗:透明、鎖定時點選穿透,但它是否保持在聚焦應用程式之上、放在哪裡,由合成器決定。"
+      },
+      "x11": {
+        "label": "X11 視窗",
+        "detail": "永遠置頂的 X11 視窗(_NET_WM_STATE_ABOVE),鎖定時輸入區域為空,放置在它要求的位置。"
+      },
+      "unsupported": {
+        "label": "無法使用",
+        "detail": "此平台不支援桌面覆疊層。"
+      }
+    },
+    "placementHints": {
+      "gnome": "在此處會保持在其他視窗之上;在編輯模式下把它拖到邊緣一次即可 — GNOME 會自行放置 Wayland 視窗。",
+      "notOnTop": "搭配 GNOME 橋接或 Windows 原生覆疊層效果最佳:在這裡,合成器可能把它放到聚焦應用程式的後面。",
+      "noPositioning": "在編輯模式下把它拖到定位一次:此工作階段無法定位視窗。"
+    },
+    "bridge": {
+      "title": "GNOME 橋接",
+      "connected": "已連線",
+      "enable": "啟用",
+      "disable": "停用",
+      "running": "執行中",
+      "installed": "已安裝",
+      "ships": "隨 PULSE 提供",
+      "setUp": "設定 GNOME 橋接",
+      "copyUninstall": "複製解除安裝命令",
+      "sourcePlaceholder": "<PULSE 原始碼目錄>",
+      "states": {
+        "notApplicable": "此處不需要",
+        "unavailable": "無法使用",
+        "incompatible": "不相容",
+        "notInstalled": "未安裝",
+        "installedNeedsLogin": "已安裝 — 需重新登入",
+        "extensionsOff": "擴充功能已關閉",
+        "disabled": "已停用",
+        "error": "錯誤",
+        "active": "已啟用",
+        "changing": "正在變更…"
+      },
+      "summaries": {
+        "notGnome": "不是 GNOME 工作階段 — GNOME 橋接在此不適用",
+        "notWayland": "此工作階段不需要 — 橋接適用於 Wayland 上的 GNOME",
+        "shellNoAnswer": "GNOME Shell 的擴充功能服務沒有回應",
+        "notChecked": "尚未檢查",
+        "shellUnsupported": "橋接不支援 GNOME Shell {{version}}(已在 GNOME 45 上驗證)",
+        "installedNeedsLogin": "已安裝 — 請登出並重新登入一次以載入",
+        "notInstalled": "未安裝",
+        "extensionsOff": "此工作階段已關閉使用者擴充功能",
+        "activeConnected": "已啟用 — 正在保持覆疊層置頂並傳遞快速鍵",
+        "active": "已啟用",
+        "disabled": "已安裝但已停用",
+        "extensionError": "GNOME Shell 回報擴充功能發生錯誤",
+        "outOfDate": "GNOME Shell {{version}} 認為已安裝的擴充功能已過時",
+        "uninstalled": "已解除安裝",
+        "changing": "GNOME Shell 正在變更擴充功能狀態"
+      },
+      "guidance": {
+        "checkShell": "請確認此工作階段執行的是 GNOME Shell,然後重新整理。",
+        "standardWayland": "覆疊層仍可作為標準 Wayland 視窗運作:鎖定時點選穿透,但堆疊順序由合成器決定。",
+        "discoverAtLogin": "GNOME Shell 45 只在登入時偵測新的擴充功能。重新登入後,請在此啟用。",
+        "installSteps": "以下方命令安裝擴充功能,登出並重新登入一次,然後啟用它。",
+        "extensionsOn": "重新開啟使用者擴充功能(擴充功能應用程式,或 gsettings set org.gnome.shell disable-user-extensions false)。",
+        "newerCopyInstalled": "已安裝較新的副本。請登出並重新登入以載入它。",
+        "reinstallNewer": "此 PULSE 附帶較新的橋接。請以下方命令重新安裝,然後登出並重新登入。",
+        "notGreeted": "執行中。它還沒有向此 PULSE 打招呼:版本 2 之前的擴充功能從不打招呼;較新的版本會在 PULSE 啟動後立即打招呼。",
+        "enableIt": "啟用它,讓覆疊層保持在其他視窗之上。",
+        "reinstallAfterError": "重新安裝,然後登出並重新登入。錯誤也記錄在 journalctl --user -b /usr/bin/gnome-shell 中。",
+        "reinstallShipped": "重新安裝此 PULSE 附帶的版本。",
+        "refreshSoon": "請稍後重新整理。"
+      },
+      "steps": {
+        "install": "安裝擴充功能",
+        "update": "更新擴充功能",
+        "installDetail": "複製到 ~/.local/share/gnome-shell/extensions/ — 僅限你的帳戶,不需要 sudo。",
+        "updateDetail": "已安裝 v{{installed}};此 PULSE 附帶 v{{bundled}}。",
+        "login": "登出並重新登入一次",
+        "loginDetail": "GNOME Shell 45 只在登入時載入擴充功能程式碼。",
+        "enable": "啟用",
+        "enableDetail": "使用這裡的按鈕,或在 GNOME 的擴充功能應用程式中。",
+        "connected": "已連線至 PULSE",
+        "connectedDetail": "執行中的擴充功能已向此 PULSE 打過招呼。",
+        "notConnectedDetail": "版本 2 以上會在 PULSE 啟動後立即打招呼。"
+      },
+      "details": {
+        "summary": "功能 · 疑難排解 · 限制",
+        "unlocks": "<strong>可實現:</strong>覆疊層保持在聚焦應用程式之上(Mutter <code>make_above</code>),而且無論哪個應用程式取得焦點,覆疊層快速鍵都能生效 — GNOME 45 沒有全域快速鍵入口網站。鎖定時的點選穿透由 PULSE 自行實現,有無橋接皆可使用。",
+        "safety": "<strong>安全性:</strong>它只會操作由持有 PULSE 匯流排名稱的處理程序所擁有、<em>且</em>標題恰好為 <code>PULSE Overlay :: &lt;id&gt;</code> 的視窗。不輪詢、不攔截輸入、不讀寫檔案、不連網。",
+        "troubleshooting": "<strong>疑難排解:</strong>安裝或更新後請登出並重新登入 — GNOME 只在登入時載入擴充功能程式碼。記錄:<code>journalctl --user -b /usr/bin/gnome-shell | grep \"PULSE overlay bridge\"</code>。如果 GNOME Shell 在登入時出現異常,可從另一個工作階段執行 <code>gsettings set org.gnome.shell disable-user-extensions true</code> 關閉使用者擴充功能。",
+        "limits": "<strong>限制:</strong>GNOME 仍會自行放置 Wayland 視窗,因此位置與多螢幕配置由合成器決定;請在編輯模式下拖曳一次覆疊層。僅在 GNOME 45 上驗證。"
+      }
+    },
+    "layouts": {
+      "horizontal": "橫排",
+      "vertical": "直排",
+      "grid": "格狀"
+    },
+    "page": {
+      "subtitle": "桌面上各自小視窗中的小工具 — 在系統允許的情況下位於其他應用程式之上,鎖定時點選穿透。安全的桌面視窗:PULSE 絕不注入遊戲。",
+      "all": "所有覆疊層",
+      "editAll": "全部編輯",
+      "lockAll": "全部鎖定",
+      "showAll": "全部顯示",
+      "hideAll": "全部隱藏",
+      "openMini": "開啟迷你視窗",
+      "newOverlay": "新增覆疊層",
+      "packs": "覆疊層套件",
+      "packsHint": "十二種編排好的覆疊層 — 微型讀數、卡片、全寬列、側欄與角落 HUD。一切都可編輯。",
+      "emptyOverlay": "空白覆疊層",
+      "everyCapability": "所有功能詳細資料",
+      "yourPacks": "你的套件",
+      "deletePack": "刪除套件 {{name}}"
+    },
+    "hotkey": {
+      "hint": "在編輯與鎖定之間切換可見的覆疊層。隱藏的覆疊層保持原狀態。",
+      "viaBridge": "由 GNOME 橋接透過 Mutter 傳遞,無論哪個應用程式取得焦點。在此套用快速鍵會變更橋接本身的設定;GNOME 會立即使用。",
+      "viaPortal": "由你的桌面透過 XDG Desktop Portal 傳遞,無論哪個應用程式取得焦點。桌面可能會請你核准,並允許你在其鍵盤設定中變更按鍵。",
+      "unavailable": "此工作階段無法使用全域快速鍵:{{reason}}",
+      "notRegistered": "未註冊 — {{error}}。先前的快速鍵仍然有效。",
+      "notBound": "未繫結 — {{error}}。",
+      "active": "已生效:{{hotkey}}。",
+      "none": "沒有生效的全域快速鍵。"
+    },
+    "close": {
+      "title": "關閉主視窗",
+      "when": "關閉主視窗時",
+      "quit": "結束 PULSE",
+      "keepRunning": "有可見覆疊層時繼續執行",
+      "note": "預設為結束。PULSE 繼續執行時,可從系統匣或覆疊層的「開啟 PULSE」重新開啟;從系統匣結束會停止一切。"
+    },
+    "editor": {
+      "aria": "覆疊層 {{name}}",
+      "name": "覆疊層名稱",
+      "visible": "可見",
+      "edit": "編輯覆疊層",
+      "lock": "鎖定覆疊層",
+      "saveAsPack": "儲存為我的套件",
+      "saveAsPackBody": "儲存它的小工具、版面配置、樣式與邊框,以便在覆疊層中再次新增。",
+      "savePack": "儲存套件",
+      "packName": "套件名稱",
+      "fromPack": "來自「{{name}}」",
+      "resetToPack": "重設為套件",
+      "style": "覆疊層樣式",
+      "layout": "覆疊層版面配置",
+      "background": "覆疊層背景",
+      "backgroundOpacity": "覆疊層背景不透明度",
+      "cornerRadius": "覆疊層圓角",
+      "gapBetween": "小工具間距",
+      "width": "覆疊層寬度",
+      "height": "覆疊層高度",
+      "fit": "配合小工具",
+      "x": "覆疊層 X",
+      "y": "覆疊層 Y",
+      "primaryMonitor": "主要螢幕",
+      "cannotPlace": "此工作階段無法放置視窗:請在編輯模式下拖曳覆疊層的標題列。",
+      "widgets": "{{name}} 的小工具",
+      "widgetWidth": "{{name}} 寬度",
+      "widgetHeight": "{{name}} 高度",
+      "moveEarlier": "將 {{name}} 前移",
+      "moveLater": "將 {{name}} 後移",
+      "copyToDashboard": "複製到儀表板",
+      "copiesGoTo": "副本會放入儀表板「{{name}}」。",
+      "deleteTitle": "刪除覆疊層「{{name}}」?",
+      "deleteBody": "它的視窗會關閉,小工具會被移除。",
+      "delete": "刪除覆疊層"
+    },
+    "surface": {
+      "aria": "{{name}} 覆疊層",
+      "empty": "從 PULSE → 覆疊層 新增小工具。",
+      "dragToMove": "{{name}} · 拖曳以移動",
+      "lock": "鎖定",
+      "openPulse": "開啟 PULSE",
+      "dragToResize": "拖曳以調整大小"
+    },
+    "send": {
+      "aria": "將 {{name}} 傳送到覆疊層",
+      "title": "將「{{name}}」傳送到覆疊層",
+      "addTo": "新增到「{{name}}」"
+    }
+  },
+  "customize": {
+    "background": "背景",
+    "backgroundOpacity": "背景不透明度",
+    "border": "邊框",
+    "shadow": "陰影",
+    "corners": "圓角",
+    "gap": "間距",
+    "widthShort": "寬",
+    "heightShort": "高",
+    "padding": "內距",
+    "layout": "版面配置",
+    "borders": {
+      "none": "無",
+      "thin": "細"
+    },
+    "groupLayouts": {
+      "rows": "多列",
+      "inline": "單列"
+    },
+    "widget": {
+      "section": "小工具",
+      "title": "標題",
+      "titleLabel": "小工具標題",
+      "showTitle": "顯示標題",
+      "background": "小工具背景",
+      "opacity": "小工具不透明度",
+      "backgroundOpacity": "小工具背景不透明度",
+      "padding": "小工具內距",
+      "border": "小工具邊框",
+      "corners": "小工具圓角",
+      "cornerRadius": "小工具圓角半徑"
+    },
+    "metrics": {
+      "section": "指標與資料來源",
+      "label": "指標 {{index}} 的標籤",
+      "source": "指標 {{index}} 的資料來源",
+      "automatic": "自動",
+      "automaticNamed": "自動 — {{name}}",
+      "autoHint": "自動選擇 — 只是合理的預設值,並不代表哪個比較重要。",
+      "groupLayout": "群組版面配置",
+      "tinyTrends": "小型趨勢"
+    },
+    "data": {
+      "section": "資料",
+      "source": "資料來源",
+      "nowLive": "目前:即時,1 秒,記憶體中保留最近 5 分鐘。",
+      "nowHistory": "目前:歷史,{{range}}。",
+      "modes": {
+        "auto": "自動",
+        "history": "歷史",
+        "live": "即時"
+      }
+    },
+    "template": {
+      "section": "範本",
+      "placeholder": "範本名稱,例如 我的迷你 CPU",
+      "save": "另存為範本"
+    }
+  },
+  "dashboard": {
+    "addWidget": "新增小工具",
+    "defaultName": "預設",
+    "fallbackName": "儀表板",
+    "import": {
+      "notExport": "這不是 PULSE 儀表板匯出檔。",
+      "version": "不支援的儀表板匯出版本:{{version}}。",
+      "noDashboard": "匯出內容中沒有有效的儀表板。",
+      "limit_other": "最多 {{count}} 個儀表板。"
+    },
+    "style": "儀表板樣式",
+    "actions": "儀表板動作",
+    "lockLayout": "鎖定版面配置",
+    "editLayout": "編輯版面配置",
+    "new": "新增",
+    "empty": "此儀表板是空的。",
+    "newTitle": "新增儀表板",
+    "newSubtitle": "從編排好的範本或空白格線開始。一切都可編輯。",
+    "name": "儀表板名稱",
+    "nameOptional": "名稱(選填)",
+    "blank": "空白儀表板",
+    "renameTitle": "重新命名「{{name}}」",
+    "deleteTitle": "刪除「{{name}}」?",
+    "deleteBody": "它的小工具與版面配置會被移除。範本與覆疊層會保留。",
+    "deleteConfirm": "刪除儀表板",
+    "resetTitle": "重設「{{name}}」?",
+    "resetToTemplate": "「{{name}}」範本會取代目前的小工具與樣式。你儲存的範本會保留。",
+    "resetToDefault": "預設小工具會取代目前的小工具。你的範本會保留。",
+    "resetConfirm": "重設儀表板",
+    "exportTitle": "匯出儀表板",
+    "exportBody": "可攜式 JSON 描述。不包含任何硬體識別碼、路徑或使用者名稱。",
+    "exportedJson": "匯出的 JSON",
+    "importTitle": "匯入儀表板",
+    "importBody": "貼上 PULSE 儀表板匯出內容。它會以新儀表板的形式加入。",
+    "json": "儀表板 JSON",
+    "widgets": "{{name}} 的小工具",
+    "widenToEdit": "加寬視窗才能重新排列小工具;窄版面配置僅供檢視。"
+  },
+  "widget": {
+    "actions": "{{name}} 的動作",
+    "actionsMenu": "{{name}} 的動作選單",
+    "dragToMoveNamed": "拖曳以移動 {{name}}",
+    "dragToMove": "拖曳以移動(或使用方向鍵)",
+    "dragToResize": "拖曳以調整大小(或 Shift + 方向鍵)",
+    "toOverlay": "放到覆疊層"
+  },
+  "history": {
+    "ranges": {
+      "15m": "15 分鐘",
+      "1h": "1 小時",
+      "6h": "6 小時",
+      "24h": "24 小時",
+      "7d": "7 天"
+    },
+    "cpu": {
+      "view": "CPU 檢視",
+      "total": "總計",
+      "title": "CPU 歷史",
+      "totalNote": "CPU 總計是後端在所有邏輯處理器上量測到的整機使用率 — 而不是由它們重新計算的平均值。",
+      "logicalNote": "所選時段內最活躍的邏輯處理器。CPU 總計仍是參考基準。",
+      "loading": "正在讀取處理器…",
+      "logicalHistory": "邏輯處理器歷史",
+      "showMostActive_other": "顯示最活躍的 {{count}} 個"
+    },
+    "gpu": {
+      "title": "GPU 歷史",
+      "none": "未偵測到 GPU。",
+      "telemetryUnavailable": "遙測無法使用 — {{reason}}"
+    },
+    "thermal": {
+      "title": "溫度歷史",
+      "none": "本機沒有可讀取的溫度感測器。",
+      "notCharted": "未繪製 — {{list}}"
+    },
+    "storage": {
+      "title": "儲存空間歷史",
+      "none": "未偵測到儲存裝置。",
+      "device": "儲存裝置"
+    },
+    "network": {
+      "title": "網路歷史",
+      "none": "未偵測到網路介面。",
+      "interface": "網路介面"
+    },
+    "memory": {
+      "title": "記憶體歷史",
+      "used": "已使用 {{value}}"
+    },
+    "processes": {
+      "count": "處理程序數",
+      "title": "處理程序數歷史",
+      "footnote": "僅記錄整機計數。PULSE 絕不記錄單一處理程序的歷史。"
+    },
+    "status": {
+      "title": "歷史記錄器",
+      "loading": "正在查詢歷史…",
+      "unavailable": "歷史無法使用:{{reason}}。即時監控不受影響。",
+      "unknownReason": "未知原因",
+      "state": "狀態",
+      "recording": "記錄中",
+      "stateUnavailable": "無法使用",
+      "cadence": "頻率",
+      "every": "每 {{value}} 秒",
+      "historized": "記錄歷史的指標",
+      "batches": "本次工作階段批次",
+      "lastBatch": "最近一批",
+      "lastBatchValue_other": "{{time}} · {{count}} 列",
+      "sampleWrite": "取樣 / 寫入",
+      "median": "中位數 {{sample}} ms / {{write}} ms",
+      "database": "資料庫",
+      "size": "大小",
+      "rows": "列數",
+      "rowsValue": "原始 {{raw}} · 彙總 {{aggregated}} · 序列 {{series}}",
+      "schemaJournal": "結構描述 / 日誌",
+      "lastError": "最近錯誤:{{error}}",
+      "scheduler": "由單一背景排程器寫入;重新整理按鈕從不記錄。",
+      "counting": "正在統計…",
+      "details": "資料庫詳細資料"
+    }
+  },
+  "viz": {
+    "ui": {
+      "preview": "預覽",
+      "preset": "預設組合",
+      "presetName": "預設組合名稱",
+      "newPresetName": "新預設組合名稱",
+      "visualization": "視覺化",
+      "visualizationType": "視覺化類型",
+      "timeRange": "時間範圍",
+      "size": "尺寸",
+      "compactMode": "緊湊模式",
+      "lineFill": "線條與填色",
+      "lineWidth": "線寬",
+      "curve": "曲線",
+      "points": "資料點",
+      "pointMarkers": "資料點標記",
+      "fillOpacity": "填色不透明度",
+      "smoothing": "平滑化",
+      "colors": "色彩",
+      "colorMode": "色彩模式",
+      "primary": "主色",
+      "secondary": "輔色",
+      "text": "文字",
+      "grid": "格線",
+      "background": "背景",
+      "border": "邊框",
+      "gradientStart": "漸層起點",
+      "gradientEnd": "漸層終點",
+      "above": "以上",
+      "backgroundFrame": "背景與邊框",
+      "backgroundOpacity": "背景不透明度",
+      "cornerRadius": "圓角半徑",
+      "shadow": "陰影",
+      "textSize": "文字大小",
+      "weight": "粗細",
+      "fontWeight": "字重",
+      "decimals": "小數位數",
+      "decimalPrecision": "小數精確度",
+      "label": "標籤",
+      "unit": "單位",
+      "axesGridScale": "座標軸、格線與刻度",
+      "xAxis": "X 軸",
+      "yAxis": "Y 軸",
+      "yScale": "Y 刻度",
+      "legendTooltipStatistics": "圖例、工具提示與統計",
+      "legend": "圖例",
+      "tooltip": "工具提示",
+      "current": "目前",
+      "minimum": "最小值",
+      "maximum": "最大值",
+      "average": "平均值",
+      "gauge": "量表",
+      "ringThickness": "圓環粗細",
+      "arc": "弧度",
+      "gaugeArc": "量表弧度",
+      "fillPlaceholder": "填色",
+      "fill": "填色",
+      "colourOf": "{{name}} 色彩",
+      "hexOf": "{{name}} 十六進位值",
+      "labelOf": "{{name}} 標籤",
+      "customFrom": "自訂(以 {{name}} 為基礎)",
+      "presetWord": "預設組合",
+      "customizeNamed": "自訂 {{name}}",
+      "resetVisualization": "重設視覺化",
+      "deletePreset": "刪除預設組合",
+      "saveAsPreset": "另存為預設組合",
+      "gaugeUnavailable": "量表無法使用:此指標沒有自然範圍。請設定固定刻度後再使用。",
+      "height": "高度",
+      "width": "寬度",
+      "followingTheme": "正在跟隨 PULSE 佈景主題。選擇任何色彩會切換為手動。",
+      "series": "序列",
+      "thresholdBands": "閾值色帶",
+      "thresholdHint": "由你選擇的視覺色帶 — 並不代表對你電腦上什麼數值過高的判斷。",
+      "bandColour": "色帶 {{index}} 色彩",
+      "bandUpper": "色帶 {{index}} 上限",
+      "removeBand": "移除色帶 {{index}}",
+      "addBand": "新增色帶",
+      "compactHides": "緊湊模式與迷你走勢會隱藏座標軸、格線與圖例。",
+      "min": "最小",
+      "max": "最大",
+      "smoothingHint": "僅影響顯示:儲存的取樣與工具提示保留真實數值。",
+      "fillFollowsLine": "填色跟隨線條色彩"
+    },
+    "lineWidths": {
+      "thin": "細",
+      "medium": "中",
+      "thick": "粗"
+    },
+    "options": {
+      "small": "小",
+      "medium": "中",
+      "large": "大",
+      "custom": "自訂",
+      "straight": "直線",
+      "smooth": "平滑",
+      "stepped": "階梯",
+      "none": "無",
+      "visible": "顯示",
+      "solid": "純色",
+      "gradient": "漸層",
+      "theme": "佈景主題",
+      "manual": "手動",
+      "threshold": "閾值",
+      "light": "淺",
+      "thin": "細",
+      "subtle": "淡",
+      "glow": "光暈",
+      "regular": "標準",
+      "bold": "粗體",
+      "full": "整圓",
+      "three-quarter": "四分之三",
+      "half": "半圓",
+      "auto": "自動",
+      "fixed": "固定"
+    },
+    "status": {
+      "loading": "正在載入歷史…",
+      "unavailable": "歷史無法使用:{{reason}}",
+      "collecting": "正在收集歷史…",
+      "oneSample": "正在收集歷史… 目前只有一個取樣。",
+      "noData": "無資料",
+      "scaledToPeak": "已依時段峰值縮放,{{value}}",
+      "overTime": "{{name}} 隨時間變化"
+    },
+    "stats": {
+      "current": "目前",
+      "min": "最小",
+      "max": "最大",
+      "average": "平均"
+    }
+  },
+  "appearance": {
+    "styleAria": "{{name}} 樣式",
+    "ui": {
+      "styles": "樣式",
+      "yourStyles": "你的樣式",
+      "colour": "色彩",
+      "accentColour": "強調色",
+      "accent": "強調色",
+      "chartPalette": "圖表調色盤",
+      "surfaces": "介面",
+      "panelOpacity": "面板不透明度",
+      "glassBlur": "玻璃模糊",
+      "borderStrength": "邊框強度",
+      "shadowDepth": "陰影深度",
+      "shapeType": "形狀與字型",
+      "cornerRoundness": "圓角程度",
+      "font": "字型",
+      "textSize": "文字大小",
+      "layoutDensity": "版面配置與密度",
+      "density": "密度",
+      "widgetPadding": "小工具內距",
+      "gapBetweenWidgets": "小工具間距",
+      "overlayPadding": "覆疊層內距",
+      "overlayGap": "覆疊層間距",
+      "charts": "圖表",
+      "lineThickness": "線條粗細",
+      "fillOpacity": "填色不透明度",
+      "lineShape": "線條形狀",
+      "contentMotion": "內容與動態效果",
+      "widgetTitles": "小工具標題",
+      "labelsInTinyWidgets": "微型小工具中的標籤",
+      "motion": "動態效果",
+      "livePreview": "即時預覽",
+      "styleName": "樣式名稱",
+      "deleteThisStyle": "刪除此樣式?",
+      "exportStyle": "匯出樣式",
+      "exportedStyle": "匯出的樣式",
+      "importStyle": "匯入樣式",
+      "styleJson": "樣式 JSON",
+      "overlayPaddingNote": "在覆疊層採用某個樣式時使用。"
+    },
+    "subtitle": "八種樣式,改變的不只是色彩,還有介面、層次、字型、密度與圖表。可調整任意一種,並把結果儲存為自己的樣式。",
+    "modeOn": "<strong>{{mode}}模式</strong>已開啟:你選擇的樣式會套用到該模式。",
+    "leaveMode": "離開{{mode}}模式",
+    "myStyle": "我的{{name}}",
+    "saveCurrent": "儲存目前外觀",
+    "noUserStyles": "在下方調整樣式,然後儲存到這裡。已儲存的樣式可以建立副本、重新命名、匯出與分享。",
+    "basedOn": "以 {{name}} 為基礎",
+    "inUse": "使用中",
+    "use": "使用",
+    "styleAccentTitle": "樣式的強調色({{color}})",
+    "styleAccent": "樣式強調色",
+    "fonts": {
+      "style": "樣式",
+      "sans": "無襯線",
+      "rounded": "圓體",
+      "condensed": "窄體",
+      "mono": "等寬"
+    },
+    "styleWith": "樣式({{value}})",
+    "densities": {
+      "compact": "緊湊",
+      "comfortable": "舒適",
+      "spacious": "寬鬆"
+    },
+    "chartsNote": "套用到所有仍使用預設組合的圖表。你自訂過的圖表會保留自己的設定。",
+    "motionLevels": {
+      "full": "完整",
+      "reduced": "減弱",
+      "none": "無"
+    },
+    "resetAll": "將所有調整重設為 {{name}}",
+    "livePreviewNamed": "即時預覽 · {{name}}",
+    "saveLook": "儲存此外觀",
+    "renameStyle": "重新命名樣式",
+    "deleteBody": "目前使用它的內容會保持原外觀,直到你選擇其他樣式。",
+    "deleteStyle": "刪除樣式",
+    "exportBody": "樣式的可攜式 JSON 描述:僅包含色彩、字型與調整參數。",
+    "importBody": "貼上 PULSE 樣式匯出內容。它會加入你的樣式中。",
+    "useStyle": "使用樣式",
+    "import": {
+      "notExport": "這不是 PULSE 樣式匯出檔。",
+      "version": "不支援的樣式匯出版本:{{version}}。",
+      "noName": "匯出內容中沒有樣式名稱。",
+      "limit_other": "最多儲存 {{count}} 個樣式。"
+    }
+  },
+  "mini": {
+    "shownIn": "在迷你中顯示"
+  },
+  "processes": {
+    "nice": {
+      "title": "自訂 nice 值 — {{name}}",
+      "range": "PID {{pid}}。nice 值範圍為 {{min}}(最優先)到 {{max}}(最不優先)。",
+      "privileges": "降低此數值通常需要 PULSE 不具備的權限。",
+      "value": "nice 值"
+    },
+    "affinity": {
+      "title": "CPU 親和性 — {{name}}",
+      "body": "選擇 PID {{pid}} 可以執行的邏輯處理器。",
+      "selectAll": "全選",
+      "keepOne": "至少保留一個 CPU:不允許在任何 CPU 上執行的處理程序無法執行。"
+    },
+    "status": {
+      "success": "完成",
+      "permissionDenied": "權限遭拒",
+      "staleProcess": "未執行 — 此 PID 現屬於另一個處理程序",
+      "processGone": "處理程序已結束",
+      "unsupported": "不支援",
+      "partialFailure": "部分完成",
+      "invalidRequest": "未執行",
+      "platformError": "失敗"
+    },
+    "outcome": {
+      "suspend": "已暫停處理程序 {{pid}}。",
+      "resume": "已繼續處理程序 {{pid}}。",
+      "terminate": "已要求處理程序 {{pid}} 結束。",
+      "forceKill": "已強制結束處理程序 {{pid}}。",
+      "priority": "已變更處理程序 {{pid}} 的優先順序。",
+      "affinity": "已變更處理程序 {{pid}} 的親和性。",
+      "terminateTree": "已結束 {{pid}} 的處理程序樹狀結構。",
+      "openLocation": "已開啟執行檔所在位置。",
+      "priorityPartial": "已變更處理程序 {{pid}} 中 {{applied}} 個執行緒的優先順序;{{failed}} 個執行緒拒絕。",
+      "affinityPartial": "已變更處理程序 {{pid}} 中 {{applied}} 個執行緒的親和性;{{failed}} 個執行緒拒絕。",
+      "tree_other": "{{count}} 個處理程序中已結束 {{terminated}} 個;{{gone}} 個已結束,{{refused}} 個拒絕,{{stale}} 個因過期而略過,{{failed}} 個失敗。"
+    },
+    "hash": {
+      "computed": "已計算",
+      "changedWhileHashing": "讀取期間檔案發生變更",
+      "permissionDenied": "權限遭拒",
+      "notFound": "找不到檔案",
+      "notAFile": "不是一般檔案",
+      "readError": "讀取錯誤"
+    },
+    "confirm": {
+      "who": "{{name}}(PID {{pid}})",
+      "selfWarning": "結束 PULSE 會關閉此應用程式。",
+      "endTitle": "結束 {{name}}?",
+      "endSigterm": "將向 {{who}} 傳送 SIGTERM,要求其結束。可能需要一點時間,也可能被拒絕。",
+      "endImmediate": "{{who}} 會立即結束。其中未儲存的工作將會遺失。",
+      "forceKillTitle": "強制結束 {{name}}?",
+      "forceKillBody": "將向 {{who}} 傳送 SIGKILL。它無法被攔截或忽略:處理程序沒有機會儲存任何內容或進行清理。",
+      "treeTitle": "結束 {{name}} 及其處理程序樹狀結構?",
+      "treeRoot": "根處理程序:{{who}}。",
+      "treeBody_other": "將先結束約 {{count}} 個子系處理程序(從最深層開始),然後結束根處理程序。每個處理程序在結束前都會重新檢查;已易主的 PID 會被略過。",
+      "realtimeTitle": "設定為即時優先順序?",
+      "realtimeWarning": "即時優先順序可能導致系統沒有回應。",
+      "realtimeBody": "套用到 {{who}}。如果沒有所需權限,Windows 會改為套用「高」,PULSE 會提示你。",
+      "realtimeConfirm": "設定為即時"
+    },
+    "copy": {
+      "done": "已複製 {{label}}。",
+      "failed": "無法複製 {{label}}。"
+    },
+    "category": {
+      "user": "使用者",
+      "system": "系統",
+      "kernel": "核心執行緒",
+      "unknown": "未知"
+    },
+    "state": {
+      "running": "執行中",
+      "sleeping": "休眠",
+      "stopped": "已停止",
+      "zombie": "殭屍"
+    },
+    "priority": {
+      "realtime": "即時",
+      "high": "高",
+      "aboveNormal": "高於標準",
+      "normal": "標準",
+      "belowNormal": "低於標準",
+      "low": "低"
+    },
+    "affinityNone": "無",
+    "affinitySummary_other": "CPU {{list}}({{total}} 個中的 {{count}} 個)",
+    "trust": {
+      "trusted": "受信任的簽章",
+      "signedButUntrusted": "已簽署,但不受信任",
+      "invalid": "簽章無效",
+      "unsigned": "未簽署",
+      "permissionDenied": "權限遭拒",
+      "unavailable": "無法使用"
+    },
+    "provenance": {
+      "userHome": "使用者/本機執行檔(位於你的家目錄,而非來自套件)",
+      "localInstall": "使用者/本機執行檔(在套件管理員之外安裝)",
+      "notDetected": "未偵測到套件"
+    },
+    "menu": {
+      "exited": "處理程序已結束。",
+      "unavailable": "無法使用。",
+      "checking": "正在檢查權限…",
+      "nicePreset": "{{level}}(nice {{value}})",
+      "customNice": "自訂 nice 值…",
+      "forceKill": "強制結束",
+      "inspect": "檢視詳細資料",
+      "search": "線上搜尋",
+      "openLocation": "開啟檔案位置",
+      "processName": "處理程序名稱",
+      "executablePath": "執行檔路徑",
+      "executableUnavailable": "執行檔無法使用。",
+      "instanceId": "處理程序執行個體 ID",
+      "suspend": "暫停",
+      "resume": "繼續",
+      "end": "結束處理程序",
+      "endTree": "結束處理程序樹狀結構",
+      "setPriority": "設定優先順序",
+      "setAffinity": "設定親和性…",
+      "affinityUnreadable": "無法讀取目前的親和性。",
+      "actionsFor": "{{name}} 的動作",
+      "inspectApplication": "檢視應用程式",
+      "showProcesses": "顯示處理程序"
+    },
+    "table": {
+      "processDetails": "處理程序詳細資料",
+      "dismiss": "關閉",
+      "processView": "處理程序檢視",
+      "processCategory": "處理程序類別",
+      "refreshProcessDetails": "重新整理處理程序詳細資料",
+      "applications": "應用程式",
+      "application": "應用程式",
+      "processes": "處理程序",
+      "memory": "記憶體",
+      "read": "讀取",
+      "write": "寫入",
+      "process": "處理程序",
+      "threads": "執行緒",
+      "state": "狀態",
+      "searchPlaceholder": "依名稱或 PID 搜尋",
+      "searchLabel": "依名稱或 PID 搜尋處理程序"
+    },
+    "filters": {
+      "all": "全部",
+      "user": "使用者",
+      "system": "系統",
+      "kernel": "核心"
+    },
+    "oneOf_other": "{{name}} 的 {{count}} 個處理程序之一",
+    "loading": "正在走訪處理程序表…",
+    "showAll_other": "顯示全部 {{count}} 個處理程序",
+    "updated": "更新於 {{time}} · 收集耗時 {{ms}} ms",
+    "note": "CPU 是本機<strong>全部</strong>運算能力的比例,因此一個佔滿單一邏輯處理器的執行緒只是很小的百分比,這一欄的總和大致等於系統 CPU 量表顯示的數值。讀取與寫入是平台的每個處理程序 I/O 計數器(Fedora 與 Windows 的差異請參閱文件)。速率在兩次快照<em>之間</em>量測,因此只在重新整理後出現。按一下處理程序可檢視詳細資料;按右鍵(或 Shift+F10)可執行動作。每個動作都只針對該處理程序執行個體,破壞性動作需要確認,且絕不會自行執行。命令列刻意不收集。",
+    "noApplicationMatch": "沒有符合此搜尋的應用程式。",
+    "noProcessMatch": "沒有符合此搜尋的處理程序。",
+    "groupedByName": "依處理程序名稱分組:PULSE 無法讀取這些處理程序的執行檔,因此兩個同名但無關的程式會被合併計數。",
+    "inspector": {
+      "processInspector": "處理程序檢查器",
+      "closeInspector": "關閉檢查器",
+      "identity": "身分",
+      "processName": "處理程序名稱",
+      "product": "產品",
+      "parent": "父處理程序",
+      "instanceId": "執行個體 ID",
+      "state": "狀態",
+      "started": "啟動時間",
+      "owner": "擁有者",
+      "category": "類別",
+      "architecture": "架構",
+      "resourceUsage": "資源使用量",
+      "memory": "記憶體",
+      "threads": "執行緒",
+      "read": "讀取",
+      "write": "寫入",
+      "executable": "執行檔",
+      "path": "路徑",
+      "file": "檔案",
+      "size": "大小",
+      "modified": "修改時間",
+      "securityProvenance": "安全性與來源",
+      "description": "描述",
+      "company": "公司",
+      "version": "版本",
+      "scheduling": "排程",
+      "priority": "優先順序",
+      "cpuAffinity": "CPU 親和性",
+      "processControl": "處理程序控制",
+      "suspend": "暫停",
+      "resume": "繼續",
+      "endProcess": "結束處理程序",
+      "endProcessTree": "結束處理程序樹狀結構",
+      "forceKill": "強制結束",
+      "provenance": "來源",
+      "package": "套件",
+      "signature": "簽章",
+      "publisher": "發行者",
+      "setPriority": "設定優先順序",
+      "stale": "此處理程序已結束,其 PID 現屬於另一個處理程序。PULSE 不會對它執行動作。",
+      "exited": "處理程序已結束。無法再對它執行任何動作。",
+      "reading": "正在讀取此處理程序…",
+      "self": "這是 PULSE 本身。結束它會關閉此應用程式。",
+      "kernelThread": "核心執行緒在核心中執行:它沒有執行檔,也沒有套件,無法從 PULSE 控制。",
+      "notInSnapshot": "不在最新快照中。",
+      "replaced": "此處理程序啟動時所用的檔案已在磁碟上被刪除或取代。",
+      "copyPath": "複製路徑",
+      "versionNote": "描述、產品與公司由檔案自行宣告,不能證明任何事;簽章才是 Windows 驗證過的內容。",
+      "computing": "正在計算…",
+      "computeHash": "計算 SHA-256",
+      "provenanceNote": "來源只是證據,不是定論:有套件或有效簽章並不代表程式安全,沒有也不代表它是惡意的。",
+      "changeAffinity": "變更親和性…",
+      "suspendedByPulse": "PULSE 在本次工作階段中暫停了此處理程序。",
+      "suspendedState": "{{state}}(已被 PULSE 暫停)",
+      "notApplicableKernel": "不適用於核心執行緒",
+      "catalog": "(系統目錄)",
+      "claimed": "(自稱,不受信任)",
+      "notComputed": "未計算",
+      "copyHash": "複製 SHA-256",
+      "searchHash": "線上搜尋雜湊",
+      "checkVirusTotal": "在 VirusTotal 上檢查雜湊",
+      "custom": "自訂…",
+      "memoryPercent": "記憶體 %",
+      "searchHint": "在瀏覽器中開啟以程式名稱進行的網頁搜尋",
+      "virusTotalHint": "在瀏覽器中開啟此雜湊的 VirusTotal 頁面。檔案絕不會被上傳。"
+    }
+  },
+  "cards": {
+    "updated": "更新於 {{time}}",
+    "notReported": "未回報",
+    "notReportedByBackend": "後端未回報",
+    "cpu": {
+      "title": "CPU 詳細資料",
+      "loading": "正在讀取 CPU 拓撲…",
+      "packages": "封裝",
+      "packageTemperature": "{{name}} 溫度",
+      "showAll_other": "顯示全部 {{count}} 個處理器",
+      "noProcessors": "本機未公開任何單獨的邏輯處理器。",
+      "refresh": "重新整理 CPU 詳細資料",
+      "note": "一個實體核心可以承載多個邏輯處理器,因此使用率依邏輯處理器回報。頻率為作業系統回報的數值。封裝溫度是處理器自己的感測器,絕不是各核心的平均值。",
+      "maxFor": "{{name}} 回報的最大值:{{value}}",
+      "noMax": "此處理器未公布最大頻率"
+    },
+    "gpu": {
+      "gpuDetails": "GPU 詳細資料",
+      "graphicsAdapters": "顯示卡",
+      "refreshGpuDetails": "重新整理 GPU 詳細資料",
+      "gpuUsage": "GPU 使用率",
+      "vramUsage": "VRAM 使用率",
+      "coreClock": "核心時脈",
+      "memoryClock": "記憶體時脈",
+      "temperature": "溫度",
+      "hotspot": "熱點",
+      "memoryTemperature": "記憶體溫度",
+      "fan": "風扇",
+      "loading": "正在探索顯示卡…",
+      "none": "未偵測到硬體顯示卡。軟體轉譯器刻意不計為 GPU。",
+      "note": "VRAM 數值描述每張顯示卡的專用視訊記憶體。與內建 GPU 共用的系統記憶體不作為 VRAM 回報。熱點溫度與記憶體溫度是獨立的感測器,絕不由 GPU 溫度推算;只有在驅動程式回報真實的每分鐘轉數時才顯示風扇轉速。",
+      "vramKnownOnly": "已知安裝的 VRAM 容量;即時用量需要此顯示卡未提供的廠商驅動程式。",
+      "perfUnavailable": "效能遙測無法使用",
+      "perfUnavailableDefault": "此顯示卡的驅動程式未公開使用率、視訊記憶體或時脈資料。",
+      "thermalRemain": "溫度感測器仍可使用。"
+    },
+    "storage": {
+      "storageDetails": "儲存空間詳細資料",
+      "storageDevices": "儲存裝置",
+      "otherVolumes": "其他磁碟區",
+      "refreshStorageDetails": "重新整理儲存空間詳細資料",
+      "read": "讀取",
+      "write": "寫入",
+      "readIops": "讀取 IOPS",
+      "writeIops": "寫入 IOPS",
+      "readLatency": "讀取延遲",
+      "writeLatency": "寫入延遲",
+      "temperature": "溫度",
+      "usedEndurance": "已用壽命",
+      "availableSpare": "可用備用空間",
+      "powerOnHours": "通電時數",
+      "unsafeShutdowns": "不安全關機",
+      "mediaErrors": "媒體錯誤",
+      "loading": "正在探索儲存裝置…",
+      "none": "未統計到實體儲存裝置。迴圈裝置、RAM 磁碟與 device-mapper 磁碟區刻意不計為磁碟。",
+      "otherVolumesHint": "PULSE 無法關聯到上方任何磁碟的已掛載檔案系統。它們單獨列出,而不是被歸到錯誤的裝置上。",
+      "note": "傳輸量、IOPS 與延遲在兩次取樣<em>之間</em>量測,因此只在重新整理後出現。延遲是實際完成作業的平均值:沒有完成任何作業的期間根本沒有延遲,顯示 <code>—</code> 而不是 0 ms。已用壽命與可用備用空間是控制器自己的標準化數值 — 可用備用空間是替換區塊的儲備,不是檔案系統的剩餘空間。",
+      "waitingHint": "磁碟活動是兩次讀數之差。重新整理即可量測。",
+      "free": "剩餘 {{value}}",
+      "full": "{{name}} 已使用 {{value}}",
+      "healthUnavailable": "健康報告無法使用",
+      "noHealthLog": "此裝置未回報標準化的健康記錄。"
+    },
+    "waitingSample": "正在等待下一次取樣",
+    "network": {
+      "networkDetails": "網路詳細資料",
+      "networkInterfaces": "網路介面",
+      "virtualInterfaces": "虛擬介面",
+      "virtualInterfaceList": "虛擬介面清單",
+      "refreshNetworkDetails": "重新整理網路詳細資料",
+      "download": "下載",
+      "upload": "上傳",
+      "rxPackets": "RX 封包",
+      "txPackets": "TX 封包",
+      "errors": "錯誤",
+      "dropped": "捨棄",
+      "linkRx": "連結 RX",
+      "linkTx": "連結 TX",
+      "signal": "訊號",
+      "quality": "品質",
+      "wiFiRx": "Wi-Fi RX",
+      "wiFiTx": "Wi-Fi TX",
+      "loading": "正在探索網路介面…",
+      "none": "未統計到網路介面。迴路介面刻意排除:它一直存在,只承載從未離開本機的流量。",
+      "virtualCount": "虛擬介面({{count}})",
+      "virtualHint": "橋接器、容器連結與其他軟體介面。預設摺疊,避免執行容器的機器淹沒真實的介面卡 — 絕不移除。",
+      "note": "下載是抵達本機的流量,上傳是離開本機的流量。流量在兩次取樣<em>之間</em>量測,因此只在重新整理後出現。連結速度是驅動程式協商的能力,單位為位元每秒 — 而不是實際流量(以位元組計)。捨棄的訊框是本機計數器,<strong>不是</strong>網際網路封包遺失;PULSE 不量測網際網路封包遺失。",
+      "kinds": {
+        "Ethernet": "乙太網路",
+        "Wi-Fi": "Wi-Fi",
+        "Bridge": "橋接器",
+        "Tunnel": "通道",
+        "Virtual": "虛擬",
+        "Network": "網路"
+      },
+      "connected": "已連線",
+      "disconnected": "已中斷連線",
+      "waitingHint": "流量是兩次讀數之差。重新整理即可量測。",
+      "wifiUnavailable": "Wi-Fi 連結詳細資料無法使用"
+    },
+    "live": {
+      "title": "即時系統取樣",
+      "loading": "正在取樣…",
+      "refresh": "重新整理取樣",
+      "reconcile": "已使用 + 可用 = 總計,因此上面兩個數值始終一致。",
+      "waitingNext": "正在等待下一次取樣"
+    },
+    "engine": {
+      "title": "指標引擎",
+      "loading": "正在查詢引擎…",
+      "unavailable": "引擎無法使用。請使用 <code>pnpm app:dev</code> 執行 PULSE 以連線 Rust 層。",
+      "status": "狀態",
+      "schema": "結構描述",
+      "providers": "提供者",
+      "metrics": "指標",
+      "available_other": "({{count}} 個可用)",
+      "schemaMismatch": "後端使用指標結構描述 v{{backend}};此介面預期 v{{expected}}。",
+      "empty": "尚未註冊任何提供者 — 此階段 PULSE 不收集硬體指標。"
+    }
+  },
+  "tray": {
+    "open": "開啟 PULSE",
+    "edit": "編輯覆疊層",
+    "lock": "鎖定覆疊層",
+    "toggle": "顯示 / 隱藏覆疊層",
+    "quit": "結束 PULSE"
+  }
+}

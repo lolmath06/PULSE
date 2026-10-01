@@ -1,0 +1,2005 @@
+{
+  "app": {
+    "tagline": "你的系统,一目了然。"
+  },
+  "common": {
+    "comingLater": "将在 PULSE 后续阶段推出。",
+    "active": "已启用",
+    "copyOf": "{{name}} 副本",
+    "all": "全部",
+    "checking": "正在检查…",
+    "refresh": "刷新",
+    "copy": "复制",
+    "copied": "已复制",
+    "apply": "应用",
+    "duplicate": "创建副本",
+    "delete": "删除",
+    "preview": "预览",
+    "customize": "自定义",
+    "removeNamed": "移除 {{name}}",
+    "add": "添加",
+    "widgetCount_other": "{{count}} 个小组件",
+    "cancel": "取消",
+    "rename": "重命名",
+    "reset": "重置",
+    "export": "导出",
+    "import": "导入",
+    "copyToClipboard": "复制到剪贴板",
+    "invalidJson": "这不是有效的 JSON。",
+    "remove": "移除",
+    "close": "关闭",
+    "save": "保存",
+    "deleteNamed": "删除 {{name}}",
+    "refreshing": "正在刷新…",
+    "hide": "隐藏",
+    "showAll": "全部显示"
+  },
+  "nav": {
+    "main": "主导航",
+    "groups": {
+      "monitor": "监控",
+      "modes": "模式",
+      "studio": "工作室"
+    },
+    "routes": {
+      "overview": {
+        "label": "概览",
+        "description": "PULSE 默认仪表板。"
+      },
+      "dashboard": {
+        "label": "仪表板",
+        "description": "你自己的仪表板:可添加、排列和设置样式的小组件。"
+      },
+      "overlays": {
+        "label": "悬浮层",
+        "description": "在桌面上各自独立窗口中的小组件。"
+      },
+      "gaming": {
+        "label": "游戏",
+        "description": "轻量视图,专注于游戏中相关的指标。"
+      },
+      "development": {
+        "label": "开发",
+        "description": "专注于构建、编译和工作负载压力的视图。"
+      },
+      "personal": {
+        "label": "个人",
+        "description": "可自由组合大量小组件的仪表板。"
+      },
+      "mini": {
+        "label": "迷你",
+        "description": "显示一个仪表板的普通小型 PULSE 窗口。"
+      },
+      "appearance": {
+        "label": "外观",
+        "description": "样式、颜色、字体、密度、动效和语言 — 适用于所有界面。"
+      }
+    },
+    "changeStyle": "更改样式",
+    "style": "样式"
+  },
+  "status": {
+    "backendStatus": "后端状态",
+    "querying": "正在查询后端…",
+    "unavailableUiOnly": "后端不可用 — 仅界面模式"
+  },
+  "notFound": {
+    "title": "未找到",
+    "subtitle": "PULSE 中没有这个页面。",
+    "back": "返回概览"
+  },
+  "overview": {
+    "version": "版本 {{version}}",
+    "systemDetails": "系统详情",
+    "detectedPlatform": "检测到的平台",
+    "backendUnavailable": "后端不可用。请使用 <code>pnpm app:dev</code> 运行 PULSE 以连接 Rust 层。",
+    "os": "操作系统",
+    "platformLayer": "平台层",
+    "architecture": "架构",
+    "displayServer": "显示服务器",
+    "backendVersion": "后端版本"
+  },
+  "home": {
+    "liveSystem": "实时系统",
+    "links": {
+      "dashboards": "仪表板",
+      "dashboardsHint": "模板、小组件、布局",
+      "overlays": "悬浮层",
+      "overlaysHint_other": "{{count}} 个套件,后端状态",
+      "appearance": "外观",
+      "appearanceHint_other": "{{count}} 种样式,深度调节"
+    }
+  },
+  "welcome": {
+    "title": "欢迎使用 PULSE",
+    "subtitle": "选择一个起点。所有选择之后都可以更改 — 在外观、各模式、仪表板和悬浮层中。",
+    "label": "欢迎",
+    "skip": "跳过",
+    "start": "启动 PULSE",
+    "modeLabel": "模式",
+    "howUse": "你打算怎么使用?",
+    "justMonitor": "仅监控",
+    "justMonitorHint": "不选模式 — 一种样式加上仪表板。",
+    "pickStyle": "选择样式",
+    "styles": "欢迎页样式",
+    "starters": "入门预设",
+    "startWith": "初始内容",
+    "dashboard": "仪表板",
+    "starterDashboard": "入门仪表板",
+    "keepDashboards": "保留我当前的仪表板",
+    "overlay": "悬浮层",
+    "starterOverlay": "入门悬浮层",
+    "noOverlay": "暂不添加悬浮层",
+    "overlaysHere": "本机悬浮层:",
+    "bridgeNotReady": "— GNOME 桥接:{{state}}。请在悬浮层中进行设置。",
+    "bridgeActive": "— 悬浮层保持在其他窗口之上。",
+    "noBackend": "后端响应后,悬浮层能力会显示在悬浮层页面中。"
+  },
+  "language": {
+    "label": "语言",
+    "system": "跟随系统({{language}})",
+    "hint": "跟随系统会使用电脑的语言。会同时应用到所有 PULSE 窗口。"
+  },
+  "metrics": {
+    "catalog": {
+      "cpu": {
+        "count": {
+          "logical": {
+            "name": "逻辑处理器",
+            "description": "操作系统调度工作的逻辑处理器(硬件线程)数量。启用同步多线程时,它会多于物理核心数。"
+          },
+          "package": {
+            "name": "处理器封装",
+            "description": "已安装的物理处理器封装(插槽)数量。"
+          },
+          "physical": {
+            "name": "物理核心",
+            "description": "物理执行核心数量,按不同的 (封装, 核心) 组合计数,因此两个封装中编号相同的核心绝不会被合并。"
+          }
+        },
+        "frequency": {
+          "current": {
+            "name": "当前频率",
+            "description": "操作系统当前为该逻辑处理器报告的时钟频率。缩放、睿频和电源策略会不断改变它,因此它是平台的最新数值,而不是对芯片的瞬时测量。"
+          },
+          "max": {
+            "name": "最大频率",
+            "description": "平台为该逻辑处理器报告的最大时钟频率。在混合架构 CPU 上,性能核与能效核不同。绝不会以调速器或电源策略的上限代替它发布。"
+          }
+        },
+        "temperature": {
+          "package": {
+            "name": "封装温度",
+            "description": "处理器封装自身报告的温度。这是封装自己的传感器,绝不是各核心的平均值,也绝不是芯片设计所依据的温度上限。"
+          }
+        },
+        "usage": {
+          "logical": {
+            "name": "CPU 使用率",
+            "description": "自上一次采样以来,该逻辑处理器用于执行工作的 CPU 时间占比。启用同步多线程时,两个逻辑处理器共享一个物理核心。"
+          },
+          "total": {
+            "name": "CPU 使用率",
+            "description": "自上一次采样以来,整台机器用于执行工作的 CPU 时间占比。"
+          }
+        }
+      },
+      "gpu": {
+        "count": {
+          "name": "GPU",
+          "description": "PULSE 统计到的硬件图形适配器数量。Microsoft Basic Render Driver 和 WARP 等软件适配器不计入。"
+        },
+        "fan": {
+          "speed": {
+            "name": "风扇",
+            "description": "适配器风扇的转速,单位为每分钟转数。风扇控制百分比是占空比而不是转速,绝不会代替转速发布。"
+          }
+        },
+        "frequency": {
+          "core": {
+            "name": "核心频率",
+            "description": "驱动报告的当前图形频率。睿频行为和电源策略会不断改变它,因此它是平台的最新数值,而不是对芯片的瞬时测量。"
+          },
+          "memory": {
+            "name": "显存频率",
+            "description": "驱动报告的当前显存频率。"
+          }
+        },
+        "memory": {
+          "free": {
+            "name": "可用显存",
+            "description": "仍可分配的专用显存。"
+          },
+          "total": {
+            "name": "显存总量",
+            "description": "该适配器上安装的专用显存。与集成 GPU 共享的系统内存刻意不计入此处。"
+          },
+          "usage": {
+            "percent": {
+              "name": "显存使用率",
+              "description": "已用专用显存的占比,由已用字节和总字节计算得出。"
+            }
+          },
+          "used": {
+            "name": "已用显存",
+            "description": "整个系统当前使用的专用显存。"
+          }
+        },
+        "temperature": {
+          "core": {
+            "name": "温度",
+            "description": "图形处理器核心的温度,来自其自身传感器。"
+          },
+          "hotspot": {
+            "name": "热点",
+            "description": "图形处理器封装上测得的最热点。与核心温度是不同的传感器,负载下通常更高,且绝不由核心温度推算。"
+          },
+          "memory": {
+            "name": "显存温度",
+            "description": "专用显存的温度,来自其自身传感器。"
+          }
+        },
+        "usage": {
+          "core": {
+            "name": "GPU 使用率",
+            "description": "驱动报告的图形引擎容量使用占比。"
+          }
+        }
+      },
+      "memory": {
+        "available": {
+          "name": "可用内存",
+          "description": "无需交换即可分配的物理内存。"
+        },
+        "total": {
+          "name": "内存总量",
+          "description": "操作系统可使用的已安装物理内存。"
+        },
+        "usage": {
+          "percent": {
+            "name": "内存使用率",
+            "description": "已用物理内存的占比,由已用字节和总字节计算得出。"
+          }
+        },
+        "used": {
+          "name": "已用内存",
+          "description": "正在使用的物理内存,定义为总量减去可用量。"
+        }
+      },
+      "network": {
+        "interface": {
+          "count": {
+            "name": "接口",
+            "description": "PULSE 监控的网络接口数量。回环接口被刻意排除:它始终存在,只承载从未离开本机的流量。"
+          },
+          "up_count": {
+            "name": "已连接",
+            "description": "受监控接口中当前有链路的数量。已启用但未接网线的适配器,或未关联到任何网络的无线网卡,不计入。"
+          }
+        },
+        "link": {
+          "receive_speed": {
+            "name": "链路 RX",
+            "description": "驱动协商得到的链路接收能力 — 而不是实际流量。因为 Wi-Fi 和以太网都会重新协商,所以它是一个仪表值而非固定值。"
+          },
+          "transmit_speed": {
+            "name": "链路 TX",
+            "description": "链路的发送能力。以太网上与接收相同;Wi-Fi 上常常不同。"
+          }
+        },
+        "mtu": {
+          "name": "MTU",
+          "description": "该接口单个帧可承载的最大负载。它是配置事实而非读数,因此是一种状态。"
+        },
+        "receive": {
+          "bytes_per_second": {
+            "name": "下载",
+            "description": "每秒到达本机的字节数,由操作系统累计计数器在两次采样之间的差值得出。接收指从本机角度看的入站流量。"
+          },
+          "dropped_per_second": {
+            "name": "RX 丢弃",
+            "description": "完整到达却仍被丢弃的入站帧 — 缓冲区已满,或没有协议处理程序需要它们。这是本地计数器,不是互联网丢包;PULSE 不测量互联网丢包。"
+          },
+          "errors_per_second": {
+            "name": "RX 错误",
+            "description": "因存在问题而被接口拒绝的入站帧 — 校验和错误、成帧错误等。这与丢弃帧是不同的计数器;持续非零通常意味着网线或驱动有问题。"
+          },
+          "packets_per_second": {
+            "name": "RX 数据包",
+            "description": "每秒到达的数据包,单播与非单播合计。零是真实的测量值:表示该间隔内没有任何数据到达。"
+          }
+        },
+        "transmit": {
+          "bytes_per_second": {
+            "name": "上传",
+            "description": "每秒离开本机的字节数,由操作系统累计计数器在两次采样之间的差值得出。发送指出站流量。"
+          },
+          "dropped_per_second": {
+            "name": "TX 丢弃",
+            "description": "在发送前被丢弃的出站帧,通常是因为队列已满。"
+          },
+          "errors_per_second": {
+            "name": "TX 错误",
+            "description": "接口未能发送的出站帧。"
+          },
+          "packets_per_second": {
+            "name": "TX 数据包",
+            "description": "每秒离开的数据包,单播与非单播合计。"
+          }
+        },
+        "wifi": {
+          "link": {
+            "receive_rate": {
+              "name": "Wi-Fi 接收速率",
+              "description": "与接入点协商的接收速率。这是能力而非流量:协商为 400 Mbit/s 的链路即使没有任何流量,仍报告 400 Mbit/s。"
+            },
+            "transmit_rate": {
+              "name": "Wi-Fi 发送速率",
+              "description": "与接入点协商的发送速率。常与接收速率不同。"
+            }
+          },
+          "signal": {
+            "quality": {
+              "name": "质量",
+              "description": "0–100 的链路质量值,仅在操作系统自行计算时发布。绝不由信号强度推算:所有常见的 dBm 转百分比公式都很随意,这样得到的数字看似测量值,实则只是猜测。"
+            },
+            "rssi": {
+              "name": "信号",
+              "description": "无线网卡报告的接收信号强度(dBm)— 一种对数刻度,−40 为强,−90 几乎不可用。对于通过多条链路关联的网卡,取最强的活动链路读数;dBm 值绝不求平均。"
+            }
+          }
+        }
+      },
+      "process": {
+        "count": {
+          "running": {
+            "name": "运行中",
+            "description": "正在处理器上执行或已就绪排队的进程数量。空闲桌面上几乎所有进程都在等待 — 等待定时器、输入或磁盘 — 因此这里数字很小是正常的,并不代表机器空闲。Windows 不报告进程级状态,因此在那里该值显示为不可用,而不是编造。"
+          },
+          "total": {
+            "name": "进程",
+            "description": "此刻本机上存在的进程数量,包括 PULSE 无法读取详情的进程。被拒绝访问的进程依然存在,也依然计入。"
+          }
+        },
+        "thread": {
+          "count": {
+            "total": {
+              "name": "线程",
+              "description": "所有可见进程的全部线程之和。无法读取线程数的进程不贡献任何值,而不是猜测值;因此在充满受保护进程的机器上,这是一个偏低的数值,而不是编造的数值。"
+            }
+          }
+        }
+      },
+      "storage": {
+        "capacity": {
+          "total": {
+            "name": "容量",
+            "description": "物理设备的总可寻址容量。这是整个设备,而不是其上文件系统的总和。"
+          }
+        },
+        "device": {
+          "count": {
+            "name": "存储设备",
+            "description": "PULSE 统计到的物理存储设备数量。分区、回环设备、内存盘和 device-mapper 卷不单独计为设备。"
+          }
+        },
+        "health": {
+          "available_spare": {
+            "name": "可用备用空间",
+            "description": "设备替换块储备中剩余的比例。它不是文件系统的可用空间,也不是未分配容量:完全写满的硬盘通常仍报告 100 % 备用空间。"
+          },
+          "media_errors": {
+            "name": "介质错误",
+            "description": "控制器在设备整个寿命期间检测并记录的介质和数据完整性错误。"
+          },
+          "percentage_used": {
+            "name": "已用寿命",
+            "description": "控制器对设备额定写入寿命已消耗比例的估计。完全按照设备声明报告,超过额定值后可能高于 100 %,且绝不转换为健康评分。"
+          },
+          "power_on_hours": {
+            "name": "通电时间",
+            "description": "设备控制器自行统计的通电小时数。"
+          },
+          "temperature": {
+            "name": "温度",
+            "description": "存储控制器的综合温度 — 设备由自身传感器得出的单一数值,不是某个单独传感器,也不是其他部件的读数。"
+          },
+          "unsafe_shutdowns": {
+            "name": "不安全关机",
+            "description": "设备在未收到关机指令前就断电的次数。"
+          }
+        },
+        "io": {
+          "read": {
+            "bytes_per_second": {
+              "name": "读取",
+              "description": "每秒从设备读取的字节数,由操作系统累计计数器在两次采样之间的差值得出。"
+            },
+            "iops": {
+              "name": "读取 IOPS",
+              "description": "每秒完成的读取操作数。零是真实的测量值:表示该间隔内没有完成任何读取。"
+            },
+            "latency": {
+              "name": "读取延迟",
+              "description": "操作系统观察到的单次读取平均耗时 — 包含排队,并在主机侧而非设备内部测量。没有完成任何读取的间隔根本没有延迟,因此不报告值,而不是报告零。"
+            }
+          },
+          "write": {
+            "bytes_per_second": {
+              "name": "写入",
+              "description": "每秒写入设备的字节数,由操作系统累计计数器在两次采样之间的差值得出。"
+            },
+            "iops": {
+              "name": "写入 IOPS",
+              "description": "每秒完成的写入操作数。零是真实的测量值:表示该间隔内没有完成任何写入。"
+            },
+            "latency": {
+              "name": "写入延迟",
+              "description": "操作系统观察到的单次写入平均耗时。没有完成任何写入的间隔不报告值,而不是报告零。"
+            }
+          }
+        },
+        "volume": {
+          "capacity": {
+            "available": {
+              "name": "可用",
+              "description": "当前用户实际可写入的空间。在为超级用户保留空间的文件系统上会小于剩余空间,这是有意为之:那部分保留空间你无法使用。"
+            },
+            "total": {
+              "name": "卷大小",
+              "description": "文件系统的总大小。同一设备上多个文件系统相加并不等于设备容量,一个文件系统也可能跨越多个设备。"
+            },
+            "used": {
+              "name": "已用",
+              "description": "文件系统中存放数据的空间,定义为总量减去空闲块。在为超级用户保留块的文件系统上,已用与可用之和不等于总量。"
+            }
+          },
+          "count": {
+            "name": "卷",
+            "description": "PULSE 统计到的已挂载文件系统数量。可通过多个路径访问的文件系统只计一次;proc 和 sysfs 等伪文件系统不计入。"
+          },
+          "usage": {
+            "percent": {
+              "name": "卷使用率",
+              "description": "文件系统中存放数据的比例,由已用字节和总字节计算得出。"
+            }
+          }
+        }
+      }
+    },
+    "sources": {
+      "cpuSystem": "系统 CPU",
+      "memorySystem": "系统内存",
+      "gpuSystem": "图形",
+      "processSystem": "进程",
+      "networkSystem": "网络",
+      "storageSystem": "存储",
+      "cpuPackage": "封装 {{index}}"
+    },
+    "availability": {
+      "available": "可用",
+      "unsupported": "不支持",
+      "notDetected": "未检测到",
+      "permissionDenied": "需要权限",
+      "temporarilyUnavailable": "暂时不可用",
+      "providerError": "提供程序错误",
+      "notRegistered": "未注册"
+    },
+    "availabilityReason": {
+      "unsupported": "不支持:{{reason}}",
+      "notDetected": "未检测到:{{reason}}",
+      "permissionDenied": "需要权限:{{reason}}",
+      "temporarilyUnavailable": "暂时不可用:{{reason}}",
+      "providerError": "提供程序错误:{{reason}}",
+      "notRegistered": "未注册:{{reason}}"
+    },
+    "engineState": {
+      "ready": "就绪",
+      "empty": "空"
+    },
+    "notReported": "本机不报告此指标。",
+    "noneSelected": "未选择指标。",
+    "sourceUnavailable": "数据源不可用"
+  },
+  "styles": {
+    "clean": {
+      "name": "简洁",
+      "tagline": "现代、沉稳、专业",
+      "description": "安静的炭灰色界面、柔和的层次和唯一的青绿色强调色。默认样式:一切清晰可读,没有喧哗。"
+    },
+    "glass": {
+      "name": "玻璃",
+      "tagline": "磨砂、通透、高级",
+      "description": "深邃极光之上的半透明磨砂面板、明亮的顶部高光和舒展的圆角。展示之作。"
+    },
+    "technical": {
+      "name": "技术",
+      "tagline": "仪表风格,紧凑而精确",
+      "description": "工程台面:蓝图网格、直角边缘、等宽数字、琥珀色读数、每一条坐标轴和采样标记。"
+    },
+    "neon": {
+      "name": "霓虹",
+      "tagline": "高对比度,电光感",
+      "description": "近乎纯黑,搭配品红与青色光线:发光的线条、被照亮的边缘和闪耀的数字。富有戏剧性,依然清晰。"
+    },
+    "gaming": {
+      "name": "游戏",
+      "tagline": "大胆、迅捷、充满活力",
+      "description": "切角、深红与琥珀、紧凑的粗体字和大号数字:专为游戏中一瞥即读而生。"
+    },
+    "stealth": {
+      "name": "隐匿",
+      "tagline": "深色、低调、少干扰",
+      "description": "几乎没有装饰,柔和的石板灰文字,没有填充和网格:需要时就在,不需要时隐形。"
+    },
+    "compact": {
+      "name": "紧凑",
+      "tagline": "紧凑高效,适合小尺寸",
+      "description": "更紧密的间距、更小的文字和安静的图表:让小组件和微型悬浮层的每个像素承载最多信息。"
+    },
+    "hud": {
+      "name": "透明 HUD",
+      "tagline": "没有面板,只有数字",
+      "description": "无装饰:带柔和暗色光晕的明亮数字,在任何壁纸或游戏上都清晰可读,细线条,无网格。"
+    },
+    "accents": {
+      "teal": "青绿",
+      "sky": "天蓝",
+      "blue": "蓝",
+      "violet": "紫罗兰",
+      "magenta": "品红",
+      "crimson": "深红",
+      "amber": "琥珀",
+      "lime": "青柠",
+      "mint": "薄荷",
+      "silver": "银"
+    },
+    "palettes": {
+      "aurora": "极光",
+      "ocean": "海洋",
+      "ember": "余烬",
+      "forest": "森林",
+      "candy": "糖果",
+      "mono": "单色"
+    }
+  },
+  "modes": {
+    "gaming": {
+      "name": "游戏",
+      "tagline": "悬浮层优先。一瞥即读。",
+      "description": "大胆紧凑的性能与温度悬浮层,放在游戏旁边 — 绝不进入游戏内部。锁定的悬浮层会让所有点击穿透,且绝不抢占焦点。",
+      "principles": {
+        "noFps": "没有 FPS 计数器:PULSE 没有真实的 FPS 数据源,因此不显示。",
+        "safeOverlays": "只使用安全的桌面悬浮层 — 不注入,不挂钩 DirectX/Vulkan/OpenGL。",
+        "borderless": "适用于无边框或窗口化游戏;独占全屏会遮住桌面窗口。"
+      }
+    },
+    "development": {
+      "name": "开发",
+      "tagline": "构建压力,以工程精度呈现。",
+      "description": "CPU、内存、磁盘 I/O、网络和进程数,以紧凑精确的布局呈现 — 适用于编译、容器、测试运行和调试。",
+      "principles": {
+        "realSamples": "每个数值都是真实采样;历史数据来自 PULSE 自己的记录器。",
+        "processesNearby": "要找出峰值背后的进程,进程视图只需一键。",
+        "technicalStyle": "技术样式:直线段和采样标记 — 不做任何平滑。"
+      }
+    },
+    "personal": {
+      "name": "个人",
+      "tagline": "你的日常视图,按你的方式。",
+      "description": "一个舒适均衡、便于打磨的起点:添加你在意的内容,选择任意样式,全天放在屏幕上。",
+      "principles": {
+        "editable": "这里的一切都可编辑:小组件、样式、布局、悬浮层。",
+        "saveLook": "在外观中把你打造的外观保存为自己的样式。",
+        "shareExport": "用导出分享仪表板 — 不包含任何硬件标识符。"
+      }
+    },
+    "mini": {
+      "name": "迷你",
+      "tagline": "小巧精致的监控窗口。",
+      "description": "一个紧凑的普通窗口,显示几项精心排布的读数。可交互,绝不始终置顶 — 需要置顶请使用悬浮层。",
+      "principles": {
+        "normalWindow": "迷你是普通窗口:可移动、可聚焦、显示在任务栏中。",
+        "pickLayout": "在下方选择迷你布局,或在其中显示你的某个仪表板。"
+      }
+    },
+    "miniLayouts": {
+      "vitals": {
+        "name": "生命体征",
+        "description": "CPU、内存、温度和流量,各自带有趋势。"
+      },
+      "thermals": {
+        "name": "温度",
+        "description": "随时间变化的温度,按颜色分段,包含 SSD。"
+      },
+      "network": {
+        "name": "网络",
+        "description": "下载和上传,有 Wi-Fi 时附带信号。"
+      },
+      "focus": {
+        "name": "专注",
+        "description": "一个大号 CPU 圆环,内存和温度以仪表显示。"
+      }
+    },
+    "page": {
+      "aria": "{{mode}}模式",
+      "eyebrow": "模式",
+      "leave": "退出模式",
+      "enter": "进入{{mode}}模式",
+      "style": "{{mode}}样式",
+      "modeDefault": "{{name}}(模式默认)",
+      "overlaysFor": "适用于{{mode}}的悬浮层",
+      "packsHint": "为{{mode}}模式编排 — 每个都会成为独立窗口中可编辑的悬浮层。",
+      "behaviour": "行为",
+      "whenOn": "开启此模式时",
+      "lockOverlays": "进入时锁定所有悬浮层(点击穿透,绝不聚焦)",
+      "keepRunning": "关闭主窗口时让 PULSE 及其悬浮层继续运行",
+      "keyMetrics": "{{mode}}关键指标",
+      "dashboardAria": "{{mode}}仪表板",
+      "startDashboard": "从模板创建{{mode}}仪表板 — 之后可随意修改。",
+      "createDashboard": "创建{{mode}}仪表板",
+      "editInDashboard": "在仪表板中编辑",
+      "switchesKeepRunning": "进入此模式会将“关闭主窗口”切换为继续运行。"
+    },
+    "miniPage": {
+      "subtitle": "一个普通的小型 PULSE 窗口。迷你可交互,行为与其他窗口相同;如需始终置顶并让点击穿透,请添加悬浮层。",
+      "useHere": "此处也使用迷你模式",
+      "layouts": "迷你布局",
+      "whatShows": "迷你显示的内容",
+      "layout": "迷你布局",
+      "orDashboard": "或一个仪表板",
+      "dashboardShown": "迷你中显示的仪表板",
+      "style": "迷你样式",
+      "howLooks": "迷你的外观",
+      "followMode": "迷你模式({{name}})",
+      "modeStyle": "迷你模式样式",
+      "followsAtOnce": "迷你窗口会立即应用这些更改 — 无需重新打开。",
+      "preview": "迷你预览",
+      "live": "实时 · {{name}}",
+      "tinyOverlays": "微型悬浮层",
+      "tinyOverlaysHint": "当读数必须位于最上层并让点击穿透时,请使用这些。"
+    }
+  },
+  "presets": {
+    "templates": {
+      "balanced": {
+        "name": "默认均衡",
+        "description": "日常概览:摘要条、CPU 和内存、温度、GPU、网络、磁盘。"
+      },
+      "gaming": {
+        "name": "游戏仪表板",
+        "description": "负载与温度优先:CPU 和 GPU 圆环、温度、显存、内存和流量。"
+      },
+      "development": {
+        "name": "开发仪表板",
+        "description": "以工程精度呈现构建压力:CPU、内存、磁盘 I/O、网络、进程。"
+      },
+      "personal": {
+        "name": "个人入门",
+        "description": "舒适均衡的起点,任你打造:圆环、图表、温度和网络。"
+      },
+      "thermal": {
+        "name": "温度聚焦",
+        "description": "PULSE 读取的每个温度,按颜色分段,并与导致升温的负载并列。"
+      },
+      "network-io": {
+        "name": "网络与 I/O",
+        "description": "近距离查看流量和磁盘吞吐量,附带文件系统用量和 Wi-Fi。"
+      },
+      "minimal": {
+        "name": "极简",
+        "description": "四个大号数字和一张安静的图表。别无其他。"
+      },
+      "showcase": {
+        "name": "华丽展示",
+        "description": "PULSE 最惊艳的样子:磨砂玻璃、圆环、渐变趋势和实时条。"
+      }
+    },
+    "packs": {
+      "tiny-thermals": {
+        "name": "微型温度",
+        "description": "CPU 和 GPU 温度及内存,放在一个极小的区块中。",
+        "sample": "CPU 64 °C|GPU 58 °C|RAM 42 %"
+      },
+      "tiny-stats": {
+        "name": "微型状态",
+        "description": "CPU、GPU、RAM 和温度,集中在一行细条中。",
+        "sample": "CPU 24 %|GPU 84 %|RAM 41 %|67 °C"
+      },
+      "top-bar": {
+        "name": "顶部栏",
+        "description": "横跨屏幕顶部的全宽摘要条,带实时趋势。",
+        "sample": "CPU 23 % ∿|GPU 61 % ∿|RAM 44 % ∿|CPU 67 °C ∿|↓ 2.1 MB/s ∿|↑ 180 kB/s ∿"
+      },
+      "bottom-bar": {
+        "name": "底部栏",
+        "description": "沿底边排列的仪表:CPU、GPU 和内存负载条,以及流量。",
+        "sample": "CPU ▰▰▰▱▱|GPU ▰▰▱▱▱|RAM ▰▰▰▰▱|↓ 2.1 MB/s|↑ 180 kB/s"
+      },
+      "left-rail": {
+        "name": "左侧栏",
+        "description": "沿左边缘的全高圆环与趋势列。",
+        "sample": "◔ CPU 23 %|◑ GPU 61 %|◕ RAM 44 %|CPU 67 °C|↓ 2.1 MB/s"
+      },
+      "right-rail": {
+        "name": "右侧栏",
+        "description": "右侧全高监控图表:CPU、内存、温度、网络、磁盘。",
+        "sample": "CPU ⌇⌇⌇|RAM ⌇⌇⌇|°C ⌇⌇⌇|↓↑ ⌇⌇⌇|读/写 ⌇⌇⌇"
+      },
+      "gaming-corner": {
+        "name": "游戏角落",
+        "description": "放在上方角落的醒目六项 HUD:负载、温度、显存和内存。",
+        "sample": "CPU 31 %|GPU 97 %|CPU 71 °C|GPU 74 °C|VRAM 6.1 GB|RAM 44 %"
+      },
+      "thermal-strip": {
+        "name": "温度条",
+        "description": "PULSE 能读取的每个温度,按颜色分段并带趋势。",
+        "sample": "CPU 71 °C ∿|GPU 64 °C ∿|SSD 41 °C"
+      },
+      "summary-card": {
+        "name": "系统摘要卡片",
+        "description": "一张精致的浮动卡片:CPU 和内存圆环,GPU 与网络分组显示。",
+        "sample": "◔ CPU 23 %|◕ RAM 44 %|GPU 61 %|↓ 2.1 MB/s"
+      },
+      "network-strip": {
+        "name": "网络条",
+        "description": "下载和上传及其趋势,有 Wi-Fi 时附带信号。",
+        "sample": "↓ 12 MB/s ∿|↑ 1.2 MB/s ∿|Wi-Fi −52 dBm"
+      },
+      "minimal-hud": {
+        "name": "极简透明 HUD",
+        "description": "只有三个数值 — 没有面板,用柔和光晕保证可读性。",
+        "sample": "CPU 23 %|GPU 61 %|RAM 44 %"
+      },
+      "dev-rail": {
+        "name": "开发监控栏",
+        "description": "适合编程时使用:CPU 和内存图表、磁盘 I/O、网络和进程数。",
+        "sample": "CPU ⌇⌇⌇|RAM ⌇⌇⌇|读取 ∿|写入 ∿|网络 ↓ ∿|412 个进程"
+      }
+    },
+    "footprints": {
+      "micro": "微型",
+      "card": "浮动卡片",
+      "top-strip": "顶部栏",
+      "bottom-strip": "底部栏",
+      "left-rail": "左侧栏",
+      "right-rail": "右侧栏",
+      "corner": "角落 HUD",
+      "block": "摘要区块"
+    },
+    "overlayPresets": {
+      "tiny-stats": {
+        "name": "微型状态",
+        "description": "CPU 24 % | GPU 84 % | RAM 41 %"
+      },
+      "thermal-strip": {
+        "name": "温度条",
+        "description": "CPU 和 GPU 温度排成一行。"
+      },
+      "gaming": {
+        "name": "游戏",
+        "description": "CPU、GPU、显存、内存和网络,纵向堆叠。"
+      },
+      "minimal-corner": {
+        "name": "极简角落",
+        "description": "CPU 和 RAM,完全没有背景。"
+      }
+    },
+    "text": {
+      "system": "系统",
+      "temperatures": "温度",
+      "memory": "内存",
+      "videoMemory": "显存",
+      "network": "网络",
+      "cpuTotal": "CPU 总计",
+      "processes": "进程",
+      "diskIo": "磁盘 I/O",
+      "cpuTemperature": "CPU 温度",
+      "filesystem": "文件系统",
+      "processor": "处理器",
+      "temperature": "温度",
+      "storage": "存储",
+      "cpuPackage": "CPU 封装",
+      "load": "负载",
+      "graphics": "图形",
+      "heat": "温度",
+      "thermals": "温度",
+      "temp": "温度",
+      "netDown": "网络 ↓",
+      "netDownCaps": "网络 ↓",
+      "diskDown": "磁盘 ↓",
+      "diskUp": "磁盘 ↑",
+      "download": "下载",
+      "upload": "上传",
+      "read": "读取",
+      "write": "写入",
+      "disk": "磁盘",
+      "running": "运行中",
+      "threads": "线程",
+      "clock": "频率",
+      "hotspot": "热点",
+      "usage": "使用率",
+      "gpuTemp": "GPU 温度",
+      "ssdTemp": "SSD 温度",
+      "down": "下行",
+      "up": "上行",
+      "core": "核心",
+      "freq": "频率",
+      "cpuTemp": "CPU 温度",
+      "ramUsed": "已用内存",
+      "ramFree": "可用内存",
+      "gpuFan": "GPU 风扇"
+    },
+    "packAria": "{{name}} 悬浮层套件",
+    "addOverlay": "添加悬浮层",
+    "footprint": "占用区域",
+    "templateAria": "{{name}} 模板",
+    "appStyle": "应用样式",
+    "createDashboard": "创建仪表板"
+  },
+  "library": {
+    "blueprints": {
+      "cpu-total": {
+        "label": "CPU 总计",
+        "description": "整机 CPU 使用率随时间的变化。"
+      },
+      "cpu-value": {
+        "label": "CPU 总计 — 数值",
+        "description": "只显示数字:CPU 23 %。"
+      },
+      "cpu-sparkline": {
+        "label": "CPU 总计 — 迷你折线",
+        "description": "CPU 23 %,附带小型趋势。"
+      },
+      "cpu-group": {
+        "label": "CPU 组",
+        "description": "使用率和封装温度一起显示。"
+      },
+      "cpu-logical": {
+        "label": "单个逻辑处理器",
+        "description": "单个逻辑处理器;在自定义中选择具体是哪一个。"
+      },
+      "memory": {
+        "label": "内存使用率",
+        "description": "正在使用的物理内存,以百分比表示。"
+      },
+      "memory-value": {
+        "label": "内存 — 数值",
+        "description": "RAM 41 %。"
+      },
+      "memory-used": {
+        "label": "已用内存 — 数值",
+        "description": "已用字节数,例如 12.0 GiB。"
+      },
+      "gpu": {
+        "label": "GPU 使用率",
+        "description": "GPU 核心负载随时间的变化。"
+      },
+      "gpu-value": {
+        "label": "GPU — 数值",
+        "description": "GPU 97 %。"
+      },
+      "gpu-group": {
+        "label": "GPU 组",
+        "description": "使用率、显存和温度。"
+      },
+      "thermal": {
+        "label": "CPU 和 GPU 温度",
+        "description": "两个传感器在同一图表中;无法读取的传感器直接不显示。"
+      },
+      "cpu-temp-value": {
+        "label": "CPU 温度 — 数值",
+        "description": "71 °C。"
+      },
+      "gpu-temp-value": {
+        "label": "GPU 温度 — 数值",
+        "description": "72 °C。"
+      },
+      "ssd-temp": {
+        "label": "硬盘温度 — 数值",
+        "description": "按需从硬盘读取,而不是每秒读取。"
+      },
+      "storage": {
+        "label": "磁盘读取 / 写入",
+        "description": "一块硬盘的吞吐量(自动或手动选择)。"
+      },
+      "volume": {
+        "label": "文件系统用量",
+        "description": "一个文件系统的占用程度。"
+      },
+      "network": {
+        "label": "下载 / 上传",
+        "description": "一个接口的流量(自动或手动选择)。"
+      },
+      "network-down-value": {
+        "label": "下载 — 数值",
+        "description": "网络 ↓ 12 MiB/s。"
+      },
+      "wifi": {
+        "label": "Wi-Fi 信号",
+        "description": "无线接口的信号强度。"
+      },
+      "processes": {
+        "label": "进程和线程数",
+        "description": "整机计数;绝不涉及单个进程。"
+      },
+      "summary": {
+        "label": "系统摘要",
+        "description": "CPU / GPU / RAM / 网络集中在一条中,附带小型趋势。"
+      }
+    },
+    "categories": {
+      "CPU": "CPU",
+      "Memory": "内存",
+      "GPU": "GPU",
+      "Thermals": "温度",
+      "Storage": "存储",
+      "Network": "网络",
+      "Processes": "进程",
+      "Custom": "自定义",
+      "Templates": "模板"
+    },
+    "onDemand": "按需从硬盘读取(一条 NVMe 管理命令),绝不每秒读取:因此不显示实时值。",
+    "categoriesLabel": "小组件类别",
+    "loading": "正在读取指标目录…",
+    "addNamed": "添加 {{name}}",
+    "anyMetric": "任意指标",
+    "searchPlaceholder": "搜索指标目录",
+    "searchLabel": "搜索指标",
+    "notReadable": "本机无法读取",
+    "noTemplates": "还没有模板。自定义一个小组件,然后使用“另存为模板”。",
+    "templateName": "模板名称"
+  },
+  "visualization": {
+    "presets": {
+      "clean": {
+        "name": "简洁",
+        "description": "深色面板上的平滑线条、柔和渐变和淡淡网格。"
+      },
+      "minimal": {
+        "name": "极简",
+        "description": "一条细线和当前值。没有网格、坐标轴或面板。"
+      },
+      "technical": {
+        "name": "技术",
+        "description": "直线段、采样标记、完整坐标轴和全部统计。"
+      },
+      "gaming": {
+        "name": "游戏",
+        "description": "粗亮线条、强烈渐变、发光效果和粗体数字。"
+      },
+      "compact": {
+        "name": "紧凑",
+        "description": "带小号数字的迷你折线:专为狭小空间设计。"
+      },
+      "neon": {
+        "name": "霓虹",
+        "description": "近乎纯黑上的青色和品红,带柔和光晕。"
+      },
+      "transparent": {
+        "name": "透明",
+        "description": "完全没有面板 — 只有线条和数字。适合悬浮层。"
+      }
+    },
+    "renderers": {
+      "line": {
+        "label": "折线",
+        "description": "以折线显示随时间变化的值。"
+      },
+      "area": {
+        "label": "面积",
+        "description": "下方区域被填充的折线。"
+      },
+      "sparkline": {
+        "label": "迷你折线",
+        "description": "无装饰的小型趋势,适合狭小空间。"
+      },
+      "value": {
+        "label": "数值",
+        "description": "只显示当前数字。"
+      },
+      "bar": {
+        "label": "条形",
+        "description": "以水平条显示当前值。"
+      },
+      "gauge": {
+        "label": "仪表",
+        "description": "在圆环上显示当前值。需要已知范围。"
+      }
+    },
+    "gaugeNeedsBounds": "仪表需要已知范围,而此指标没有。请先设置固定刻度(最小值和最大值)。",
+    "scaleErrors": {
+      "both": "请同时输入最小值和最大值。",
+      "numbers": "两个边界都必须是数字。",
+      "order": "最大值必须大于最小值。"
+    },
+    "savedByYou": "由你保存。"
+  },
+  "overlays": {
+    "limitReached_other": "最多 {{count}} 个悬浮层。请删除一个再添加。",
+    "defaultName": "悬浮层",
+    "session": "会话:",
+    "capabilityList": "悬浮层能力",
+    "capabilityStatus": {
+      "supported": "支持",
+      "limited": "受限",
+      "unsupported": "不支持"
+    },
+    "capabilities": {
+      "alwaysOnTop": "始终置顶",
+      "clickThrough": "锁定时点击穿透",
+      "positioning": "绝对定位",
+      "transparentWindow": "透明窗口",
+      "globalHotkey": "全局快捷键",
+      "multiMonitorPositioning": "多显示器定位",
+      "tray": "系统托盘"
+    },
+    "headline": {
+      "alwaysOnTop": "位于其他窗口之上",
+      "globalHotkey": "全局快捷键",
+      "clickThrough": "点击穿透",
+      "transparentWindow": "透明",
+      "multiMonitorPositioning": "多显示器"
+    },
+    "displayServers": {
+      "windows": "Windows",
+      "x11": "X11",
+      "wayland": "Wayland(原生)",
+      "xWayland": "XWayland(Wayland 会话中的 X11)",
+      "other": "不支持的平台"
+    },
+    "verification": {
+      "physicallyVerified": "已在真实硬件上验证",
+      "implemented": "已实现 · 尚未在硬件上验证",
+      "bestEffort": "取决于平台",
+      "unsupported": "不可用"
+    },
+    "backend": {
+      "title": "悬浮层后端",
+      "unavailable": "后端不可用。请使用 pnpm app:dev 运行 PULSE。",
+      "desktopWindow": "桌面窗口",
+      "whatHere": "悬浮层在此处能做什么"
+    },
+    "backends": {
+      "windowsNative": {
+        "label": "Windows 原生悬浮层",
+        "detail": "分层、置顶、不激活的工具窗口:HWND_TOPMOST 让它保持在上层,WS_EX_NOACTIVATE 让焦点留在原处,WS_EX_TRANSPARENT 在锁定时让点击穿透。已实现并编译;尚未在 Windows 机器上验证。"
+      },
+      "gnomeBridge": {
+        "label": "GNOME 原生桥接",
+        "detail": "GNOME Shell 中的 PULSE 扩展让悬浮层保持在其他窗口之上(Mutter make_above),并通过 Mutter 传递悬浮层快捷键;锁定悬浮层的点击穿透由 PULSE 负责。已在 Fedora 39 / GNOME 45 上验证。"
+      },
+      "standardWayland": {
+        "label": "标准 Wayland 窗口",
+        "detail": "普通的 Wayland 窗口:透明、锁定时点击穿透,但它是否保持在聚焦应用之上、放在哪里,由合成器决定。"
+      },
+      "x11": {
+        "label": "X11 窗口",
+        "detail": "始终置顶的 X11 窗口(_NET_WM_STATE_ABOVE),锁定时输入区域为空,放置在它请求的位置。"
+      },
+      "unsupported": {
+        "label": "不可用",
+        "detail": "此平台不支持桌面悬浮层。"
+      }
+    },
+    "placementHints": {
+      "gnome": "在此处会保持在其他窗口之上;在编辑模式下把它拖到边缘一次即可 — GNOME 会自行放置 Wayland 窗口。",
+      "notOnTop": "配合 GNOME 桥接或 Windows 原生悬浮层效果最佳:在这里,合成器可能把它放到聚焦应用的后面。",
+      "noPositioning": "在编辑模式下把它拖到位一次:此会话无法定位窗口。"
+    },
+    "bridge": {
+      "title": "GNOME 桥接",
+      "connected": "已连接",
+      "enable": "启用",
+      "disable": "停用",
+      "running": "运行中",
+      "installed": "已安装",
+      "ships": "随 PULSE 提供",
+      "setUp": "设置 GNOME 桥接",
+      "copyUninstall": "复制卸载命令",
+      "sourcePlaceholder": "<PULSE 源码目录>",
+      "states": {
+        "notApplicable": "此处无需",
+        "unavailable": "不可用",
+        "incompatible": "不兼容",
+        "notInstalled": "未安装",
+        "installedNeedsLogin": "已安装 — 需重新登录",
+        "extensionsOff": "扩展已关闭",
+        "disabled": "已停用",
+        "error": "错误",
+        "active": "已启用",
+        "changing": "正在更改…"
+      },
+      "summaries": {
+        "notGnome": "不是 GNOME 会话 — GNOME 桥接在此不适用",
+        "notWayland": "此会话无需 — 桥接适用于 Wayland 上的 GNOME",
+        "shellNoAnswer": "GNOME Shell 的扩展服务没有响应",
+        "notChecked": "尚未检查",
+        "shellUnsupported": "桥接不支持 GNOME Shell {{version}}(已在 GNOME 45 上验证)",
+        "installedNeedsLogin": "已安装 — 请注销并重新登录一次以加载",
+        "notInstalled": "未安装",
+        "extensionsOff": "此会话已关闭用户扩展",
+        "activeConnected": "已启用 — 正在保持悬浮层置顶并传递快捷键",
+        "active": "已启用",
+        "disabled": "已安装但已停用",
+        "extensionError": "GNOME Shell 报告扩展出错",
+        "outOfDate": "GNOME Shell {{version}} 认为已安装的扩展已过时",
+        "uninstalled": "已卸载",
+        "changing": "GNOME Shell 正在更改扩展状态"
+      },
+      "guidance": {
+        "checkShell": "请确认此会话运行的是 GNOME Shell,然后刷新。",
+        "standardWayland": "悬浮层仍可作为标准 Wayland 窗口工作:锁定时点击穿透,但层叠顺序由合成器决定。",
+        "discoverAtLogin": "GNOME Shell 45 只在登录时发现新扩展。重新登录后,请在此启用。",
+        "installSteps": "用下面的命令安装扩展,注销并重新登录一次,然后启用它。",
+        "extensionsOn": "重新打开用户扩展(扩展应用,或 gsettings set org.gnome.shell disable-user-extensions false)。",
+        "newerCopyInstalled": "已安装更新的副本。请注销并重新登录以加载它。",
+        "reinstallNewer": "此 PULSE 附带更新的桥接。请用下面的命令重新安装,然后注销并重新登录。",
+        "notGreeted": "运行中。它还没有向此 PULSE 打招呼:版本 2 之前的扩展从不打招呼;更新的版本会在 PULSE 启动后立即打招呼。",
+        "enableIt": "启用它,让悬浮层保持在其他窗口之上。",
+        "reinstallAfterError": "重新安装,然后注销并重新登录。错误也记录在 journalctl --user -b /usr/bin/gnome-shell 中。",
+        "reinstallShipped": "重新安装此 PULSE 附带的版本。",
+        "refreshSoon": "请稍后刷新。"
+      },
+      "steps": {
+        "install": "安装扩展",
+        "update": "更新扩展",
+        "installDetail": "复制到 ~/.local/share/gnome-shell/extensions/ — 仅限你的账户,无需 sudo。",
+        "updateDetail": "已安装 v{{installed}};此 PULSE 附带 v{{bundled}}。",
+        "login": "注销并重新登录一次",
+        "loginDetail": "GNOME Shell 45 只在登录时加载扩展代码。",
+        "enable": "启用",
+        "enableDetail": "使用这里的按钮,或在 GNOME 的扩展应用中。",
+        "connected": "已连接到 PULSE",
+        "connectedDetail": "正在运行的扩展已向此 PULSE 打过招呼。",
+        "notConnectedDetail": "版本 2 及以上会在 PULSE 启动后立即打招呼。"
+      },
+      "details": {
+        "summary": "作用 · 故障排除 · 限制",
+        "unlocks": "<strong>可实现:</strong>悬浮层保持在聚焦应用之上(Mutter <code>make_above</code>),而且无论哪个应用获得焦点,悬浮层快捷键都能生效 — GNOME 45 没有全局快捷键门户。锁定时的点击穿透由 PULSE 自身实现,有无桥接都可用。",
+        "safety": "<strong>安全性:</strong>它只会操作由持有 PULSE 总线名称的进程拥有、<em>且</em>标题恰好为 <code>PULSE Overlay :: &lt;id&gt;</code> 的窗口。不轮询、不拦截输入、不读写文件、不联网。",
+        "troubleshooting": "<strong>故障排除:</strong>安装或更新后请注销并重新登录 — GNOME 只在登录时加载扩展代码。日志:<code>journalctl --user -b /usr/bin/gnome-shell | grep \"PULSE overlay bridge\"</code>。如果 GNOME Shell 在登录时出现异常,可从另一个会话运行 <code>gsettings set org.gnome.shell disable-user-extensions true</code> 关闭用户扩展。",
+        "limits": "<strong>限制:</strong>GNOME 仍会自行放置 Wayland 窗口,因此位置和多显示器布局由合成器决定;请在编辑模式下拖动一次悬浮层。仅在 GNOME 45 上验证。"
+      }
+    },
+    "layouts": {
+      "horizontal": "横排",
+      "vertical": "竖排",
+      "grid": "网格"
+    },
+    "page": {
+      "subtitle": "桌面上各自小窗口中的小组件 — 在系统允许的情况下位于其他应用之上,锁定时点击穿透。安全的桌面窗口:PULSE 绝不注入游戏。",
+      "all": "所有悬浮层",
+      "editAll": "全部编辑",
+      "lockAll": "全部锁定",
+      "showAll": "全部显示",
+      "hideAll": "全部隐藏",
+      "openMini": "打开迷你窗口",
+      "newOverlay": "新建悬浮层",
+      "packs": "悬浮层套件",
+      "packsHint": "十二种编排好的悬浮层 — 微型读数、卡片、全宽条、侧栏和角落 HUD。一切都可编辑。",
+      "emptyOverlay": "空悬浮层",
+      "everyCapability": "全部能力详情",
+      "yourPacks": "你的套件",
+      "deletePack": "删除套件 {{name}}"
+    },
+    "hotkey": {
+      "hint": "在编辑和锁定之间切换可见的悬浮层。隐藏的悬浮层保持原状态。",
+      "viaBridge": "由 GNOME 桥接通过 Mutter 传递,无论哪个应用获得焦点。在此应用快捷键会更改桥接自身的设置;GNOME 会立即使用。",
+      "viaPortal": "由你的桌面通过 XDG Desktop Portal 传递,无论哪个应用获得焦点。桌面可能会请你批准,并允许你在其键盘设置中更改按键。",
+      "unavailable": "此会话无法使用全局快捷键:{{reason}}",
+      "notRegistered": "未注册 — {{error}}。之前的快捷键仍然有效。",
+      "notBound": "未绑定 — {{error}}。",
+      "active": "已生效:{{hotkey}}。",
+      "none": "没有生效的全局快捷键。"
+    },
+    "close": {
+      "title": "关闭主窗口",
+      "when": "关闭主窗口时",
+      "quit": "退出 PULSE",
+      "keepRunning": "有可见悬浮层时继续运行",
+      "note": "默认是退出。PULSE 继续运行时,可从托盘或悬浮层的“打开 PULSE”重新打开;从托盘退出会停止一切。"
+    },
+    "editor": {
+      "aria": "悬浮层 {{name}}",
+      "name": "悬浮层名称",
+      "visible": "可见",
+      "edit": "编辑悬浮层",
+      "lock": "锁定悬浮层",
+      "saveAsPack": "保存为我的套件",
+      "saveAsPackBody": "保存它的小组件、布局、样式和边框,以便在悬浮层中再次添加。",
+      "savePack": "保存套件",
+      "packName": "套件名称",
+      "fromPack": "来自“{{name}}”",
+      "resetToPack": "重置为套件",
+      "style": "悬浮层样式",
+      "layout": "悬浮层布局",
+      "background": "悬浮层背景",
+      "backgroundOpacity": "悬浮层背景不透明度",
+      "cornerRadius": "悬浮层圆角",
+      "gapBetween": "小组件间距",
+      "width": "悬浮层宽度",
+      "height": "悬浮层高度",
+      "fit": "适应小组件",
+      "x": "悬浮层 X",
+      "y": "悬浮层 Y",
+      "primaryMonitor": "主显示器",
+      "cannotPlace": "此会话无法放置窗口:请在编辑模式下拖动悬浮层的标题栏。",
+      "widgets": "{{name}} 的小组件",
+      "widgetWidth": "{{name}} 宽度",
+      "widgetHeight": "{{name}} 高度",
+      "moveEarlier": "将 {{name}} 前移",
+      "moveLater": "将 {{name}} 后移",
+      "copyToDashboard": "复制到仪表板",
+      "copiesGoTo": "副本将放入仪表板“{{name}}”。",
+      "deleteTitle": "删除悬浮层“{{name}}”?",
+      "deleteBody": "它的窗口会关闭,小组件会被移除。",
+      "delete": "删除悬浮层"
+    },
+    "surface": {
+      "aria": "{{name}} 悬浮层",
+      "empty": "从 PULSE → 悬浮层 添加小组件。",
+      "dragToMove": "{{name}} · 拖动以移动",
+      "lock": "锁定",
+      "openPulse": "打开 PULSE",
+      "dragToResize": "拖动以调整大小"
+    },
+    "send": {
+      "aria": "将 {{name}} 发送到悬浮层",
+      "title": "将“{{name}}”发送到悬浮层",
+      "addTo": "添加到“{{name}}”"
+    }
+  },
+  "customize": {
+    "background": "背景",
+    "backgroundOpacity": "背景不透明度",
+    "border": "边框",
+    "shadow": "阴影",
+    "corners": "圆角",
+    "gap": "间距",
+    "widthShort": "宽",
+    "heightShort": "高",
+    "padding": "内边距",
+    "layout": "布局",
+    "borders": {
+      "none": "无",
+      "thin": "细"
+    },
+    "groupLayouts": {
+      "rows": "多行",
+      "inline": "单行"
+    },
+    "widget": {
+      "section": "小组件",
+      "title": "标题",
+      "titleLabel": "小组件标题",
+      "showTitle": "显示标题",
+      "background": "小组件背景",
+      "opacity": "小组件不透明度",
+      "backgroundOpacity": "小组件背景不透明度",
+      "padding": "小组件内边距",
+      "border": "小组件边框",
+      "corners": "小组件圆角",
+      "cornerRadius": "小组件圆角半径"
+    },
+    "metrics": {
+      "section": "指标与数据源",
+      "label": "指标 {{index}} 的标签",
+      "source": "指标 {{index}} 的数据源",
+      "automatic": "自动",
+      "automaticNamed": "自动 — {{name}}",
+      "autoHint": "自动选择 — 只是合理的默认值,并不代表哪个更重要。",
+      "groupLayout": "分组布局",
+      "tinyTrends": "小型趋势"
+    },
+    "data": {
+      "section": "数据",
+      "source": "数据源",
+      "nowLive": "当前:实时,1 秒,内存中保留最近 5 分钟。",
+      "nowHistory": "当前:历史,{{range}}。",
+      "modes": {
+        "auto": "自动",
+        "history": "历史",
+        "live": "实时"
+      }
+    },
+    "template": {
+      "section": "模板",
+      "placeholder": "模板名称,例如 我的迷你 CPU",
+      "save": "另存为模板"
+    }
+  },
+  "dashboard": {
+    "addWidget": "添加小组件",
+    "defaultName": "默认",
+    "fallbackName": "仪表板",
+    "import": {
+      "notExport": "这不是 PULSE 仪表板导出文件。",
+      "version": "不支持的仪表板导出版本:{{version}}。",
+      "noDashboard": "导出中没有有效的仪表板。",
+      "limit_other": "最多 {{count}} 个仪表板。"
+    },
+    "style": "仪表板样式",
+    "actions": "仪表板操作",
+    "lockLayout": "锁定布局",
+    "editLayout": "编辑布局",
+    "new": "新建",
+    "empty": "此仪表板为空。",
+    "newTitle": "新建仪表板",
+    "newSubtitle": "从编排好的模板或空白网格开始。一切都可编辑。",
+    "name": "仪表板名称",
+    "nameOptional": "名称(可选)",
+    "blank": "空白仪表板",
+    "renameTitle": "重命名“{{name}}”",
+    "deleteTitle": "删除“{{name}}”?",
+    "deleteBody": "它的小组件和布局将被移除。模板和悬浮层会保留。",
+    "deleteConfirm": "删除仪表板",
+    "resetTitle": "重置“{{name}}”?",
+    "resetToTemplate": "“{{name}}”模板将替换当前的小组件和样式。你保存的模板会保留。",
+    "resetToDefault": "默认小组件将替换当前的小组件。你的模板会保留。",
+    "resetConfirm": "重置仪表板",
+    "exportTitle": "导出仪表板",
+    "exportBody": "可移植的 JSON 描述。不包含任何硬件标识符、路径或用户名。",
+    "exportedJson": "导出的 JSON",
+    "importTitle": "导入仪表板",
+    "importBody": "粘贴 PULSE 仪表板导出内容。它会作为新仪表板添加。",
+    "json": "仪表板 JSON",
+    "widgets": "{{name}} 的小组件",
+    "widenToEdit": "加宽窗口才能重新排列小组件;窄布局仅供查看。"
+  },
+  "widget": {
+    "actions": "{{name}} 的操作",
+    "actionsMenu": "{{name}} 的操作菜单",
+    "dragToMoveNamed": "拖动以移动 {{name}}",
+    "dragToMove": "拖动以移动(或使用方向键)",
+    "dragToResize": "拖动以调整大小(或 Shift + 方向键)",
+    "toOverlay": "放到悬浮层"
+  },
+  "history": {
+    "ranges": {
+      "15m": "15 分钟",
+      "1h": "1 小时",
+      "6h": "6 小时",
+      "24h": "24 小时",
+      "7d": "7 天"
+    },
+    "cpu": {
+      "view": "CPU 视图",
+      "total": "总计",
+      "title": "CPU 历史",
+      "totalNote": "CPU 总计是后端在所有逻辑处理器上测得的整机使用率 — 而不是由它们重新计算的平均值。",
+      "logicalNote": "所选时间段内最活跃的逻辑处理器。CPU 总计仍是参考基准。",
+      "loading": "正在读取处理器…",
+      "logicalHistory": "逻辑处理器历史",
+      "showMostActive_other": "显示最活跃的 {{count}} 个"
+    },
+    "gpu": {
+      "title": "GPU 历史",
+      "none": "未检测到 GPU。",
+      "telemetryUnavailable": "遥测不可用 — {{reason}}"
+    },
+    "thermal": {
+      "title": "温度历史",
+      "none": "本机没有可读取的温度传感器。",
+      "notCharted": "未绘制 — {{list}}"
+    },
+    "storage": {
+      "title": "存储历史",
+      "none": "未检测到存储设备。",
+      "device": "存储设备"
+    },
+    "network": {
+      "title": "网络历史",
+      "none": "未检测到网络接口。",
+      "interface": "网络接口"
+    },
+    "memory": {
+      "title": "内存历史",
+      "used": "已用 {{value}}"
+    },
+    "processes": {
+      "count": "进程数",
+      "title": "进程数历史",
+      "footnote": "仅记录整机计数。PULSE 绝不记录单个进程的历史。"
+    },
+    "status": {
+      "title": "历史记录器",
+      "loading": "正在查询历史…",
+      "unavailable": "历史不可用:{{reason}}。实时监控不受影响。",
+      "unknownReason": "未知原因",
+      "state": "状态",
+      "recording": "记录中",
+      "stateUnavailable": "不可用",
+      "cadence": "频率",
+      "every": "每 {{value}} 秒",
+      "historized": "记录历史的指标",
+      "batches": "本次会话批次",
+      "lastBatch": "最近一批",
+      "lastBatchValue_other": "{{time}} · {{count}} 行",
+      "sampleWrite": "采样 / 写入",
+      "median": "中位数 {{sample}} ms / {{write}} ms",
+      "database": "数据库",
+      "size": "大小",
+      "rows": "行数",
+      "rowsValue": "原始 {{raw}} · 聚合 {{aggregated}} · 序列 {{series}}",
+      "schemaJournal": "架构 / 日志",
+      "lastError": "最近错误:{{error}}",
+      "scheduler": "由单一后台调度器写入;刷新按钮从不记录。",
+      "counting": "正在统计…",
+      "details": "数据库详情"
+    }
+  },
+  "viz": {
+    "ui": {
+      "preview": "预览",
+      "preset": "预设",
+      "presetName": "预设名称",
+      "newPresetName": "新预设名称",
+      "visualization": "可视化",
+      "visualizationType": "可视化类型",
+      "timeRange": "时间范围",
+      "size": "尺寸",
+      "compactMode": "紧凑模式",
+      "lineFill": "线条与填充",
+      "lineWidth": "线宽",
+      "curve": "曲线",
+      "points": "数据点",
+      "pointMarkers": "数据点标记",
+      "fillOpacity": "填充不透明度",
+      "smoothing": "平滑",
+      "colors": "颜色",
+      "colorMode": "颜色模式",
+      "primary": "主色",
+      "secondary": "辅色",
+      "text": "文字",
+      "grid": "网格",
+      "background": "背景",
+      "border": "边框",
+      "gradientStart": "渐变起点",
+      "gradientEnd": "渐变终点",
+      "above": "以上",
+      "backgroundFrame": "背景与边框",
+      "backgroundOpacity": "背景不透明度",
+      "cornerRadius": "圆角半径",
+      "shadow": "阴影",
+      "textSize": "文字大小",
+      "weight": "粗细",
+      "fontWeight": "字重",
+      "decimals": "小数位",
+      "decimalPrecision": "小数精度",
+      "label": "标签",
+      "unit": "单位",
+      "axesGridScale": "坐标轴、网格与刻度",
+      "xAxis": "X 轴",
+      "yAxis": "Y 轴",
+      "yScale": "Y 刻度",
+      "legendTooltipStatistics": "图例、提示框与统计",
+      "legend": "图例",
+      "tooltip": "提示框",
+      "current": "当前",
+      "minimum": "最小值",
+      "maximum": "最大值",
+      "average": "平均值",
+      "gauge": "仪表",
+      "ringThickness": "圆环粗细",
+      "arc": "弧度",
+      "gaugeArc": "仪表弧度",
+      "fillPlaceholder": "填充",
+      "fill": "填充",
+      "colourOf": "{{name}} 颜色",
+      "hexOf": "{{name}} 十六进制值",
+      "labelOf": "{{name}} 标签",
+      "customFrom": "自定义(基于 {{name}})",
+      "presetWord": "预设",
+      "customizeNamed": "自定义 {{name}}",
+      "resetVisualization": "重置可视化",
+      "deletePreset": "删除预设",
+      "saveAsPreset": "另存为预设",
+      "gaugeUnavailable": "仪表不可用:此指标没有自然范围。请设置固定刻度后再使用。",
+      "height": "高度",
+      "width": "宽度",
+      "followingTheme": "正在跟随 PULSE 主题。选择任意颜色会切换为手动。",
+      "series": "序列",
+      "thresholdBands": "阈值色带",
+      "thresholdHint": "由你选择的视觉色带 — 并不代表对你机器上什么值过高的判断。",
+      "bandColour": "色带 {{index}} 颜色",
+      "bandUpper": "色带 {{index}} 上限",
+      "removeBand": "移除色带 {{index}}",
+      "addBand": "添加色带",
+      "compactHides": "紧凑模式和迷你折线会隐藏坐标轴、网格和图例。",
+      "min": "最小",
+      "max": "最大",
+      "smoothingHint": "仅影响显示:保存的采样和提示框保留真实值。",
+      "fillFollowsLine": "填充跟随线条颜色"
+    },
+    "lineWidths": {
+      "thin": "细",
+      "medium": "中",
+      "thick": "粗"
+    },
+    "options": {
+      "small": "小",
+      "medium": "中",
+      "large": "大",
+      "custom": "自定义",
+      "straight": "直线",
+      "smooth": "平滑",
+      "stepped": "阶梯",
+      "none": "无",
+      "visible": "显示",
+      "solid": "纯色",
+      "gradient": "渐变",
+      "theme": "主题",
+      "manual": "手动",
+      "threshold": "阈值",
+      "light": "浅",
+      "thin": "细",
+      "subtle": "淡",
+      "glow": "发光",
+      "regular": "常规",
+      "bold": "粗体",
+      "full": "整圆",
+      "three-quarter": "四分之三",
+      "half": "半圆",
+      "auto": "自动",
+      "fixed": "固定"
+    },
+    "status": {
+      "loading": "正在加载历史…",
+      "unavailable": "历史不可用:{{reason}}",
+      "collecting": "正在收集历史…",
+      "oneSample": "正在收集历史… 目前只有一个采样。",
+      "noData": "无数据",
+      "scaledToPeak": "已按时间段峰值缩放,{{value}}",
+      "overTime": "{{name}} 随时间变化"
+    },
+    "stats": {
+      "current": "当前",
+      "min": "最小",
+      "max": "最大",
+      "average": "平均"
+    }
+  },
+  "appearance": {
+    "styleAria": "{{name}} 样式",
+    "ui": {
+      "styles": "样式",
+      "yourStyles": "你的样式",
+      "colour": "颜色",
+      "accentColour": "强调色",
+      "accent": "强调色",
+      "chartPalette": "图表调色板",
+      "surfaces": "界面",
+      "panelOpacity": "面板不透明度",
+      "glassBlur": "玻璃模糊",
+      "borderStrength": "边框强度",
+      "shadowDepth": "阴影深度",
+      "shapeType": "形状与字体",
+      "cornerRoundness": "圆角程度",
+      "font": "字体",
+      "textSize": "文字大小",
+      "layoutDensity": "布局与密度",
+      "density": "密度",
+      "widgetPadding": "小组件内边距",
+      "gapBetweenWidgets": "小组件间距",
+      "overlayPadding": "悬浮层内边距",
+      "overlayGap": "悬浮层间距",
+      "charts": "图表",
+      "lineThickness": "线条粗细",
+      "fillOpacity": "填充不透明度",
+      "lineShape": "线条形状",
+      "contentMotion": "内容与动效",
+      "widgetTitles": "小组件标题",
+      "labelsInTinyWidgets": "微型小组件中的标签",
+      "motion": "动效",
+      "livePreview": "实时预览",
+      "styleName": "样式名称",
+      "deleteThisStyle": "删除此样式?",
+      "exportStyle": "导出样式",
+      "exportedStyle": "导出的样式",
+      "importStyle": "导入样式",
+      "styleJson": "样式 JSON",
+      "overlayPaddingNote": "在悬浮层采用某个样式时使用。"
+    },
+    "subtitle": "八种样式,改变的不只是颜色,还有界面、层次、字体、密度和图表。可调整任意一种,并把结果保存为自己的样式。",
+    "modeOn": "<strong>{{mode}}模式</strong>已开启:你选择的样式将应用于该模式。",
+    "leaveMode": "退出{{mode}}模式",
+    "myStyle": "我的{{name}}",
+    "saveCurrent": "保存当前外观",
+    "noUserStyles": "在下方调整样式,然后保存到这里。已保存的样式可以创建副本、重命名、导出和分享。",
+    "basedOn": "基于 {{name}}",
+    "inUse": "使用中",
+    "use": "使用",
+    "styleAccentTitle": "样式的强调色({{color}})",
+    "styleAccent": "样式强调色",
+    "fonts": {
+      "style": "样式",
+      "sans": "无衬线",
+      "rounded": "圆体",
+      "condensed": "窄体",
+      "mono": "等宽"
+    },
+    "styleWith": "样式({{value}})",
+    "densities": {
+      "compact": "紧凑",
+      "comfortable": "舒适",
+      "spacious": "宽松"
+    },
+    "chartsNote": "应用于所有仍使用预设的图表。你自定义过的图表保留自己的设置。",
+    "motionLevels": {
+      "full": "完整",
+      "reduced": "减弱",
+      "none": "无"
+    },
+    "resetAll": "将所有调整重置为 {{name}}",
+    "livePreviewNamed": "实时预览 · {{name}}",
+    "saveLook": "保存此外观",
+    "renameStyle": "重命名样式",
+    "deleteBody": "当前使用它的内容会保持原外观,直到你选择其他样式。",
+    "deleteStyle": "删除样式",
+    "exportBody": "样式的可移植 JSON 描述:仅包含颜色、字体和调节参数。",
+    "importBody": "粘贴 PULSE 样式导出内容。它会被添加到你的样式中。",
+    "useStyle": "使用样式",
+    "import": {
+      "notExport": "这不是 PULSE 样式导出文件。",
+      "version": "不支持的样式导出版本:{{version}}。",
+      "noName": "导出中没有样式名称。",
+      "limit_other": "最多保存 {{count}} 个样式。"
+    }
+  },
+  "mini": {
+    "shownIn": "在迷你中显示"
+  },
+  "processes": {
+    "nice": {
+      "title": "自定义 nice 值 — {{name}}",
+      "range": "PID {{pid}}。nice 值范围为 {{min}}(最优先)到 {{max}}(最不优先)。",
+      "privileges": "降低该值通常需要 PULSE 不具备的权限。",
+      "value": "nice 值"
+    },
+    "affinity": {
+      "title": "CPU 亲和性 — {{name}}",
+      "body": "选择 PID {{pid}} 可以运行的逻辑处理器。",
+      "selectAll": "全选",
+      "keepOne": "至少保留一个 CPU:不允许在任何 CPU 上运行的进程无法运行。"
+    },
+    "status": {
+      "success": "完成",
+      "permissionDenied": "权限被拒绝",
+      "staleProcess": "未执行 — 该 PID 现属于另一个进程",
+      "processGone": "进程已退出",
+      "unsupported": "不支持",
+      "partialFailure": "部分完成",
+      "invalidRequest": "未执行",
+      "platformError": "失败"
+    },
+    "outcome": {
+      "suspend": "已暂停进程 {{pid}}。",
+      "resume": "已恢复进程 {{pid}}。",
+      "terminate": "已请求进程 {{pid}} 结束。",
+      "forceKill": "已强制结束进程 {{pid}}。",
+      "priority": "已更改进程 {{pid}} 的优先级。",
+      "affinity": "已更改进程 {{pid}} 的亲和性。",
+      "terminateTree": "已结束 {{pid}} 的进程树。",
+      "openLocation": "已打开可执行文件所在位置。",
+      "priorityPartial": "已更改进程 {{pid}} 中 {{applied}} 个线程的优先级;{{failed}} 个线程拒绝。",
+      "affinityPartial": "已更改进程 {{pid}} 中 {{applied}} 个线程的亲和性;{{failed}} 个线程拒绝。",
+      "tree_other": "{{count}} 个进程中已结束 {{terminated}} 个;{{gone}} 个已退出,{{refused}} 个拒绝,{{stale}} 个因过期而跳过,{{failed}} 个失败。"
+    },
+    "hash": {
+      "computed": "已计算",
+      "changedWhileHashing": "读取期间文件发生了变化",
+      "permissionDenied": "权限被拒绝",
+      "notFound": "未找到文件",
+      "notAFile": "不是普通文件",
+      "readError": "读取错误"
+    },
+    "confirm": {
+      "who": "{{name}}(PID {{pid}})",
+      "selfWarning": "结束 PULSE 会关闭此应用。",
+      "endTitle": "结束 {{name}}?",
+      "endSigterm": "将向 {{who}} 发送 SIGTERM,请求其退出。可能需要片刻,也可能被拒绝。",
+      "endImmediate": "{{who}} 将被立即结束。其中未保存的工作将会丢失。",
+      "forceKillTitle": "强制结束 {{name}}?",
+      "forceKillBody": "将向 {{who}} 发送 SIGKILL。它无法被捕获或忽略:进程没有机会保存任何内容或进行清理。",
+      "treeTitle": "结束 {{name}} 及其进程树?",
+      "treeRoot": "根进程:{{who}}。",
+      "treeBody_other": "将先结束约 {{count}} 个子孙进程(从最深层开始),然后结束根进程。每个进程在结束前都会重新检查;已易主的 PID 会被跳过。",
+      "realtimeTitle": "设置为实时优先级?",
+      "realtimeWarning": "实时优先级可能导致系统无响应。",
+      "realtimeBody": "应用于 {{who}}。如果没有所需权限,Windows 会改为应用“高”,PULSE 会提示你。",
+      "realtimeConfirm": "设置为实时"
+    },
+    "copy": {
+      "done": "已复制 {{label}}。",
+      "failed": "无法复制 {{label}}。"
+    },
+    "category": {
+      "user": "用户",
+      "system": "系统",
+      "kernel": "内核线程",
+      "unknown": "未知"
+    },
+    "state": {
+      "running": "运行中",
+      "sleeping": "休眠",
+      "stopped": "已停止",
+      "zombie": "僵尸"
+    },
+    "priority": {
+      "realtime": "实时",
+      "high": "高",
+      "aboveNormal": "高于正常",
+      "normal": "正常",
+      "belowNormal": "低于正常",
+      "low": "低"
+    },
+    "affinityNone": "无",
+    "affinitySummary_other": "CPU {{list}}({{total}} 个中的 {{count}} 个)",
+    "trust": {
+      "trusted": "受信任的签名",
+      "signedButUntrusted": "已签名,但不受信任",
+      "invalid": "签名无效",
+      "unsigned": "未签名",
+      "permissionDenied": "权限被拒绝",
+      "unavailable": "不可用"
+    },
+    "provenance": {
+      "userHome": "用户/本地可执行文件(位于你的主目录,而非来自软件包)",
+      "localInstall": "用户/本地可执行文件(在包管理器之外安装)",
+      "notDetected": "未检测到软件包"
+    },
+    "menu": {
+      "exited": "进程已退出。",
+      "unavailable": "不可用。",
+      "checking": "正在检查权限…",
+      "nicePreset": "{{level}}(nice {{value}})",
+      "customNice": "自定义 nice 值…",
+      "forceKill": "强制结束",
+      "inspect": "查看详情",
+      "search": "在线搜索",
+      "openLocation": "打开文件位置",
+      "processName": "进程名称",
+      "executablePath": "可执行文件路径",
+      "executableUnavailable": "可执行文件不可用。",
+      "instanceId": "进程实例 ID",
+      "suspend": "暂停",
+      "resume": "恢复",
+      "end": "结束进程",
+      "endTree": "结束进程树",
+      "setPriority": "设置优先级",
+      "setAffinity": "设置亲和性…",
+      "affinityUnreadable": "无法读取当前亲和性。",
+      "actionsFor": "{{name}} 的操作",
+      "inspectApplication": "查看应用",
+      "showProcesses": "显示进程"
+    },
+    "table": {
+      "processDetails": "进程详情",
+      "dismiss": "关闭",
+      "processView": "进程视图",
+      "processCategory": "进程类别",
+      "refreshProcessDetails": "刷新进程详情",
+      "applications": "应用",
+      "application": "应用",
+      "processes": "进程",
+      "memory": "内存",
+      "read": "读取",
+      "write": "写入",
+      "process": "进程",
+      "threads": "线程",
+      "state": "状态",
+      "searchPlaceholder": "按名称或 PID 搜索",
+      "searchLabel": "按名称或 PID 搜索进程"
+    },
+    "filters": {
+      "all": "全部",
+      "user": "用户",
+      "system": "系统",
+      "kernel": "内核"
+    },
+    "oneOf_other": "{{name}} 的 {{count}} 个进程之一",
+    "loading": "正在遍历进程表…",
+    "showAll_other": "显示全部 {{count}} 个进程",
+    "updated": "更新于 {{time}} · 采集耗时 {{ms}} ms",
+    "note": "CPU 是本机<strong>全部</strong>算力的占比,因此一个占满单个逻辑处理器的线程只是很小的百分比,这一列的总和大致等于系统 CPU 仪表显示的值。读取和写入是平台的每进程 I/O 计数器(Fedora 与 Windows 的差异请参阅文档)。速率在两次快照<em>之间</em>测量,因此只在刷新后出现。单击进程可查看详情;右键单击(或 Shift+F10)可执行操作。每个操作都只针对该进程实例,破坏性操作需要确认,且绝不会自行执行。命令行刻意不采集。",
+    "noApplicationMatch": "没有与此搜索匹配的应用。",
+    "noProcessMatch": "没有与此搜索匹配的进程。",
+    "groupedByName": "按进程名称分组:PULSE 无法读取这些进程的可执行文件,因此两个同名但无关的程序会被合并计数。",
+    "inspector": {
+      "processInspector": "进程检查器",
+      "closeInspector": "关闭检查器",
+      "identity": "身份",
+      "processName": "进程名称",
+      "product": "产品",
+      "parent": "父进程",
+      "instanceId": "实例 ID",
+      "state": "状态",
+      "started": "启动时间",
+      "owner": "所有者",
+      "category": "类别",
+      "architecture": "架构",
+      "resourceUsage": "资源使用",
+      "memory": "内存",
+      "threads": "线程",
+      "read": "读取",
+      "write": "写入",
+      "executable": "可执行文件",
+      "path": "路径",
+      "file": "文件",
+      "size": "大小",
+      "modified": "修改时间",
+      "securityProvenance": "安全与来源",
+      "description": "描述",
+      "company": "公司",
+      "version": "版本",
+      "scheduling": "调度",
+      "priority": "优先级",
+      "cpuAffinity": "CPU 亲和性",
+      "processControl": "进程控制",
+      "suspend": "暂停",
+      "resume": "恢复",
+      "endProcess": "结束进程",
+      "endProcessTree": "结束进程树",
+      "forceKill": "强制结束",
+      "provenance": "来源",
+      "package": "软件包",
+      "signature": "签名",
+      "publisher": "发布者",
+      "setPriority": "设置优先级",
+      "stale": "此进程已退出,其 PID 现属于另一个进程。PULSE 不会对它执行操作。",
+      "exited": "进程已退出。无法再对它执行任何操作。",
+      "reading": "正在读取此进程…",
+      "self": "这是 PULSE 本身。结束它会关闭此应用。",
+      "kernelThread": "内核线程在内核中运行:它没有可执行文件,也没有软件包,无法从 PULSE 控制。",
+      "notInSnapshot": "不在最新快照中。",
+      "replaced": "此进程启动时所用的文件已在磁盘上被删除或替换。",
+      "copyPath": "复制路径",
+      "versionNote": "描述、产品和公司由文件自行声明,不能证明任何事;签名才是 Windows 验证过的内容。",
+      "computing": "正在计算…",
+      "computeHash": "计算 SHA-256",
+      "provenanceNote": "来源只是证据,不是结论:有软件包或有效签名并不意味着程序安全,没有也不意味着它是恶意的。",
+      "changeAffinity": "更改亲和性…",
+      "suspendedByPulse": "PULSE 在本次会话中暂停了此进程。",
+      "suspendedState": "{{state}}(已被 PULSE 暂停)",
+      "notApplicableKernel": "不适用于内核线程",
+      "catalog": "(系统目录)",
+      "claimed": "(自称,不受信任)",
+      "notComputed": "未计算",
+      "copyHash": "复制 SHA-256",
+      "searchHash": "在线搜索哈希",
+      "checkVirusTotal": "在 VirusTotal 上检查哈希",
+      "custom": "自定义…",
+      "memoryPercent": "内存 %",
+      "searchHint": "在浏览器中打开对程序名称的网络搜索",
+      "virusTotalHint": "在浏览器中打开此哈希的 VirusTotal 页面。文件绝不会被上传。"
+    }
+  },
+  "cards": {
+    "updated": "更新于 {{time}}",
+    "notReported": "未报告",
+    "notReportedByBackend": "后端未报告",
+    "cpu": {
+      "title": "CPU 详情",
+      "loading": "正在读取 CPU 拓扑…",
+      "packages": "封装",
+      "packageTemperature": "{{name}} 温度",
+      "showAll_other": "显示全部 {{count}} 个处理器",
+      "noProcessors": "本机未公开任何单独的逻辑处理器。",
+      "refresh": "刷新 CPU 详情",
+      "note": "一个物理核心可以承载多个逻辑处理器,因此使用率按逻辑处理器报告。频率为操作系统报告的值。封装温度是处理器自己的传感器,绝不是各核心的平均值。",
+      "maxFor": "{{name}} 报告的最大值:{{value}}",
+      "noMax": "此处理器未公布最大频率"
+    },
+    "gpu": {
+      "gpuDetails": "GPU 详情",
+      "graphicsAdapters": "图形适配器",
+      "refreshGpuDetails": "刷新 GPU 详情",
+      "gpuUsage": "GPU 使用率",
+      "vramUsage": "显存使用率",
+      "coreClock": "核心频率",
+      "memoryClock": "显存频率",
+      "temperature": "温度",
+      "hotspot": "热点",
+      "memoryTemperature": "显存温度",
+      "fan": "风扇",
+      "loading": "正在发现图形适配器…",
+      "none": "未检测到硬件图形适配器。软件渲染器刻意不计为 GPU。",
+      "note": "显存数值描述每个适配器的专用显存。与集成 GPU 共享的系统内存不作为显存报告。热点温度和显存温度是独立的传感器,绝不由 GPU 温度推算;只有在驱动报告真实的每分钟转数时才显示风扇转速。",
+      "vramKnownOnly": "已知安装的显存容量;实时用量需要此适配器未提供的厂商驱动。",
+      "perfUnavailable": "性能遥测不可用",
+      "perfUnavailableDefault": "此适配器的驱动未公开使用率、显存或频率数据。",
+      "thermalRemain": "温度传感器仍然可用。"
+    },
+    "storage": {
+      "storageDetails": "存储详情",
+      "storageDevices": "存储设备",
+      "otherVolumes": "其他卷",
+      "refreshStorageDetails": "刷新存储详情",
+      "read": "读取",
+      "write": "写入",
+      "readIops": "读取 IOPS",
+      "writeIops": "写入 IOPS",
+      "readLatency": "读取延迟",
+      "writeLatency": "写入延迟",
+      "temperature": "温度",
+      "usedEndurance": "已用寿命",
+      "availableSpare": "可用备用空间",
+      "powerOnHours": "通电时间",
+      "unsafeShutdowns": "不安全关机",
+      "mediaErrors": "介质错误",
+      "loading": "正在发现存储设备…",
+      "none": "未统计到物理存储设备。回环设备、内存盘和 device-mapper 卷刻意不计为磁盘。",
+      "otherVolumesHint": "PULSE 无法关联到上方任何磁盘的已挂载文件系统。它们单独列出,而不是被归到错误的设备上。",
+      "note": "吞吐量、IOPS 和延迟在两次采样<em>之间</em>测量,因此只在刷新后出现。延迟是实际完成的操作的平均值:没有完成任何操作的间隔根本没有延迟,显示 <code>—</code> 而不是 0 ms。已用寿命和可用备用空间是控制器自己的标准化数值 — 可用备用空间是替换块的储备,不是文件系统的剩余空间。",
+      "waitingHint": "磁盘活动是两次读数之差。刷新即可测量。",
+      "free": "剩余 {{value}}",
+      "full": "{{name}} 已用 {{value}}",
+      "healthUnavailable": "健康报告不可用",
+      "noHealthLog": "此设备未报告标准化的健康日志。"
+    },
+    "waitingSample": "正在等待下一次采样",
+    "network": {
+      "networkDetails": "网络详情",
+      "networkInterfaces": "网络接口",
+      "virtualInterfaces": "虚拟接口",
+      "virtualInterfaceList": "虚拟接口列表",
+      "refreshNetworkDetails": "刷新网络详情",
+      "download": "下载",
+      "upload": "上传",
+      "rxPackets": "RX 数据包",
+      "txPackets": "TX 数据包",
+      "errors": "错误",
+      "dropped": "丢弃",
+      "linkRx": "链路 RX",
+      "linkTx": "链路 TX",
+      "signal": "信号",
+      "quality": "质量",
+      "wiFiRx": "Wi-Fi RX",
+      "wiFiTx": "Wi-Fi TX",
+      "loading": "正在发现网络接口…",
+      "none": "未统计到网络接口。回环接口被刻意排除:它始终存在,只承载从未离开本机的流量。",
+      "virtualCount": "虚拟接口({{count}})",
+      "virtualHint": "网桥、容器链接和其他软件接口。默认折叠,避免运行容器的机器淹没真实的适配器 — 绝不移除。",
+      "note": "下载是到达本机的流量,上传是离开本机的流量。流量在两次采样<em>之间</em>测量,因此只在刷新后出现。链路速度是驱动协商的能力,单位为比特每秒 — 而不是实际流量(以字节计)。丢弃的帧是本地计数器,<strong>不是</strong>互联网丢包;PULSE 不测量互联网丢包。",
+      "kinds": {
+        "Ethernet": "以太网",
+        "Wi-Fi": "Wi-Fi",
+        "Bridge": "网桥",
+        "Tunnel": "隧道",
+        "Virtual": "虚拟",
+        "Network": "网络"
+      },
+      "connected": "已连接",
+      "disconnected": "已断开",
+      "waitingHint": "流量是两次读数之差。刷新即可测量。",
+      "wifiUnavailable": "Wi-Fi 链路详情不可用"
+    },
+    "live": {
+      "title": "实时系统采样",
+      "loading": "正在采样…",
+      "refresh": "刷新采样",
+      "reconcile": "已用 + 可用 = 总计,因此上面两个数值始终一致。",
+      "waitingNext": "正在等待下一次采样"
+    },
+    "engine": {
+      "title": "指标引擎",
+      "loading": "正在查询引擎…",
+      "unavailable": "引擎不可用。请使用 <code>pnpm app:dev</code> 运行 PULSE 以连接 Rust 层。",
+      "status": "状态",
+      "schema": "架构",
+      "providers": "提供程序",
+      "metrics": "指标",
+      "available_other": "({{count}} 个可用)",
+      "schemaMismatch": "后端使用指标架构 v{{backend}};此界面期望 v{{expected}}。",
+      "empty": "尚未注册任何提供程序 — 此阶段 PULSE 不采集硬件指标。"
+    }
+  },
+  "tray": {
+    "open": "打开 PULSE",
+    "edit": "编辑悬浮层",
+    "lock": "锁定悬浮层",
+    "toggle": "显示 / 隐藏悬浮层",
+    "quit": "退出 PULSE"
+  }
+}

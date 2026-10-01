@@ -58,8 +58,13 @@ export type BridgeState =
 
 export interface GnomeBridgeStatus {
   readonly state: BridgeState;
+  /** English, for logs and older frontends; the UI words come from the code. */
   readonly summary: string;
+  /** Stable code of `summary`. Absent from backends before i18n. */
+  readonly summaryCode?: string;
   readonly guidance: string | null;
+  /** Stable code of `guidance`. */
+  readonly guidanceCode?: string | null;
   readonly shellVersion: string | null;
   readonly runningVersion: number | null;
   readonly installedVersion: number | null;
@@ -112,23 +117,25 @@ export const openMainWindow = () => invokeCommand<void>('open_main_window');
 export const openMiniWindow = () => invokeCommand<void>('open_mini_window');
 export const quitApp = () => invokeCommand<void>('quit_app');
 
-export const CAPABILITY_LABELS: Readonly<
-  Record<keyof Omit<OverlayCapabilities, 'displayServer'>, string>
-> = {
-  alwaysOnTop: 'Always on top',
-  clickThrough: 'Click-through when locked',
-  positioning: 'Absolute positioning',
-  transparentWindow: 'Transparent window',
-  globalHotkey: 'Global shortcut',
-  multiMonitorPositioning: 'Multi-monitor placement',
-  tray: 'System tray',
-};
+/** Every capability, in display order. Names: `overlays.capabilities.<key>`. */
+export const CAPABILITY_KEYS: readonly (keyof Omit<OverlayCapabilities, 'displayServer'>)[] = [
+  'alwaysOnTop',
+  'clickThrough',
+  'positioning',
+  'transparentWindow',
+  'globalHotkey',
+  'multiMonitorPositioning',
+  'tray',
+];
 
-export const DISPLAY_SERVER_LABELS: Readonly<Record<OverlayCapabilities['displayServer'], string>> =
-  {
-    windows: 'Windows',
-    x11: 'X11',
-    wayland: 'Wayland (native)',
-    xWayland: 'XWayland (X11 inside a Wayland session)',
-    other: 'Unsupported platform',
-  };
+/** The tray menu's words, in the interface language (the native menu cannot translate). */
+export interface TrayLabels {
+  readonly open: string;
+  readonly edit: string;
+  readonly lock: string;
+  readonly toggle: string;
+  readonly quit: string;
+}
+
+export const setTrayLabels = (labels: TrayLabels) =>
+  invokeCommand<void>('set_tray_labels', { labels });

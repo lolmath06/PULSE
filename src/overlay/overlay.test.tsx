@@ -178,11 +178,12 @@ describe('overlay model', () => {
     expect(normalizeOverlays({ version: 2, items: [] })).toEqual(EMPTY_OVERLAYS);
   });
 
-  it('settings default to quit and Ctrl+Shift+F12', () => {
+  it('settings default to quit, Ctrl+Shift+F12 and the system language', () => {
     expect(normalizeSettings(undefined)).toEqual({
       version: 1,
       closeBehavior: 'quit',
       overlayHotkey: 'Ctrl+Shift+F12',
+      language: 'system',
     });
     expect(
       normalizeSettings({ closeBehavior: 'keep-running', overlayHotkey: null }).overlayHotkey,

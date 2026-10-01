@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Icon } from '@/components/Icon';
 
 /**
@@ -21,6 +22,7 @@ export function Sheet({
   readonly footer?: ReactNode;
   readonly label?: string;
 }) {
+  const { t } = useTranslation();
   const closeRef = useRef<HTMLButtonElement>(null);
   useEffect(() => closeRef.current?.focus(), []);
   return (
@@ -47,7 +49,7 @@ export function Sheet({
             ref={closeRef}
             type="button"
             className="button button--quiet sheet__close"
-            aria-label="Close"
+            aria-label={t('common.close')}
             onClick={onClose}
           >
             <Icon name="close" />

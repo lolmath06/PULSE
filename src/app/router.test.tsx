@@ -7,6 +7,7 @@ import { GamingPage } from '@/pages/GamingPage';
 import { MiniPage } from '@/pages/MiniPage';
 import { NAV_ROUTES } from '@/app/routes';
 import { readSection, resetUiConfigForTesting } from '@/config/uiConfig';
+import { i18n } from '@/i18n/i18n';
 
 /**
  * Renders the shell at `path` and waits for the backend probe to settle.
@@ -45,7 +46,7 @@ describe('PULSE shell', () => {
 
     const nav = screen.getByRole('navigation', { name: 'Main' });
     for (const route of NAV_ROUTES) {
-      expect(nav).toHaveTextContent(route.label);
+      expect(nav).toHaveTextContent(i18n.t(`nav.routes.${route.id}.label`));
     }
   });
 

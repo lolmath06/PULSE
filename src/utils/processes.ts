@@ -1,3 +1,4 @@
+import { t } from '@/i18n/i18n';
 import type {
   ApplicationEntry,
   PackageRef,
@@ -211,13 +212,13 @@ export function matchesCategory(
 export function formatCategory(classification: ProcessClassification): string {
   switch (classification) {
     case 'userApplication':
-      return 'User';
+      return t('processes.category.user');
     case 'systemProcess':
-      return 'System';
+      return t('processes.category.system');
     case 'kernelThread':
-      return 'Kernel thread';
+      return t('processes.category.kernel');
     default:
-      return 'Unknown';
+      return t('processes.category.unknown');
   }
 }
 
@@ -263,13 +264,13 @@ export function applicationNames(
 export function formatProcessState(state: ProcessState): string {
   switch (state) {
     case 'running':
-      return 'Running';
+      return t('processes.state.running');
     case 'sleepingOrWaiting':
-      return 'Sleeping';
+      return t('processes.state.sleeping');
     case 'stopped':
-      return 'Stopped';
+      return t('processes.state.stopped');
     case 'zombie':
-      return 'Zombie';
+      return t('processes.state.zombie');
     default:
       return '—';
   }
@@ -329,13 +330,20 @@ export function searchTerms(input: {
   return terms.slice(0, 4);
 }
 
-/** Linux nice presets: label → nice value. Mirrors `NICE_PRESETS` in Rust. */
-export const NICE_PRESETS: readonly { readonly label: string; readonly value: number }[] = [
-  { label: 'High', value: -10 },
-  { label: 'Above normal', value: -5 },
-  { label: 'Normal', value: 0 },
-  { label: 'Below normal', value: 5 },
-  { label: 'Low', value: 19 },
+/** A priority level's name, by id: `processes.priority.<id>`. */
+export type PriorityLevel = 'realtime' | 'high' | 'aboveNormal' | 'normal' | 'belowNormal' | 'low';
+
+export function priorityLabel(level: PriorityLevel): string {
+  return t(`processes.priority.${level}`);
+}
+
+/** Linux nice presets: level → nice value. Mirrors `NICE_PRESETS` in Rust. */
+export const NICE_PRESETS: readonly { readonly level: PriorityLevel; readonly value: number }[] = [
+  { level: 'high', value: -10 },
+  { level: 'aboveNormal', value: -5 },
+  { level: 'normal', value: 0 },
+  { level: 'belowNormal', value: 5 },
+  { level: 'low', value: 19 },
 ];
 
 export const NICE_MIN = -20;
@@ -343,30 +351,32 @@ export const NICE_MAX = 19;
 
 /** Windows priority classes, most favoured last as Task Manager lists them. */
 export const WINDOWS_PRIORITY_CLASSES: readonly {
-  readonly label: string;
+  readonly level: PriorityLevel;
   readonly value: WindowsPriorityClass;
 }[] = [
-  { label: 'Realtime', value: 'realtime' },
-  { label: 'High', value: 'high' },
-  { label: 'Above normal', value: 'aboveNormal' },
-  { label: 'Normal', value: 'normal' },
-  { label: 'Below normal', value: 'belowNormal' },
-  { label: 'Low', value: 'idle' },
+  { level: 'realtime', value: 'realtime' },
+  { level: 'high', value: 'high' },
+  { level: 'aboveNormal', value: 'aboveNormal' },
+  { level: 'normal', value: 'normal' },
+  { level: 'belowNormal', value: 'belowNormal' },
+  { level: 'low', value: 'idle' },
 ];
 
 /** A priority as the user reads it: the real system value, plus its preset. */
 export function formatPriority(priority: ProcessPriority): string {
   if (priority.kind === 'nice') {
     const preset = NICE_PRESETS.find((entry) => entry.value === priority.value);
-    return preset ? `nice ${priority.value} (${preset.label})` : `nice ${priority.value}`;
+    return preset
+      ? `nice ${priority.value} (${priorityLabel(preset.level)})`
+      : `nice ${priority.value}`;
   }
-  const label = WINDOWS_PRIORITY_CLASSES.find((entry) => entry.value === priority.class)?.label;
-  return label ?? priority.class;
+  const level = WINDOWS_PRIORITY_CLASSES.find((entry) => entry.value === priority.class)?.level;
+  return level ? priorityLabel(level) : priority.class;
 }
 
 /** Compresses a CPU list into ranges: `[0,1,2,3,8]` → `0–3, 8`. */
 export function formatCpuList(cpus: readonly number[]): string {
-  if (cpus.length === 0) return 'none';
+  if (cpus.length === 0) return t('processes.affinityNone');
   const sorted = [...cpus].sort((a, b) => a - b);
   const ranges: string[] = [];
   let start = sorted[0] as number;
@@ -385,23 +395,23 @@ export function formatCpuList(cpus: readonly number[]): string {
 }
 
 export function formatAffinity(affinity: ProcessAffinity): string {
-  return `CPU ${formatCpuList(affinity.cpus)} (${affinity.cpus.length} of ${affinity.available.length})`;
+  return t('processes.affinitySummary', {
+    list: formatCpuList(affinity.cpus),
+    count: affinity.cpus.length,
+    total: affinity.available.length,
+  });
 }
 
 export function formatTrust(trust: TrustStatus): string {
   switch (trust) {
     case 'trusted':
-      return 'Trusted signature';
     case 'signedButUntrusted':
-      return 'Signed, not trusted';
     case 'invalid':
-      return 'Invalid signature';
     case 'unsigned':
-      return 'Unsigned';
     case 'permissionDenied':
-      return 'Permission denied';
+      return t(`processes.trust.${trust}`);
     default:
-      return 'Unavailable';
+      return t('processes.trust.unavailable');
   }
 }
 
@@ -417,11 +427,11 @@ export function describeProvenance(provenance: Provenance): string {
     case 'notPackaged':
       switch (provenance.location) {
         case 'userHome':
-          return 'User/local executable (in your home directory, not from a package)';
+          return t('processes.provenance.userHome');
         case 'localInstall':
-          return 'User/local executable (installed outside the package manager)';
+          return t('processes.provenance.localInstall');
         default:
-          return 'Package not detected';
+          return t('processes.provenance.notDetected');
       }
     case 'signature':
       return formatTrust(provenance.signature.trust);

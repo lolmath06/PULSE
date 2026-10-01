@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { WidgetInstance } from '@/dashboard/model';
 import { createWidget, findBlueprint } from '@/dashboard/library';
 import type { Look } from '@/design/look';
@@ -37,13 +38,8 @@ function previewWidgets(): Record<
  * A small, real composition — summary strip, a chart, a gauge and three
  * tiles — drawn live with `look`. What you tune is what you see.
  */
-export function LookPreview({
-  look,
-  label = 'Preview',
-}: {
-  readonly look: Look;
-  readonly label?: string;
-}) {
+export function LookPreview({ look, label }: { readonly look: Look; readonly label?: string }) {
+  const { t } = useTranslation();
   const widgets = useMemo(() => previewWidgets(), []);
   const [ref, size] = useElementSize<HTMLDivElement>();
   const width = Math.max(280, size.width || 520);
@@ -53,7 +49,7 @@ export function LookPreview({
   const tileW = Math.floor((width - gap * 2) / 3);
 
   return (
-    <StyleScope look={look} className="look-preview" label={label}>
+    <StyleScope look={look} className="look-preview" label={label ?? t('common.preview')}>
       <div ref={ref} className="look-preview__stage" style={{ gap }}>
         <WidgetCard widget={widgets.summary} width={width} height={64} editing={false} />
         <div className="look-preview__row" style={{ gap }}>

@@ -1,0 +1,2020 @@
+{
+  "app": {
+    "tagline": "Je systeem in één oogopslag."
+  },
+  "common": {
+    "comingLater": "Komt in een latere fase van PULSE.",
+    "active": "Actief",
+    "copyOf": "{{name}} (kopie)",
+    "all": "Alles",
+    "checking": "Controleren…",
+    "refresh": "Vernieuwen",
+    "copy": "Kopiëren",
+    "copied": "Gekopieerd",
+    "apply": "Toepassen",
+    "duplicate": "Dupliceren",
+    "delete": "Verwijderen",
+    "preview": "Voorbeeld",
+    "customize": "Aanpassen",
+    "removeNamed": "{{name}} verwijderen",
+    "add": "Toevoegen",
+    "widgetCount_one": "{{count}} widget",
+    "widgetCount_other": "{{count}} widgets",
+    "cancel": "Annuleren",
+    "rename": "Hernoemen",
+    "reset": "Herstellen",
+    "export": "Exporteren",
+    "import": "Importeren",
+    "copyToClipboard": "Naar klembord kopiëren",
+    "invalidJson": "Dit is geen geldige JSON.",
+    "remove": "Verwijderen",
+    "close": "Sluiten",
+    "save": "Opslaan",
+    "deleteNamed": "{{name}} verwijderen",
+    "refreshing": "Vernieuwen…",
+    "hide": "Verbergen",
+    "showAll": "Alles tonen"
+  },
+  "nav": {
+    "main": "Hoofdnavigatie",
+    "groups": {
+      "monitor": "Monitoren",
+      "modes": "Modi",
+      "studio": "Studio"
+    },
+    "routes": {
+      "overview": {
+        "label": "Overzicht",
+        "description": "Het standaarddashboard van PULSE."
+      },
+      "dashboard": {
+        "label": "Dashboard",
+        "description": "Je eigen dashboards: widgets die je toevoegt, schikt en opmaakt."
+      },
+      "overlays": {
+        "label": "Overlays",
+        "description": "Widgets in eigen vensters op het bureaublad."
+      },
+      "gaming": {
+        "label": "Gaming",
+        "description": "Een lichte weergave met de metrieken die tijdens het spelen tellen."
+      },
+      "development": {
+        "label": "Ontwikkeling",
+        "description": "Een weergave gericht op build-, compileer- en werkbelasting."
+      },
+      "personal": {
+        "label": "Persoonlijk",
+        "description": "Een vrij samen te stellen dashboard met veel widgets."
+      },
+      "mini": {
+        "label": "Mini",
+        "description": "Een klein, gewoon PULSE-venster dat één dashboard toont."
+      },
+      "appearance": {
+        "label": "Uiterlijk",
+        "description": "Stijlen, kleuren, lettertype, dichtheid, beweging en taal — voor elk oppervlak."
+      }
+    },
+    "changeStyle": "Stijl wijzigen",
+    "style": "Stijl"
+  },
+  "status": {
+    "backendStatus": "Backendstatus",
+    "querying": "Backend bevragen…",
+    "unavailableUiOnly": "Backend niet beschikbaar — alleen interface"
+  },
+  "notFound": {
+    "title": "Niet gevonden",
+    "subtitle": "Dit deel van PULSE bestaat niet.",
+    "back": "Terug naar het overzicht"
+  },
+  "overview": {
+    "version": "Versie {{version}}",
+    "systemDetails": "Systeemdetails",
+    "detectedPlatform": "Gedetecteerd platform",
+    "backendUnavailable": "Backend niet beschikbaar. Start PULSE met <code>pnpm app:dev</code> om de Rust-laag te bereiken.",
+    "os": "Besturingssysteem",
+    "platformLayer": "Platformlaag",
+    "architecture": "Architectuur",
+    "displayServer": "Weergaveserver",
+    "backendVersion": "Backendversie"
+  },
+  "home": {
+    "liveSystem": "Live systeem",
+    "links": {
+      "dashboards": "Dashboards",
+      "dashboardsHint": "sjablonen, widgets, indelingen",
+      "overlays": "Overlays",
+      "overlaysHint_one": "{{count}} pakket, backendstatus",
+      "overlaysHint_other": "{{count}} pakketten, backendstatus",
+      "appearance": "Uiterlijk",
+      "appearanceHint_one": "{{count}} stijl, fijnafstemming",
+      "appearanceHint_other": "{{count}} stijlen, fijnafstemming"
+    }
+  },
+  "welcome": {
+    "title": "Welkom bij PULSE",
+    "subtitle": "Kies een vertrekpunt. Alles kan later nog worden gewijzigd — in Uiterlijk, de modi, Dashboard en Overlays.",
+    "label": "Welkom",
+    "skip": "Overslaan",
+    "start": "PULSE starten",
+    "modeLabel": "Modus",
+    "howUse": "Hoe ga je het gebruiken?",
+    "justMonitor": "Alleen monitoren",
+    "justMonitorHint": "Geen modus — een stijl en de dashboards.",
+    "pickStyle": "Kies een stijl",
+    "styles": "Welkomststijlen",
+    "starters": "Om te beginnen",
+    "startWith": "Beginnen met",
+    "dashboard": "Dashboard",
+    "starterDashboard": "Startdashboard",
+    "keepDashboards": "Mijn huidige dashboards behouden",
+    "overlay": "Overlay",
+    "starterOverlay": "Startoverlay",
+    "noOverlay": "Voorlopig geen overlay",
+    "overlaysHere": "Overlays hier:",
+    "bridgeNotReady": "— GNOME-brug: {{state}}. Stel hem in via Overlays.",
+    "bridgeActive": "— overlays blijven boven andere vensters.",
+    "noBackend": "De overlaymogelijkheden verschijnen bij Overlays zodra de backend antwoordt."
+  },
+  "language": {
+    "label": "Taal",
+    "system": "Systeem ({{language}})",
+    "hint": "Systeem volgt de taal van je computer. Geldt meteen voor alle PULSE-vensters."
+  },
+  "metrics": {
+    "catalog": {
+      "cpu": {
+        "count": {
+          "logical": {
+            "name": "Logische processors",
+            "description": "Aantal logische processors (hardwarethreads) waarop het besturingssysteem werk inplant. Met simultane multithreading is dit meer dan het aantal fysieke kernen."
+          },
+          "package": {
+            "name": "Processorpakketten",
+            "description": "Aantal geïnstalleerde fysieke processorpakketten (sockets)."
+          },
+          "physical": {
+            "name": "Fysieke kernen",
+            "description": "Aantal fysieke uitvoeringskernen, geteld als unieke paren (pakket, kern), zodat gelijk genummerde kernen in twee verschillende pakketten nooit worden samengevoegd."
+          }
+        },
+        "frequency": {
+          "current": {
+            "name": "Huidige frequentie",
+            "description": "Klokfrequentie die het besturingssysteem momenteel voor deze logische processor meldt. Schaling, boost en energiebeleid veranderen haar voortdurend; het is dus het laatste cijfer van het platform, geen momentopname van het silicium."
+          },
+          "max": {
+            "name": "Maximale frequentie",
+            "description": "Maximale klokfrequentie die het platform voor deze logische processor meldt. Op een hybride CPU verschilt die tussen prestatie- en efficiëntiekernen. Een plafond van de governor of het energiebeleid wordt nooit in plaats daarvan gepubliceerd."
+          }
+        },
+        "temperature": {
+          "package": {
+            "name": "Pakkettemperatuur",
+            "description": "Temperatuur die het processorpakket over zichzelf meldt. Het is de eigen sensor van het pakket, nooit een gemiddelde van de afzonderlijke kernen en nooit een van de thermische grenzen waarvoor het silicium is ontworpen."
+          }
+        },
+        "usage": {
+          "logical": {
+            "name": "CPU-gebruik",
+            "description": "Aandeel van de CPU-tijd waarin deze logische processor werk deed, gemeten sinds de vorige meting. Met simultane multithreading delen twee logische processors één fysieke kern."
+          },
+          "total": {
+            "name": "CPU-gebruik",
+            "description": "Aandeel van de CPU-tijd waarin de hele machine werk deed, gemeten sinds de vorige meting."
+          }
+        }
+      },
+      "gpu": {
+        "count": {
+          "name": "GPU's",
+          "description": "Aantal hardwarematige grafische adapters dat PULSE heeft geïnventariseerd. Softwareadapters zoals Microsoft Basic Render Driver en WARP worden niet meegeteld."
+        },
+        "fan": {
+          "speed": {
+            "name": "Ventilator",
+            "description": "Toerental van de ventilator van de adapter, in omwentelingen per minuut. Een ventilatorpercentage is een werkcyclus, geen snelheid, en wordt nooit in plaats daarvan gepubliceerd."
+          }
+        },
+        "frequency": {
+          "core": {
+            "name": "Kernklok",
+            "description": "Huidige grafische klok volgens het stuurprogramma. Boostgedrag en energiebeleid veranderen hem voortdurend; het is dus het laatste cijfer van het platform, geen momentopname van het silicium."
+          },
+          "memory": {
+            "name": "Geheugenklok",
+            "description": "Huidige klok van het videogeheugen volgens het stuurprogramma."
+          }
+        },
+        "memory": {
+          "free": {
+            "name": "Vrij VRAM",
+            "description": "Toegewezen videogeheugen dat nog kan worden gereserveerd."
+          },
+          "total": {
+            "name": "Totaal VRAM",
+            "description": "Op deze adapter geïnstalleerd eigen videogeheugen. Systeemgeheugen dat met een geïntegreerde GPU wordt gedeeld, wordt hier bewust niet gemeld."
+          },
+          "usage": {
+            "percent": {
+              "name": "VRAM-gebruik",
+              "description": "Aandeel van het eigen videogeheugen in gebruik, berekend uit gebruikte en totale bytes."
+            }
+          },
+          "used": {
+            "name": "Gebruikt VRAM",
+            "description": "Eigen videogeheugen dat momenteel in het hele systeem in gebruik is."
+          }
+        },
+        "temperature": {
+          "core": {
+            "name": "Temperatuur",
+            "description": "Temperatuur van de grafische processorchip, volgens de eigen sensor."
+          },
+          "hotspot": {
+            "name": "Hotspot",
+            "description": "Heetste gemeten punt op het grafische processorpakket. Een andere sensor dan die van de chip, die onder belasting meestal hoger aangeeft, en nooit daarvan afgeleid."
+          },
+          "memory": {
+            "name": "Geheugentemperatuur",
+            "description": "Temperatuur van het eigen videogeheugen, van de eigen sensor."
+          }
+        },
+        "usage": {
+          "core": {
+            "name": "GPU-gebruik",
+            "description": "Aandeel van de capaciteit van de grafische engine in gebruik, zoals het stuurprogramma meldt."
+          }
+        }
+      },
+      "memory": {
+        "available": {
+          "name": "Beschikbaar geheugen",
+          "description": "Fysiek geheugen dat zonder swappen kan worden toegewezen."
+        },
+        "total": {
+          "name": "Totaal geheugen",
+          "description": "Geïnstalleerd fysiek geheugen dat het besturingssysteem kan gebruiken."
+        },
+        "usage": {
+          "percent": {
+            "name": "Geheugengebruik",
+            "description": "Aandeel van het fysieke geheugen in gebruik, berekend uit gebruikte en totale bytes."
+          }
+        },
+        "used": {
+          "name": "Gebruikt geheugen",
+          "description": "Fysiek geheugen in gebruik, gedefinieerd als totaal min beschikbaar."
+        }
+      },
+      "network": {
+        "interface": {
+          "count": {
+            "name": "Interfaces",
+            "description": "Aantal netwerkinterfaces dat PULSE monitort. De loopback-interface is bewust uitgesloten: die bestaat altijd en draagt alleen verkeer dat deze machine nooit heeft verlaten."
+          },
+          "up_count": {
+            "name": "Verbonden",
+            "description": "Hoeveel van de gemonitorde interfaces momenteel een verbinding hebben. Een ingeschakelde adapter zonder kabel, of een radio die niet aan een netwerk gekoppeld is, telt niet mee."
+          }
+        },
+        "link": {
+          "receive_speed": {
+            "name": "Link RX",
+            "description": "De inkomende capaciteit van de verbinding, zoals het stuurprogramma die onderhandelde — niet hoeveel er stroomt. Een meter en geen vaste waarde, want wifi en ethernet onderhandelen allebei opnieuw."
+          },
+          "transmit_speed": {
+            "name": "Link TX",
+            "description": "De uitgaande capaciteit van de verbinding. Gelijk aan de inkomende bij ethernet; vaak anders bij wifi."
+          }
+        },
+        "mtu": {
+          "name": "MTU",
+          "description": "De grootste payload die deze interface in één frame vervoert. Een configuratiegegeven en geen meting, dus een toestand."
+        },
+        "receive": {
+          "bytes_per_second": {
+            "name": "Download",
+            "description": "Bytes die per seconde bij deze machine aankomen, afgeleid uit de cumulatieve tellers van het besturingssysteem tussen twee metingen. Ontvangen betekent inkomend, vanuit deze machine gezien."
+          },
+          "dropped_per_second": {
+            "name": "RX verworpen",
+            "description": "Inkomende frames die intact aankwamen en toch werden weggegooid — een volle buffer, of geen protocol dat ze wilde. Dit is een lokale teller en geen pakketverlies op internet, dat PULSE niet meet."
+          },
+          "errors_per_second": {
+            "name": "RX-fouten",
+            "description": "Inkomende frames die de interface weigerde omdat er iets mis mee was — een foute checksum, een framingfout. Een andere teller dan verworpen frames; een aanhoudend niet-nul tempo wijst meestal op een kabel- of stuurprogrammaprobleem."
+          },
+          "packets_per_second": {
+            "name": "RX-pakketten",
+            "description": "Pakketten die per seconde aankomen, unicast en niet-unicast samen. Nul is een echte meting: er kwam niets binnen tijdens het interval."
+          }
+        },
+        "transmit": {
+          "bytes_per_second": {
+            "name": "Upload",
+            "description": "Bytes die deze machine per seconde verlaten, afgeleid uit de cumulatieve tellers van het besturingssysteem tussen twee metingen. Verzenden betekent uitgaand."
+          },
+          "dropped_per_second": {
+            "name": "TX verworpen",
+            "description": "Uitgaande frames die vóór verzending werden weggegooid, meestal omdat een wachtrij vol was."
+          },
+          "errors_per_second": {
+            "name": "TX-fouten",
+            "description": "Uitgaande frames die de interface niet kon verzenden."
+          },
+          "packets_per_second": {
+            "name": "TX-pakketten",
+            "description": "Pakketten die per seconde vertrekken, unicast en niet-unicast samen."
+          }
+        },
+        "wifi": {
+          "link": {
+            "receive_rate": {
+              "name": "Wifi-RX-snelheid",
+              "description": "De met het toegangspunt onderhandelde inkomende snelheid. Een capaciteit, geen verkeer: een verbinding op 400 Mbit/s zonder verkeer meldt nog steeds 400 Mbit/s."
+            },
+            "transmit_rate": {
+              "name": "Wifi-TX-snelheid",
+              "description": "De met het toegangspunt onderhandelde uitgaande snelheid. Vaak anders dan de inkomende."
+            }
+          },
+          "signal": {
+            "quality": {
+              "name": "Kwaliteit",
+              "description": "Een verbindingskwaliteit van 0–100, alleen gepubliceerd waar het besturingssysteem die zelf berekent. Nooit afgeleid van de signaalsterkte: elke gangbare formule van dBm naar percentage is willekeurig, en een zo gemaakt getal zou eruitzien als een meting terwijl het een gok is."
+            },
+            "rssi": {
+              "name": "Signaal",
+              "description": "Ontvangen signaalsterkte in dBm, zoals de radio meldt — een logaritmische schaal waarop −40 sterk is en −90 nauwelijks bruikbaar. Bij een radio die via meerdere verbindingen gekoppeld is, is dit de waarde van de sterkste actieve verbinding; dBm-waarden worden nooit gemiddeld."
+            }
+          }
+        }
+      },
+      "process": {
+        "count": {
+          "running": {
+            "name": "Actief",
+            "description": "Hoeveel processen op een processor draaien of klaarstaan in de wachtrij. Bijna elk proces op een rustend bureaublad wacht juist — op een timer, op invoer, op een schijf — dus een klein getal hier is normaal en geen teken van een stilstaande machine. Windows meldt geen procesniveaustatus, dus daar is dit cijfer niet beschikbaar in plaats van verzonnen."
+          },
+          "total": {
+            "name": "Processen",
+            "description": "Hoeveel processen er nu op deze machine bestaan, ook die waarvan PULSE de details niet kan lezen. Een geweigerd proces bestaat nog steeds en telt nog steeds mee."
+          }
+        },
+        "thread": {
+          "count": {
+            "total": {
+              "name": "Threads",
+              "description": "Alle threads van alle zichtbare processen, opgeteld. Processen waarvan het aantal threads niet kon worden gelezen, dragen niets bij in plaats van een gok; op een machine vol beschermde processen is dit dus een onderschatting, geen verzinsel."
+            }
+          }
+        }
+      },
+      "storage": {
+        "capacity": {
+          "total": {
+            "name": "Capaciteit",
+            "description": "Totale adresseerbare capaciteit van het fysieke apparaat. Dit is het hele apparaat, niet de som van de bestandssystemen erop."
+          }
+        },
+        "device": {
+          "count": {
+            "name": "Opslagapparaten",
+            "description": "Aantal fysieke opslagapparaten dat PULSE heeft geïnventariseerd. Partities, loop-apparaten, RAM-schijven en device-mapper-volumes tellen niet als eigen apparaten."
+          }
+        },
+        "health": {
+          "available_spare": {
+            "name": "Beschikbare reserve",
+            "description": "Resterend aandeel van de reserve aan vervangende blokken van het apparaat. Dit is geen vrije ruimte op het bestandssysteem en geen niet-toegewezen capaciteit: een volledig volle schijf meldt normaal nog steeds 100 % reserve."
+          },
+          "media_errors": {
+            "name": "Mediafouten",
+            "description": "Media- en data-integriteitsfouten die de controller gedurende de levensduur van het apparaat heeft gedetecteerd en geteld."
+          },
+          "percentage_used": {
+            "name": "Verbruikte levensduur",
+            "description": "Schatting van de controller van hoeveel van de opgegeven schrijflevensduur van het apparaat is verbruikt. Precies gemeld zoals het apparaat het opgeeft, inclusief waarden boven 100 % zodra de specificatie is overschreden, en nooit omgezet in een gezondheidsscore."
+          },
+          "power_on_hours": {
+            "name": "Inschakeluren",
+            "description": "Uren dat de controller van het apparaat ingeschakeld is geweest, volgens de eigen telling."
+          },
+          "temperature": {
+            "name": "Temperatuur",
+            "description": "De samengestelde temperatuur van de opslagcontroller — één cijfer dat het apparaat uit de eigen sensoren afleidt, geen afzonderlijke sensor en niet de meting van een ander onderdeel."
+          },
+          "unsafe_shutdowns": {
+            "name": "Onveilige uitschakelingen",
+            "description": "Hoe vaak het apparaat de stroom verloor zonder eerst te zijn gevraagd af te sluiten."
+          }
+        },
+        "io": {
+          "read": {
+            "bytes_per_second": {
+              "name": "Lezen",
+              "description": "Per seconde van het apparaat gelezen bytes, afgeleid uit de cumulatieve tellers van het besturingssysteem tussen twee metingen."
+            },
+            "iops": {
+              "name": "Lees-IOPS",
+              "description": "Per seconde voltooide leesbewerkingen. Nul is een echte meting: er werd tijdens het interval geen leesbewerking voltooid."
+            },
+            "latency": {
+              "name": "Leeslatentie",
+              "description": "Gemiddelde duur van een leesbewerking, zoals het besturingssysteem die waarnam — inclusief wachtrij en gemeten vanaf de host, niet in het apparaat. Een interval zonder voltooide leesbewerking heeft helemaal geen latentie en meldt er geen in plaats van nul."
+            }
+          },
+          "write": {
+            "bytes_per_second": {
+              "name": "Schrijven",
+              "description": "Per seconde naar het apparaat geschreven bytes, afgeleid uit de cumulatieve tellers van het besturingssysteem tussen twee metingen."
+            },
+            "iops": {
+              "name": "Schrijf-IOPS",
+              "description": "Per seconde voltooide schrijfbewerkingen. Nul is een echte meting: er werd tijdens het interval geen schrijfbewerking voltooid."
+            },
+            "latency": {
+              "name": "Schrijflatentie",
+              "description": "Gemiddelde duur van een schrijfbewerking, zoals het besturingssysteem die waarnam. Een interval zonder voltooide schrijfbewerking meldt geen waarde in plaats van nul."
+            }
+          }
+        },
+        "volume": {
+          "capacity": {
+            "available": {
+              "name": "Beschikbaar",
+              "description": "Ruimte waarnaar deze gebruiker echt kan schrijven. Minder dan de vrije ruimte op bestandssystemen die een reserve voor de superuser aanhouden, en dat is bewust: die reserve is niet voor jou beschikbaar."
+            },
+            "total": {
+              "name": "Volumegrootte",
+              "description": "Totale grootte van het bestandssysteem. Meerdere bestandssystemen op één apparaat tellen niet op tot de capaciteit van het apparaat, en een bestandssysteem kan meerdere apparaten beslaan."
+            },
+            "used": {
+              "name": "Gebruikt",
+              "description": "Ruimte op het bestandssysteem die gegevens bevat, gedefinieerd als totaal min vrije blokken. Gebruikt en beschikbaar tellen niet op tot het totaal op bestandssystemen die blokken voor de superuser reserveren."
+            }
+          },
+          "count": {
+            "name": "Volumes",
+            "description": "Aantal gekoppelde bestandssystemen dat PULSE heeft geïnventariseerd. Een bestandssysteem dat via meerdere paden bereikbaar is, telt één keer; pseudo-bestandssystemen zoals proc en sysfs tellen niet mee."
+          },
+          "usage": {
+            "percent": {
+              "name": "Volumegebruik",
+              "description": "Aandeel van het bestandssysteem dat gegevens bevat, berekend uit gebruikte en totale bytes."
+            }
+          }
+        }
+      }
+    },
+    "sources": {
+      "cpuSystem": "Systeem-CPU",
+      "memorySystem": "Systeemgeheugen",
+      "gpuSystem": "Graphics",
+      "processSystem": "Processen",
+      "networkSystem": "Netwerk",
+      "storageSystem": "Opslag",
+      "cpuPackage": "Pakket {{index}}"
+    },
+    "availability": {
+      "available": "Beschikbaar",
+      "unsupported": "Niet ondersteund",
+      "notDetected": "Niet gedetecteerd",
+      "permissionDenied": "Toestemming vereist",
+      "temporarilyUnavailable": "Tijdelijk niet beschikbaar",
+      "providerError": "Fout bij aanbieder",
+      "notRegistered": "Niet geregistreerd"
+    },
+    "availabilityReason": {
+      "unsupported": "Niet ondersteund: {{reason}}",
+      "notDetected": "Niet gedetecteerd: {{reason}}",
+      "permissionDenied": "Toestemming vereist: {{reason}}",
+      "temporarilyUnavailable": "Tijdelijk niet beschikbaar: {{reason}}",
+      "providerError": "Fout bij aanbieder: {{reason}}",
+      "notRegistered": "Niet geregistreerd: {{reason}}"
+    },
+    "engineState": {
+      "ready": "Gereed",
+      "empty": "Leeg"
+    },
+    "notReported": "Deze machine meldt deze metriek niet.",
+    "noneSelected": "Geen metriek geselecteerd.",
+    "sourceUnavailable": "Bron niet beschikbaar"
+  },
+  "styles": {
+    "clean": {
+      "name": "Strak",
+      "tagline": "Modern, rustig, professioneel",
+      "description": "Rustige antraciet vlakken, zachte diepte en één blauwgroen accent. De standaard: alles leesbaar, niets schreeuwt."
+    },
+    "glass": {
+      "name": "Glas",
+      "tagline": "Mat, lichtgevend, premium",
+      "description": "Doorschijnende matglazen panelen boven een diep noorderlicht, een heldere rand bovenaan en luchtige hoeken. Het pronkstuk."
+    },
+    "technical": {
+      "name": "Technisch",
+      "tagline": "Meetinstrumenten, dicht en exact",
+      "description": "Een ingenieurswerkbank: blauwdrukraster, rechte randen, cijfers met vaste breedte, amberkleurige uitlezingen, elke as en elk meetpunt."
+    },
+    "neon": {
+      "name": "Neon",
+      "tagline": "Hoog contrast, elektrisch",
+      "description": "Bijna zwart met magenta en cyaan licht: gloeiende lijnen, verlichte randen en stralende cijfers. Dramatisch en toch leesbaar."
+    },
+    "gaming": {
+      "name": "Gaming",
+      "tagline": "Gedurfd, snel, energiek",
+      "description": "Afgeschuinde hoeken, karmijn en amber, smalle zware letters en grote cijfers: gemaakt om midden in een potje in één blik te lezen."
+    },
+    "stealth": {
+      "name": "Stealth",
+      "tagline": "Donker, discreet, weinig ruis",
+      "description": "Bijna geen kader, gedempte leigrijze tekst, geen vullingen en geen rasters: aanwezig als je kijkt, onzichtbaar als je dat niet doet."
+    },
+    "compact": {
+      "name": "Compact",
+      "tagline": "Strak, efficiënt, geschikt voor klein",
+      "description": "Dichtere afstanden, kleinere tekst en rustige grafieken: de meeste informatie per pixel voor kleine widgets en micro-overlays."
+    },
+    "hud": {
+      "name": "Transparante HUD",
+      "tagline": "Geen panelen, alleen de cijfers",
+      "description": "Zonder kader: heldere cijfers met een zachte donkere gloed, leesbaar boven elke achtergrond of game, dunne lijnen, geen raster."
+    },
+    "accents": {
+      "teal": "Blauwgroen",
+      "sky": "Hemelsblauw",
+      "blue": "Blauw",
+      "violet": "Violet",
+      "magenta": "Magenta",
+      "crimson": "Karmijn",
+      "amber": "Amber",
+      "lime": "Limoen",
+      "mint": "Mint",
+      "silver": "Zilver"
+    },
+    "palettes": {
+      "aurora": "Noorderlicht",
+      "ocean": "Oceaan",
+      "ember": "Gloed",
+      "forest": "Bos",
+      "candy": "Snoep",
+      "mono": "Mono"
+    }
+  },
+  "modes": {
+    "gaming": {
+      "name": "Gaming",
+      "tagline": "Overlays eerst. In één blik gelezen.",
+      "description": "Gedurfde, compacte overlays voor prestaties en temperaturen naast je game — nooit erin. Vergrendelde overlays laten elke klik door en nemen nooit de focus.",
+      "principles": {
+        "noFps": "Geen FPS-teller: PULSE heeft geen echte FPS-bron en toont er dus geen.",
+        "safeOverlays": "Alleen veilige bureaubladoverlays — geen injectie, geen DirectX/Vulkan/OpenGL-hooks.",
+        "borderless": "Randloze of venstergames; exclusief volledig scherm verbergt bureaubladvensters."
+      }
+    },
+    "development": {
+      "name": "Ontwikkeling",
+      "tagline": "Buildbelasting, op ingenieursresolutie.",
+      "description": "CPU, geheugen, schijf-I/O, netwerk en procesaantallen in een dichte, exacte indeling — voor builds, containers, testruns en debugsessies.",
+      "principles": {
+        "realSamples": "Elk cijfer is een echte meting; de geschiedenis komt van PULSE's eigen recorder.",
+        "processesNearby": "De procesweergave is één klik verwijderd voor het proces achter een piek.",
+        "technicalStyle": "Technische stijl: rechte segmenten en meetpunten — niets afgevlakt."
+      }
+    },
+    "personal": {
+      "name": "Persoonlijk",
+      "tagline": "Je dagelijkse weergave, helemaal van jou.",
+      "description": "Een prettig, evenwichtig vertrekpunt om samen te stellen: voeg toe wat jij belangrijk vindt, kies een stijl, laat het de hele dag op het scherm staan.",
+      "principles": {
+        "editable": "Alles hier is bewerkbaar: widgets, stijl, indeling, overlays.",
+        "saveLook": "Bewaar de look die je maakt als eigen stijl in Uiterlijk.",
+        "shareExport": "Deel een dashboard met Exporteren — het bevat geen hardware-ID."
+      }
+    },
+    "mini": {
+      "name": "Mini",
+      "tagline": "Een klein, elegant monitorvenster.",
+      "description": "Een compact, gewoon venster met een handvol zorgvuldig gedimensioneerde metingen. Interactief, nooit altijd bovenop — gebruik daarvoor een overlay.",
+      "principles": {
+        "normalWindow": "Mini is een gewoon venster: verplaatsbaar, focusbaar, in de taakbalk.",
+        "pickLayout": "Kies hieronder een Mini-indeling, of toon er een van je dashboards in."
+      }
+    },
+    "miniLayouts": {
+      "vitals": {
+        "name": "Vitale waarden",
+        "description": "CPU, geheugen, temperatuur en verkeer, elk met een trend."
+      },
+      "thermals": {
+        "name": "Temperaturen",
+        "description": "Temperaturen in de tijd, in kleurbanden, met de SSD."
+      },
+      "network": {
+        "name": "Netwerk",
+        "description": "Download en upload, met wifisignaal als dat er is."
+      },
+      "focus": {
+        "name": "Focus",
+        "description": "Eén grote CPU-ring, geheugen en warmte als meters."
+      }
+    },
+    "page": {
+      "aria": "Modus {{mode}}",
+      "eyebrow": "Modus",
+      "leave": "Modus verlaten",
+      "enter": "Modus {{mode}} starten",
+      "style": "Stijl {{mode}}",
+      "modeDefault": "{{name}} (standaard van de modus)",
+      "overlaysFor": "Overlays voor {{mode}}",
+      "packsHint": "Samengesteld voor de modus {{mode}} — elk wordt een bewerkbare overlay in een eigen venster.",
+      "behaviour": "Gedrag",
+      "whenOn": "Als deze modus aan staat",
+      "lockOverlays": "Elke overlay vergrendelen bij het starten (klikken gaan erdoorheen, nooit gefocust)",
+      "keepRunning": "PULSE en zijn overlays laten doordraaien als het hoofdvenster sluit",
+      "keyMetrics": "Kernmetrieken {{mode}}",
+      "dashboardAria": "Dashboard {{mode}}",
+      "startDashboard": "Start het dashboard {{mode}} vanuit zijn sjabloon — en verander daarna wat je wilt.",
+      "createDashboard": "Dashboard {{mode}} maken",
+      "editInDashboard": "Bewerken in Dashboard",
+      "switchesKeepRunning": "Deze modus zet ‘hoofdvenster sluiten’ om naar blijven draaien."
+    },
+    "miniPage": {
+      "subtitle": "Een klein, gewoon PULSE-venster. Mini is interactief en gedraagt zich als elk ander venster; voor iets dat bovenop blijft en klikken doorlaat, voeg je een overlay toe.",
+      "useHere": "Mini-modus hier ook gebruiken",
+      "layouts": "Mini-indelingen",
+      "whatShows": "Wat Mini toont",
+      "layout": "Mini-indeling",
+      "orDashboard": "Of een dashboard",
+      "dashboardShown": "Dashboard in Mini",
+      "style": "Mini-stijl",
+      "howLooks": "Hoe Mini eruitziet",
+      "followMode": "Mini-modus ({{name}})",
+      "modeStyle": "Stijl van de Mini-modus",
+      "followsAtOnce": "Het Mini-venster neemt dit meteen over — opnieuw openen is niet nodig.",
+      "preview": "Mini-voorbeeld",
+      "live": "Live · {{name}}",
+      "tinyOverlays": "Piepkleine overlays",
+      "tinyOverlaysHint": "Als de meting boven alles moet blijven en klikken moet doorlaten, gebruik dan een van deze."
+    }
+  },
+  "presets": {
+    "templates": {
+      "balanced": {
+        "name": "Evenwichtige standaard",
+        "description": "Het dagelijkse overzicht: een samenvattingsbalk, CPU en geheugen, warmte, GPU, netwerk, schijf."
+      },
+      "gaming": {
+        "name": "Gamingdashboard",
+        "description": "Eerst belasting en warmte: CPU- en GPU-ringen, temperaturen, VRAM, geheugen en verkeer."
+      },
+      "development": {
+        "name": "Ontwikkelingsdashboard",
+        "description": "Buildbelasting op ingenieursresolutie: CPU, geheugen, schijf-I/O, netwerk, processen."
+      },
+      "personal": {
+        "name": "Persoonlijke start",
+        "description": "Een prettige, evenwichtige start om eigen te maken: ringen, een grafiek, warmte en netwerk."
+      },
+      "thermal": {
+        "name": "Focus op warmte",
+        "description": "Elke temperatuur die PULSE leest, in kleurbanden, naast de belasting die haar veroorzaakt."
+      },
+      "network-io": {
+        "name": "Netwerk & I/O",
+        "description": "Verkeer en schijfdoorvoer van dichtbij, met bestandssysteemgebruik en wifi."
+      },
+      "minimal": {
+        "name": "Minimaal strak",
+        "description": "Vier grote cijfers en één rustige grafiek. Verder niets."
+      },
+      "showcase": {
+        "name": "Pronkstuk",
+        "description": "PULSE op zijn indrukwekkendst: matglas, ringen, trends met verloop en een live balk."
+      }
+    },
+    "packs": {
+      "tiny-thermals": {
+        "name": "Mini-temperaturen",
+        "description": "CPU- en GPU-temperatuur met geheugen, in een piepklein blok.",
+        "sample": "CPU 64 °C|GPU 58 °C|RAM 42 %"
+      },
+      "tiny-stats": {
+        "name": "Mini-statistieken",
+        "description": "CPU, GPU, RAM en temperatuur in één smalle regel.",
+        "sample": "CPU 24 %|GPU 84 %|RAM 41 %|67 °C"
+      },
+      "top-bar": {
+        "name": "Bovenbalk",
+        "description": "Een samenvattingsbalk over de volle breedte bovenaan het scherm, met live trends.",
+        "sample": "CPU 23 % ∿|GPU 61 % ∿|RAM 44 % ∿|CPU 67 °C ∿|↓ 2,1 MB/s ∿|↑ 180 kB/s ∿"
+      },
+      "bottom-bar": {
+        "name": "Onderbalk",
+        "description": "Meters langs de onderrand: belastingsbalken voor CPU, GPU en geheugen, en verkeer.",
+        "sample": "CPU ▰▰▰▱▱|GPU ▰▰▱▱▱|RAM ▰▰▰▰▱|↓ 2,1 MB/s|↑ 180 kB/s"
+      },
+      "left-rail": {
+        "name": "Linkerkolom",
+        "description": "Een kolom over de volle hoogte met ringen en trends langs de linkerrand.",
+        "sample": "◔ CPU 23 %|◑ GPU 61 %|◕ RAM 44 %|CPU 67 °C|↓ 2,1 MB/s"
+      },
+      "right-rail": {
+        "name": "Rechterkolom",
+        "description": "Monitorgrafieken over de volle hoogte rechts: CPU, geheugen, warmte, netwerk, schijf.",
+        "sample": "CPU ⌇⌇⌇|RAM ⌇⌇⌇|°C ⌇⌇⌇|↓↑ ⌇⌇⌇|L/S ⌇⌇⌇"
+      },
+      "gaming-corner": {
+        "name": "Gaminghoek",
+        "description": "Een gedurfde HUD met zes cijfers voor een bovenhoek: belasting, warmte, VRAM en RAM.",
+        "sample": "CPU 31 %|GPU 97 %|CPU 71 °C|GPU 74 °C|VRAM 6,1 GB|RAM 44 %"
+      },
+      "thermal-strip": {
+        "name": "Temperatuurbalk",
+        "description": "Elke temperatuur die PULSE kan lezen, in kleurbanden, met trends.",
+        "sample": "CPU 71 °C ∿|GPU 64 °C ∿|SSD 41 °C"
+      },
+      "summary-card": {
+        "name": "Systeemoverzichtskaart",
+        "description": "Een elegante zwevende kaart: CPU- en geheugenringen, GPU en netwerk gegroepeerd.",
+        "sample": "◔ CPU 23 %|◕ RAM 44 %|GPU 61 %|↓ 2,1 MB/s"
+      },
+      "network-strip": {
+        "name": "Netwerkbalk",
+        "description": "Download en upload met hun trends, en wifisignaal als dat er is.",
+        "sample": "↓ 12 MB/s ∿|↑ 1,2 MB/s ∿|Wi-Fi −52 dBm"
+      },
+      "minimal-hud": {
+        "name": "Minimale transparante HUD",
+        "description": "Drie cijfers en verder niets — geen paneel, een zachte gloed voor de leesbaarheid.",
+        "sample": "CPU 23 %|GPU 61 %|RAM 44 %"
+      },
+      "dev-rail": {
+        "name": "Dev-monitorkolom",
+        "description": "Voor programmeersessies: CPU- en geheugengrafieken, schijf-I/O, netwerk en procesaantallen.",
+        "sample": "CPU ⌇⌇⌇|RAM ⌇⌇⌇|Lezen ∿|Schrijven ∿|Net ↓ ∿|412 processen"
+      }
+    },
+    "footprints": {
+      "micro": "Micro",
+      "card": "Zwevende kaart",
+      "top-strip": "Bovenbalk",
+      "bottom-strip": "Onderbalk",
+      "left-rail": "Linkerkolom",
+      "right-rail": "Rechterkolom",
+      "corner": "Hoek-HUD",
+      "block": "Overzichtsblok"
+    },
+    "overlayPresets": {
+      "tiny-stats": {
+        "name": "Mini-statistieken",
+        "description": "CPU 24 % | GPU 84 % | RAM 41 %"
+      },
+      "thermal-strip": {
+        "name": "Temperatuurbalk",
+        "description": "CPU- en GPU-temperaturen op een rij."
+      },
+      "gaming": {
+        "name": "Gaming",
+        "description": "CPU, GPU, VRAM, RAM en netwerk, gestapeld."
+      },
+      "minimal-corner": {
+        "name": "Minimale hoek",
+        "description": "CPU en RAM, helemaal zonder achtergrond."
+      }
+    },
+    "text": {
+      "system": "Systeem",
+      "temperatures": "Temperaturen",
+      "memory": "Geheugen",
+      "videoMemory": "Videogeheugen",
+      "network": "Netwerk",
+      "cpuTotal": "CPU totaal",
+      "processes": "Processen",
+      "diskIo": "Schijf-I/O",
+      "cpuTemperature": "CPU-temperatuur",
+      "filesystem": "Bestandssysteem",
+      "processor": "Processor",
+      "temperature": "Temperatuur",
+      "storage": "Opslag",
+      "cpuPackage": "CPU-pakket",
+      "load": "Belasting",
+      "graphics": "Graphics",
+      "heat": "Warmte",
+      "thermals": "Temperaturen",
+      "temp": "Temp.",
+      "netDown": "Net ↓",
+      "netDownCaps": "NET ↓",
+      "diskDown": "Schijf ↓",
+      "diskUp": "Schijf ↑",
+      "download": "Download",
+      "upload": "Upload",
+      "read": "Lezen",
+      "write": "Schrijven",
+      "disk": "Schijf",
+      "running": "Actief",
+      "threads": "Threads",
+      "clock": "Klok",
+      "hotspot": "Hotspot",
+      "usage": "Gebruik",
+      "gpuTemp": "GPU-temp.",
+      "ssdTemp": "SSD-temp.",
+      "down": "Omlaag",
+      "up": "Omhoog",
+      "core": "Kern",
+      "freq": "Freq.",
+      "cpuTemp": "CPU-temp.",
+      "ramUsed": "RAM gebruikt",
+      "ramFree": "RAM vrij",
+      "gpuFan": "GPU-ventilator"
+    },
+    "packAria": "Overlaypakket {{name}}",
+    "addOverlay": "Overlay toevoegen",
+    "footprint": "Ruimtebeslag",
+    "templateAria": "Sjabloon {{name}}",
+    "appStyle": "App-stijl",
+    "createDashboard": "Dashboard maken"
+  },
+  "library": {
+    "blueprints": {
+      "cpu-total": {
+        "label": "CPU totaal",
+        "description": "CPU-gebruik van de hele machine in de tijd."
+      },
+      "cpu-value": {
+        "label": "CPU totaal — waarde",
+        "description": "Alleen het getal: CPU 23 %."
+      },
+      "cpu-sparkline": {
+        "label": "CPU totaal — sparkline",
+        "description": "CPU 23 % met een piepkleine trend."
+      },
+      "cpu-group": {
+        "label": "CPU-groep",
+        "description": "Gebruik en pakkettemperatuur samen."
+      },
+      "cpu-logical": {
+        "label": "Eén logische processor",
+        "description": "Eén logische processor; kies welke bij Aanpassen."
+      },
+      "memory": {
+        "label": "Geheugengebruik",
+        "description": "Fysiek geheugen in gebruik, als percentage."
+      },
+      "memory-value": {
+        "label": "Geheugen — waarde",
+        "description": "RAM 41 %."
+      },
+      "memory-used": {
+        "label": "Gebruikt geheugen — waarde",
+        "description": "Bytes in gebruik, bijv. 12,0 GiB."
+      },
+      "gpu": {
+        "label": "GPU-gebruik",
+        "description": "GPU-kernbelasting in de tijd."
+      },
+      "gpu-value": {
+        "label": "GPU — waarde",
+        "description": "GPU 97 %."
+      },
+      "gpu-group": {
+        "label": "GPU-groep",
+        "description": "Gebruik, VRAM en temperatuur."
+      },
+      "thermal": {
+        "label": "CPU- & GPU-temperatuur",
+        "description": "Beide sensoren in één grafiek; een onleesbare ontbreekt gewoon."
+      },
+      "cpu-temp-value": {
+        "label": "CPU-temperatuur — waarde",
+        "description": "71 °C."
+      },
+      "gpu-temp-value": {
+        "label": "GPU-temperatuur — waarde",
+        "description": "72 °C."
+      },
+      "ssd-temp": {
+        "label": "Schijftemperatuur — waarde",
+        "description": "Op verzoek van de schijf gelezen, niet elke seconde."
+      },
+      "storage": {
+        "label": "Schijf lezen / schrijven",
+        "description": "Doorvoer van één schijf (automatisch of gekozen)."
+      },
+      "volume": {
+        "label": "Bestandssysteemgebruik",
+        "description": "Hoe vol een bestandssysteem is."
+      },
+      "network": {
+        "label": "Download / upload",
+        "description": "Verkeer van één interface (automatisch of gekozen)."
+      },
+      "network-down-value": {
+        "label": "Download — waarde",
+        "description": "NET ↓ 12 MiB/s."
+      },
+      "wifi": {
+        "label": "Wifisignaal",
+        "description": "Signaalsterkte van een draadloze interface."
+      },
+      "processes": {
+        "label": "Aantal processen & threads",
+        "description": "Aantallen voor de hele machine; nooit een afzonderlijk proces."
+      },
+      "summary": {
+        "label": "Systeemoverzicht",
+        "description": "CPU / GPU / RAM / NET in één balk, met piepkleine trends."
+      }
+    },
+    "categories": {
+      "CPU": "CPU",
+      "Memory": "Geheugen",
+      "GPU": "GPU",
+      "Thermals": "Temperaturen",
+      "Storage": "Opslag",
+      "Network": "Netwerk",
+      "Processes": "Processen",
+      "Custom": "Eigen",
+      "Templates": "Sjablonen"
+    },
+    "onDemand": "Op verzoek van de schijf gelezen (een NVMe-admincommando), nooit elke seconde: toont geen livewaarde.",
+    "categoriesLabel": "Widgetcategorieën",
+    "loading": "Metriekcatalogus lezen…",
+    "addNamed": "{{name}} toevoegen",
+    "anyMetric": "Elke metriek",
+    "searchPlaceholder": "Zoeken in de metriekcatalogus",
+    "searchLabel": "Metrieken zoeken",
+    "notReadable": "Niet leesbaar op deze machine",
+    "noTemplates": "Nog geen sjabloon. Pas een widget aan en gebruik ‘Opslaan als sjabloon’.",
+    "templateName": "Naam van het sjabloon"
+  },
+  "visualization": {
+    "presets": {
+      "clean": {
+        "name": "Strak",
+        "description": "Vloeiende lijn, zacht verloop en subtiel raster op een donker paneel."
+      },
+      "minimal": {
+        "name": "Minimaal",
+        "description": "Een dunne lijn en de huidige waarde. Geen raster, geen assen, geen paneel."
+      },
+      "technical": {
+        "name": "Technisch",
+        "description": "Rechte segmenten, meetpunten, volledige assen en alle statistieken."
+      },
+      "gaming": {
+        "name": "Gaming",
+        "description": "Dikke heldere lijn, sterk verloop, gloed en vette cijfers."
+      },
+      "compact": {
+        "name": "Compact",
+        "description": "Een sparkline met een klein getal: gemaakt voor piepkleine ruimtes."
+      },
+      "neon": {
+        "name": "Neon",
+        "description": "Cyaan en magenta op bijna zwart, met een zachte gloed."
+      },
+      "transparent": {
+        "name": "Transparant",
+        "description": "Helemaal geen paneel — alleen de lijn en zijn getal. Klaar voor overlays."
+      }
+    },
+    "renderers": {
+      "line": {
+        "label": "Lijn",
+        "description": "Waarden in de tijd als lijn."
+      },
+      "area": {
+        "label": "Vlak",
+        "description": "Een lijn met het gebied eronder gevuld."
+      },
+      "sparkline": {
+        "label": "Sparkline",
+        "description": "Een piepkleine trend zonder kader, voor kleine ruimtes."
+      },
+      "value": {
+        "label": "Waarde",
+        "description": "Alleen het huidige getal."
+      },
+      "bar": {
+        "label": "Balk",
+        "description": "De huidige waarde als horizontale balk."
+      },
+      "gauge": {
+        "label": "Meter",
+        "description": "De huidige waarde op een ring. Vereist bekende grenzen."
+      }
+    },
+    "gaugeNeedsBounds": "Een meter vereist bekende grenzen en deze metriek heeft die niet. Stel eerst een vaste schaal in (minimum en maximum).",
+    "scaleErrors": {
+      "both": "Voer een minimum en een maximum in.",
+      "numbers": "Beide grenzen moeten getallen zijn.",
+      "order": "Het maximum moet groter zijn dan het minimum."
+    },
+    "savedByYou": "Door jou opgeslagen."
+  },
+  "overlays": {
+    "limitReached_one": "Maximaal {{count}} overlay. Verwijder er een om een andere toe te voegen.",
+    "limitReached_other": "Maximaal {{count}} overlays. Verwijder er een om een andere toe te voegen.",
+    "defaultName": "Overlay",
+    "session": "Sessie:",
+    "capabilityList": "Overlaymogelijkheden",
+    "capabilityStatus": {
+      "supported": "Ondersteund",
+      "limited": "Beperkt",
+      "unsupported": "Niet ondersteund"
+    },
+    "capabilities": {
+      "alwaysOnTop": "Altijd bovenop",
+      "clickThrough": "Klikken doorlaten indien vergrendeld",
+      "positioning": "Absolute positionering",
+      "transparentWindow": "Transparant venster",
+      "globalHotkey": "Globale sneltoets",
+      "multiMonitorPositioning": "Plaatsing op meerdere monitoren",
+      "tray": "Systeemvak"
+    },
+    "headline": {
+      "alwaysOnTop": "Boven andere vensters",
+      "globalHotkey": "Globale sneltoets",
+      "clickThrough": "Klikken doorlaten",
+      "transparentWindow": "Transparant",
+      "multiMonitorPositioning": "Meerdere monitoren"
+    },
+    "displayServers": {
+      "windows": "Windows",
+      "x11": "X11",
+      "wayland": "Wayland (native)",
+      "xWayland": "XWayland (X11 binnen een Wayland-sessie)",
+      "other": "Niet-ondersteund platform"
+    },
+    "verification": {
+      "physicallyVerified": "Op echte hardware geverifieerd",
+      "implemented": "Geïmplementeerd · nog niet op hardware geverifieerd",
+      "bestEffort": "Afhankelijk van het platform",
+      "unsupported": "Niet beschikbaar"
+    },
+    "backend": {
+      "title": "Overlaybackend",
+      "unavailable": "Backend niet beschikbaar. Start PULSE met pnpm app:dev.",
+      "desktopWindow": "Bureaubladvenster",
+      "whatHere": "Wat overlays hier kunnen"
+    },
+    "backends": {
+      "windowsNative": {
+        "label": "Native Windows-overlay",
+        "detail": "Een gelaagd, bovenste, niet-activerend gereedschapsvenster: HWND_TOPMOST houdt het bovenop, WS_EX_NOACTIVATE laat de focus waar die is en WS_EX_TRANSPARENT laat klikken door als het vergrendeld is. Geïmplementeerd en gecompileerd; nog niet geverifieerd op een Windows-machine."
+      },
+      "gnomeBridge": {
+        "label": "Native GNOME-brug",
+        "detail": "De PULSE-extensie in GNOME Shell houdt overlays boven andere vensters (Mutter make_above) en levert de overlaysneltoets via Mutter; PULSE laat klikken door bij vergrendelde overlays. Geverifieerd op Fedora 39 / GNOME 45."
+      },
+      "standardWayland": {
+        "label": "Standaard Wayland-venster",
+        "detail": "Een gewoon Wayland-venster: transparant, laat vergrendeld klikken door, maar de compositor bepaalt of het boven een gefocuste toepassing blijft en waar het komt."
+      },
+      "x11": {
+        "label": "X11-venster",
+        "detail": "Een X11-venster dat altijd bovenop staat (_NET_WM_STATE_ABOVE) met een lege invoervorm als het vergrendeld is, geplaatst waar het om vraagt."
+      },
+      "unsupported": {
+        "label": "Niet beschikbaar",
+        "detail": "Bureaubladoverlays worden op dit platform niet ondersteund."
+      }
+    },
+    "placementHints": {
+      "gnome": "Blijft hier boven andere vensters; sleep hem één keer naar de rand in Bewerkmodus — GNOME plaatst Wayland-vensters zelf.",
+      "notOnTop": "Het best met de GNOME-brug of native Windows-overlays: hier kan de compositor hem achter een gefocuste app zetten.",
+      "noPositioning": "Sleep hem één keer op zijn plek in Bewerkmodus: deze sessie kan geen vensters positioneren."
+    },
+    "bridge": {
+      "title": "GNOME-brug",
+      "connected": "Verbonden",
+      "enable": "Inschakelen",
+      "disable": "Uitschakelen",
+      "running": "Actief",
+      "installed": "Geïnstalleerd",
+      "ships": "Meegeleverd met PULSE",
+      "setUp": "De GNOME-brug instellen",
+      "copyUninstall": "Verwijdercommando kopiëren",
+      "sourcePlaceholder": "<PULSE-broncode>",
+      "states": {
+        "notApplicable": "Hier niet nodig",
+        "unavailable": "Niet beschikbaar",
+        "incompatible": "Incompatibel",
+        "notInstalled": "Niet geïnstalleerd",
+        "installedNeedsLogin": "Geïnstalleerd — opnieuw aanmelden",
+        "extensionsOff": "Extensies uit",
+        "disabled": "Uitgeschakeld",
+        "error": "Fout",
+        "active": "Actief",
+        "changing": "Wordt gewijzigd…"
+      },
+      "summaries": {
+        "notGnome": "Geen GNOME-sessie — de GNOME-brug is hier niet van toepassing",
+        "notWayland": "Niet nodig in deze sessie — de brug is voor GNOME op Wayland",
+        "shellNoAnswer": "De extensieservice van GNOME Shell gaf geen antwoord",
+        "notChecked": "Nog niet gecontroleerd",
+        "shellUnsupported": "GNOME Shell {{version}} wordt niet ondersteund door de brug (geverifieerd op GNOME 45)",
+        "installedNeedsLogin": "Geïnstalleerd — meld je één keer af en weer aan om hem te laden",
+        "notInstalled": "Niet geïnstalleerd",
+        "extensionsOff": "Gebruikersextensies staan uit voor deze sessie",
+        "activeConnected": "Actief — houdt overlays bovenop en levert de sneltoets",
+        "active": "Actief",
+        "disabled": "Geïnstalleerd maar uitgeschakeld",
+        "extensionError": "GNOME Shell meldde een fout in de extensie",
+        "outOfDate": "GNOME Shell {{version}} vindt de geïnstalleerde extensie verouderd",
+        "uninstalled": "Verwijderd",
+        "changing": "GNOME Shell wijzigt de status van de extensie"
+      },
+      "guidance": {
+        "checkShell": "Controleer of GNOME Shell deze sessie draait en vernieuw daarna.",
+        "standardWayland": "Overlays werken nog steeds als standaard Wayland-vensters: vergrendeld laten ze klikken door, maar de compositor bepaalt de stapelvolgorde.",
+        "discoverAtLogin": "GNOME Shell 45 ontdekt nieuwe extensies alleen bij het aanmelden. Schakel hem hier in nadat je opnieuw bent aangemeld.",
+        "installSteps": "Installeer de extensie met het commando hieronder, meld je één keer af en weer aan en schakel hem dan in.",
+        "extensionsOn": "Zet gebruikersextensies weer aan (app Extensies, of gsettings set org.gnome.shell disable-user-extensions false).",
+        "newerCopyInstalled": "Er is een nieuwere kopie geïnstalleerd. Meld je af en weer aan om die te laden.",
+        "reinstallNewer": "Deze PULSE levert een nieuwere brug mee. Installeer hem opnieuw met het commando hieronder en meld je daarna af en weer aan.",
+        "notGreeted": "Actief. Hij heeft deze PULSE nog niet begroet: extensieversies vóór 2 doen dat nooit; nieuwere doen het zodra PULSE start.",
+        "enableIt": "Schakel hem in om overlays boven andere vensters te houden.",
+        "reinstallAfterError": "Installeer hem opnieuw, meld je af en weer aan. De fout staat ook in journalctl --user -b /usr/bin/gnome-shell.",
+        "reinstallShipped": "Installeer de versie die bij deze PULSE hoort opnieuw.",
+        "refreshSoon": "Vernieuw zo meteen."
+      },
+      "steps": {
+        "install": "De extensie installeren",
+        "update": "De extensie bijwerken",
+        "installDetail": "Kopieert hem naar ~/.local/share/gnome-shell/extensions/ — alleen je eigen account, geen sudo.",
+        "updateDetail": "v{{installed}} is geïnstalleerd; deze PULSE levert v{{bundled}} mee.",
+        "login": "Eén keer af- en weer aanmelden",
+        "loginDetail": "GNOME Shell 45 laadt extensiecode alleen bij het aanmelden.",
+        "enable": "Inschakelen",
+        "enableDetail": "Met de knop hier, of in de app Extensies van GNOME.",
+        "connected": "Verbonden met PULSE",
+        "connectedDetail": "De actieve extensie heeft deze PULSE begroet.",
+        "notConnectedDetail": "Versies vanaf 2 begroeten PULSE zodra het start."
+      },
+      "details": {
+        "summary": "Wat hij doet · problemen oplossen · grenzen",
+        "unlocks": "<strong>Maakt mogelijk:</strong> overlays blijven boven de gefocuste toepassing (Mutter <code>make_above</code>), en de overlaysneltoets werkt welke toepassing ook de focus heeft — GNOME 45 heeft geen portal voor globale sneltoetsen. Klikken doorlaten indien vergrendeld doet PULSE zelf, met of zonder de brug.",
+        "safety": "<strong>Veiligheid:</strong> hij raakt alleen vensters aan van het proces dat de busnaam van PULSE heeft <em>en</em> met precies de titel <code>PULSE Overlay :: &lt;id&gt;</code>. Geen polling, geen onderschepping van invoer, geen bestanden, geen netwerk.",
+        "troubleshooting": "<strong>Problemen oplossen:</strong> meld je na het installeren of bijwerken af en weer aan — GNOME laadt extensiecode alleen bij het aanmelden. Zijn log: <code>journalctl --user -b /usr/bin/gnome-shell | grep \"PULSE overlay bridge\"</code>. Als GNOME Shell ooit misgaat bij het aanmelden, zet gebruikersextensies dan vanuit een andere sessie uit met <code>gsettings set org.gnome.shell disable-user-extensions true</code>.",
+        "limits": "<strong>Grenzen:</strong> GNOME plaatst Wayland-vensters nog steeds zelf, dus posities en plaatsing op meerdere monitoren blijven aan de compositor; sleep een overlay één keer in Bewerkmodus. Alleen op GNOME 45 geverifieerd."
+      }
+    },
+    "layouts": {
+      "horizontal": "Rij",
+      "vertical": "Kolom",
+      "grid": "Raster"
+    },
+    "page": {
+      "subtitle": "Widgets in eigen kleine vensters op het bureaublad — boven andere apps waar het systeem dat toestaat, klikken doorlatend als ze vergrendeld zijn. Een veilig bureaubladvenster: PULSE injecteert nooit in games.",
+      "all": "Alle overlays",
+      "editAll": "Alles bewerken",
+      "lockAll": "Alles vergrendelen",
+      "showAll": "Alles tonen",
+      "hideAll": "Alles verbergen",
+      "openMini": "Mini-venster openen",
+      "newOverlay": "Nieuwe overlay",
+      "packs": "Overlaypakketten",
+      "packsHint": "Twaalf kant-en-klare overlays — micro-uitlezingen, kaarten, balken over de volle breedte, kolommen en hoek-HUD's. Alles blijft bewerkbaar.",
+      "emptyOverlay": "Lege overlay",
+      "everyCapability": "Alle mogelijkheden in detail",
+      "yourPacks": "Je pakketten",
+      "deletePack": "Pakket {{name}} verwijderen"
+    },
+    "hotkey": {
+      "hint": "Schakelt de zichtbare overlays tussen Bewerken en Vergrendeld. Verborgen overlays houden hun status.",
+      "viaBridge": "Geleverd door de GNOME-brug via Mutter, welke toepassing ook de focus heeft. Een sneltoets die je hier toepast, wijzigt de instelling van de brug zelf; GNOME gebruikt die meteen.",
+      "viaPortal": "Geleverd door je bureaublad via het XDG Desktop Portal, welke toepassing ook de focus heeft. Het bureaublad kan om je goedkeuring vragen en je de toetsen laten wijzigen in de eigen toetsenbordinstellingen.",
+      "unavailable": "Globale sneltoetsen zijn niet beschikbaar in deze sessie: {{reason}}",
+      "notRegistered": "Niet geregistreerd — {{error}}. De vorige sneltoets is nog actief.",
+      "notBound": "Niet gekoppeld — {{error}}.",
+      "active": "Actief: {{hotkey}}.",
+      "none": "Geen globale sneltoets actief."
+    },
+    "close": {
+      "title": "Het hoofdvenster sluiten",
+      "when": "Als het hoofdvenster wordt gesloten",
+      "quit": "PULSE afsluiten",
+      "keepRunning": "Blijven draaien zolang er overlays zichtbaar zijn",
+      "note": "Afsluiten is de standaard. Als PULSE blijft draaien, open je het opnieuw via het systeemvak of ‘PULSE openen’ van een overlay; Afsluiten via het systeemvak stopt alles."
+    },
+    "editor": {
+      "aria": "Overlay {{name}}",
+      "name": "Naam van de overlay",
+      "visible": "Zichtbaar",
+      "edit": "Overlay bewerken",
+      "lock": "Overlay vergrendelen",
+      "saveAsPack": "Opslaan als mijn pakket",
+      "saveAsPackBody": "Zijn widgets, indeling, stijl en kader, om opnieuw toe te voegen via Overlays.",
+      "savePack": "Pakket opslaan",
+      "packName": "Naam van het pakket",
+      "fromPack": "Uit ‘{{name}}’",
+      "resetToPack": "Herstellen naar pakket",
+      "style": "Overlaystijl",
+      "layout": "Overlayindeling",
+      "background": "Overlayachtergrond",
+      "backgroundOpacity": "Dekking van de overlayachtergrond",
+      "cornerRadius": "Hoekradius van de overlay",
+      "gapBetween": "Ruimte tussen widgets",
+      "width": "Breedte van de overlay",
+      "height": "Hoogte van de overlay",
+      "fit": "Aanpassen aan widgets",
+      "x": "Overlay X",
+      "y": "Overlay Y",
+      "primaryMonitor": "hoofdmonitor",
+      "cannotPlace": "Deze sessie kan geen vensters plaatsen: sleep de overlay aan zijn balk in Bewerkmodus.",
+      "widgets": "Widgets van {{name}}",
+      "widgetWidth": "Breedte van {{name}}",
+      "widgetHeight": "Hoogte van {{name}}",
+      "moveEarlier": "{{name}} naar voren",
+      "moveLater": "{{name}} naar achteren",
+      "copyToDashboard": "Naar dashboard kopiëren",
+      "copiesGoTo": "Kopieën gaan naar het dashboard ‘{{name}}’.",
+      "deleteTitle": "Overlay ‘{{name}}’ verwijderen?",
+      "deleteBody": "Zijn venster sluit en zijn widgets worden verwijderd.",
+      "delete": "Overlay verwijderen"
+    },
+    "surface": {
+      "aria": "Overlay {{name}}",
+      "empty": "Voeg widgets toe via PULSE → Overlays.",
+      "dragToMove": "{{name}} · sleep om te verplaatsen",
+      "lock": "Vergrendelen",
+      "openPulse": "PULSE openen",
+      "dragToResize": "Sleep om het formaat te wijzigen"
+    },
+    "send": {
+      "aria": "{{name}} naar een overlay sturen",
+      "title": "‘{{name}}’ naar een overlay sturen",
+      "addTo": "Toevoegen aan ‘{{name}}’"
+    }
+  },
+  "customize": {
+    "background": "Achtergrond",
+    "backgroundOpacity": "Dekking van de achtergrond",
+    "border": "Rand",
+    "shadow": "Schaduw",
+    "corners": "Hoeken",
+    "gap": "Tussenruimte",
+    "widthShort": "B",
+    "heightShort": "H",
+    "padding": "Binnenmarge",
+    "layout": "Indeling",
+    "borders": {
+      "none": "Geen",
+      "thin": "Dun"
+    },
+    "groupLayouts": {
+      "rows": "Rijen",
+      "inline": "Naast elkaar"
+    },
+    "widget": {
+      "section": "Widget",
+      "title": "Titel",
+      "titleLabel": "Titel van de widget",
+      "showTitle": "Titel tonen",
+      "background": "Achtergrond van de widget",
+      "opacity": "Dekking van de widget",
+      "backgroundOpacity": "Dekking van de widgetachtergrond",
+      "padding": "Binnenmarge van de widget",
+      "border": "Rand van de widget",
+      "corners": "Hoeken van de widget",
+      "cornerRadius": "Hoekradius van de widget"
+    },
+    "metrics": {
+      "section": "Metrieken & bron",
+      "label": "Label van metriek {{index}}",
+      "source": "Bron van metriek {{index}}",
+      "automatic": "Automatisch",
+      "automaticNamed": "Automatisch — {{name}}",
+      "autoHint": "Automatisch gekozen — een redelijke standaard, geen uitspraak over welke ertoe doet.",
+      "groupLayout": "Groepsindeling",
+      "tinyTrends": "Piepkleine trends"
+    },
+    "data": {
+      "section": "Gegevens",
+      "source": "Gegevensbron",
+      "nowLive": "Nu: live, 1 s, laatste 5 minuten in het geheugen.",
+      "nowHistory": "Nu: geschiedenis, {{range}}.",
+      "modes": {
+        "auto": "Automatisch",
+        "history": "Geschiedenis",
+        "live": "Live"
+      }
+    },
+    "template": {
+      "section": "Sjabloon",
+      "placeholder": "Naam van het sjabloon, bijv. Mijn mini-CPU",
+      "save": "Opslaan als sjabloon"
+    }
+  },
+  "dashboard": {
+    "addWidget": "Widget toevoegen",
+    "defaultName": "Standaard",
+    "fallbackName": "Dashboard",
+    "import": {
+      "notExport": "Dit is geen PULSE-dashboardexport.",
+      "version": "Niet-ondersteunde exportversie van dashboard: {{version}}.",
+      "noDashboard": "De export bevat geen geldig dashboard.",
+      "limit_one": "Maximaal {{count}} dashboard.",
+      "limit_other": "Maximaal {{count}} dashboards."
+    },
+    "style": "Dashboardstijl",
+    "actions": "Dashboardacties",
+    "lockLayout": "Indeling vergrendelen",
+    "editLayout": "Indeling bewerken",
+    "new": "Nieuw",
+    "empty": "Dit dashboard is leeg.",
+    "newTitle": "Nieuw dashboard",
+    "newSubtitle": "Begin met een kant-en-klaar sjabloon of met een leeg raster. Alles blijft bewerkbaar.",
+    "name": "Naam van het dashboard",
+    "nameOptional": "Naam (optioneel)",
+    "blank": "Leeg dashboard",
+    "renameTitle": "‘{{name}}’ hernoemen",
+    "deleteTitle": "‘{{name}}’ verwijderen?",
+    "deleteBody": "Zijn widgets en indeling worden verwijderd. Sjablonen en overlays blijven behouden.",
+    "deleteConfirm": "Dashboard verwijderen",
+    "resetTitle": "‘{{name}}’ herstellen?",
+    "resetToTemplate": "Het sjabloon ‘{{name}}’ vervangt de huidige widgets en stijl. Je opgeslagen sjablonen blijven behouden.",
+    "resetToDefault": "De standaardwidgets vervangen de huidige. Je sjablonen blijven behouden.",
+    "resetConfirm": "Dashboard herstellen",
+    "exportTitle": "Dashboard exporteren",
+    "exportBody": "Een draagbare JSON-beschrijving. Ze bevat geen hardware-ID, pad of gebruikersnaam.",
+    "exportedJson": "Geëxporteerde JSON",
+    "importTitle": "Dashboard importeren",
+    "importBody": "Plak een PULSE-dashboardexport. Die wordt als nieuw dashboard toegevoegd.",
+    "json": "Dashboard-JSON",
+    "widgets": "Widgets van {{name}}",
+    "widenToEdit": "Maak het venster breder om widgets te herschikken; smalle indelingen zijn om te bekijken."
+  },
+  "widget": {
+    "actions": "Acties voor {{name}}",
+    "actionsMenu": "Actiemenu voor {{name}}",
+    "dragToMoveNamed": "Sleep om {{name}} te verplaatsen",
+    "dragToMove": "Sleep om te verplaatsen (of gebruik de pijltjestoetsen)",
+    "dragToResize": "Sleep om het formaat te wijzigen (of Shift + pijltjestoetsen)",
+    "toOverlay": "Naar overlay"
+  },
+  "history": {
+    "ranges": {
+      "15m": "15 min",
+      "1h": "1 u",
+      "6h": "6 u",
+      "24h": "24 u",
+      "7d": "7 d"
+    },
+    "cpu": {
+      "view": "CPU-weergave",
+      "total": "Totaal",
+      "title": "CPU-geschiedenis",
+      "totalNote": "CPU totaal is het gebruik van de hele machine dat de backend over alle logische processors meet — geen gemiddelde dat daaruit is herberekend.",
+      "logicalNote": "De meest actieve logische processors in het gekozen venster. CPU totaal blijft de referentie.",
+      "loading": "Processors lezen…",
+      "logicalHistory": "Geschiedenis van logische processors",
+      "showMostActive_one": "De meest actieve tonen",
+      "showMostActive_other": "De {{count}} meest actieve tonen"
+    },
+    "gpu": {
+      "title": "GPU-geschiedenis",
+      "none": "Er is geen GPU gedetecteerd.",
+      "telemetryUnavailable": "Telemetrie niet beschikbaar — {{reason}}"
+    },
+    "thermal": {
+      "title": "Temperatuurgeschiedenis",
+      "none": "Geen enkele temperatuursensor is leesbaar op deze machine.",
+      "notCharted": "Niet in grafiek — {{list}}"
+    },
+    "storage": {
+      "title": "Opslaggeschiedenis",
+      "none": "Er is geen opslagapparaat gedetecteerd.",
+      "device": "Opslagapparaat"
+    },
+    "network": {
+      "title": "Netwerkgeschiedenis",
+      "none": "Er is geen netwerkinterface gedetecteerd.",
+      "interface": "Netwerkinterface"
+    },
+    "memory": {
+      "title": "Geheugengeschiedenis",
+      "used": "{{value}} gebruikt"
+    },
+    "processes": {
+      "count": "Aantal processen",
+      "title": "Geschiedenis van het aantal processen",
+      "footnote": "Alleen aantallen voor de hele machine. PULSE legt nooit de geschiedenis van een afzonderlijk proces vast."
+    },
+    "status": {
+      "title": "Geschiedenisrecorder",
+      "loading": "Geschiedenis bevragen…",
+      "unavailable": "Geschiedenis niet beschikbaar: {{reason}}. Live monitoren werkt gewoon door.",
+      "unknownReason": "onbekende reden",
+      "state": "Status",
+      "recording": "Neemt op",
+      "stateUnavailable": "Niet beschikbaar",
+      "cadence": "Ritme",
+      "every": "Elke {{value}} s",
+      "historized": "Vastgelegde metrieken",
+      "batches": "Batches in deze sessie",
+      "lastBatch": "Laatste batch",
+      "lastBatchValue_one": "{{time}} · {{count}} rij",
+      "lastBatchValue_other": "{{time}} · {{count}} rijen",
+      "sampleWrite": "Meten / schrijven",
+      "median": "{{sample}} ms / {{write}} ms mediaan",
+      "database": "Database",
+      "size": "Grootte",
+      "rows": "Rijen",
+      "rowsValue": "{{raw}} ruw · {{aggregated}} geaggregeerd · {{series}} reeksen",
+      "schemaJournal": "Schema / journaal",
+      "lastError": "Laatste fout: {{error}}",
+      "scheduler": "Geschreven door één achtergrondplanner; Vernieuwen-knoppen nemen nooit op.",
+      "counting": "Tellen…",
+      "details": "Databasedetails"
+    }
+  },
+  "viz": {
+    "ui": {
+      "preview": "Voorbeeld",
+      "preset": "Voorinstelling",
+      "presetName": "Naam van de voorinstelling",
+      "newPresetName": "Naam van de nieuwe voorinstelling",
+      "visualization": "Visualisatie",
+      "visualizationType": "Type visualisatie",
+      "timeRange": "Tijdsbereik",
+      "size": "Grootte",
+      "compactMode": "Compacte modus",
+      "lineFill": "Lijn & vulling",
+      "lineWidth": "Lijndikte",
+      "curve": "Curve",
+      "points": "Punten",
+      "pointMarkers": "Puntmarkeringen",
+      "fillOpacity": "Dekking van de vulling",
+      "smoothing": "Afvlakking",
+      "colors": "Kleuren",
+      "colorMode": "Kleurmodus",
+      "primary": "Primair",
+      "secondary": "Secundair",
+      "text": "Tekst",
+      "grid": "Raster",
+      "background": "Achtergrond",
+      "border": "Rand",
+      "gradientStart": "Begin van het verloop",
+      "gradientEnd": "Einde van het verloop",
+      "above": "boven",
+      "backgroundFrame": "Achtergrond & kader",
+      "backgroundOpacity": "Dekking van de achtergrond",
+      "cornerRadius": "Hoekradius",
+      "shadow": "Schaduw",
+      "textSize": "Tekstgrootte",
+      "weight": "Gewicht",
+      "fontWeight": "Letterdikte",
+      "decimals": "Decimalen",
+      "decimalPrecision": "Decimale precisie",
+      "label": "Label",
+      "unit": "Eenheid",
+      "axesGridScale": "Assen, raster & schaal",
+      "xAxis": "X-as",
+      "yAxis": "Y-as",
+      "yScale": "Y-schaal",
+      "legendTooltipStatistics": "Legenda, tooltip & statistieken",
+      "legend": "Legenda",
+      "tooltip": "Tooltip",
+      "current": "Huidig",
+      "minimum": "Minimum",
+      "maximum": "Maximum",
+      "average": "Gemiddelde",
+      "gauge": "Meter",
+      "ringThickness": "Ringdikte",
+      "arc": "Boog",
+      "gaugeArc": "Meterboog",
+      "fillPlaceholder": "vulling",
+      "fill": "Vulling",
+      "colourOf": "Kleur van {{name}}",
+      "hexOf": "Hexwaarde van {{name}}",
+      "labelOf": "Label van {{name}}",
+      "customFrom": "Eigen (vanuit {{name}})",
+      "presetWord": "voorinstelling",
+      "customizeNamed": "{{name}} aanpassen",
+      "resetVisualization": "Visualisatie herstellen",
+      "deletePreset": "Voorinstelling verwijderen",
+      "saveAsPreset": "Opslaan als voorinstelling",
+      "gaugeUnavailable": "De meter is niet beschikbaar: deze metriek heeft geen natuurlijke grenzen. Stel een vaste schaal in om hem te gebruiken.",
+      "height": "Hoogte",
+      "width": "Breedte",
+      "followingTheme": "Volgt het thema van PULSE. Een kleur kiezen schakelt over naar Handmatig.",
+      "series": "Reeksen",
+      "thresholdBands": "Drempelbanden",
+      "thresholdHint": "Visuele banden die jij kiest — geen oordeel over wat te hoog is op jouw machine.",
+      "bandColour": "Kleur van band {{index}}",
+      "bandUpper": "Bovengrens van band {{index}}",
+      "removeBand": "Band {{index}} verwijderen",
+      "addBand": "Band toevoegen",
+      "compactHides": "De compacte modus en sparklines verbergen assen, raster en legenda.",
+      "min": "Min",
+      "max": "Max",
+      "smoothingHint": "Alleen visueel: opgeslagen metingen en de tooltip houden de echte waarden.",
+      "fillFollowsLine": "Vulling volgt de lijnkleur"
+    },
+    "lineWidths": {
+      "thin": "Dun",
+      "medium": "Gemiddeld",
+      "thick": "Dik"
+    },
+    "options": {
+      "small": "Klein",
+      "medium": "Gemiddeld",
+      "large": "Groot",
+      "custom": "Eigen",
+      "straight": "Recht",
+      "smooth": "Vloeiend",
+      "stepped": "Getrapt",
+      "none": "Geen",
+      "visible": "Zichtbaar",
+      "solid": "Effen",
+      "gradient": "Verloop",
+      "theme": "Thema",
+      "manual": "Handmatig",
+      "threshold": "Drempel",
+      "light": "Licht",
+      "thin": "Dun",
+      "subtle": "Subtiel",
+      "glow": "Gloed",
+      "regular": "Normaal",
+      "bold": "Vet",
+      "full": "Volle cirkel",
+      "three-quarter": "Driekwart",
+      "half": "Half",
+      "auto": "Automatisch",
+      "fixed": "Vast"
+    },
+    "status": {
+      "loading": "Geschiedenis laden…",
+      "unavailable": "Geschiedenis niet beschikbaar: {{reason}}",
+      "collecting": "Geschiedenis verzamelen…",
+      "oneSample": "Geschiedenis verzamelen… tot nu toe één meting.",
+      "noData": "geen gegevens",
+      "scaledToPeak": "Geschaald naar de piek van het venster, {{value}}",
+      "overTime": "{{name}} in de tijd"
+    },
+    "stats": {
+      "current": "Huidig",
+      "min": "Min",
+      "max": "Max",
+      "average": "Gem."
+    }
+  },
+  "appearance": {
+    "styleAria": "Stijl {{name}}",
+    "ui": {
+      "styles": "Stijlen",
+      "yourStyles": "Je stijlen",
+      "colour": "Kleur",
+      "accentColour": "Accentkleur",
+      "accent": "Accent",
+      "chartPalette": "Grafiekpalet",
+      "surfaces": "Oppervlakken",
+      "panelOpacity": "Dekking van panelen",
+      "glassBlur": "Glasvervaging",
+      "borderStrength": "Randsterkte",
+      "shadowDepth": "Schaduwdiepte",
+      "shapeType": "Vorm & letters",
+      "cornerRoundness": "Hoekafronding",
+      "font": "Lettertype",
+      "textSize": "Tekstgrootte",
+      "layoutDensity": "Indeling & dichtheid",
+      "density": "Dichtheid",
+      "widgetPadding": "Binnenmarge van widgets",
+      "gapBetweenWidgets": "Ruimte tussen widgets",
+      "overlayPadding": "Binnenmarge van overlays",
+      "overlayGap": "Ruimte in overlays",
+      "charts": "Grafieken",
+      "lineThickness": "Lijndikte",
+      "fillOpacity": "Dekking van de vulling",
+      "lineShape": "Lijnvorm",
+      "contentMotion": "Inhoud & beweging",
+      "widgetTitles": "Widgettitels",
+      "labelsInTinyWidgets": "Labels in piepkleine widgets",
+      "motion": "Beweging",
+      "livePreview": "Livevoorbeeld",
+      "styleName": "Naam van de stijl",
+      "deleteThisStyle": "Deze stijl verwijderen?",
+      "exportStyle": "Stijl exporteren",
+      "exportedStyle": "Geëxporteerde stijl",
+      "importStyle": "Stijl importeren",
+      "styleJson": "Stijl-JSON",
+      "overlayPaddingNote": "Gebruikt als een overlay een stijl overneemt."
+    },
+    "subtitle": "Acht stijlen die oppervlakken, diepte, letters, dichtheid en grafieken veranderen — niet alleen kleuren. Stem er een af en bewaar het resultaat als je eigen stijl.",
+    "modeOn": "De <strong>modus {{mode}}</strong> staat aan: de stijl die je kiest, geldt daarvoor.",
+    "leaveMode": "Modus {{mode}} verlaten",
+    "myStyle": "Mijn {{name}}",
+    "saveCurrent": "Huidige look opslaan",
+    "noUserStyles": "Stem hieronder een stijl af en bewaar hem hier. Opgeslagen stijlen kun je dupliceren, hernoemen, exporteren en delen.",
+    "basedOn": "gebaseerd op {{name}}",
+    "inUse": "In gebruik",
+    "use": "Gebruiken",
+    "styleAccentTitle": "Het accent van de stijl ({{color}})",
+    "styleAccent": "Stijlaccent",
+    "fonts": {
+      "style": "Stijl",
+      "sans": "Sans",
+      "rounded": "Afgerond",
+      "condensed": "Smal",
+      "mono": "Mono"
+    },
+    "styleWith": "Stijl ({{value}})",
+    "densities": {
+      "compact": "Compact",
+      "comfortable": "Comfortabel",
+      "spacious": "Ruim"
+    },
+    "chartsNote": "Geldt voor elke grafiek die nog zijn voorinstelling volgt. Grafieken die je hebt aangepast, houden hun eigen instellingen.",
+    "motionLevels": {
+      "full": "Volledig",
+      "reduced": "Beperkt",
+      "none": "Geen"
+    },
+    "resetAll": "Elke aanpassing herstellen naar {{name}}",
+    "livePreviewNamed": "Livevoorbeeld · {{name}}",
+    "saveLook": "Deze look opslaan",
+    "renameStyle": "Stijl hernoemen",
+    "deleteBody": "Wat hem nu gebruikt, houdt zijn uiterlijk tot je een andere kiest.",
+    "deleteStyle": "Stijl verwijderen",
+    "exportBody": "Een draagbare JSON-beschrijving van de stijl: alleen kleuren, letters en afstemming.",
+    "importBody": "Plak een PULSE-stijlexport. Die wordt aan je stijlen toegevoegd.",
+    "useStyle": "Stijl gebruiken",
+    "import": {
+      "notExport": "Dit is geen PULSE-stijlexport.",
+      "version": "Niet-ondersteunde exportversie van stijl: {{version}}.",
+      "noName": "De export heeft geen stijlnaam.",
+      "limit_one": "Maximaal {{count}} opgeslagen stijl.",
+      "limit_other": "Maximaal {{count}} opgeslagen stijlen."
+    }
+  },
+  "mini": {
+    "shownIn": "Getoond in Mini"
+  },
+  "processes": {
+    "nice": {
+      "title": "Eigen nice-waarde — {{name}}",
+      "range": "PID {{pid}}. Nice-waarden lopen van {{min}} (meest bevoorrecht) tot {{max}} (minst).",
+      "privileges": "De waarde verlagen vereist meestal rechten die PULSE niet heeft.",
+      "value": "Nice-waarde"
+    },
+    "affinity": {
+      "title": "CPU-affiniteit — {{name}}",
+      "body": "Kies de logische processors waarop PID {{pid}} mag draaien.",
+      "selectAll": "Alles selecteren",
+      "keepOne": "Houd minstens één CPU: een proces dat nergens mag draaien, kan niet draaien."
+    },
+    "status": {
+      "success": "Gelukt",
+      "permissionDenied": "Toegang geweigerd",
+      "staleProcess": "Niet uitgevoerd — de PID hoort nu bij een ander proces",
+      "processGone": "Proces was al beëindigd",
+      "unsupported": "Niet ondersteund",
+      "partialFailure": "Deels uitgevoerd",
+      "invalidRequest": "Niet uitgevoerd",
+      "platformError": "Mislukt"
+    },
+    "outcome": {
+      "suspend": "Proces {{pid}} gepauzeerd.",
+      "resume": "Proces {{pid}} hervat.",
+      "terminate": "Proces {{pid}} gevraagd te stoppen.",
+      "forceKill": "Proces {{pid}} geforceerd beëindigd.",
+      "priority": "Prioriteit gewijzigd voor proces {{pid}}.",
+      "affinity": "Affiniteit gewijzigd voor proces {{pid}}.",
+      "terminateTree": "Procesboom van {{pid}} beëindigd.",
+      "openLocation": "Locatie van het uitvoerbare bestand geopend.",
+      "priorityPartial": "Prioriteit gewijzigd op {{applied}} threads van proces {{pid}}; {{failed}} threads weigerden.",
+      "affinityPartial": "Affiniteit gewijzigd op {{applied}} threads van proces {{pid}}; {{failed}} threads weigerden.",
+      "tree_one": "{{terminated}} van {{count}} proces beëindigd; {{gone}} waren al gestopt, {{refused}} geweigerd, {{stale}} overgeslagen als verouderd, {{failed}} mislukt.",
+      "tree_other": "{{terminated}} van {{count}} processen beëindigd; {{gone}} waren al gestopt, {{refused}} geweigerd, {{stale}} overgeslagen als verouderd, {{failed}} mislukt."
+    },
+    "hash": {
+      "computed": "Berekend",
+      "changedWhileHashing": "Het bestand veranderde tijdens het lezen",
+      "permissionDenied": "Toegang geweigerd",
+      "notFound": "Bestand niet gevonden",
+      "notAFile": "Geen gewoon bestand",
+      "readError": "Leesfout"
+    },
+    "confirm": {
+      "who": "{{name}} (PID {{pid}})",
+      "selfWarning": "PULSE beëindigen sluit deze toepassing.",
+      "endTitle": "{{name}} beëindigen?",
+      "endSigterm": "{{who}} krijgt SIGTERM en wordt gevraagd te stoppen. Dat kan even duren, of worden geweigerd.",
+      "endImmediate": "{{who}} wordt onmiddellijk beëindigd. Niet-opgeslagen werk erin gaat verloren.",
+      "forceKillTitle": "{{name}} geforceerd beëindigen?",
+      "forceKillBody": "{{who}} krijgt SIGKILL. Dat kan niet worden opgevangen of genegeerd: het proces krijgt geen kans om iets op te slaan of op te ruimen.",
+      "treeTitle": "{{name}} en zijn procesboom beëindigen?",
+      "treeRoot": "Hoofdproces: {{who}}.",
+      "treeBody_one": "Ongeveer {{count}} afstammend proces wordt eerst beëindigd, het diepste eerst, daarna het hoofdproces. Elk wordt vlak voor het beëindigen opnieuw gecontroleerd; een PID die van eigenaar is gewisseld, wordt overgeslagen.",
+      "treeBody_other": "Ongeveer {{count}} afstammende processen worden eerst beëindigd, de diepste eerst, daarna het hoofdproces. Elk wordt vlak voor het beëindigen opnieuw gecontroleerd; een PID die van eigenaar is gewisseld, wordt overgeslagen.",
+      "realtimeTitle": "Realtime-prioriteit instellen?",
+      "realtimeWarning": "Realtime-prioriteit kan het systeem onbruikbaar traag maken.",
+      "realtimeBody": "Geldt voor {{who}}. Zonder het vereiste recht past Windows in plaats daarvan Hoog toe, en PULSE meldt dat.",
+      "realtimeConfirm": "Realtime instellen"
+    },
+    "copy": {
+      "done": "{{label}} gekopieerd.",
+      "failed": "{{label}} kon niet worden gekopieerd."
+    },
+    "category": {
+      "user": "Gebruiker",
+      "system": "Systeem",
+      "kernel": "Kernelthread",
+      "unknown": "Onbekend"
+    },
+    "state": {
+      "running": "Actief",
+      "sleeping": "Slapend",
+      "stopped": "Gestopt",
+      "zombie": "Zombie"
+    },
+    "priority": {
+      "realtime": "Realtime",
+      "high": "Hoog",
+      "aboveNormal": "Boven normaal",
+      "normal": "Normaal",
+      "belowNormal": "Onder normaal",
+      "low": "Laag"
+    },
+    "affinityNone": "geen",
+    "affinitySummary_one": "CPU {{list}} ({{count}} van {{total}})",
+    "affinitySummary_other": "CPU {{list}} ({{count}} van {{total}})",
+    "trust": {
+      "trusted": "Vertrouwde handtekening",
+      "signedButUntrusted": "Ondertekend, niet vertrouwd",
+      "invalid": "Ongeldige handtekening",
+      "unsigned": "Niet ondertekend",
+      "permissionDenied": "Toegang geweigerd",
+      "unavailable": "Niet beschikbaar"
+    },
+    "provenance": {
+      "userHome": "Gebruikers-/lokaal uitvoerbaar bestand (in je thuismap, niet uit een pakket)",
+      "localInstall": "Gebruikers-/lokaal uitvoerbaar bestand (buiten de pakketbeheerder geïnstalleerd)",
+      "notDetected": "Pakket niet gedetecteerd"
+    },
+    "menu": {
+      "exited": "Proces was al beëindigd.",
+      "unavailable": "Niet beschikbaar.",
+      "checking": "Rechten controleren…",
+      "nicePreset": "{{level}} (nice {{value}})",
+      "customNice": "Eigen nice-waarde…",
+      "forceKill": "Geforceerd beëindigen",
+      "inspect": "Details bekijken",
+      "search": "Online zoeken",
+      "openLocation": "Bestandslocatie openen",
+      "processName": "Procesnaam",
+      "executablePath": "Pad van het uitvoerbare bestand",
+      "executableUnavailable": "Uitvoerbaar bestand niet beschikbaar.",
+      "instanceId": "Procesinstantie-ID",
+      "suspend": "Pauzeren",
+      "resume": "Hervatten",
+      "end": "Proces beëindigen",
+      "endTree": "Procesboom beëindigen",
+      "setPriority": "Prioriteit instellen",
+      "setAffinity": "Affiniteit instellen…",
+      "affinityUnreadable": "De huidige affiniteit kon niet worden gelezen.",
+      "actionsFor": "Acties voor {{name}}",
+      "inspectApplication": "Toepassing bekijken",
+      "showProcesses": "Processen tonen"
+    },
+    "table": {
+      "processDetails": "Procesdetails",
+      "dismiss": "Sluiten",
+      "processView": "Procesweergave",
+      "processCategory": "Procescategorie",
+      "refreshProcessDetails": "Procesdetails vernieuwen",
+      "applications": "Toepassingen",
+      "application": "Toepassing",
+      "processes": "Processen",
+      "memory": "Geheugen",
+      "read": "Lezen",
+      "write": "Schrijven",
+      "process": "Proces",
+      "threads": "Threads",
+      "state": "Status",
+      "searchPlaceholder": "Zoeken op naam of PID",
+      "searchLabel": "Processen zoeken op naam of PID"
+    },
+    "filters": {
+      "all": "Alle",
+      "user": "Gebruiker",
+      "system": "Systeem",
+      "kernel": "Kernel"
+    },
+    "oneOf_one": "1 van {{count}} proces van {{name}}",
+    "oneOf_other": "1 van {{count}} processen van {{name}}",
+    "loading": "Procestabel doorlopen…",
+    "showAll_one": "{{count}} proces tonen",
+    "showAll_other": "Alle {{count}} processen tonen",
+    "updated": "Bijgewerkt {{time}} · verzameld in {{ms}} ms",
+    "note": "CPU is een aandeel van de <strong>totale</strong> capaciteit van deze machine, dus één thread die één logische processor volledig belast, is een klein percentage, en de kolom telt ongeveer op tot wat de systeem-CPU-meter toont. Lezen en Schrijven zijn de I/O-tellers per proces van het platform (zie de documentatie voor de verschillen tussen Fedora en Windows). Snelheden worden <em>tussen</em> twee momentopnamen gemeten en verschijnen dus pas na een vernieuwing. Klik op een proces om het te bekijken; klik met rechts (of Shift+F10) voor acties. Elke actie richt zich op precies die procesinstantie, wordt bevestigd als ze destructief is en draait nooit vanzelf. Opdrachtregels worden bewust niet verzameld.",
+    "noApplicationMatch": "Geen toepassing komt overeen met deze zoekopdracht.",
+    "noProcessMatch": "Geen proces komt overeen met deze zoekopdracht.",
+    "groupedByName": "Gegroepeerd op procesnaam: PULSE kon de uitvoerbare bestanden van deze processen niet lezen, dus twee niet-verwante programma's met dezelfde naam zouden samen worden geteld.",
+    "inspector": {
+      "processInspector": "Procesinspecteur",
+      "closeInspector": "Inspecteur sluiten",
+      "identity": "Identiteit",
+      "processName": "Procesnaam",
+      "product": "Product",
+      "parent": "Ouder",
+      "instanceId": "Instantie-ID",
+      "state": "Status",
+      "started": "Gestart",
+      "owner": "Eigenaar",
+      "category": "Categorie",
+      "architecture": "Architectuur",
+      "resourceUsage": "Brongebruik",
+      "memory": "Geheugen",
+      "threads": "Threads",
+      "read": "Lezen",
+      "write": "Schrijven",
+      "executable": "Uitvoerbaar bestand",
+      "path": "Pad",
+      "file": "Bestand",
+      "size": "Grootte",
+      "modified": "Gewijzigd",
+      "securityProvenance": "Beveiliging & herkomst",
+      "description": "Beschrijving",
+      "company": "Bedrijf",
+      "version": "Versie",
+      "scheduling": "Planning",
+      "priority": "Prioriteit",
+      "cpuAffinity": "CPU-affiniteit",
+      "processControl": "Procesbeheer",
+      "suspend": "Pauzeren",
+      "resume": "Hervatten",
+      "endProcess": "Proces beëindigen",
+      "endProcessTree": "Procesboom beëindigen",
+      "forceKill": "Geforceerd beëindigen",
+      "provenance": "Herkomst",
+      "package": "Pakket",
+      "signature": "Handtekening",
+      "publisher": "Uitgever",
+      "setPriority": "Prioriteit instellen",
+      "stale": "Dit proces is beëindigd en zijn PID hoort nu bij een ander proces. PULSE zal er niets mee doen.",
+      "exited": "Proces beëindigd. Er kan niets meer mee worden gedaan.",
+      "reading": "Dit proces lezen…",
+      "self": "Dit is PULSE zelf. Beëindigen sluit deze toepassing.",
+      "kernelThread": "Een kernelthread draait in de kernel: hij heeft geen uitvoerbaar bestand, geen pakket en kan niet vanuit PULSE worden bestuurd.",
+      "notInSnapshot": "Niet in de laatste momentopname.",
+      "replaced": "Het bestand waarmee dit proces startte, is sindsdien op schijf verwijderd of vervangen.",
+      "copyPath": "Pad kopiëren",
+      "versionNote": "Beschrijving, product en bedrijf worden door het bestand zelf opgegeven en bewijzen niets; de handtekening is wat Windows heeft gecontroleerd.",
+      "computing": "Berekenen…",
+      "computeHash": "SHA-256 berekenen",
+      "provenanceNote": "Herkomst is een aanwijzing, geen oordeel: een pakket of een geldige handtekening maakt een programma niet veilig, en het ontbreken ervan maakt het niet kwaadaardig.",
+      "changeAffinity": "Affiniteit wijzigen…",
+      "suspendedByPulse": "PULSE heeft dit proces tijdens deze sessie gepauzeerd.",
+      "suspendedState": "{{state}} (gepauzeerd door PULSE)",
+      "notApplicableKernel": "Niet van toepassing op een kernelthread",
+      "catalog": "(systeemcatalogus)",
+      "claimed": "(opgegeven, niet vertrouwd)",
+      "notComputed": "Niet berekend",
+      "copyHash": "SHA-256 kopiëren",
+      "searchHash": "Hash online zoeken",
+      "checkVirusTotal": "Hash controleren op VirusTotal",
+      "custom": "Eigen…",
+      "memoryPercent": "Geheugen %",
+      "searchHint": "Opent je browser met een webzoekopdracht naar de programmanaam",
+      "virusTotalHint": "Opent de VirusTotal-pagina voor deze hash in je browser. Het bestand wordt nooit geüpload."
+    }
+  },
+  "cards": {
+    "updated": "Bijgewerkt {{time}}",
+    "notReported": "Niet gemeld",
+    "notReportedByBackend": "Niet gemeld door de backend",
+    "cpu": {
+      "title": "CPU-details",
+      "loading": "CPU-topologie lezen…",
+      "packages": "Pakketten",
+      "packageTemperature": "Temperatuur {{name}}",
+      "showAll_one": "{{count}} processor tonen",
+      "showAll_other": "Alle {{count}} processors tonen",
+      "noProcessors": "Op deze machine is geen afzonderlijke logische processor zichtbaar.",
+      "refresh": "CPU-details vernieuwen",
+      "note": "Eén fysieke kern kan meerdere logische processors dragen, dus het gebruik wordt per logische processor gemeld. Frequenties zijn wat het besturingssysteem meldt. De pakkettemperatuur is de eigen sensor van de processor, nooit een gemiddelde van zijn kernen.",
+      "maxFor": "Gemeld maximum voor {{name}}: {{value}}",
+      "noMax": "voor deze processor wordt geen maximale frequentie gepubliceerd"
+    },
+    "gpu": {
+      "gpuDetails": "GPU-details",
+      "graphicsAdapters": "Grafische adapters",
+      "refreshGpuDetails": "GPU-details vernieuwen",
+      "gpuUsage": "GPU-gebruik",
+      "vramUsage": "VRAM-gebruik",
+      "coreClock": "Kernklok",
+      "memoryClock": "Geheugenklok",
+      "temperature": "Temperatuur",
+      "hotspot": "Hotspot",
+      "memoryTemperature": "Geheugentemperatuur",
+      "fan": "Ventilator",
+      "loading": "Grafische adapters zoeken…",
+      "none": "Er is geen hardwarematige grafische adapter gedetecteerd. Softwarerenderers worden bewust niet als GPU geteld.",
+      "note": "VRAM-cijfers beschrijven het eigen videogeheugen van elke adapter. Systeemgeheugen dat met een geïntegreerde GPU wordt gedeeld, wordt niet als VRAM gemeld. Hotspot- en geheugentemperaturen zijn aparte sensoren, nooit afgeleid van de GPU-temperatuur, en een ventilatorsnelheid wordt alleen getoond als het stuurprogramma echte omwentelingen per minuut meldt.",
+      "vramKnownOnly": "Het geïnstalleerde VRAM is bekend; livegebruik vereist een stuurprogramma van de fabrikant dat deze adapter niet biedt.",
+      "perfUnavailable": "Prestatietelemetrie niet beschikbaar",
+      "perfUnavailableDefault": "Het stuurprogramma van deze adapter geeft geen cijfers voor gebruik, videogeheugen of klok.",
+      "thermalRemain": "De temperatuursensoren blijven beschikbaar."
+    },
+    "storage": {
+      "storageDetails": "Opslagdetails",
+      "storageDevices": "Opslagapparaten",
+      "otherVolumes": "Andere volumes",
+      "refreshStorageDetails": "Opslagdetails vernieuwen",
+      "read": "Lezen",
+      "write": "Schrijven",
+      "readIops": "Lees-IOPS",
+      "writeIops": "Schrijf-IOPS",
+      "readLatency": "Leeslatentie",
+      "writeLatency": "Schrijflatentie",
+      "temperature": "Temperatuur",
+      "usedEndurance": "Verbruikte levensduur",
+      "availableSpare": "Beschikbare reserve",
+      "powerOnHours": "Inschakeluren",
+      "unsafeShutdowns": "Onveilige uitschakelingen",
+      "mediaErrors": "Mediafouten",
+      "loading": "Opslagapparaten zoeken…",
+      "none": "Er is geen fysiek opslagapparaat geïnventariseerd. Loop-apparaten, RAM-schijven en device-mapper-volumes worden bewust niet als schijf geteld.",
+      "otherVolumesHint": "Gekoppelde bestandssystemen die PULSE niet aan een van de schijven hierboven kon koppelen. Ze staan apart in plaats van aan het verkeerde apparaat te worden toegeschreven.",
+      "note": "Doorvoer, IOPS en latentie worden <em>tussen</em> twee metingen gemeten en verschijnen dus pas na een vernieuwing. Een latentie is het gemiddelde over bewerkingen die echt zijn voltooid: een interval zonder bewerkingen heeft helemaal geen latentie en toont <code>—</code> in plaats van 0 ms. Verbruikte levensduur en beschikbare reserve zijn de gestandaardiseerde cijfers van de controller zelf — de beschikbare reserve is de voorraad vervangende blokken, geen vrije ruimte op een bestandssysteem.",
+      "waitingHint": "Schijfactiviteit is het verschil tussen twee metingen. Vernieuw om het te meten.",
+      "free": "{{value}} vrij",
+      "full": "{{name}} is {{value}} vol",
+      "healthUnavailable": "Gezondheidsrapport niet beschikbaar",
+      "noHealthLog": "Dit apparaat meldt geen gestandaardiseerd gezondheidslogboek."
+    },
+    "waitingSample": "Wachten op nog een meting",
+    "network": {
+      "networkDetails": "Netwerkdetails",
+      "networkInterfaces": "Netwerkinterfaces",
+      "virtualInterfaces": "Virtuele interfaces",
+      "virtualInterfaceList": "Lijst van virtuele interfaces",
+      "refreshNetworkDetails": "Netwerkdetails vernieuwen",
+      "download": "Download",
+      "upload": "Upload",
+      "rxPackets": "RX-pakketten",
+      "txPackets": "TX-pakketten",
+      "errors": "Fouten",
+      "dropped": "Verworpen",
+      "linkRx": "Link RX",
+      "linkTx": "Link TX",
+      "signal": "Signaal",
+      "quality": "Kwaliteit",
+      "wiFiRx": "Wifi RX",
+      "wiFiTx": "Wifi TX",
+      "loading": "Netwerkinterfaces zoeken…",
+      "none": "Er is geen netwerkinterface geïnventariseerd. De loopback-interface is bewust uitgesloten: die bestaat altijd en draagt alleen verkeer dat deze machine nooit heeft verlaten.",
+      "virtualCount": "Virtuele interfaces ({{count}})",
+      "virtualHint": "Bridges, containerverbindingen en andere software-interfaces. Ingeklapt zodat een machine met containers zijn echte adapters niet bedelft — nooit verwijderd.",
+      "note": "Download is wat bij deze machine aankomt en Upload wat haar verlaat. Verkeer wordt <em>tussen</em> twee metingen gemeten en verschijnt dus pas na een vernieuwing. Linksnelheden zijn de door het stuurprogramma onderhandelde capaciteit, in bits per seconde — niet hoeveel er stroomt, dat in bytes is. Verworpen frames zijn een lokale teller en <strong>geen</strong> pakketverlies op internet, dat PULSE niet meet.",
+      "kinds": {
+        "Ethernet": "Ethernet",
+        "Wi-Fi": "Wifi",
+        "Bridge": "Bridge",
+        "Tunnel": "Tunnel",
+        "Virtual": "Virtueel",
+        "Network": "Netwerk"
+      },
+      "connected": "Verbonden",
+      "disconnected": "Niet verbonden",
+      "waitingHint": "Verkeer is het verschil tussen twee metingen. Vernieuw om het te meten.",
+      "wifiUnavailable": "Wifi-verbindingsdetails niet beschikbaar"
+    },
+    "live": {
+      "title": "Live systeemmeting",
+      "loading": "Meten…",
+      "refresh": "Meting vernieuwen",
+      "reconcile": "gebruikt + beschikbaar = totaal, dus de twee cijfers hierboven kloppen altijd met elkaar.",
+      "waitingNext": "Wachten op de volgende meting"
+    },
+    "engine": {
+      "title": "Metriekengine",
+      "loading": "Engine bevragen…",
+      "unavailable": "Engine niet beschikbaar. Start PULSE met <code>pnpm app:dev</code> om de Rust-laag te bereiken.",
+      "status": "Status",
+      "schema": "Schema",
+      "providers": "Aanbieders",
+      "metrics": "Metrieken",
+      "available_one": "({{count}} beschikbaar)",
+      "available_other": "({{count}} beschikbaar)",
+      "schemaMismatch": "De backend spreekt metriekschema v{{backend}}; deze interface verwacht v{{expected}}.",
+      "empty": "Nog geen aanbieders geregistreerd — PULSE verzamelt in deze fase geen hardwaremetrieken."
+    }
+  },
+  "tray": {
+    "open": "PULSE openen",
+    "edit": "Overlays bewerken",
+    "lock": "Overlays vergrendelen",
+    "toggle": "Overlays tonen / verbergen",
+    "quit": "PULSE afsluiten"
+  }
+}

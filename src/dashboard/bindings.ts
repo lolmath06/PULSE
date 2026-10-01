@@ -4,6 +4,8 @@ import { invokeCommand, isTauriRuntime } from '@/services/tauri';
 import { discoverNetworkInterfaces, isPrimaryKind, orderInterfaces } from '@/utils/network';
 import type { WidgetBinding } from '@/dashboard/model';
 import { keyLabel } from '@/dashboard/metricInfo';
+import { bindingLabelText } from '@/dashboard/geometry';
+import { t } from '@/i18n/i18n';
 
 /**
  * Turning a saved binding into a concrete metric reference.
@@ -139,13 +141,13 @@ export function resolveBinding(
   refs: SourceRefs,
 ): ResolvedBinding {
   const candidates = catalog.filter((definition) => definition.metric.key === binding.key);
-  const baseLabel = binding.label ?? keyLabel(binding.key, candidates[0]);
+  const baseLabel = bindingLabelText(binding) ?? keyLabel(binding.key, candidates[0]);
 
   if (candidates.length === 0) {
     return {
       ok: false,
       binding,
-      reason: 'This machine does not report this metric.',
+      reason: t('metrics.notReported'),
       label: baseLabel,
       candidates,
     };
@@ -156,7 +158,13 @@ export function resolveBinding(
     const sourceId = refs.toSource.get(wanted) ?? wanted;
     const match = candidates.find((definition) => definition.metric.sourceId === sourceId);
     if (!match) {
-      return { ok: false, binding, reason: 'Source unavailable', label: baseLabel, candidates };
+      return {
+        ok: false,
+        binding,
+        reason: t('metrics.sourceUnavailable'),
+        label: baseLabel,
+        candidates,
+      };
     }
     return {
       ok: true,

@@ -6,6 +6,7 @@ import type { MenuItem } from '@/components/ProcessContextMenu/ContextMenu';
 import { processMenuItems } from '@/components/ProcessContextMenu/processMenuItems';
 import type { ProcessMenuHandlers } from '@/components/ProcessContextMenu/processMenuItems';
 import { searchTerms } from '@/utils/processes';
+import { useTranslation } from 'react-i18next';
 
 /** The context menu of one process row. Loads capabilities when it opens. */
 export function ProcessContextMenu({
@@ -23,11 +24,18 @@ export function ProcessContextMenu({
   readonly handlers: ProcessMenuHandlers;
   readonly onClose: () => void;
 }) {
+  const { t } = useTranslation();
   const inspection = useProcessDetailsQuery(entry.instanceId);
   const items = processMenuItems(entry, inspection, target(inspection.details), handlers);
 
   return (
-    <ContextMenu x={x} y={y} label={`Actions for ${entry.name}`} items={items} onClose={onClose} />
+    <ContextMenu
+      x={x}
+      y={y}
+      label={t('processes.menu.actionsFor', { name: entry.name })}
+      items={items}
+      onClose={onClose}
+    />
   );
 }
 
@@ -56,20 +64,21 @@ export function ApplicationContextMenu({
   readonly onSearch: (terms: readonly string[]) => void;
   readonly onClose: () => void;
 }) {
+  const { t } = useTranslation();
   const items: MenuItem[] = [
     {
       id: 'inspect',
-      label: 'Inspect application',
+      label: t('processes.menu.inspectApplication'),
       onSelect: () => onInspect(application),
     },
     {
       id: 'search',
-      label: 'Search online',
+      label: t('processes.menu.search'),
       onSelect: () => onSearch(searchTerms({ name: application.displayName })),
     },
     {
       id: 'show',
-      label: 'Show processes',
+      label: t('processes.menu.showProcesses'),
       onSelect: () => onShowProcesses(application),
     },
   ];
@@ -78,7 +87,7 @@ export function ApplicationContextMenu({
     <ContextMenu
       x={x}
       y={y}
-      label={`Actions for ${application.displayName}`}
+      label={t('processes.menu.actionsFor', { name: application.displayName })}
       items={items}
       onClose={onClose}
     />

@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { WidgetInstance } from '@/dashboard/model';
 import { GRID_COLUMNS } from '@/dashboard/model';
 import type { DashboardTemplate } from '@/presets/dashboardTemplates';
@@ -6,7 +7,6 @@ import { DASHBOARD_TEMPLATES } from '@/presets/dashboardTemplates';
 import { resolveLook } from '@/design/look';
 import { useAppLook } from '@/design/hooks';
 import { StyleScope } from '@/design/LookContext';
-import { styleById } from '@/design/styles';
 import { Icon } from '@/components/Icon';
 
 function blockKind(widget: WidgetInstance): string {
@@ -56,31 +56,35 @@ function Schematic({ template }: { readonly template: DashboardTemplate }) {
 export function TemplateCard({
   template,
   onUse,
-  actionLabel = 'Create dashboard',
+  actionLabel,
 }: {
   readonly template: DashboardTemplate;
   readonly onUse: () => void;
   readonly actionLabel?: string;
 }) {
+  const { t } = useTranslation();
+  const name = t(`presets.templates.${template.id}.name`);
   return (
     <article
       className={`template-card${template.featured ? ' template-card--featured' : ''}`}
-      aria-label={`${template.name} template`}
+      aria-label={t('presets.templateAria', { name })}
     >
       <Schematic template={template} />
       <div className="template-card__body">
         <div className="template-card__title">
           <h3>
             {template.featured && <Icon name="sparkles" className="template-card__star" />}
-            {template.name}
+            {name}
           </h3>
           <span className="chip chip--style">
-            {template.styleId ? styleById(template.styleId).name : 'App style'}
+            {template.styleId ? t(`styles.${template.styleId}.name`) : t('presets.appStyle')}
           </span>
         </div>
-        <p className="template-card__description">{template.description}</p>
+        <p className="template-card__description">
+          {t(`presets.templates.${template.id}.description`)}
+        </p>
         <button type="button" className="button template-card__use" onClick={onUse}>
-          {actionLabel} <Icon name="arrowRight" />
+          {actionLabel ?? t('presets.createDashboard')} <Icon name="arrowRight" />
         </button>
       </div>
     </article>

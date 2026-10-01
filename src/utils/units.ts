@@ -6,7 +6,12 @@
  * **presentation only**: it never changes a value that is stored, compared or
  * sent anywhere. Converting at the edge is what keeps history and thresholds
  * comparable across machines.
+ *
+ * Numbers follow the active PULSE language (`12,5 GiB` in French); unit
+ * symbols are the international ones in every language.
  */
+
+import { formatDateTime, formatFixed, formatInteger } from '@/i18n/format';
 
 const BINARY_UNITS = ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB'] as const;
 const BINARY_STEP = 1024;
@@ -23,7 +28,7 @@ const BINARY_STEP = 1024;
  */
 export function formatBytes(bytes: number, fractionDigits = 1): string {
   if (!Number.isFinite(bytes) || bytes < 0) return '—';
-  if (bytes < BINARY_STEP) return `${Math.round(bytes)} B`;
+  if (bytes < BINARY_STEP) return `${formatFixed(Math.round(bytes), 0)} B`;
 
   let value = bytes;
   let unitIndex = 0;
@@ -33,7 +38,7 @@ export function formatBytes(bytes: number, fractionDigits = 1): string {
     unitIndex += 1;
   }
 
-  return `${value.toFixed(fractionDigits)} ${BINARY_UNITS[unitIndex]}`;
+  return `${formatFixed(value, fractionDigits)} ${BINARY_UNITS[unitIndex]}`;
 }
 
 /**
@@ -56,7 +61,7 @@ export function formatBytesScaledTo(bytes: number, reference: number): string {
   }
 
   const value = bytes / scale;
-  return unitIndex === 0 ? `${Math.round(value)}` : value.toFixed(1);
+  return unitIndex === 0 ? formatFixed(Math.round(value), 0) : formatFixed(value, 1);
 }
 
 /** The binary unit a byte count would be displayed in, e.g. `GiB`. */
@@ -83,7 +88,7 @@ export function binaryUnitFor(bytes: number): string {
  */
 export function formatPercent(percent: number, fractionDigits = 1): string {
   if (!Number.isFinite(percent) || percent < 0 || percent > 100) return '—';
-  return `${percent.toFixed(fractionDigits)} %`;
+  return `${formatFixed(percent, fractionDigits)} %`;
 }
 
 /**
@@ -94,11 +99,7 @@ export function formatPercent(percent: number, fractionDigits = 1): string {
 export function formatSampleTime(timestampMs: number): string {
   if (!Number.isFinite(timestampMs) || timestampMs <= 0) return '—';
 
-  return new Date(timestampMs).toLocaleTimeString(undefined, {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-  });
+  return formatDateTime(timestampMs, { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 }
 
 const HZ_PER_MHZ = 1_000_000;
@@ -129,10 +130,10 @@ export function formatHertz(hertz: number): string {
     // A reading that would round to "0 MHz" is below anything a CPU runs at,
     // so it is a fault rather than a slow clock, and gets the placeholder for
     // the same reason a literal zero does.
-    return megahertz > 0 ? `${megahertz} MHz` : '—';
+    return megahertz > 0 ? `${formatFixed(megahertz, 0)} MHz` : '—';
   }
 
-  return `${(hertz / HZ_PER_GHZ).toFixed(2)} GHz`;
+  return `${formatFixed(hertz / HZ_PER_GHZ, 2)} GHz`;
 }
 
 /**
@@ -155,7 +156,7 @@ export function formatHertz(hertz: number): string {
 export function formatCelsius(celsius: number, fractionDigits = 0): string {
   if (!Number.isFinite(celsius) || celsius < -273.15) return '—';
 
-  return `${celsius.toFixed(fractionDigits)} °C`;
+  return `${formatFixed(celsius, fractionDigits)} °C`;
 }
 
 /**
@@ -173,7 +174,7 @@ export function formatCelsius(celsius: number, fractionDigits = 0): string {
 export function formatRpm(rpm: number): string {
   if (!Number.isFinite(rpm) || rpm < 0) return '—';
 
-  return `${Math.round(rpm).toLocaleString()} RPM`;
+  return `${formatInteger(rpm)} RPM`;
 }
 
 const DECIMAL_HOUR_GROUPING = 1000;
@@ -197,7 +198,7 @@ const DECIMAL_HOUR_GROUPING = 1000;
  */
 export function formatThroughput(bytesPerSecond: number): string {
   if (!Number.isFinite(bytesPerSecond) || bytesPerSecond < 0) return '—';
-  if (bytesPerSecond < BINARY_STEP) return `${Math.round(bytesPerSecond)} B/s`;
+  if (bytesPerSecond < BINARY_STEP) return `${formatFixed(Math.round(bytesPerSecond), 0)} B/s`;
 
   let value = bytesPerSecond;
   let unitIndex = 0;
@@ -210,7 +211,7 @@ export function formatThroughput(bytesPerSecond: number): string {
   // One decimal below 100, none above: `1.5 GiB/s` is worth the digit and
   // `847.3 MiB/s` is false precision on a figure that moves every refresh.
   const digits = value < 100 ? 1 : 0;
-  return `${value.toFixed(digits)} ${BINARY_UNITS[unitIndex]}/s`;
+  return `${formatFixed(value, digits)} ${BINARY_UNITS[unitIndex]}/s`;
 }
 
 /**
@@ -229,10 +230,10 @@ export function formatIops(operationsPerSecond: number): string {
   if (!Number.isFinite(operationsPerSecond) || operationsPerSecond < 0) return '—';
 
   if (operationsPerSecond > 0 && operationsPerSecond < 10) {
-    return `${operationsPerSecond.toFixed(1)} IOPS`;
+    return `${formatFixed(operationsPerSecond, 1)} IOPS`;
   }
 
-  return `${Math.round(operationsPerSecond).toLocaleString()} IOPS`;
+  return `${formatInteger(operationsPerSecond)} IOPS`;
 }
 
 /**
@@ -251,10 +252,10 @@ export function formatIops(operationsPerSecond: number): string {
 export function formatLatency(milliseconds: number): string {
   if (!Number.isFinite(milliseconds) || milliseconds < 0) return '—';
 
-  if (milliseconds < 1) return `${milliseconds.toFixed(2)} ms`;
-  if (milliseconds < 10) return `${milliseconds.toFixed(1)} ms`;
+  if (milliseconds < 1) return `${formatFixed(milliseconds, 2)} ms`;
+  if (milliseconds < 10) return `${formatFixed(milliseconds, 1)} ms`;
 
-  return `${Math.round(milliseconds).toLocaleString()} ms`;
+  return `${formatInteger(milliseconds)} ms`;
 }
 
 /**
@@ -271,7 +272,9 @@ export function formatHours(hours: number): string {
   if (!Number.isFinite(hours) || hours < 0) return '—';
 
   const whole = Math.round(hours);
-  return whole >= DECIMAL_HOUR_GROUPING ? `${whole.toLocaleString()} h` : `${whole} h`;
+  return whole >= DECIMAL_HOUR_GROUPING
+    ? `${formatInteger(whole)} h`
+    : `${formatFixed(whole, 0)} h`;
 }
 
 /**
@@ -284,7 +287,7 @@ export function formatHours(hours: number): string {
 export function formatCount(count: number): string {
   if (!Number.isFinite(count) || count < 0) return '—';
 
-  return Math.round(count).toLocaleString();
+  return formatInteger(count);
 }
 
 const DECIMAL_BIT_UNITS = ['bit/s', 'Kbit/s', 'Mbit/s', 'Gbit/s', 'Tbit/s'] as const;
@@ -325,7 +328,7 @@ export function formatBitsPerSecond(bitsPerSecond: number): string {
   // Whole bits and kilobits; one decimal above, because the difference between
   // 866.7 Mbit/s and 867 Mbit/s is a real Wi-Fi rate distinction.
   const digits = unitIndex <= 1 ? 0 : 1;
-  return `${value.toFixed(digits)} ${DECIMAL_BIT_UNITS[unitIndex]}`;
+  return `${formatFixed(value, digits)} ${DECIMAL_BIT_UNITS[unitIndex]}`;
 }
 
 /**
@@ -342,13 +345,13 @@ export function formatPacketRate(packetsPerSecond: number): string {
   if (!Number.isFinite(packetsPerSecond) || packetsPerSecond < 0) return '—';
 
   if (packetsPerSecond >= 1_000_000) {
-    return `${(packetsPerSecond / 1_000_000).toFixed(1)}M/s`;
+    return `${formatFixed(packetsPerSecond / 1_000_000, 1)}M/s`;
   }
   if (packetsPerSecond >= 1_000) {
-    return `${(packetsPerSecond / 1_000).toFixed(1)}k/s`;
+    return `${formatFixed(packetsPerSecond / 1_000, 1)}k/s`;
   }
 
-  return `${Math.round(packetsPerSecond)}/s`;
+  return `${formatFixed(Math.round(packetsPerSecond), 0)}/s`;
 }
 
 /**
@@ -365,5 +368,5 @@ export function formatPacketRate(packetsPerSecond: number): string {
 export function formatDbm(dbm: number): string {
   if (!Number.isFinite(dbm) || dbm > 0) return '—';
 
-  return `${Math.round(dbm)} dBm`;
+  return `${formatFixed(Math.round(dbm), 0)} dBm`;
 }

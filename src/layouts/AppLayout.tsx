@@ -1,4 +1,5 @@
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { NAV_GROUPS, NAV_ROUTES } from '@/app/routes';
 import { StatusBar } from '@/components/StatusBar/StatusBar';
 import { APP_VERSION } from '@/app/constants';
@@ -8,6 +9,7 @@ import { useLook } from '@/design/hooks';
 import { useAppearance } from '@/design/store';
 
 export function AppLayout() {
+  const { t } = useTranslation();
   const location = useLocation();
   const look = useLook();
   const appearance = useAppearance();
@@ -28,35 +30,37 @@ export function AppLayout() {
           </div>
         </div>
 
-        <nav className="nav" aria-label="Main">
+        <nav className="nav" aria-label={t('nav.main')}>
           {NAV_GROUPS.map((group) => (
             <div key={group.id} className="nav__group">
-              <p className="nav__group-label">{group.label}</p>
+              <p className="nav__group-label">{t(`nav.groups.${group.id}`)}</p>
               {NAV_ROUTES.filter((route) => route.group === group.id).map((route) => (
                 <NavLink
                   key={route.path}
                   to={route.path}
                   end={route.path === '/'}
-                  title={route.description}
+                  title={t(`nav.routes.${route.id}.description`)}
                   className={({ isActive }) => `nav__item${isActive ? ' nav__item--active' : ''}`}
                 >
                   <Icon name={route.icon} className="nav__icon" />
-                  <span>{route.label}</span>
+                  <span>{t(`nav.routes.${route.id}.label`)}</span>
                 </NavLink>
               ))}
             </div>
           ))}
         </nav>
 
-        <Link to="/appearance" className="sidebar__style" title="Change the style">
+        <Link to="/appearance" className="sidebar__style" title={t('nav.changeStyle')}>
           <span className="sidebar__swatches" aria-hidden="true">
             {look.viz.slice(0, 3).map((color) => (
               <span key={color} style={{ background: color }} />
             ))}
           </span>
           <span className="sidebar__style-text">
-            <span className="sidebar__style-label">Style</span>
-            <span className="sidebar__style-name">{userStyle?.name ?? look.style.name}</span>
+            <span className="sidebar__style-label">{t('nav.style')}</span>
+            <span className="sidebar__style-name">
+              {userStyle?.name ?? t(`styles.${look.style.id}.name`)}
+            </span>
           </span>
         </Link>
       </aside>

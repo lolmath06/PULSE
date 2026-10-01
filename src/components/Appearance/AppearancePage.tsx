@@ -1,5 +1,8 @@
 import { useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
+import { LanguageSelect } from '@/components/Language/LanguageSelect';
+import { formatFixed } from '@/i18n/format';
 import { ConfirmDialog } from '@/components/ConfirmDialog/ConfirmDialog';
 import { copyText } from '@/utils/clipboard';
 import type { Customization } from '@/design/appearance';
@@ -31,13 +34,8 @@ import { Icon } from '@/components/Icon';
 import { StyleCard } from '@/components/Appearance/StyleCard';
 import { LookPreview } from '@/components/Appearance/LookPreview';
 
-const FONT_LABELS: Record<(typeof FONT_CHOICES)[number], string> = {
-  style: 'Style',
-  sans: 'Sans',
-  rounded: 'Rounded',
-  condensed: 'Condensed',
-  mono: 'Mono',
-};
+/** A ratio as a whole percentage in the active locale: `85 %`. */
+const percent = (v: number) => `${formatFixed(v * 100, 0)} %`;
 
 type Dialog =
   | { kind: 'save' }
@@ -54,6 +52,7 @@ type Dialog =
  * own value; *Style* puts it back.
  */
 export function AppearancePage() {
+  const { t } = useTranslation();
   const appearance = useAppearance();
   const look = useAppLook();
   const custom = appearance.custom;
@@ -71,22 +70,27 @@ export function AppearancePage() {
     withTransition(() => updateAppearance((section) => chooseStyle(section, styleId)), look);
   const worn = effectiveStyle(appearance);
   const mode = findMode(appearance.activeMode);
-  const t = look.style.tokens;
+  const tokens = look.style.tokens;
 
   return (
     <section className="page page--wide appearance">
       <header className="page-header">
-        <p className="page-header__eyebrow">Studio</p>
-        <h1 className="page__title">Appearance</h1>
-        <p className="page__subtitle">
-          Eight styles that change surfaces, depth, type, density and charts — not just colours.
-          Tune any of them; save the result as your own.
-        </p>
+        <p className="page-header__eyebrow">{t('nav.groups.studio')}</p>
+        <h1 className="page__title">{t('nav.routes.appearance.label')}</h1>
+        <p className="page__subtitle">{t('appearance.subtitle')}</p>
       </header>
+
+      <section className="card tune appearance__language" aria-label={t('language.label')}>
+        <LanguageSelect />
+      </section>
 
       {mode && (
         <p className="notice" role="status">
-          <strong>{mode.name} mode</strong> is on: the style you pick applies to it.{' '}
+          <Trans
+            i18nKey="appearance.modeOn"
+            values={{ mode: t(`modes.${mode.id}.name`) }}
+            components={{ strong: <strong /> }}
+          />{' '}
           <button
             type="button"
             className="button button--quiet"
@@ -94,18 +98,18 @@ export function AppearancePage() {
               withTransition(() => updateAppearance((section) => enterMode(section, null)), look)
             }
           >
-            Leave {mode.name} mode
+            {t('appearance.leaveMode', { mode: t(`modes.${mode.id}.name`) })}
           </button>
         </p>
       )}
 
-      <div className="style-gallery" role="group" aria-label="Styles">
+      <div className="style-gallery" role="group" aria-label={t('appearance.ui.styles')}>
         {looks.map(({ style, look: styleLook }) => (
           <StyleCard
             key={style.id}
             look={styleLook}
-            name={style.name}
-            tagline={style.tagline}
+            name={t(`styles.${style.id}.name`)}
+            tagline={t(`styles.${style.id}.tagline`)}
             active={appearance.userStyleId === null && worn === style.id}
             onSelect={() => choose(style.id)}
           />
@@ -114,19 +118,19 @@ export function AppearancePage() {
 
       <div className="appearance__body">
         <div className="appearance__controls">
-          <section className="card tune" aria-label="Your styles">
+          <section className="card tune" aria-label={t('appearance.ui.yourStyles')}>
             <div className="tune__head">
-              <h2 className="card__title">Your styles</h2>
+              <h2 className="card__title">{t('appearance.ui.yourStyles')}</h2>
               <div className="tune__actions">
                 <button
                   type="button"
                   className="button button--primary"
                   onClick={() => {
-                    setName(`My ${look.style.name}`);
+                    setName(t('appearance.myStyle', { name: t(`styles.${look.style.id}.name`) }));
                     setDialog({ kind: 'save' });
                   }}
                 >
-                  Save current look
+                  {t('appearance.saveCurrent')}
                 </button>
                 <button
                   type="button"
@@ -137,15 +141,12 @@ export function AppearancePage() {
                     setDialog({ kind: 'import' });
                   }}
                 >
-                  Import
+                  {t('common.import')}
                 </button>
               </div>
             </div>
             {appearance.userStyles.length === 0 ? (
-              <p className="card__muted">
-                Tune a style below, then save it here. Saved styles can be duplicated, renamed,
-                exported and shared.
-              </p>
+              <p className="card__muted">{t('appearance.noUserStyles')}</p>
             ) : (
               <ul className="user-styles">
                 {appearance.userStyles.map((style) => {
@@ -163,7 +164,11 @@ export function AppearancePage() {
                       </span>
                       <span className="user-style__name">
                         {style.name}
-                        <small>based on {resolveLook(style.base).style.name}</small>
+                        <small>
+                          {t('appearance.basedOn', {
+                            name: t(`styles.${resolveLook(style.base).style.id}.name`),
+                          })}
+                        </small>
                       </span>
                       <button
                         type="button"
@@ -176,7 +181,7 @@ export function AppearancePage() {
                           )
                         }
                       >
-                        {active ? 'In use' : 'Use'}
+                        {active ? t('appearance.inUse') : t('appearance.use')}
                       </button>
                       <button
                         type="button"
@@ -186,7 +191,7 @@ export function AppearancePage() {
                           setDialog({ kind: 'rename', id: style.id });
                         }}
                       >
-                        Rename
+                        {t('common.rename')}
                       </button>
                       <button
                         type="button"
@@ -195,7 +200,7 @@ export function AppearancePage() {
                           updateAppearance((section) => duplicateUserStyle(section, style.id))
                         }
                       >
-                        Duplicate
+                        {t('common.duplicate')}
                       </button>
                       <button
                         type="button"
@@ -207,12 +212,12 @@ export function AppearancePage() {
                           })
                         }
                       >
-                        Export
+                        {t('common.export')}
                       </button>
                       <button
                         type="button"
                         className="button button--quiet"
-                        aria-label={`Delete ${style.name}`}
+                        aria-label={t('common.deleteNamed', { name: style.name })}
                         onClick={() => setDialog({ kind: 'delete', id: style.id })}
                       >
                         <Icon name="close" />
@@ -224,17 +229,17 @@ export function AppearancePage() {
             )}
           </section>
 
-          <TuneSection title="Colour">
-            <div className="accent-row" role="group" aria-label="Accent colour">
+          <TuneSection title={t('appearance.ui.colour')}>
+            <div className="accent-row" role="group" aria-label={t('appearance.ui.accentColour')}>
               <button
                 type="button"
                 className={`accent-swatch accent-swatch--style${custom.accent === null ? ' accent-swatch--active' : ''}`}
                 aria-pressed={custom.accent === null}
-                title={`The style's accent (${t.accent})`}
-                style={{ background: t.accent }}
+                title={t('appearance.styleAccentTitle', { color: tokens.accent })}
+                style={{ background: tokens.accent }}
                 onClick={() => tune({ accent: null })}
               >
-                <span className="sr-only">Style accent</span>
+                <span className="sr-only">{t('appearance.styleAccent')}</span>
               </button>
               {ACCENTS.map((accent) => (
                 <button
@@ -242,19 +247,27 @@ export function AppearancePage() {
                   type="button"
                   className={`accent-swatch${custom.accent === accent.color ? ' accent-swatch--active' : ''}`}
                   aria-pressed={custom.accent === accent.color}
-                  title={accent.name}
+                  title={t(`styles.accents.${accent.id}`)}
                   style={{ background: accent.color }}
                   onClick={() => tune({ accent: accent.color })}
                 >
-                  <span className="sr-only">{accent.name}</span>
+                  <span className="sr-only">{t(`styles.accents.${accent.id}`)}</span>
                 </button>
               ))}
             </div>
-            <ColorField text="Accent" value={look.accent} onChange={(accent) => tune({ accent })} />
-            <Field label="Chart palette" wide>
-              <div className="palette-row" role="group" aria-label="Chart palette">
+            <ColorField
+              text={t('appearance.ui.accent')}
+              value={look.accent}
+              onChange={(accent) => tune({ accent })}
+            />
+            <Field label={t('appearance.ui.chartPalette')} wide>
+              <div
+                className="palette-row"
+                role="group"
+                aria-label={t('appearance.ui.chartPalette')}
+              >
                 {(['style', ...Object.keys(PALETTES)] as const).map((id) => {
-                  const colors = id === 'style' ? t.viz : PALETTES[id]!.colors;
+                  const colors = id === 'style' ? tokens.viz : PALETTES[id]!.colors;
                   return (
                     <button
                       key={id}
@@ -268,7 +281,7 @@ export function AppearancePage() {
                           <span key={color} style={{ background: color }} />
                         ))}
                       </span>
-                      {id === 'style' ? 'Style' : PALETTES[id]!.name}
+                      {id === 'style' ? t('nav.style') : t(`styles.palettes.${id}`)}
                     </button>
                   );
                 })}
@@ -276,21 +289,21 @@ export function AppearancePage() {
             </Field>
           </TuneSection>
 
-          <TuneSection title="Surfaces">
+          <TuneSection title={t('appearance.ui.surfaces')}>
             <Tuned
-              label="Panel opacity"
+              label={t('appearance.ui.panelOpacity')}
               value={custom.surfaceOpacity}
-              styleValue={t.surface.alpha}
+              styleValue={tokens.surface.alpha}
               min={0.2}
               max={1}
               step={0.02}
-              format={(v) => `${Math.round(v * 100)} %`}
+              format={percent}
               onChange={(surfaceOpacity) => tune({ surfaceOpacity })}
             />
             <Tuned
-              label="Glass blur"
+              label={t('appearance.ui.glassBlur')}
               value={custom.blur}
-              styleValue={t.blur}
+              styleValue={tokens.blur}
               min={0}
               max={40}
               step={1}
@@ -298,77 +311,79 @@ export function AppearancePage() {
               onChange={(blur) => tune({ blur })}
             />
             <Tuned
-              label="Border strength"
+              label={t('appearance.ui.borderStrength')}
               value={custom.borderStrength}
               styleValue={1}
               min={0}
               max={2}
               step={0.05}
-              format={(v) => `${Math.round(v * 100)} %`}
+              format={percent}
               onChange={(borderStrength) => tune({ borderStrength })}
             />
             <Tuned
-              label="Shadow depth"
+              label={t('appearance.ui.shadowDepth')}
               value={custom.shadowStrength}
               styleValue={1}
               min={0}
               max={2}
               step={0.05}
-              format={(v) => `${Math.round(v * 100)} %`}
+              format={percent}
               onChange={(shadowStrength) => tune({ shadowStrength })}
             />
           </TuneSection>
 
-          <TuneSection title="Shape & type">
-            <Field label="Corner roundness">
+          <TuneSection title={t('appearance.ui.shapeType')}>
+            <Field label={t('appearance.ui.cornerRoundness')}>
               <Slider
-                ariaLabel="Corner roundness"
+                ariaLabel={t('appearance.ui.cornerRoundness')}
                 value={custom.radiusScale}
                 min={0}
                 max={2}
                 step={0.05}
-                format={(v) => `${Math.round(v * 100)} %`}
+                format={percent}
                 onChange={(radiusScale) => tune({ radiusScale })}
               />
             </Field>
-            <Field label="Font">
+            <Field label={t('appearance.ui.font')}>
               <Choice
-                ariaLabel="Font"
+                ariaLabel={t('appearance.ui.font')}
                 options={FONT_CHOICES}
                 value={custom.font}
-                labelFor={(value) => FONT_LABELS[value]}
+                labelFor={(value) => t(`appearance.fonts.${value}`)}
                 onChange={(font) => tune({ font })}
               />
             </Field>
-            <Field label="Text size">
+            <Field label={t('appearance.ui.textSize')}>
               <Slider
-                ariaLabel="Text size"
+                ariaLabel={t('appearance.ui.textSize')}
                 value={custom.fontScale}
                 min={0.85}
                 max={1.3}
                 step={0.01}
-                format={(v) => `${Math.round(v * 100)} %`}
+                format={percent}
                 onChange={(fontScale) => tune({ fontScale })}
               />
             </Field>
           </TuneSection>
 
-          <TuneSection title="Layout & density">
-            <Field label="Density">
+          <TuneSection title={t('appearance.ui.layoutDensity')}>
+            <Field label={t('appearance.ui.density')}>
               <Choice
-                ariaLabel="Density"
+                ariaLabel={t('appearance.ui.density')}
                 options={['style', ...DENSITIES] as const}
                 value={custom.density ?? 'style'}
                 labelFor={(value) =>
                   value === 'style'
-                    ? `Style (${t.density})`
-                    : value[0]!.toUpperCase() + value.slice(1)
+                    ? t('appearance.styleWith', {
+                        value: t(`appearance.densities.${tokens.density}`),
+                      })
+                    : t(`appearance.densities.${value}`)
                 }
                 onChange={(density) => tune({ density: density === 'style' ? null : density })}
               />
             </Field>
             <Tuned
-              label="Widget padding"
+              label={t('appearance.ui.widgetPadding')}
               value={custom.widgetPadding}
               styleValue={look.widget.padding}
               min={0}
@@ -378,7 +393,7 @@ export function AppearancePage() {
               onChange={(widgetPadding) => tune({ widgetPadding })}
             />
             <Tuned
-              label="Gap between widgets"
+              label={t('appearance.ui.gapBetweenWidgets')}
               value={custom.gap}
               styleValue={look.gridGap}
               min={2}
@@ -388,7 +403,7 @@ export function AppearancePage() {
               onChange={(gap) => tune({ gap })}
             />
             <Tuned
-              label="Overlay padding"
+              label={t('appearance.ui.overlayPadding')}
               value={custom.overlayPadding}
               styleValue={look.style.overlay.padding}
               min={0}
@@ -396,10 +411,10 @@ export function AppearancePage() {
               step={1}
               format={(v) => `${v} px`}
               onChange={(overlayPadding) => tune({ overlayPadding })}
-              note="Used when an overlay takes a style."
+              note={t('appearance.ui.overlayPaddingNote')}
             />
             <Tuned
-              label="Overlay gap"
+              label={t('appearance.ui.overlayGap')}
               value={custom.overlayGap}
               styleValue={look.style.overlay.gap}
               min={0}
@@ -410,9 +425,9 @@ export function AppearancePage() {
             />
           </TuneSection>
 
-          <TuneSection title="Charts">
+          <TuneSection title={t('appearance.ui.charts')}>
             <Tuned
-              label="Line thickness"
+              label={t('appearance.ui.lineThickness')}
               value={custom.lineWidth}
               styleValue={look.style.chart.line?.width ?? 2}
               min={0.75}
@@ -422,51 +437,48 @@ export function AppearancePage() {
               onChange={(lineWidth) => tune({ lineWidth })}
             />
             <Tuned
-              label="Fill opacity"
+              label={t('appearance.ui.fillOpacity')}
               value={custom.fillOpacity}
               styleValue={look.style.chart.fill?.opacity ?? 0.24}
               min={0}
               max={0.8}
               step={0.02}
-              format={(v) => `${Math.round(v * 100)} %`}
+              format={percent}
               onChange={(fillOpacity) => tune({ fillOpacity })}
             />
-            <Field label="Line shape">
+            <Field label={t('appearance.ui.lineShape')}>
               <Choice
-                ariaLabel="Line shape"
+                ariaLabel={t('appearance.ui.lineShape')}
                 options={['style', ...CURVE_STYLES] as const}
                 value={custom.curve ?? 'style'}
                 labelFor={(value) =>
-                  value === 'style' ? 'Style' : value[0]!.toUpperCase() + value.slice(1)
+                  value === 'style' ? t('nav.style') : t(`viz.options.${value}`)
                 }
                 onChange={(curve) => tune({ curve: curve === 'style' ? null : curve })}
               />
             </Field>
-            <p className="card__note">
-              Applies to every chart still on its preset. Charts you customised keep their own
-              settings.
-            </p>
+            <p className="card__note">{t('appearance.chartsNote')}</p>
           </TuneSection>
 
-          <TuneSection title="Content & motion">
+          <TuneSection title={t('appearance.ui.contentMotion')}>
             <div className="customize__toggles">
               <Toggle
-                text="Widget titles"
+                text={t('appearance.ui.widgetTitles')}
                 checked={custom.showTitles}
                 onChange={(showTitles) => tune({ showTitles })}
               />
               <Toggle
-                text="Labels in tiny widgets"
+                text={t('appearance.ui.labelsInTinyWidgets')}
                 checked={custom.microLabels}
                 onChange={(microLabels) => tune({ microLabels })}
               />
             </div>
-            <Field label="Motion">
+            <Field label={t('appearance.ui.motion')}>
               <Choice
-                ariaLabel="Motion"
+                ariaLabel={t('appearance.ui.motion')}
                 options={MOTION_LEVELS}
                 value={custom.motion}
-                labelFor={(value) => ({ full: 'Full', reduced: 'Reduced', none: 'None' })[value]}
+                labelFor={(value) => t(`appearance.motionLevels.${value}`)}
                 onChange={(motion) => tune({ motion })}
               />
             </Field>
@@ -478,27 +490,29 @@ export function AppearancePage() {
               className="button button--quiet"
               onClick={() => updateAppearance(resetCustomization)}
             >
-              <Icon name="refresh" /> Reset every tweak to {look.style.name}
+              <Icon name="refresh" />{' '}
+              {t('appearance.resetAll', { name: t(`styles.${look.style.id}.name`) })}
             </button>
           </div>
         </div>
 
-        <aside className="appearance__preview" aria-label="Live preview">
+        <aside className="appearance__preview" aria-label={t('appearance.ui.livePreview')}>
           <div className="appearance__preview-sticky">
             <p className="appearance__preview-label">
-              <Icon name="sparkles" /> Live preview · {look.style.name}
+              <Icon name="sparkles" />{' '}
+              {t('appearance.livePreviewNamed', { name: t(`styles.${look.style.id}.name`) })}
             </p>
             <LookPreview look={look} />
-            <p className="card__note">{look.style.description}</p>
+            <p className="card__note">{t(`styles.${look.style.id}.description`)}</p>
           </div>
         </aside>
       </div>
 
       {(dialog?.kind === 'save' || dialog?.kind === 'rename') && (
         <ConfirmDialog
-          title={dialog.kind === 'save' ? 'Save this look' : 'Rename style'}
+          title={dialog.kind === 'save' ? t('appearance.saveLook') : t('appearance.renameStyle')}
           body={[]}
-          confirmLabel={dialog.kind === 'save' ? 'Save' : 'Rename'}
+          confirmLabel={dialog.kind === 'save' ? t('common.save') : t('common.rename')}
           tone="neutral"
           confirmDisabled={!name.trim()}
           onCancel={() => setDialog(null)}
@@ -514,7 +528,7 @@ export function AppearancePage() {
           <input
             type="text"
             className="customize__text dialog__input"
-            aria-label="Style name"
+            aria-label={t('appearance.ui.styleName')}
             maxLength={40}
             value={name}
             onChange={(event) => setName(event.target.value)}
@@ -523,9 +537,9 @@ export function AppearancePage() {
       )}
       {dialog?.kind === 'delete' && (
         <ConfirmDialog
-          title="Delete this style?"
-          body={['Whatever wears it now keeps its look until you choose another.']}
-          confirmLabel="Delete style"
+          title={t('appearance.ui.deleteThisStyle')}
+          body={[t('appearance.deleteBody')]}
+          confirmLabel={t('appearance.deleteStyle')}
           tone="danger"
           onCancel={() => setDialog(null)}
           onConfirm={() => {
@@ -536,9 +550,9 @@ export function AppearancePage() {
       )}
       {dialog?.kind === 'export' && (
         <ConfirmDialog
-          title="Export style"
-          body={['A portable JSON description of the style: colours, type and tuning only.']}
-          confirmLabel="Copy to clipboard"
+          title={t('appearance.ui.exportStyle')}
+          body={[t('appearance.exportBody')]}
+          confirmLabel={t('common.copyToClipboard')}
           tone="neutral"
           onCancel={() => setDialog(null)}
           onConfirm={() => {
@@ -550,15 +564,15 @@ export function AppearancePage() {
             className="dialog__textarea mono"
             readOnly
             value={dialog.text}
-            aria-label="Exported style"
+            aria-label={t('appearance.ui.exportedStyle')}
           />
         </ConfirmDialog>
       )}
       {dialog?.kind === 'import' && (
         <ConfirmDialog
-          title="Import style"
-          body={['Paste a PULSE style export. It is added to your styles.']}
-          confirmLabel="Import"
+          title={t('appearance.ui.importStyle')}
+          body={[t('appearance.importBody')]}
+          confirmLabel={t('common.import')}
           tone="neutral"
           confirmDisabled={!importText.trim()}
           onCancel={() => setDialog(null)}
@@ -567,7 +581,7 @@ export function AppearancePage() {
             try {
               parsed = JSON.parse(importText);
             } catch {
-              setImportError('This is not valid JSON.');
+              setImportError(t('common.invalidJson'));
               return;
             }
             let error: string | undefined;
@@ -582,7 +596,7 @@ export function AppearancePage() {
         >
           <textarea
             className="dialog__textarea mono"
-            aria-label="Style JSON"
+            aria-label={t('appearance.ui.styleJson')}
             value={importText}
             onChange={(event) => setImportText(event.target.value)}
           />
@@ -654,16 +668,17 @@ function Tuned({
   readonly onChange: (value: number | null) => void;
   readonly note?: string;
 }) {
+  const { t } = useTranslation();
   const following = value === null;
   return (
     <div className="tune__field">
       <span className="tune__label">
         {label}
         {following ? (
-          <span className="tune__badge">Style</span>
+          <span className="tune__badge">{t('nav.style')}</span>
         ) : (
           <button type="button" className="tune__reset" onClick={() => onChange(null)}>
-            Use style
+            {t('appearance.useStyle')}
           </button>
         )}
       </span>

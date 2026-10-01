@@ -1,4 +1,7 @@
 import { useState } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
+import { t } from '@/i18n/i18n';
+import { sourceLabel } from '@/i18n/metrics';
 import type { MetricSample } from '@/types/metrics';
 import {
   CPU_COUNT_LOGICAL,
@@ -50,6 +53,7 @@ import { formatCelsius, formatHertz, formatPercent, formatSampleTime } from '@/u
 export const PROCESSOR_DISPLAY_LIMIT = 64;
 
 export function CpuDetailsCard() {
+  useTranslation();
   const { status, processors, packages, samples, message, refreshing, refresh } = useCpuDetails();
   const [showAllProcessors, setShowAllProcessors] = useState(false);
 
@@ -65,14 +69,14 @@ export function CpuDetailsCard() {
   const visibleProcessors = collapsed ? processors.slice(0, PROCESSOR_DISPLAY_LIMIT) : processors;
 
   return (
-    <div className="card" aria-label="CPU details">
-      <h2 className="card__title">CPU details</h2>
+    <div className="card" aria-label={t('cards.cpu.title')}>
+      <h2 className="card__title">{t('cards.cpu.title')}</h2>
 
-      {status === 'loading' && <p className="card__muted">Reading CPU topology…</p>}
+      {status === 'loading' && <p className="card__muted">{t('cards.cpu.loading')}</p>}
 
       {status === 'error' && (
         <p className="card__muted" title={message}>
-          Backend unavailable. Run PULSE with <code>pnpm app:dev</code> to reach the Rust layer.
+          <Trans i18nKey="overview.backendUnavailable" components={{ code: <code /> }} />
         </p>
       )}
 
@@ -80,19 +84,19 @@ export function CpuDetailsCard() {
         <>
           <dl className="kv">
             <div className="kv__row">
-              <dt>Physical cores</dt>
+              <dt>{t('metrics.catalog.cpu.count.physical.name')}</dt>
               <dd>
                 <CountValue value={physical} sample={sampleOf(samples, CPU_COUNT_PHYSICAL)} />
               </dd>
             </div>
             <div className="kv__row">
-              <dt>Logical processors</dt>
+              <dt>{t('metrics.catalog.cpu.count.logical.name')}</dt>
               <dd>
                 <CountValue value={logical} sample={sampleOf(samples, CPU_COUNT_LOGICAL)} />
               </dd>
             </div>
             <div className="kv__row">
-              <dt>Packages</dt>
+              <dt>{t('cards.cpu.packages')}</dt>
               <dd>
                 <CountValue value={packageCount} sample={sampleOf(samples, CPU_COUNT_PACKAGE)} />
               </dd>
@@ -100,7 +104,7 @@ export function CpuDetailsCard() {
 
             {packages.length === 1 ? (
               <div className="kv__row">
-                <dt>Package temperature</dt>
+                <dt>{t('metrics.catalog.cpu.temperature.package.name')}</dt>
                 <dd>
                   <PackageTemperature index={packages[0]!.index} samples={samples} />
                 </dd>
@@ -108,7 +112,14 @@ export function CpuDetailsCard() {
             ) : (
               packages.map((cpuPackage) => (
                 <div className="kv__row" key={cpuPackage.sourceId}>
-                  <dt>{`${cpuPackage.label} temperature`}</dt>
+                  <dt>
+                    {t('cards.cpu.packageTemperature', {
+                      name: sourceLabel({
+                        metric: { sourceId: cpuPackage.sourceId },
+                        sourceLabel: cpuPackage.label,
+                      }),
+                    })}
+                  </dt>
                   <dd>
                     <PackageTemperature index={cpuPackage.index} samples={samples} />
                   </dd>
@@ -119,7 +130,7 @@ export function CpuDetailsCard() {
 
           {processors.length > 0 ? (
             <>
-              <ul className="cpu-grid" aria-label="Logical processors">
+              <ul className="cpu-grid" aria-label={t('metrics.catalog.cpu.count.logical.name')}>
                 {visibleProcessors.map((processor) => (
                   <ProcessorRow key={processor.ordinal} processor={processor} samples={samples} />
                 ))}
@@ -131,36 +142,32 @@ export function CpuDetailsCard() {
                   className="button cpu-grid__expand"
                   onClick={() => setShowAllProcessors(true)}
                 >
-                  {`Show all ${processors.length} processors`}
+                  {t('cards.cpu.showAll', { count: processors.length })}
                 </button>
               )}
             </>
           ) : (
-            <p className="card__note">
-              No individual logical processor is exposed on this machine.
-            </p>
+            <p className="card__note">{t('cards.cpu.noProcessors')}</p>
           )}
 
           <div className="card__footer">
             <span className="card__muted">
-              {typeof timestamp === 'number' ? `Updated ${formatSampleTime(timestamp)}` : ''}
+              {typeof timestamp === 'number'
+                ? t('cards.updated', { time: formatSampleTime(timestamp) })
+                : ''}
             </span>
             <button
               type="button"
               className="button"
               onClick={refresh}
               disabled={refreshing}
-              aria-label="Refresh CPU details"
+              aria-label={t('cards.cpu.refresh')}
             >
-              {refreshing ? 'Refreshing…' : 'Refresh'}
+              {refreshing ? t('common.refreshing') : t('common.refresh')}
             </button>
           </div>
 
-          <p className="card__note">
-            One physical core can carry several logical processors, so usage is reported per logical
-            processor. Frequencies are what the operating system reports. The package temperature is
-            the processor&apos;s own sensor, never an average of its cores.
-          </p>
+          <p className="card__note">{t('cards.cpu.note')}</p>
         </>
       )}
     </div>
@@ -207,11 +214,11 @@ function ProcessorRow({
         className="cpu-grid__frequency"
         title={
           max !== null
-            ? `Maximum reported for ${processor.label}: ${formatHertz(max)}`
+            ? t('cards.cpu.maxFor', { name: processor.label, value: formatHertz(max) })
             : describeAvailability(
                 sampleOf(samples, maxMetric)?.availability ?? {
                   status: 'notRegistered',
-                  reason: 'no maximum frequency is published for this processor',
+                  reason: t('cards.cpu.noMax'),
                 },
               )
         }
@@ -259,7 +266,7 @@ function CountValue({
 }) {
   if (value !== null) return <>{value}</>;
 
-  return <Unavailable sample={sample} short="Not reported" />;
+  return <Unavailable sample={sample} short={t('cards.notReported')} />;
 }
 
 /**
@@ -276,7 +283,9 @@ function Unavailable({
   readonly sample: MetricSample | undefined;
   readonly short: string;
 }) {
-  const reason = sample ? describeAvailability(sample.availability) : 'Not reported by the backend';
+  const reason = sample
+    ? describeAvailability(sample.availability)
+    : t('cards.notReportedByBackend');
 
   return (
     <span className="value--unavailable" title={reason}>

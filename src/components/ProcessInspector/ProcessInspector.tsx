@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
+import { t } from '@/i18n/i18n';
+import { formatDateTime } from '@/i18n/format';
 import type {
   Capability,
   FileHash,
@@ -17,6 +20,7 @@ import { describeAvailability } from '@/utils/metrics';
 import {
   NICE_PRESETS,
   WINDOWS_PRIORITY_CLASSES,
+  priorityLabel,
   describeProvenance,
   formatAffinity,
   formatCategory,
@@ -85,6 +89,8 @@ export function ProcessInspector({
   readonly handlers: InspectorHandlers;
   readonly onClose: () => void;
 }) {
+  // Subscribes this panel (and its rows) to language changes.
+  useTranslation();
   const inspection = useProcessDetailsQuery(instanceId, revision);
   const provenance = useProcessProvenance(inspection.details === null ? null : instanceId);
   const [hash, setHash] = useState<HashState>({ status: 'idle' });
@@ -149,7 +155,7 @@ export function ProcessInspector({
     <aside
       ref={panel}
       className="inspector"
-      aria-label="Process inspector"
+      aria-label={t('processes.inspector.processInspector')}
       tabIndex={-1}
       onKeyDown={(event) => {
         if (event.key === 'Escape') {
@@ -172,7 +178,7 @@ export function ProcessInspector({
         <button
           type="button"
           className="inspector__close"
-          aria-label="Close inspector"
+          aria-label={t('processes.inspector.closeInspector')}
           onClick={onClose}
         >
           ×
@@ -182,32 +188,29 @@ export function ProcessInspector({
       {exited && (
         <p className="inspector__banner inspector__banner--gone" role="status">
           {inspection.outcome?.status === 'staleProcess'
-            ? 'This process has exited, and its PID now belongs to a different process. PULSE will not act on it.'
-            : 'Process exited. Nothing further can be done to it.'}
+            ? t('processes.inspector.stale')
+            : t('processes.inspector.exited')}
         </p>
       )}
 
       {inspection.status === 'loading' && details === null && (
-        <p className="card__muted">Reading this process…</p>
+        <p className="card__muted">{t('processes.inspector.reading')}</p>
       )}
 
       {inspection.status === 'failed' && !exited && inspection.outcome && (
         <p className="inspector__banner" role="status">
-          {inspection.outcome.reason}
+          {`${t(`processes.status.${inspection.outcome.status}`)}: ${inspection.outcome.reason}`}
         </p>
       )}
 
       {details?.isSelf && (
         <p className="inspector__banner inspector__banner--warning">
-          This is PULSE itself. Ending it will close this application.
+          {t('processes.inspector.self')}
         </p>
       )}
 
       {details?.category === 'kernelThread' && (
-        <p className="inspector__banner">
-          A kernel thread runs inside the kernel: it has no executable, no package and cannot be
-          controlled from PULSE.
-        </p>
+        <p className="inspector__banner">{t('processes.inspector.kernelThread')}</p>
       )}
 
       <div className="inspector__actions">
@@ -215,9 +218,9 @@ export function ProcessInspector({
           type="button"
           className="button button--quiet"
           onClick={() => handlers.searchOnline(terms)}
-          title="Opens your browser on a web search for the program's name"
+          title={t('processes.inspector.searchHint')}
         >
-          Search online
+          {t('processes.menu.search')}
         </button>
         <button
           type="button"
@@ -226,15 +229,17 @@ export function ProcessInspector({
           title={details?.capabilities.openLocation.reason ?? undefined}
           onClick={() => run({ kind: 'openLocation' })}
         >
-          Open file location
+          {t('processes.menu.openLocation')}
         </button>
       </div>
 
-      <Section title="Identity">
-        <Row label="Process name">{name}</Row>
-        {product !== null && product !== name && <Row label="Product">{product}</Row>}
+      <Section title={t('processes.inspector.identity')}>
+        <Row label={t('processes.inspector.processName')}>{name}</Row>
+        {product !== null && product !== name && (
+          <Row label={t('processes.inspector.product')}>{product}</Row>
+        )}
         <Row label="PID">{details?.pid ?? entry?.pid ?? '—'}</Row>
-        <Row label="Parent">
+        <Row label={t('processes.inspector.parent')}>
           {details?.parentPid == null ? (
             '—'
           ) : (
@@ -243,78 +248,80 @@ export function ProcessInspector({
             </>
           )}
         </Row>
-        <Row label="Instance ID">
+        <Row label={t('processes.inspector.instanceId')}>
           <code className="inspector__mono">{instanceId}</code>
         </Row>
-        <Row label="State">
+        <Row label={t('processes.inspector.state')}>
           {details ? stateLabel(details) : entry ? formatProcessState(entry.state) : '—'}
         </Row>
-        <Row label="Started">
-          <FieldText field={details?.startedAt} format={(ms) => new Date(ms).toLocaleString()} />
+        <Row label={t('processes.inspector.started')}>
+          <FieldText field={details?.startedAt} format={(ms) => formatDateTime(ms)} />
         </Row>
-        <Row label="Owner">
+        <Row label={t('processes.inspector.owner')}>
           <FieldText
             field={details?.owner}
             format={(owner) => (owner.name ? `${owner.name} (${owner.id})` : owner.id)}
           />
         </Row>
-        <Row label="Category">{details ? formatCategory(details.category) : '—'}</Row>
-        <Row label="Architecture">
+        <Row label={t('processes.inspector.category')}>
+          {details ? formatCategory(details.category) : '—'}
+        </Row>
+        <Row label={t('processes.inspector.architecture')}>
           <FieldText field={details?.architecture} />
         </Row>
       </Section>
 
-      <Section title="Resource usage">
+      <Section title={t('processes.inspector.resourceUsage')}>
         {entry === null ? (
-          <p className="card__muted">Not in the latest snapshot.</p>
+          <p className="card__muted">{t('processes.inspector.notInSnapshot')}</p>
         ) : (
           <>
             <Row label="CPU">
               <FieldText field={entry.cpuPercent} format={(value) => formatPercent(value)} />
             </Row>
-            <Row label="Memory">
+            <Row label={t('processes.inspector.memory')}>
               <FieldText field={entry.residentMemoryBytes} format={(value) => formatBytes(value)} />
             </Row>
-            <Row label="Memory %">
+            <Row label={t('processes.inspector.memoryPercent')}>
               <FieldText field={entry.memoryPercent} format={(value) => formatPercent(value)} />
             </Row>
-            <Row label="Threads">
+            <Row label={t('processes.inspector.threads')}>
               <FieldText field={entry.threadCount} format={formatCount} />
             </Row>
-            <Row label="Read">
+            <Row label={t('processes.inspector.read')}>
               <FieldText field={entry.readBytesPerSecond} format={formatThroughput} />
             </Row>
-            <Row label="Write">
+            <Row label={t('processes.inspector.write')}>
               <FieldText field={entry.writeBytesPerSecond} format={formatThroughput} />
             </Row>
           </>
         )}
       </Section>
 
-      <Section title="Executable">
+      <Section title={t('processes.inspector.executable')}>
         {details?.executable.value ? (
           <>
-            <Row label="Path">
+            <Row label={t('processes.inspector.path')}>
               <code className="inspector__mono inspector__path">
                 {details.executable.value.path}
               </code>
             </Row>
-            <Row label="File">{details.executable.value.fileName}</Row>
-            <Row label="Size">
+            <Row label={t('processes.inspector.file')}>{details.executable.value.fileName}</Row>
+            <Row label={t('processes.inspector.size')}>
               <FieldText
                 field={details.executable.value.sizeBytes}
                 format={(bytes) => formatBytes(bytes)}
               />
             </Row>
-            <Row label="Modified">
+            <Row label={t('processes.inspector.modified')}>
               <FieldText
                 field={details.executable.value.modifiedAt}
-                format={(ms) => new Date(ms).toLocaleString()}
+                format={(ms) => formatDateTime(ms)}
               />
             </Row>
             {details.executable.value.replacedOnDisk && (
               <p className="inspector__banner inspector__banner--warning">
-                The file this process started from has since been deleted or replaced on disk.
+                {t('processes.inspector.replaced')}
               </p>
             )}
             <div className="inspector__inline-actions">
@@ -323,10 +330,10 @@ export function ProcessInspector({
                 className="button button--quiet"
                 onClick={() => {
                   const path = details.executable.value?.path;
-                  if (path) handlers.copy('Executable path', path);
+                  if (path) handlers.copy(t('processes.menu.executablePath'), path);
                 }}
               >
-                Copy path
+                {t('processes.inspector.copyPath')}
               </button>
             </div>
           </>
@@ -337,21 +344,22 @@ export function ProcessInspector({
         )}
       </Section>
 
-      <Section title="Security & provenance">
+      <Section title={t('processes.inspector.securityProvenance')}>
         <ProvenanceRows state={provenance} details={details} />
         {details?.versionInfo.value && (
           <>
-            <Row label="Description">{details.versionInfo.value.fileDescription ?? '—'}</Row>
-            <Row label="Company">{details.versionInfo.value.companyName ?? '—'}</Row>
-            <Row label="Version">
+            <Row label={t('processes.inspector.description')}>
+              {details.versionInfo.value.fileDescription ?? '—'}
+            </Row>
+            <Row label={t('processes.inspector.company')}>
+              {details.versionInfo.value.companyName ?? '—'}
+            </Row>
+            <Row label={t('processes.inspector.version')}>
               {details.versionInfo.value.productVersion ??
                 details.versionInfo.value.fileVersion ??
                 '—'}
             </Row>
-            <p className="inspector__note">
-              Description, product and company are declared by the file itself and are not proof of
-              anything; the signature is what Windows verified.
-            </p>
+            <p className="inspector__note">{t('processes.inspector.versionNote')}</p>
           </>
         )}
 
@@ -367,20 +375,19 @@ export function ProcessInspector({
               title={details?.capabilities.computeHash.reason ?? undefined}
               onClick={computeHash}
             >
-              {hash.status === 'computing' ? 'Computing…' : 'Compute SHA-256'}
+              {hash.status === 'computing'
+                ? t('processes.inspector.computing')
+                : t('processes.inspector.computeHash')}
             </button>
           ) : (
             <HashActions sha256={hash.hash.sha256 ?? ''} handlers={handlers} />
           )}
         </div>
-        <p className="inspector__note">
-          Provenance is evidence, not a verdict: a package or a valid signature does not make a
-          program safe, and their absence does not make it malicious.
-        </p>
+        <p className="inspector__note">{t('processes.inspector.provenanceNote')}</p>
       </Section>
 
-      <Section title="Scheduling">
-        <Row label="Priority">
+      <Section title={t('processes.inspector.scheduling')}>
+        <Row label={t('processes.inspector.priority')}>
           <FieldText field={details?.priority} format={formatPriority} />
         </Row>
         {details && (
@@ -391,7 +398,7 @@ export function ProcessInspector({
             onCustom={() => handlers.customNice(details)}
           />
         )}
-        <Row label="CPU affinity">
+        <Row label={t('processes.inspector.cpuAffinity')}>
           <FieldText field={details?.affinity} format={formatAffinity} />
         </Row>
         {details && (
@@ -405,35 +412,35 @@ export function ProcessInspector({
               title={details.capabilities.setAffinity.reason ?? undefined}
               onClick={() => handlers.affinity(details)}
             >
-              Change affinity…
+              {t('processes.inspector.changeAffinity')}
             </button>
           </div>
         )}
       </Section>
 
-      <Section title="Process control" tone="danger">
+      <Section title={t('processes.inspector.processControl')} tone="danger">
         <div className="inspector__control-grid">
           <ControlButton
-            label="Suspend"
+            label={t('processes.inspector.suspend')}
             capability={details?.capabilities.suspend}
             enabled={allowed(details?.capabilities.suspend)}
             onClick={() => run({ kind: 'suspend' })}
           />
           <ControlButton
-            label="Resume"
+            label={t('processes.inspector.resume')}
             capability={details?.capabilities.resume}
             enabled={allowed(details?.capabilities.resume)}
             onClick={() => run({ kind: 'resume' })}
           />
           <ControlButton
-            label="End process"
+            label={t('processes.inspector.endProcess')}
             danger
             capability={details?.capabilities.terminate}
             enabled={allowed(details?.capabilities.terminate)}
             onClick={() => run({ kind: 'terminate' })}
           />
           <ControlButton
-            label="End process tree"
+            label={t('processes.inspector.endProcessTree')}
             danger
             capability={details?.capabilities.terminateTree}
             enabled={allowed(details?.capabilities.terminateTree)}
@@ -441,7 +448,7 @@ export function ProcessInspector({
           />
           {details?.forceKillSupported && (
             <ControlButton
-              label="Force kill"
+              label={t('processes.inspector.forceKill')}
               danger
               capability={details.capabilities.forceKill}
               enabled={allowed(details.capabilities.forceKill)}
@@ -450,7 +457,7 @@ export function ProcessInspector({
           )}
         </div>
         {details?.suspendedByPulse && (
-          <p className="inspector__note">PULSE suspended this process during this session.</p>
+          <p className="inspector__note">{t('processes.inspector.suspendedByPulse')}</p>
         )}
       </Section>
     </aside>
@@ -460,7 +467,9 @@ export function ProcessInspector({
 function stateLabel(details: ProcessDetails): string {
   if (details.state === 'other') return describeAvailability(details.stateAvailability);
   const label = formatProcessState(details.state);
-  return details.suspendedByPulse ? `${label} (suspended by PULSE)` : label;
+  return details.suspendedByPulse
+    ? t('processes.inspector.suspendedState', { state: label })
+    : label;
 }
 
 function Section({
@@ -519,11 +528,20 @@ function ProvenanceRows({
   readonly details: ProcessDetails | null;
 }) {
   if (details?.category === 'kernelThread') {
-    return <Row label="Provenance">Not applicable to a kernel thread</Row>;
+    return (
+      <Row label={t('processes.inspector.provenance')}>
+        {t('processes.inspector.notApplicableKernel')}
+      </Row>
+    );
   }
-  if (state.status === 'loading') return <Row label="Provenance">Checking…</Row>;
+  if (state.status === 'loading')
+    return <Row label={t('processes.inspector.provenance')}>{t('common.checking')}</Row>;
   if (state.status !== 'ready' || state.provenance === null) {
-    return <Row label="Provenance">{state.outcome?.reason ?? 'Unavailable'}</Row>;
+    return (
+      <Row label={t('processes.inspector.provenance')}>
+        {state.outcome?.reason ?? t('processes.trust.unavailable')}
+      </Row>
+    );
   }
   return <ProvenanceDetail provenance={state.provenance} />;
 }
@@ -532,7 +550,7 @@ function ProvenanceDetail({ provenance }: { readonly provenance: Provenance }) {
   switch (provenance.kind) {
     case 'rpmPackage':
       return (
-        <Row label="Package">
+        <Row label={t('processes.inspector.package')}>
           {provenance.packages.map((pkg) => (
             <code key={formatPackage(pkg)} className="inspector__mono inspector__package">
               {formatPackage(pkg)}
@@ -543,39 +561,53 @@ function ProvenanceDetail({ provenance }: { readonly provenance: Provenance }) {
     case 'signature':
       return (
         <>
-          <Row label="Signature">
+          <Row label={t('processes.inspector.signature')}>
             <span className={`trust trust--${provenance.signature.trust}`}>
               {formatTrust(provenance.signature.trust)}
             </span>
-            {provenance.signature.source === 'catalog' ? ' (system catalog)' : ''}
+            {provenance.signature.source === 'catalog'
+              ? ` ${t('processes.inspector.catalog')}`
+              : ''}
           </Row>
-          <Row label="Publisher">
+          <Row label={t('processes.inspector.publisher')}>
             {provenance.signature.publisher ?? '—'}
             {provenance.signature.publisher !== null &&
               provenance.signature.trust !== 'trusted' &&
-              ' (claimed, not trusted)'}
+              ` ${t('processes.inspector.claimed')}`}
           </Row>
-          <p className="inspector__note">{provenance.signature.detail}</p>
+          <p className="inspector__note" lang="en">
+            {provenance.signature.detail}
+          </p>
         </>
       );
     default:
-      return <Row label="Package">{describeProvenance(provenance)}</Row>;
+      return <Row label={t('processes.inspector.package')}>{describeProvenance(provenance)}</Row>;
   }
 }
 
 function HashView({ state }: { readonly state: HashState }) {
   switch (state.status) {
     case 'idle':
-      return <span className="card__muted">Not computed</span>;
+      return <span className="card__muted">{t('processes.inspector.notComputed')}</span>;
     case 'computing':
-      return <span className="card__muted">Computing…</span>;
+      return <span className="card__muted">{t('processes.inspector.computing')}</span>;
     case 'failed':
-      return <span className="value--unavailable">{state.outcome.reason}</span>;
+      return (
+        <span className="value--unavailable">
+          {`${t(`processes.status.${state.outcome.status}`)}: ${state.outcome.reason}`}
+        </span>
+      );
     default:
       if (state.hash.status === 'computed' && state.hash.sha256 !== null) {
         return <code className="inspector__mono inspector__hash">{state.hash.sha256}</code>;
       }
-      return <span className="value--unavailable">{state.hash.reason ?? 'Not computed'}</span>;
+      return (
+        <span className="value--unavailable">
+          {state.hash.reason
+            ? `${t(`processes.hash.${state.hash.status}`)}: ${state.hash.reason}`
+            : t(`processes.hash.${state.hash.status}`)}
+        </span>
+      );
   }
 }
 
@@ -593,22 +625,22 @@ function HashActions({
         className="button button--quiet"
         onClick={() => handlers.copy('SHA-256', sha256)}
       >
-        Copy SHA-256
+        {t('processes.inspector.copyHash')}
       </button>
       <button
         type="button"
         className="button button--quiet"
         onClick={() => handlers.lookupHash(sha256, 'web')}
       >
-        Search hash online
+        {t('processes.inspector.searchHash')}
       </button>
       <button
         type="button"
         className="button button--quiet"
-        title="Opens VirusTotal's page for this hash in your browser. The file is never uploaded."
+        title={t('processes.inspector.virusTotalHint')}
         onClick={() => handlers.lookupHash(sha256, 'virusTotal')}
       >
-        Check hash on VirusTotal
+        {t('processes.inspector.checkVirusTotal')}
       </button>
     </>
   );
@@ -631,11 +663,11 @@ function PriorityControl({
     const value = current?.kind === 'windowsClass' ? current.class : '';
     return (
       <label className="inspector__select">
-        <span className="inspector__label">Set priority</span>
+        <span className="inspector__label">{t('processes.inspector.setPriority')}</span>
         <select
           value={value}
           disabled={disabled}
-          aria-label="Set priority"
+          aria-label={t('processes.inspector.setPriority')}
           onChange={(event) => {
             const chosen = WINDOWS_PRIORITY_CLASSES.find(
               (entry) => entry.value === event.target.value,
@@ -646,7 +678,7 @@ function PriorityControl({
           {value === '' && <option value="">—</option>}
           {WINDOWS_PRIORITY_CLASSES.map((entry) => (
             <option key={entry.value} value={entry.value}>
-              {entry.label}
+              {priorityLabel(entry.level)}
             </option>
           ))}
         </select>
@@ -658,11 +690,11 @@ function PriorityControl({
   const preset = NICE_PRESETS.find((entry) => entry.value === value);
   return (
     <div className="inspector__select">
-      <span className="inspector__label">Set priority</span>
+      <span className="inspector__label">{t('processes.inspector.setPriority')}</span>
       <select
         value={preset ? String(preset.value) : 'custom'}
         disabled={disabled}
-        aria-label="Set priority"
+        aria-label={t('processes.inspector.setPriority')}
         onChange={(event) => {
           if (event.target.value === 'custom') {
             onCustom();
@@ -674,12 +706,15 @@ function PriorityControl({
         {!preset && <option value="custom">{value === null ? '—' : `nice ${value}`}</option>}
         {NICE_PRESETS.map((entry) => (
           <option key={entry.value} value={String(entry.value)}>
-            {entry.label} (nice {entry.value})
+            {t('processes.menu.nicePreset', {
+              level: priorityLabel(entry.level),
+              value: entry.value,
+            })}
           </option>
         ))}
       </select>
       <button type="button" className="button button--quiet" disabled={disabled} onClick={onCustom}>
-        Custom…
+        {t('processes.inspector.custom')}
       </button>
     </div>
   );

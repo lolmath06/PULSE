@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import type { ModeDefinition } from '@/modes/modes';
 import { enterMode, modeStyle, updateMode } from '@/design/appearance';
 import { updateAppearance, useAppearance } from '@/design/store';
 import { useElementSize } from '@/visualization/useElementSize';
 import { useScopedLook, withTransition } from '@/design/hooks';
 import { PageStyle } from '@/design/LookContext';
-import { styleById } from '@/design/styles';
-import { setActive } from '@/dashboard/dashboards';
+import { dashboardName, setActive } from '@/dashboard/dashboards';
 import { updateDashboards, useDashboards } from '@/dashboard/store';
 import { createDashboardFromTemplate, findTemplate } from '@/presets/dashboardTemplates';
 import { strip } from '@/presets/widgets';
@@ -36,6 +36,8 @@ const NO_ACTIONS = {
  * overlay packs that suit it and how it behaves — in the mode's own style.
  */
 export function ModePage({ mode }: { readonly mode: ModeDefinition }) {
+  const { t } = useTranslation();
+  const name = t(`modes.${mode.id}.name`);
   const appearance = useAppearance();
   const settings = appearance.modes[mode.id];
   const styleId = modeStyle(appearance, mode.id);
@@ -50,22 +52,26 @@ export function ModePage({ mode }: { readonly mode: ModeDefinition }) {
 
   return (
     <PageStyle styleId={styleId}>
-      <section className="page page--wide mode-page" aria-label={`${mode.name} mode`}>
+      <section
+        className="page page--wide mode-page"
+        aria-label={t('modes.page.aria', { mode: name })}
+      >
         <header className="mode-hero">
           <span className="mode-hero__icon" aria-hidden="true">
             <Icon name={mode.icon} size={30} />
           </span>
           <div className="mode-hero__text">
-            <p className="page-header__eyebrow">Mode</p>
-            <h1 className="page__title">{mode.name}</h1>
-            <p className="mode-hero__tagline">{mode.tagline}</p>
-            <p className="page__subtitle">{mode.description}</p>
+            <p className="page-header__eyebrow">{t('modes.page.eyebrow')}</p>
+            <h1 className="page__title">{name}</h1>
+            <p className="mode-hero__tagline">{t(`modes.${mode.id}.tagline`)}</p>
+            <p className="page__subtitle">{t(`modes.${mode.id}.description`)}</p>
           </div>
           <div className="mode-hero__actions">
             {active ? (
               <>
                 <span className="pill pill--tone-good">
-                  <span className="status-dot status-dot--good" aria-hidden="true" /> Active
+                  <span className="status-dot status-dot--good" aria-hidden="true" />{' '}
+                  {t('common.active')}
                 </span>
                 <button
                   type="button"
@@ -77,7 +83,7 @@ export function ModePage({ mode }: { readonly mode: ModeDefinition }) {
                     )
                   }
                 >
-                  Leave mode
+                  {t('modes.page.leave')}
                 </button>
               </>
             ) : (
@@ -86,13 +92,13 @@ export function ModePage({ mode }: { readonly mode: ModeDefinition }) {
                 className="button button--primary button--lg"
                 onClick={() => activateMode(mode)}
               >
-                <Icon name={mode.icon} /> Enter {mode.name} mode
+                <Icon name={mode.icon} /> {t('modes.page.enter', { mode: name })}
               </button>
             )}
             <StylePicker
-              label={`${mode.name} style`}
+              label={t('modes.page.style', { mode: name })}
               value={settings.styleId}
-              followLabel={`${styleById(mode.style).name} (mode default)`}
+              followLabel={t('modes.page.modeDefault', { name: t(`styles.${mode.style}.name`) })}
               onChange={(value) =>
                 withTransition(
                   () =>
@@ -108,29 +114,26 @@ export function ModePage({ mode }: { readonly mode: ModeDefinition }) {
 
         <ModeDashboard mode={mode} />
 
-        <section className="mode-section" aria-label={`Overlays for ${mode.name}`}>
+        <section className="mode-section" aria-label={t('modes.page.overlaysFor', { mode: name })}>
           <div className="mode-section__head">
-            <h2 className="section-title">Overlay packs</h2>
-            <p className="card__muted">
-              Composed for {mode.name.toLowerCase()} — each becomes an editable overlay in its own
-              window.
-            </p>
+            <h2 className="section-title">{t('overlays.page.packs')}</h2>
+            <p className="card__muted">{t('modes.page.packsHint', { mode: name })}</p>
           </div>
           <PackGallery status={status} only={mode.packs} />
         </section>
 
-        <section className="card mode-behaviour" aria-label="Behaviour">
-          <h2 className="card__title">When this mode is on</h2>
+        <section className="card mode-behaviour" aria-label={t('modes.page.behaviour')}>
+          <h2 className="card__title">{t('modes.page.whenOn')}</h2>
           <div className="customize__toggles">
             <Toggle
-              text="Lock every overlay on entering (click-through, never focused)"
+              text={t('modes.page.lockOverlays')}
               checked={settings.lockOverlays}
               onChange={(lockOverlays) =>
                 updateAppearance((section) => updateMode(section, mode.id, { lockOverlays }))
               }
             />
             <Toggle
-              text="Keep PULSE and its overlays running when the main window closes"
+              text={t('modes.page.keepRunning')}
               checked={settings.keepRunning}
               onChange={(keepRunning) =>
                 updateAppearance((section) => updateMode(section, mode.id, { keepRunning }))
@@ -140,7 +143,7 @@ export function ModePage({ mode }: { readonly mode: ModeDefinition }) {
           <ul className="mode-principles">
             {mode.principles.map((principle) => (
               <li key={principle}>
-                <Icon name="check" /> {principle}
+                <Icon name="check" /> {t(`modes.${mode.id}.principles.${principle}`)}
               </li>
             ))}
           </ul>
@@ -152,6 +155,7 @@ export function ModePage({ mode }: { readonly mode: ModeDefinition }) {
 
 /** The mode's key metrics, live, in one strip. */
 function LiveEmphasis({ mode }: { readonly mode: ModeDefinition }) {
+  const { t } = useTranslation();
   const widget = useMemo(
     () => ({ ...strip(mode.emphasis, [800, 64], true), id: `w-mode-${mode.id}` }),
     [mode],
@@ -159,7 +163,11 @@ function LiveEmphasis({ mode }: { readonly mode: ModeDefinition }) {
   const [ref, size] = useElementSize<HTMLDivElement>();
   const width = Math.max(320, Math.floor(size.width || 800));
   return (
-    <div ref={ref} className="mode-live" aria-label={`${mode.name} key metrics`}>
+    <div
+      ref={ref}
+      className="mode-live"
+      aria-label={t('modes.page.keyMetrics', { mode: t(`modes.${mode.id}.name`) })}
+    >
       <WidgetCard widget={widget} width={width} height={72} editing={false} />
     </div>
   );
@@ -167,6 +175,8 @@ function LiveEmphasis({ mode }: { readonly mode: ModeDefinition }) {
 
 /** The mode's own dashboard, or the template to create it from. */
 function ModeDashboard({ mode }: { readonly mode: ModeDefinition }) {
+  const { t } = useTranslation();
+  const name = t(`modes.${mode.id}.name`);
   const navigate = useNavigate();
   const appearance = useAppearance();
   const dashboards = useDashboards();
@@ -177,22 +187,23 @@ function ModeDashboard({ mode }: { readonly mode: ModeDefinition }) {
 
   if (!dashboard) {
     return (
-      <section className="mode-section" aria-label={`${mode.name} dashboard`}>
+      <section className="mode-section" aria-label={t('modes.page.dashboardAria', { mode: name })}>
         <div className="mode-section__head">
-          <h2 className="section-title">Dashboard</h2>
-          <p className="card__muted">
-            Start the {mode.name.toLowerCase()} dashboard from its template — then change anything.
-          </p>
+          <h2 className="section-title">{t('nav.routes.dashboard.label')}</h2>
+          <p className="card__muted">{t('modes.page.startDashboard', { mode: name })}</p>
         </div>
         {template && (
           <div className="mode-template">
             <TemplateCard
               template={template}
-              actionLabel={`Create ${mode.name} dashboard`}
+              actionLabel={t('modes.page.createDashboard', { mode: name })}
               onUse={() => {
                 let id: string | null = null;
                 updateDashboards((section) => {
-                  const result = createDashboardFromTemplate(section, template, `${mode.name}`);
+                  // Named after the mode, by key: the name follows the language.
+                  const result = createDashboardFromTemplate(section, template, {
+                    key: `modes.${mode.id}.name`,
+                  });
                   id = result.id;
                   return result.section;
                 });
@@ -211,9 +222,9 @@ function ModeDashboard({ mode }: { readonly mode: ModeDefinition }) {
   }
 
   return (
-    <section className="mode-section" aria-label={`${mode.name} dashboard`}>
+    <section className="mode-section" aria-label={t('modes.page.dashboardAria', { mode: name })}>
       <div className="mode-section__head mode-section__head--row">
-        <h2 className="section-title">{dashboard.name}</h2>
+        <h2 className="section-title">{dashboardName(dashboard)}</h2>
         <button
           type="button"
           className="button"
@@ -222,7 +233,7 @@ function ModeDashboard({ mode }: { readonly mode: ModeDefinition }) {
             void navigate('/dashboard');
           }}
         >
-          Edit in Dashboard <Icon name="arrowRight" />
+          {t('modes.page.editInDashboard')} <Icon name="arrowRight" />
         </button>
       </div>
       <DashboardGrid
@@ -231,9 +242,7 @@ function ModeDashboard({ mode }: { readonly mode: ModeDefinition }) {
         actions={NO_ACTIONS}
       />
       {desktop.closeBehavior === 'quit' && settings.keepRunning && (
-        <p className="card__note">
-          Entering the mode switches “closing the main window” to keep running.
-        </p>
+        <p className="card__note">{t('modes.page.switchesKeepRunning')}</p>
       )}
     </section>
   );

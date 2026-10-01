@@ -1,4 +1,6 @@
 import type { MetricSample } from '@/types/metrics';
+import { Trans, useTranslation } from 'react-i18next';
+import { t } from '@/i18n/i18n';
 import {
   CPU_USAGE_TOTAL,
   LIVE_SAMPLE_METRICS,
@@ -28,6 +30,7 @@ import {
  * resolves it.
  */
 export function LiveSampleCard() {
+  useTranslation();
   const { status, samples, message, refreshing, refresh } = useMetricSamples(LIVE_SAMPLE_METRICS);
 
   const numberOf = (id: string): number | null => {
@@ -51,14 +54,14 @@ export function LiveSampleCard() {
   const timestamp = samples.values().next().value?.timestamp;
 
   return (
-    <div className="card" aria-label="Live system sample">
-      <h2 className="card__title">Live system sample</h2>
+    <div className="card" aria-label={t('cards.live.title')}>
+      <h2 className="card__title">{t('cards.live.title')}</h2>
 
-      {status === 'loading' && <p className="card__muted">Sampling…</p>}
+      {status === 'loading' && <p className="card__muted">{t('cards.live.loading')}</p>}
 
       {status === 'error' && (
         <p className="card__muted" title={message}>
-          Backend unavailable. Run PULSE with <code>pnpm app:dev</code> to reach the Rust layer.
+          <Trans i18nKey="overview.backendUnavailable" components={{ code: <code /> }} />
         </p>
       )}
 
@@ -66,12 +69,12 @@ export function LiveSampleCard() {
         <>
           <dl className="kv">
             <div className="kv__row">
-              <dt>CPU usage</dt>
+              <dt>{t('metrics.catalog.cpu.usage.total.name')}</dt>
               <dd>{renderValue(cpu, (value) => formatPercent(value))}</dd>
             </div>
 
             <div className="kv__row">
-              <dt>Memory</dt>
+              <dt>{t('presets.text.memory')}</dt>
               <dd>
                 {used !== null && total !== null ? (
                   `${formatBytesScaledTo(used, total)} / ${formatBytes(total)}`
@@ -82,7 +85,7 @@ export function LiveSampleCard() {
             </div>
 
             <div className="kv__row">
-              <dt>Available</dt>
+              <dt>{t('metrics.catalog.storage.volume.capacity.available.name')}</dt>
               <dd>
                 {available !== null && total !== null
                   ? `${formatBytesScaledTo(available, total)} ${binaryUnitFor(total)}`
@@ -91,7 +94,7 @@ export function LiveSampleCard() {
             </div>
 
             <div className="kv__row">
-              <dt>Memory usage</dt>
+              <dt>{t('metrics.catalog.memory.usage.percent.name')}</dt>
               <dd>
                 {renderValue(sampleOf(metricRefId(MEMORY_USAGE_PERCENT)), (value) =>
                   formatPercent(value),
@@ -102,23 +105,23 @@ export function LiveSampleCard() {
 
           <div className="card__footer">
             <span className="card__muted">
-              {typeof timestamp === 'number' ? `Updated ${formatSampleTime(timestamp)}` : ''}
+              {typeof timestamp === 'number'
+                ? t('cards.updated', { time: formatSampleTime(timestamp) })
+                : ''}
             </span>
             <button
               type="button"
               className="button"
               onClick={refresh}
               disabled={refreshing}
-              aria-label="Refresh sample"
+              aria-label={t('cards.live.refresh')}
             >
-              {refreshing ? 'Refreshing…' : 'Refresh'}
+              {refreshing ? t('common.refreshing') : t('common.refresh')}
             </button>
           </div>
 
           {usagePercent !== null && total !== null && used !== null && available !== null && (
-            <p className="card__note">
-              used + available = total, so the two figures above always reconcile.
-            </p>
+            <p className="card__note">{t('cards.live.reconcile')}</p>
           )}
         </>
       )}
@@ -143,12 +146,12 @@ function renderValue(sample: MetricSample | undefined, format: (value: number) =
  */
 function UnavailableValue({ sample }: { readonly sample: MetricSample | undefined }) {
   if (!sample) {
-    return <span className="value--unavailable">Not reported</span>;
+    return <span className="value--unavailable">{t('cards.notReported')}</span>;
   }
 
   const label =
     sample.availability.status === 'temporarilyUnavailable'
-      ? 'Waiting for next sample'
+      ? t('cards.live.waitingNext')
       : describeAvailability(sample.availability);
 
   return (

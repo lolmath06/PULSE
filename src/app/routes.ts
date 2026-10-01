@@ -10,10 +10,10 @@ import type { IconName } from '@/components/Icon';
  * describes *what* is displayed. Phase 0 only wires the navigation.
  */
 export interface NavRoute {
+  /** Stable id; its label and description are `nav.routes.<id>.*` translations. */
+  readonly id: NavRouteId;
   readonly path: string;
-  readonly label: string;
   readonly mode: AppMode;
-  readonly description: string;
   readonly icon: IconName;
   /** The sidebar section it sits in. */
   readonly group: NavGroup;
@@ -21,74 +21,77 @@ export interface NavRoute {
 
 export type NavGroup = 'monitor' | 'modes' | 'studio';
 
-export const NAV_GROUPS: readonly { readonly id: NavGroup; readonly label: string }[] = [
-  { id: 'monitor', label: 'Monitor' },
-  { id: 'modes', label: 'Modes' },
-  { id: 'studio', label: 'Studio' },
+export type NavRouteId =
+  | 'overview'
+  | 'dashboard'
+  | 'overlays'
+  | 'gaming'
+  | 'development'
+  | 'personal'
+  | 'mini'
+  | 'appearance';
+
+/** Sidebar sections, in order. Their names are `nav.groups.<id>` translations. */
+export const NAV_GROUPS: readonly { readonly id: NavGroup }[] = [
+  { id: 'monitor' },
+  { id: 'modes' },
+  { id: 'studio' },
 ];
 
 export const NAV_ROUTES: readonly NavRoute[] = [
   {
+    id: 'overview',
     path: '/',
-    label: 'Overview',
     mode: 'standard',
-    description: 'The default PULSE dashboard.',
     icon: 'overview',
     group: 'monitor',
   },
   {
+    id: 'dashboard',
     path: '/dashboard',
-    label: 'Dashboard',
     mode: 'standard',
-    description: 'Your own dashboards: widgets you add, arrange and style.',
     icon: 'dashboard',
     group: 'monitor',
   },
   {
+    id: 'overlays',
     path: '/overlays',
-    label: 'Overlays',
     mode: 'mini',
-    description: 'Widgets in their own windows on the desktop.',
     icon: 'overlays',
     group: 'monitor',
   },
   {
+    id: 'gaming',
     path: '/gaming',
-    label: 'Gaming',
     mode: 'gaming',
-    description: 'A low-overhead view focused on in-game relevant metrics.',
     icon: 'gaming',
     group: 'modes',
   },
   {
+    id: 'development',
     path: '/development',
-    label: 'Development',
     mode: 'development',
-    description: 'A view focused on build, compile and workload pressure.',
     icon: 'development',
     group: 'modes',
   },
   {
+    id: 'personal',
     path: '/personal',
-    label: 'Personal',
     mode: 'personal',
-    description: 'A freely composable dashboard with many widgets.',
     icon: 'personal',
     group: 'modes',
   },
   {
+    id: 'mini',
     path: '/mini',
-    label: 'Mini',
     mode: 'mini',
-    description: 'A small, ordinary PULSE window showing one dashboard.',
     icon: 'mini',
     group: 'modes',
   },
   {
+    id: 'appearance',
     path: '/appearance',
-    label: 'Appearance',
     mode: 'standard',
-    description: 'Styles, colours, type, density and motion — for every surface.',
     icon: 'appearance',
     group: 'studio',
   },

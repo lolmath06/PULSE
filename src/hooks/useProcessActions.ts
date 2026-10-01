@@ -13,6 +13,7 @@ import {
   terminateProcessTree,
 } from '@/services/processes';
 import { copyText } from '@/utils/clipboard';
+import { t } from '@/i18n/i18n';
 
 /** Who an action is aimed at: always an instance, never a bare PID. */
 export interface ActionTarget {
@@ -48,29 +49,74 @@ export interface Notice {
   readonly text: string;
 }
 
-const STATUS_LABEL: Record<ProcessActionResult['status'], string> = {
-  success: 'Done',
-  permissionDenied: 'Permission denied',
-  staleProcess: 'Not done — the PID now belongs to another process',
-  processGone: 'Process already exited',
-  unsupported: 'Unsupported',
-  partialFailure: 'Partly done',
-  invalidRequest: 'Not done',
-  platformError: 'Failed',
-};
+/** A status's words, from its code: `processes.status.<status>`. */
+export function statusLabel(status: ProcessActionResult['status']): string {
+  return t(`processes.status.${status}`);
+}
 
-/** Turns an action result into the sentence the card shows. */
-export function noticeFor(result: ProcessActionResult): Notice {
+/**
+ * The sentence for a completed action, built from the result's structured
+ * fields — the action, the PID, the counts — never from its English text.
+ * `null` when the result carries nothing structured to say.
+ */
+function outcomeSentence(
+  result: ProcessActionResult,
+  action: ProcessAction | undefined,
+  pid: number | undefined,
+): string | null {
+  if (result.tree) {
+    const tree = result.tree;
+    return t('processes.outcome.tree', {
+      count: tree.requested,
+      terminated: tree.terminated,
+      gone: tree.alreadyGone,
+      refused: tree.permissionDenied,
+      stale: tree.staleSkipped,
+      failed: tree.failed,
+    });
+  }
+  if (!action || pid === undefined) return null;
+  const threaded = action.kind === 'priority' || action.kind === 'affinity';
+  if (result.status === 'partialFailure' && threaded && result.affectedCount !== null) {
+    return t(`processes.outcome.${action.kind}Partial`, {
+      pid,
+      applied: result.affectedCount,
+      failed: result.failedCount ?? 0,
+    });
+  }
+  if (result.status !== 'success') return null;
+  switch (action.kind) {
+    case 'openLocation':
+      return t('processes.outcome.openLocation');
+    default:
+      return t(`processes.outcome.${action.kind}`, { pid });
+  }
+}
+
+/**
+ * Turns an action result into the sentence the card shows. Success reads in
+ * the interface language; a failure gives its translated status, then the
+ * backend's reason verbatim — the diagnostic detail (an OS error, the exact
+ * privilege missing) that tells the user what to do.
+ */
+export function noticeFor(
+  result: ProcessActionResult,
+  action?: ProcessAction,
+  pid?: number,
+): Notice {
   const tone: Notice['tone'] =
     result.status === 'success'
       ? 'success'
       : result.status === 'partialFailure' || result.status === 'processGone'
         ? 'warning'
         : 'error';
+  const sentence = outcomeSentence(result, action, pid);
   const text =
     result.status === 'success'
-      ? result.reason
-      : `${STATUS_LABEL[result.status]}: ${result.reason}`;
+      ? (sentence ?? t('processes.status.success'))
+      : sentence
+        ? `${statusLabel(result.status)}: ${sentence}`
+        : `${statusLabel(result.status)}: ${result.reason}`;
   return { tone, text };
 }
 
@@ -84,56 +130,49 @@ export function confirmationFor(
   action: ProcessAction,
   target: ActionTarget,
 ): ConfirmRequest | null {
-  const who = `${target.name} (PID ${target.pid})`;
-  const selfWarning = target.isSelf ? ['Ending PULSE will close this application.'] : [];
+  const who = t('processes.confirm.who', { name: target.name, pid: target.pid });
+  const selfWarning = target.isSelf ? [t('processes.confirm.selfWarning')] : [];
 
   switch (action.kind) {
     case 'terminate':
       return {
-        title: `End ${target.name}?`,
+        title: t('processes.confirm.endTitle', { name: target.name }),
         body: [
           target.forceKillSupported
-            ? `${who} will be sent SIGTERM and asked to exit. It may take a moment, or refuse.`
-            : `${who} will be terminated immediately. Unsaved work in it will be lost.`,
+            ? t('processes.confirm.endSigterm', { who })
+            : t('processes.confirm.endImmediate', { who }),
           ...selfWarning,
         ],
-        confirmLabel: 'End process',
+        confirmLabel: t('processes.menu.end'),
         tone: 'danger',
       };
     case 'forceKill':
       return {
-        title: `Force kill ${target.name}?`,
-        body: [
-          `${who} will be sent SIGKILL. It cannot be caught or ignored: the process gets no ` +
-            'chance to save anything or clean up.',
-          ...selfWarning,
-        ],
-        confirmLabel: 'Force kill',
+        title: t('processes.confirm.forceKillTitle', { name: target.name }),
+        body: [t('processes.confirm.forceKillBody', { who }), ...selfWarning],
+        confirmLabel: t('processes.menu.forceKill'),
         tone: 'danger',
       };
     case 'terminateTree':
       return {
-        title: `End ${target.name} and its process tree?`,
+        title: t('processes.confirm.treeTitle', { name: target.name }),
         body: [
-          `Root process: ${who}.`,
-          `About ${target.descendants} descendant process${target.descendants === 1 ? '' : 'es'} ` +
-            'will be ended first, deepest first, then the root. Each one is re-checked just ' +
-            'before it is ended; a PID that changed hands is skipped.',
+          t('processes.confirm.treeRoot', { who }),
+          t('processes.confirm.treeBody', { count: target.descendants }),
           ...selfWarning,
         ],
-        confirmLabel: 'End process tree',
+        confirmLabel: t('processes.menu.endTree'),
         tone: 'danger',
       };
     case 'priority':
       if (action.priority.kind === 'windowsClass' && action.priority.class === 'realtime') {
         return {
-          title: 'Set Realtime priority?',
+          title: t('processes.confirm.realtimeTitle'),
           body: [
-            'Realtime priority can make the system unresponsive.',
-            `It applies to ${who}. Without the required privilege, Windows applies High ` +
-              'instead, and PULSE will say so.',
+            t('processes.confirm.realtimeWarning'),
+            t('processes.confirm.realtimeBody', { who }),
           ],
-          confirmLabel: 'Set Realtime',
+          confirmLabel: t('processes.confirm.realtimeConfirm'),
           tone: 'warning',
         };
       }
@@ -217,7 +256,7 @@ export function useProcessActions(refresh: () => void): ProcessActions {
           setNotice(
             action.kind === 'openLocation' && result.status === 'success'
               ? null
-              : noticeFor(result),
+              : noticeFor(result, action, target.pid),
           );
           if (
             action.kind !== 'openLocation' &&
@@ -263,8 +302,8 @@ export function useProcessActions(refresh: () => void): ProcessActions {
     void copyText(text).then((copied) =>
       setNotice(
         copied
-          ? { tone: 'success', text: `${label} copied.` }
-          : { tone: 'error', text: `${label} could not be copied.` },
+          ? { tone: 'success', text: t('processes.copy.done', { label }) }
+          : { tone: 'error', text: t('processes.copy.failed', { label }) },
       ),
     );
   }, []);
@@ -280,7 +319,11 @@ export function useProcessActions(refresh: () => void): ProcessActions {
           } else {
             setNotice({
               tone: 'error',
-              text: hash?.reason ?? noticeFor(query.outcome).text,
+              text: hash
+                ? hash.reason
+                  ? `${t(`processes.hash.${hash.status}`)}: ${hash.reason}`
+                  : t(`processes.hash.${hash.status}`)
+                : noticeFor(query.outcome).text,
             });
           }
         })

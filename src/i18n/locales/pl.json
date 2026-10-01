@@ -1,0 +1,2050 @@
+{
+  "app": {
+    "tagline": "Twój system w jednym spojrzeniu."
+  },
+  "common": {
+    "comingLater": "Pojawi się w przyszłej fazie PULSE.",
+    "active": "Aktywny",
+    "copyOf": "{{name}} (kopia)",
+    "all": "Wszystko",
+    "checking": "Sprawdzanie…",
+    "refresh": "Odśwież",
+    "copy": "Kopiuj",
+    "copied": "Skopiowano",
+    "apply": "Zastosuj",
+    "duplicate": "Duplikuj",
+    "delete": "Usuń",
+    "preview": "Podgląd",
+    "customize": "Dostosuj",
+    "removeNamed": "Usuń {{name}}",
+    "add": "Dodaj",
+    "widgetCount_one": "{{count}} widżet",
+    "widgetCount_few": "{{count}} widżety",
+    "widgetCount_many": "{{count}} widżetów",
+    "widgetCount_other": "{{count}} widżetu",
+    "cancel": "Anuluj",
+    "rename": "Zmień nazwę",
+    "reset": "Resetuj",
+    "export": "Eksportuj",
+    "import": "Importuj",
+    "copyToClipboard": "Kopiuj do schowka",
+    "invalidJson": "To nie jest prawidłowy JSON.",
+    "remove": "Usuń",
+    "close": "Zamknij",
+    "save": "Zapisz",
+    "deleteNamed": "Usuń {{name}}",
+    "refreshing": "Odświeżanie…",
+    "hide": "Ukryj",
+    "showAll": "Pokaż wszystko"
+  },
+  "nav": {
+    "main": "Nawigacja główna",
+    "groups": {
+      "monitor": "Monitorowanie",
+      "modes": "Tryby",
+      "studio": "Studio"
+    },
+    "routes": {
+      "overview": {
+        "label": "Przegląd",
+        "description": "Domyślny pulpit PULSE."
+      },
+      "dashboard": {
+        "label": "Pulpit",
+        "description": "Twoje własne pulpity: widżety, które dodajesz, układasz i stylizujesz."
+      },
+      "overlays": {
+        "label": "Nakładki",
+        "description": "Widżety we własnych oknach na pulpicie."
+      },
+      "gaming": {
+        "label": "Gry",
+        "description": "Lekki widok skupiony na metrykach ważnych w trakcie gry."
+      },
+      "development": {
+        "label": "Programowanie",
+        "description": "Widok skupiony na obciążeniu przez budowanie, kompilację i pracę."
+      },
+      "personal": {
+        "label": "Osobisty",
+        "description": "Swobodnie komponowany pulpit z wieloma widżetami."
+      },
+      "mini": {
+        "label": "Mini",
+        "description": "Małe, zwykłe okno PULSE pokazujące jeden pulpit."
+      },
+      "appearance": {
+        "label": "Wygląd",
+        "description": "Style, kolory, czcionki, gęstość, animacje i język — dla każdej powierzchni."
+      }
+    },
+    "changeStyle": "Zmień styl",
+    "style": "Styl"
+  },
+  "status": {
+    "backendStatus": "Stan backendu",
+    "querying": "Odpytywanie backendu…",
+    "unavailableUiOnly": "Backend niedostępny — tylko interfejs"
+  },
+  "notFound": {
+    "title": "Nie znaleziono",
+    "subtitle": "Ta część PULSE nie istnieje.",
+    "back": "Wróć do przeglądu"
+  },
+  "overview": {
+    "version": "Wersja {{version}}",
+    "systemDetails": "Szczegóły systemu",
+    "detectedPlatform": "Wykryta platforma",
+    "backendUnavailable": "Backend niedostępny. Uruchom PULSE poleceniem <code>pnpm app:dev</code>, aby dotrzeć do warstwy Rust.",
+    "os": "System operacyjny",
+    "platformLayer": "Warstwa platformy",
+    "architecture": "Architektura",
+    "displayServer": "Serwer wyświetlania",
+    "backendVersion": "Wersja backendu"
+  },
+  "home": {
+    "liveSystem": "System na żywo",
+    "links": {
+      "dashboards": "Pulpity",
+      "dashboardsHint": "szablony, widżety, układy",
+      "overlays": "Nakładki",
+      "overlaysHint_one": "{{count}} pakiet, stan backendu",
+      "overlaysHint_few": "{{count}} pakiety, stan backendu",
+      "overlaysHint_many": "{{count}} pakietów, stan backendu",
+      "overlaysHint_other": "{{count}} pakietu, stan backendu",
+      "appearance": "Wygląd",
+      "appearanceHint_one": "{{count}} styl, precyzyjne strojenie",
+      "appearanceHint_few": "{{count}} style, precyzyjne strojenie",
+      "appearanceHint_many": "{{count}} stylów, precyzyjne strojenie",
+      "appearanceHint_other": "{{count}} stylu, precyzyjne strojenie"
+    }
+  },
+  "welcome": {
+    "title": "Witaj w PULSE",
+    "subtitle": "Wybierz punkt wyjścia. Każdy wybór można później zmienić — w Wyglądzie, trybach, Pulpicie i Nakładkach.",
+    "label": "Powitanie",
+    "skip": "Pomiń",
+    "start": "Uruchom PULSE",
+    "modeLabel": "Tryb",
+    "howUse": "Jak będziesz z niego korzystać?",
+    "justMonitor": "Tylko monitorowanie",
+    "justMonitorHint": "Bez trybu — styl i pulpity.",
+    "pickStyle": "Wybierz styl",
+    "styles": "Style powitalne",
+    "starters": "Na start",
+    "startWith": "Zacznij od",
+    "dashboard": "Pulpit",
+    "starterDashboard": "Pulpit startowy",
+    "keepDashboards": "Zachowaj moje obecne pulpity",
+    "overlay": "Nakładka",
+    "starterOverlay": "Nakładka startowa",
+    "noOverlay": "Na razie bez nakładki",
+    "overlaysHere": "Nakładki tutaj:",
+    "bridgeNotReady": "— mostek GNOME: {{state}}. Skonfiguruj go w Nakładkach.",
+    "bridgeActive": "— nakładki pozostają nad innymi oknami.",
+    "noBackend": "Możliwości nakładek pojawią się w Nakładkach, gdy backend odpowie."
+  },
+  "language": {
+    "label": "Język",
+    "system": "Systemowy ({{language}})",
+    "hint": "Systemowy podąża za językiem komputera. Dotyczy od razu wszystkich okien PULSE."
+  },
+  "metrics": {
+    "catalog": {
+      "cpu": {
+        "count": {
+          "logical": {
+            "name": "Procesory logiczne",
+            "description": "Liczba procesorów logicznych (wątków sprzętowych), na których system operacyjny planuje pracę. Przy wielowątkowości współbieżnej przekracza liczbę rdzeni fizycznych."
+          },
+          "package": {
+            "name": "Obudowy procesora",
+            "description": "Liczba zainstalowanych fizycznych obudów procesora (gniazd)."
+          },
+          "physical": {
+            "name": "Rdzenie fizyczne",
+            "description": "Liczba fizycznych rdzeni wykonawczych, liczonych jako odrębne pary (obudowa, rdzeń), aby rdzenie o tym samym numerze w dwóch różnych obudowach nigdy nie zostały połączone."
+          }
+        },
+        "frequency": {
+          "current": {
+            "name": "Bieżąca częstotliwość",
+            "description": "Częstotliwość taktowania, którą system operacyjny obecnie podaje dla tego procesora logicznego. Skalowanie, boost i zasady zasilania stale ją zmieniają, więc to najnowsza wartość platformy, a nie chwilowy pomiar krzemu."
+          },
+          "max": {
+            "name": "Maksymalna częstotliwość",
+            "description": "Maksymalna częstotliwość taktowania, którą platforma podaje dla tego procesora logicznego. W hybrydowym CPU różni się między rdzeniami wydajnościowymi a energooszczędnymi. Limit governora lub zasad zasilania nigdy nie jest publikowany zamiast niej."
+          }
+        },
+        "temperature": {
+          "package": {
+            "name": "Temperatura obudowy",
+            "description": "Temperatura, którą obudowa procesora podaje o sobie. To własny czujnik obudowy, nigdy średnia z poszczególnych rdzeni i nigdy jeden z limitów termicznych, dla których zaprojektowano krzem."
+          }
+        },
+        "usage": {
+          "logical": {
+            "name": "Użycie CPU",
+            "description": "Udział czasu CPU, w którym ten procesor logiczny pracował, mierzony od poprzedniej próbki. Przy wielowątkowości współbieżnej dwa procesory logiczne dzielą jeden rdzeń fizyczny."
+          },
+          "total": {
+            "name": "Użycie CPU",
+            "description": "Udział czasu CPU, w którym pracowała cała maszyna, mierzony od poprzedniej próbki."
+          }
+        }
+      },
+      "gpu": {
+        "count": {
+          "name": "GPU",
+          "description": "Liczba sprzętowych kart graficznych zinwentaryzowanych przez PULSE. Karty programowe, takie jak Microsoft Basic Render Driver i WARP, nie są liczone."
+        },
+        "fan": {
+          "speed": {
+            "name": "Wentylator",
+            "description": "Prędkość obrotowa wentylatora karty w obrotach na minutę. Procent sterowania wentylatorem to wypełnienie, a nie prędkość, i nigdy nie jest publikowany zamiast niej."
+          }
+        },
+        "frequency": {
+          "core": {
+            "name": "Zegar rdzenia",
+            "description": "Bieżący zegar graficzny podawany przez sterownik. Boost i zasady zasilania stale go zmieniają, więc to najnowsza wartość platformy, a nie chwilowy pomiar krzemu."
+          },
+          "memory": {
+            "name": "Zegar pamięci",
+            "description": "Bieżący zegar pamięci wideo podawany przez sterownik."
+          }
+        },
+        "memory": {
+          "free": {
+            "name": "Wolna VRAM",
+            "description": "Dedykowana pamięć wideo wciąż dostępna do przydzielenia."
+          },
+          "total": {
+            "name": "Całkowita VRAM",
+            "description": "Dedykowana pamięć wideo zainstalowana na tej karcie. Pamięć systemowa współdzielona ze zintegrowanym GPU celowo nie jest tu podawana."
+          },
+          "usage": {
+            "percent": {
+              "name": "Użycie VRAM",
+              "description": "Udział używanej dedykowanej pamięci wideo, obliczony z bajtów użytych i całkowitych."
+            }
+          },
+          "used": {
+            "name": "Użyta VRAM",
+            "description": "Dedykowana pamięć wideo obecnie używana w całym systemie."
+          }
+        },
+        "temperature": {
+          "core": {
+            "name": "Temperatura",
+            "description": "Temperatura rdzenia procesora graficznego według jego własnego czujnika."
+          },
+          "hotspot": {
+            "name": "Hotspot",
+            "description": "Najgorętszy zmierzony punkt obudowy procesora graficznego. Osobny czujnik niż temperatura rdzenia, zwykle wskazujący więcej pod obciążeniem, i nigdy z niej niewyprowadzany."
+          },
+          "memory": {
+            "name": "Temperatura pamięci",
+            "description": "Temperatura dedykowanej pamięci wideo z jej własnego czujnika."
+          }
+        },
+        "usage": {
+          "core": {
+            "name": "Użycie GPU",
+            "description": "Udział wykorzystywanej mocy silnika graficznego według sterownika."
+          }
+        }
+      },
+      "memory": {
+        "available": {
+          "name": "Dostępna pamięć",
+          "description": "Pamięć fizyczna, którą można przydzielić bez użycia pliku wymiany."
+        },
+        "total": {
+          "name": "Całkowita pamięć",
+          "description": "Zainstalowana pamięć fizyczna dostępna dla systemu operacyjnego."
+        },
+        "usage": {
+          "percent": {
+            "name": "Użycie pamięci",
+            "description": "Udział używanej pamięci fizycznej, obliczony z bajtów użytych i całkowitych."
+          }
+        },
+        "used": {
+          "name": "Użyta pamięć",
+          "description": "Używana pamięć fizyczna, zdefiniowana jako całkowita minus dostępna."
+        }
+      },
+      "network": {
+        "interface": {
+          "count": {
+            "name": "Interfejsy",
+            "description": "Liczba interfejsów sieciowych monitorowanych przez PULSE. Interfejs pętli zwrotnej jest celowo pominięty: zawsze istnieje i przenosi tylko ruch, który nigdy nie opuścił tej maszyny."
+          },
+          "up_count": {
+            "name": "Połączone",
+            "description": "Ile monitorowanych interfejsów ma obecnie łącze. Włączona karta bez kabla albo radio niepowiązane z siecią nie są liczone."
+          }
+        },
+        "link": {
+          "receive_speed": {
+            "name": "Łącze RX",
+            "description": "Przepustowość przychodząca łącza wynegocjowana przez sterownik — nie to, ile faktycznie płynie. Wskaźnik, a nie stała wartość, bo zarówno Wi-Fi, jak i Ethernet negocjują ponownie."
+          },
+          "transmit_speed": {
+            "name": "Łącze TX",
+            "description": "Przepustowość wychodząca łącza. W Ethernecie równa przychodzącej; w Wi-Fi często inna."
+          }
+        },
+        "mtu": {
+          "name": "MTU",
+          "description": "Największy ładunek, jaki ten interfejs przenosi w jednej ramce. Fakt konfiguracyjny, a nie odczyt, więc jest to stan."
+        },
+        "receive": {
+          "bytes_per_second": {
+            "name": "Pobieranie",
+            "description": "Bajty docierające do tej maszyny na sekundę, wyliczone z narastających liczników systemu operacyjnego między dwiema próbkami. Odbiór oznacza ruch przychodzący z punktu widzenia tej maszyny."
+          },
+          "dropped_per_second": {
+            "name": "RX odrzucone",
+            "description": "Ramki przychodzące, które dotarły nienaruszone, a mimo to zostały odrzucone — pełny bufor albo brak protokołu, który by je przyjął. To licznik lokalny, a nie utrata pakietów w Internecie, której PULSE nie mierzy."
+          },
+          "errors_per_second": {
+            "name": "Błędy RX",
+            "description": "Ramki przychodzące odrzucone przez interfejs, bo było z nimi coś nie tak — zła suma kontrolna, błąd ramkowania. To inny licznik niż ramki odrzucone; utrzymująca się niezerowa wartość zwykle oznacza problem z kablem lub sterownikiem."
+          },
+          "packets_per_second": {
+            "name": "Pakiety RX",
+            "description": "Pakiety przychodzące na sekundę, unicast i nie-unicast razem. Zero to prawdziwy pomiar: w tym przedziale nic nie dotarło."
+          }
+        },
+        "transmit": {
+          "bytes_per_second": {
+            "name": "Wysyłanie",
+            "description": "Bajty opuszczające tę maszynę na sekundę, wyliczone z narastających liczników systemu operacyjnego między dwiema próbkami. Nadawanie oznacza ruch wychodzący."
+          },
+          "dropped_per_second": {
+            "name": "TX odrzucone",
+            "description": "Ramki wychodzące odrzucone przed wysłaniem, zwykle z powodu pełnej kolejki."
+          },
+          "errors_per_second": {
+            "name": "Błędy TX",
+            "description": "Ramki wychodzące, których interfejs nie zdołał wysłać."
+          },
+          "packets_per_second": {
+            "name": "Pakiety TX",
+            "description": "Pakiety wychodzące na sekundę, unicast i nie-unicast razem."
+          }
+        },
+        "wifi": {
+          "link": {
+            "receive_rate": {
+              "name": "Szybkość RX Wi-Fi",
+              "description": "Szybkość przychodząca wynegocjowana z punktem dostępowym. To przepustowość, nie ruch: łącze wynegocjowane na 400 Mbit/s bez ruchu nadal podaje 400 Mbit/s."
+            },
+            "transmit_rate": {
+              "name": "Szybkość TX Wi-Fi",
+              "description": "Szybkość wychodząca wynegocjowana z punktem dostępowym. Często inna niż przychodząca."
+            }
+          },
+          "signal": {
+            "quality": {
+              "name": "Jakość",
+              "description": "Wskaźnik jakości łącza 0–100, publikowany tylko tam, gdzie system operacyjny sam go oblicza. Nigdy nie jest wyliczany z siły sygnału: każdy popularny wzór z dBm na procenty jest arbitralny, a tak uzyskana liczba wyglądałaby jak pomiar, będąc zgadywaniem."
+            },
+            "rssi": {
+              "name": "Sygnał",
+              "description": "Siła odbieranego sygnału w dBm według radia — skala logarytmiczna, w której −40 to silny sygnał, a −90 ledwo użyteczny. W radiu połączonym przez kilka łączy to odczyt najsilniejszego aktywnego łącza; wartości dBm nigdy nie są uśredniane."
+            }
+          }
+        }
+      },
+      "process": {
+        "count": {
+          "running": {
+            "name": "Uruchomione",
+            "description": "Ile procesów wykonuje się na procesorze lub czeka w kolejce gotowe do tego. Prawie każdy proces na bezczynnym pulpicie czeka — na zegar, na wejście, na dysk — więc mała liczba jest tu normalna i nie świadczy o bezczynności maszyny. Windows nie podaje stanu procesów, więc tam ta wartość jest niedostępna, zamiast zmyślona."
+          },
+          "total": {
+            "name": "Procesy",
+            "description": "Ile procesów istnieje teraz na tej maszynie, łącznie z tymi, których szczegółów PULSE nie może odczytać. Proces, do którego odmówiono dostępu, nadal istnieje i nadal jest liczony."
+          }
+        },
+        "thread": {
+          "count": {
+            "total": {
+              "name": "Wątki",
+              "description": "Wszystkie wątki wszystkich widocznych procesów, zsumowane. Procesy, których liczby wątków nie dało się odczytać, nie wnoszą zgadywanej wartości, więc na maszynie pełnej chronionych procesów jest to zaniżenie, a nie wymysł."
+            }
+          }
+        }
+      },
+      "storage": {
+        "capacity": {
+          "total": {
+            "name": "Pojemność",
+            "description": "Całkowita adresowalna pojemność urządzenia fizycznego. To całe urządzenie, a nie suma systemów plików na nim."
+          }
+        },
+        "device": {
+          "count": {
+            "name": "Urządzenia pamięci masowej",
+            "description": "Liczba fizycznych urządzeń pamięci masowej zinwentaryzowanych przez PULSE. Partycje, urządzenia loop, RAM-dyski i woluminy device-mapper nie są liczone jako osobne urządzenia."
+          }
+        },
+        "health": {
+          "available_spare": {
+            "name": "Dostępna rezerwa",
+            "description": "Pozostały udział rezerwy bloków zastępczych urządzenia. To nie jest wolne miejsce w systemie plików ani nieprzydzielona pojemność: całkowicie pełny dysk zwykle nadal podaje 100 % rezerwy."
+          },
+          "media_errors": {
+            "name": "Błędy nośnika",
+            "description": "Błędy nośnika i integralności danych, które kontroler wykrył i policzył przez cały okres życia urządzenia."
+          },
+          "percentage_used": {
+            "name": "Zużyta wytrzymałość",
+            "description": "Szacunek kontrolera, jaka część znamionowej wytrzymałości zapisu urządzenia została zużyta. Podawany dokładnie tak, jak deklaruje urządzenie, także z wartościami powyżej 100 % po przekroczeniu specyfikacji, i nigdy nie przeliczany na ocenę stanu."
+          },
+          "power_on_hours": {
+            "name": "Godziny pracy",
+            "description": "Godziny, przez które kontroler urządzenia był włączony, według jego własnego licznika."
+          },
+          "temperature": {
+            "name": "Temperatura",
+            "description": "Złożona temperatura kontrolera pamięci masowej — jedna wartość, którą urządzenie wylicza z własnych czujników, a nie pojedynczy czujnik ani odczyt innego komponentu."
+          },
+          "unsafe_shutdowns": {
+            "name": "Niebezpieczne wyłączenia",
+            "description": "Ile razy urządzenie straciło zasilanie bez wcześniejszego polecenia wyłączenia."
+          }
+        },
+        "io": {
+          "read": {
+            "bytes_per_second": {
+              "name": "Odczyt",
+              "description": "Bajty odczytane z urządzenia na sekundę, wyliczone z narastających liczników systemu operacyjnego między dwiema próbkami."
+            },
+            "iops": {
+              "name": "IOPS odczytu",
+              "description": "Operacje odczytu ukończone na sekundę. Zero to prawdziwy pomiar: w tym przedziale nie ukończono żadnego odczytu."
+            },
+            "latency": {
+              "name": "Opóźnienie odczytu",
+              "description": "Średni czas odczytu zaobserwowany przez system operacyjny — z kolejką włącznie, mierzony po stronie hosta, a nie wewnątrz urządzenia. Przedział bez ukończonego odczytu nie ma żadnego opóźnienia i nie podaje go zamiast zera."
+            }
+          },
+          "write": {
+            "bytes_per_second": {
+              "name": "Zapis",
+              "description": "Bajty zapisane na urządzeniu na sekundę, wyliczone z narastających liczników systemu operacyjnego między dwiema próbkami."
+            },
+            "iops": {
+              "name": "IOPS zapisu",
+              "description": "Operacje zapisu ukończone na sekundę. Zero to prawdziwy pomiar: w tym przedziale nie ukończono żadnego zapisu."
+            },
+            "latency": {
+              "name": "Opóźnienie zapisu",
+              "description": "Średni czas zapisu zaobserwowany przez system operacyjny. Przedział bez ukończonego zapisu nie podaje wartości zamiast zera."
+            }
+          }
+        },
+        "volume": {
+          "capacity": {
+            "available": {
+              "name": "Dostępne",
+              "description": "Miejsce, w którym ten użytkownik może faktycznie zapisywać. Mniej niż wolne miejsce w systemach plików z rezerwą dla superużytkownika — celowo: ta rezerwa nie jest dla ciebie dostępna."
+            },
+            "total": {
+              "name": "Rozmiar woluminu",
+              "description": "Całkowity rozmiar systemu plików. Kilka systemów plików na jednym urządzeniu nie sumuje się do pojemności urządzenia, a system plików może obejmować kilka urządzeń."
+            },
+            "used": {
+              "name": "Użyte",
+              "description": "Miejsce w systemie plików zajęte przez dane, zdefiniowane jako całość minus wolne bloki. Użyte i dostępne nie sumują się do całości w systemach plików rezerwujących bloki dla superużytkownika."
+            }
+          },
+          "count": {
+            "name": "Woluminy",
+            "description": "Liczba zamontowanych systemów plików zinwentaryzowanych przez PULSE. System plików dostępny pod kilkoma ścieżkami liczy się raz; pseudosystemy plików, takie jak proc i sysfs, nie są liczone."
+          },
+          "usage": {
+            "percent": {
+              "name": "Użycie woluminu",
+              "description": "Udział systemu plików zajęty przez dane, obliczony z bajtów użytych i całkowitych."
+            }
+          }
+        }
+      }
+    },
+    "sources": {
+      "cpuSystem": "CPU systemu",
+      "memorySystem": "Pamięć systemu",
+      "gpuSystem": "Grafika",
+      "processSystem": "Procesy",
+      "networkSystem": "Sieć",
+      "storageSystem": "Pamięć masowa",
+      "cpuPackage": "Obudowa {{index}}"
+    },
+    "availability": {
+      "available": "Dostępne",
+      "unsupported": "Nieobsługiwane",
+      "notDetected": "Nie wykryto",
+      "permissionDenied": "Wymagane uprawnienia",
+      "temporarilyUnavailable": "Chwilowo niedostępne",
+      "providerError": "Błąd dostawcy",
+      "notRegistered": "Niezarejestrowane"
+    },
+    "availabilityReason": {
+      "unsupported": "Nieobsługiwane: {{reason}}",
+      "notDetected": "Nie wykryto: {{reason}}",
+      "permissionDenied": "Wymagane uprawnienia: {{reason}}",
+      "temporarilyUnavailable": "Chwilowo niedostępne: {{reason}}",
+      "providerError": "Błąd dostawcy: {{reason}}",
+      "notRegistered": "Niezarejestrowane: {{reason}}"
+    },
+    "engineState": {
+      "ready": "Gotowy",
+      "empty": "Pusty"
+    },
+    "notReported": "Ta maszyna nie podaje tej metryki.",
+    "noneSelected": "Nie wybrano metryki.",
+    "sourceUnavailable": "Źródło niedostępne"
+  },
+  "styles": {
+    "clean": {
+      "name": "Czysty",
+      "tagline": "Nowoczesny, spokojny, profesjonalny",
+      "description": "Spokojne grafitowe powierzchnie, delikatna głębia i jeden morski akcent. Domyślny: wszystko czytelne, nic nie krzyczy."
+    },
+    "glass": {
+      "name": "Szkło",
+      "tagline": "Matowy, świetlisty, premium",
+      "description": "Półprzezroczyste matowe panele nad głęboką zorzą, jasny refleks na górnej krawędzi i przestronne narożniki. Wizytówka."
+    },
+    "technical": {
+      "name": "Techniczny",
+      "tagline": "Aparatura, gęsta i dokładna",
+      "description": "Stół inżyniera: siatka jak na planie, ostre krawędzie, cyfry o stałej szerokości, bursztynowe odczyty, każda oś i każdy znacznik próbki."
+    },
+    "neon": {
+      "name": "Neon",
+      "tagline": "Wysoki kontrast, elektryzujący",
+      "description": "Prawie czerń z magentowym i cyjanowym światłem: świecące linie, podświetlone krawędzie i lśniące liczby. Dramatyczny, a wciąż czytelny."
+    },
+    "gaming": {
+      "name": "Gaming",
+      "tagline": "Odważny, szybki, energiczny",
+      "description": "Ścięte narożniki, karmazyn i bursztyn, wąska gruba czcionka i duże liczby: do odczytu jednym rzutem oka w trakcie gry."
+    },
+    "stealth": {
+      "name": "Stealth",
+      "tagline": "Ciemny, dyskretny, wyciszony",
+      "description": "Prawie bez ramek, przygaszony łupkowy tekst, bez wypełnień i siatek: obecny, gdy go szukasz, niewidoczny, gdy nie."
+    },
+    "compact": {
+      "name": "Kompaktowy",
+      "tagline": "Ciasny, wydajny, dla małych form",
+      "description": "Gęstsze odstępy, mniejszy tekst i spokojne wykresy: najwięcej informacji na piksel dla małych widżetów i mikronakładek."
+    },
+    "hud": {
+      "name": "Przezroczysty HUD",
+      "tagline": "Bez paneli, same liczby",
+      "description": "Bez ramek: jasne cyfry z miękką ciemną poświatą, czytelne na każdej tapecie i w każdej grze, cienkie linie, bez siatki."
+    },
+    "accents": {
+      "teal": "Morski",
+      "sky": "Błękitny",
+      "blue": "Niebieski",
+      "violet": "Fioletowy",
+      "magenta": "Magenta",
+      "crimson": "Karmazynowy",
+      "amber": "Bursztynowy",
+      "lime": "Limonkowy",
+      "mint": "Miętowy",
+      "silver": "Srebrny"
+    },
+    "palettes": {
+      "aurora": "Zorza",
+      "ocean": "Ocean",
+      "ember": "Żar",
+      "forest": "Las",
+      "candy": "Cukierek",
+      "mono": "Mono"
+    }
+  },
+  "modes": {
+    "gaming": {
+      "name": "Gry",
+      "tagline": "Najpierw nakładki. Czytelne jednym spojrzeniem.",
+      "description": "Wyraziste, kompaktowe nakładki z wydajnością i temperaturami obok gry — nigdy w niej. Zablokowane nakładki przepuszczają każde kliknięcie i nigdy nie przejmują fokusu.",
+      "principles": {
+        "noFps": "Bez licznika FPS: PULSE nie ma prawdziwego źródła FPS, więc żadnego nie pokazuje.",
+        "safeOverlays": "Tylko bezpieczne nakładki pulpitu — bez wstrzykiwania, bez hooków DirectX/Vulkan/OpenGL.",
+        "borderless": "Gry bez ramki lub w oknie; wyłączny tryb pełnoekranowy ukrywa okna pulpitu."
+      }
+    },
+    "development": {
+      "name": "Programowanie",
+      "tagline": "Obciążenie budowaniem w inżynierskiej rozdzielczości.",
+      "description": "CPU, pamięć, I/O dysku, sieć i liczba procesów w gęstym, dokładnym układzie — do kompilacji, kontenerów, testów i sesji debugowania.",
+      "principles": {
+        "realSamples": "Każda wartość to prawdziwa próbka; historia pochodzi z własnego rejestratora PULSE.",
+        "processesNearby": "Widok procesów jest o jedno kliknięcie — po proces stojący za skokiem.",
+        "technicalStyle": "Styl techniczny: proste odcinki i znaczniki próbek — nic wygładzonego."
+      }
+    },
+    "personal": {
+      "name": "Osobisty",
+      "tagline": "Twój codzienny widok, po twojemu.",
+      "description": "Przyjemny, zrównoważony punkt wyjścia do dopracowania: dodaj to, co ważne, wybierz dowolny styl, trzymaj na ekranie cały dzień.",
+      "principles": {
+        "editable": "Wszystko tutaj można edytować: widżety, styl, układ, nakładki.",
+        "saveLook": "Zapisz stworzony wygląd jako własny styl w Wyglądzie.",
+        "shareExport": "Udostępnij pulpit przez Eksport — nie zawiera żadnego identyfikatora sprzętu."
+      }
+    },
+    "mini": {
+      "name": "Mini",
+      "tagline": "Małe, eleganckie okno monitora.",
+      "description": "Kompaktowe, zwykłe okno z kilkoma starannie dobranymi odczytami. Interaktywne, nigdy zawsze na wierzchu — do tego służy nakładka.",
+      "principles": {
+        "normalWindow": "Mini to zwykłe okno: można je przesuwać, aktywować, jest na pasku zadań.",
+        "pickLayout": "Wybierz poniżej układ Mini albo pokaż w nim jeden ze swoich pulpitów."
+      }
+    },
+    "miniLayouts": {
+      "vitals": {
+        "name": "Parametry życiowe",
+        "description": "CPU, pamięć, temperatura i ruch, każde z trendem."
+      },
+      "thermals": {
+        "name": "Temperatury",
+        "description": "Temperatury w czasie, w pasmach kolorów, z dyskiem SSD."
+      },
+      "network": {
+        "name": "Sieć",
+        "description": "Pobieranie i wysyłanie, z sygnałem Wi-Fi, jeśli jest."
+      },
+      "focus": {
+        "name": "Skupienie",
+        "description": "Jeden duży pierścień CPU, pamięć i temperatura jako wskaźniki."
+      }
+    },
+    "page": {
+      "aria": "Tryb {{mode}}",
+      "eyebrow": "Tryb",
+      "leave": "Opuść tryb",
+      "enter": "Włącz tryb {{mode}}",
+      "style": "Styl {{mode}}",
+      "modeDefault": "{{name}} (domyślny dla trybu)",
+      "overlaysFor": "Nakładki dla trybu {{mode}}",
+      "packsHint": "Skomponowane dla trybu {{mode}} — każda staje się edytowalną nakładką we własnym oknie.",
+      "behaviour": "Zachowanie",
+      "whenOn": "Gdy ten tryb jest włączony",
+      "lockOverlays": "Zablokuj każdą nakładkę przy włączeniu (kliknięcia przechodzą, nigdy aktywne)",
+      "keepRunning": "Pozostaw PULSE i jego nakładki uruchomione po zamknięciu okna głównego",
+      "keyMetrics": "Kluczowe metryki: {{mode}}",
+      "dashboardAria": "Pulpit {{mode}}",
+      "startDashboard": "Utwórz pulpit {{mode}} z jego szablonu — a potem zmień, co chcesz.",
+      "createDashboard": "Utwórz pulpit {{mode}}",
+      "editInDashboard": "Edytuj w Pulpicie",
+      "switchesKeepRunning": "Włączenie trybu przełącza „zamknięcie okna głównego” na dalsze działanie."
+    },
+    "miniPage": {
+      "subtitle": "Małe, zwykłe okno PULSE. Mini jest interaktywne i zachowuje się jak każde inne okno; jeśli coś ma zostać na wierzchu i przepuszczać kliknięcia, dodaj nakładkę.",
+      "useHere": "Używaj trybu Mini także tutaj",
+      "layouts": "Układy Mini",
+      "whatShows": "Co pokazuje Mini",
+      "layout": "Układ Mini",
+      "orDashboard": "Albo pulpit",
+      "dashboardShown": "Pulpit pokazywany w Mini",
+      "style": "Styl Mini",
+      "howLooks": "Jak wygląda Mini",
+      "followMode": "Tryb Mini ({{name}})",
+      "modeStyle": "Styl trybu Mini",
+      "followsAtOnce": "Okno Mini stosuje to od razu — bez ponownego otwierania.",
+      "preview": "Podgląd Mini",
+      "live": "Na żywo · {{name}}",
+      "tinyOverlays": "Małe nakładki",
+      "tinyOverlaysHint": "Gdy odczyt ma zostać nad wszystkim i przepuszczać kliknięcia, użyj jednej z nich."
+    }
+  },
+  "presets": {
+    "templates": {
+      "balanced": {
+        "name": "Zrównoważony domyślny",
+        "description": "Codzienny przegląd: pasek podsumowania, CPU i pamięć, temperatura, GPU, sieć, dysk."
+      },
+      "gaming": {
+        "name": "Pulpit do gier",
+        "description": "Najpierw obciążenie i temperatura: pierścienie CPU i GPU, temperatury, VRAM, pamięć i ruch."
+      },
+      "development": {
+        "name": "Pulpit programisty",
+        "description": "Obciążenie budowaniem w inżynierskiej rozdzielczości: CPU, pamięć, I/O dysku, sieć, procesy."
+      },
+      "personal": {
+        "name": "Osobisty start",
+        "description": "Przyjemny, zrównoważony początek do dopasowania: pierścienie, wykres, temperatura i sieć."
+      },
+      "thermal": {
+        "name": "Fokus na temperaturę",
+        "description": "Każda temperatura odczytywana przez PULSE, w pasmach kolorów, obok obciążenia, które ją napędza."
+      },
+      "network-io": {
+        "name": "Sieć i I/O",
+        "description": "Ruch i przepustowość dysku z bliska, z użyciem systemu plików i Wi-Fi."
+      },
+      "minimal": {
+        "name": "Minimalny czysty",
+        "description": "Cztery duże liczby i jeden spokojny wykres. Nic więcej."
+      },
+      "showcase": {
+        "name": "Efektowna wizytówka",
+        "description": "PULSE w najbardziej efektownym wydaniu: matowe szkło, pierścienie, gradientowe trendy i pasek na żywo."
+      }
+    },
+    "packs": {
+      "tiny-thermals": {
+        "name": "Mini temperatury",
+        "description": "Temperatura CPU i GPU z pamięcią, w maleńkim bloku.",
+        "sample": "CPU 64 °C|GPU 58 °C|RAM 42 %"
+      },
+      "tiny-stats": {
+        "name": "Mini statystyki",
+        "description": "CPU, GPU, RAM i temperatura w jednej smukłej linii.",
+        "sample": "CPU 24 %|GPU 84 %|RAM 41 %|67 °C"
+      },
+      "top-bar": {
+        "name": "Górny pasek",
+        "description": "Pasek podsumowania na całą szerokość u góry ekranu, z trendami na żywo.",
+        "sample": "CPU 23 % ∿|GPU 61 % ∿|RAM 44 % ∿|CPU 67 °C ∿|↓ 2,1 MB/s ∿|↑ 180 kB/s ∿"
+      },
+      "bottom-bar": {
+        "name": "Dolny pasek",
+        "description": "Wskaźniki wzdłuż dolnej krawędzi: paski obciążenia CPU, GPU i pamięci oraz ruch.",
+        "sample": "CPU ▰▰▰▱▱|GPU ▰▰▱▱▱|RAM ▰▰▰▰▱|↓ 2,1 MB/s|↑ 180 kB/s"
+      },
+      "left-rail": {
+        "name": "Lewa kolumna",
+        "description": "Kolumna na całą wysokość z pierścieniami i trendami przy lewej krawędzi.",
+        "sample": "◔ CPU 23 %|◑ GPU 61 %|◕ RAM 44 %|CPU 67 °C|↓ 2,1 MB/s"
+      },
+      "right-rail": {
+        "name": "Prawa kolumna",
+        "description": "Wykresy monitorowania na całą wysokość po prawej: CPU, pamięć, temperatura, sieć, dysk.",
+        "sample": "CPU ⌇⌇⌇|RAM ⌇⌇⌇|°C ⌇⌇⌇|↓↑ ⌇⌇⌇|O/Z ⌇⌇⌇"
+      },
+      "gaming-corner": {
+        "name": "Narożnik gracza",
+        "description": "Wyrazisty HUD z sześcioma wartościami na górny narożnik: obciążenie, temperatura, VRAM i RAM.",
+        "sample": "CPU 31 %|GPU 97 %|CPU 71 °C|GPU 74 °C|VRAM 6,1 GB|RAM 44 %"
+      },
+      "thermal-strip": {
+        "name": "Pasek temperatur",
+        "description": "Każda temperatura, którą PULSE potrafi odczytać, w pasmach kolorów, z trendami.",
+        "sample": "CPU 71 °C ∿|GPU 64 °C ∿|SSD 41 °C"
+      },
+      "summary-card": {
+        "name": "Karta podsumowania systemu",
+        "description": "Elegancka pływająca karta: pierścienie CPU i pamięci, zgrupowane GPU i sieć.",
+        "sample": "◔ CPU 23 %|◕ RAM 44 %|GPU 61 %|↓ 2,1 MB/s"
+      },
+      "network-strip": {
+        "name": "Pasek sieci",
+        "description": "Pobieranie i wysyłanie z trendami oraz sygnał Wi-Fi, jeśli jest.",
+        "sample": "↓ 12 MB/s ∿|↑ 1,2 MB/s ∿|Wi-Fi −52 dBm"
+      },
+      "minimal-hud": {
+        "name": "Minimalny przezroczysty HUD",
+        "description": "Trzy wartości i nic więcej — bez panelu, z miękką poświatą dla czytelności.",
+        "sample": "CPU 23 %|GPU 61 %|RAM 44 %"
+      },
+      "dev-rail": {
+        "name": "Kolumna monitora programisty",
+        "description": "Do sesji programowania: wykresy CPU i pamięci, I/O dysku, sieć i liczba procesów.",
+        "sample": "CPU ⌇⌇⌇|RAM ⌇⌇⌇|Odczyt ∿|Zapis ∿|Sieć ↓ ∿|412 procesów"
+      }
+    },
+    "footprints": {
+      "micro": "Mikro",
+      "card": "Pływająca karta",
+      "top-strip": "Górny pasek",
+      "bottom-strip": "Dolny pasek",
+      "left-rail": "Lewa kolumna",
+      "right-rail": "Prawa kolumna",
+      "corner": "HUD narożny",
+      "block": "Blok podsumowania"
+    },
+    "overlayPresets": {
+      "tiny-stats": {
+        "name": "Mini statystyki",
+        "description": "CPU 24 % | GPU 84 % | RAM 41 %"
+      },
+      "thermal-strip": {
+        "name": "Pasek temperatur",
+        "description": "Temperatury CPU i GPU w rzędzie."
+      },
+      "gaming": {
+        "name": "Gry",
+        "description": "CPU, GPU, VRAM, RAM i sieć, jedno pod drugim."
+      },
+      "minimal-corner": {
+        "name": "Minimalny narożnik",
+        "description": "CPU i RAM, zupełnie bez tła."
+      }
+    },
+    "text": {
+      "system": "System",
+      "temperatures": "Temperatury",
+      "memory": "Pamięć",
+      "videoMemory": "Pamięć wideo",
+      "network": "Sieć",
+      "cpuTotal": "CPU łącznie",
+      "processes": "Procesy",
+      "diskIo": "I/O dysku",
+      "cpuTemperature": "Temperatura CPU",
+      "filesystem": "System plików",
+      "processor": "Procesor",
+      "temperature": "Temperatura",
+      "storage": "Pamięć masowa",
+      "cpuPackage": "Obudowa CPU",
+      "load": "Obciążenie",
+      "graphics": "Grafika",
+      "heat": "Temperatura",
+      "thermals": "Temperatury",
+      "temp": "Temp.",
+      "netDown": "Sieć ↓",
+      "netDownCaps": "SIEĆ ↓",
+      "diskDown": "Dysk ↓",
+      "diskUp": "Dysk ↑",
+      "download": "Pobieranie",
+      "upload": "Wysyłanie",
+      "read": "Odczyt",
+      "write": "Zapis",
+      "disk": "Dysk",
+      "running": "Uruchomione",
+      "threads": "Wątki",
+      "clock": "Zegar",
+      "hotspot": "Hotspot",
+      "usage": "Użycie",
+      "gpuTemp": "Temp. GPU",
+      "ssdTemp": "Temp. SSD",
+      "down": "Pobieranie",
+      "up": "Wysyłanie",
+      "core": "Rdzeń",
+      "freq": "Częst.",
+      "cpuTemp": "Temp. CPU",
+      "ramUsed": "RAM użyta",
+      "ramFree": "RAM wolna",
+      "gpuFan": "Wentylator GPU"
+    },
+    "packAria": "Pakiet nakładek {{name}}",
+    "addOverlay": "Dodaj nakładkę",
+    "footprint": "Zajmowane miejsce",
+    "templateAria": "Szablon {{name}}",
+    "appStyle": "Styl aplikacji",
+    "createDashboard": "Utwórz pulpit"
+  },
+  "library": {
+    "blueprints": {
+      "cpu-total": {
+        "label": "CPU łącznie",
+        "description": "Użycie CPU całej maszyny w czasie."
+      },
+      "cpu-value": {
+        "label": "CPU łącznie — wartość",
+        "description": "Sama liczba: CPU 23 %."
+      },
+      "cpu-sparkline": {
+        "label": "CPU łącznie — minitrend",
+        "description": "CPU 23 % z maleńkim trendem."
+      },
+      "cpu-group": {
+        "label": "Grupa CPU",
+        "description": "Użycie i temperatura obudowy razem."
+      },
+      "cpu-logical": {
+        "label": "Jeden procesor logiczny",
+        "description": "Pojedynczy procesor logiczny; wybierz który w Dostosuj."
+      },
+      "memory": {
+        "label": "Użycie pamięci",
+        "description": "Używana pamięć fizyczna w procentach."
+      },
+      "memory-value": {
+        "label": "Pamięć — wartość",
+        "description": "RAM 41 %."
+      },
+      "memory-used": {
+        "label": "Użyta pamięć — wartość",
+        "description": "Używane bajty, np. 12,0 GiB."
+      },
+      "gpu": {
+        "label": "Użycie GPU",
+        "description": "Obciążenie rdzenia GPU w czasie."
+      },
+      "gpu-value": {
+        "label": "GPU — wartość",
+        "description": "GPU 97 %."
+      },
+      "gpu-group": {
+        "label": "Grupa GPU",
+        "description": "Użycie, VRAM i temperatura."
+      },
+      "thermal": {
+        "label": "Temperatura CPU i GPU",
+        "description": "Oba czujniki na jednym wykresie; nieczytelny po prostu się nie pojawia."
+      },
+      "cpu-temp-value": {
+        "label": "Temperatura CPU — wartość",
+        "description": "71 °C."
+      },
+      "gpu-temp-value": {
+        "label": "Temperatura GPU — wartość",
+        "description": "72 °C."
+      },
+      "ssd-temp": {
+        "label": "Temperatura dysku — wartość",
+        "description": "Odczytywana z dysku na żądanie, nie co sekundę."
+      },
+      "storage": {
+        "label": "Odczyt / zapis dysku",
+        "description": "Przepustowość jednego dysku (automatycznego lub wybranego)."
+      },
+      "volume": {
+        "label": "Użycie systemu plików",
+        "description": "Jak bardzo zapełniony jest system plików."
+      },
+      "network": {
+        "label": "Pobieranie / wysyłanie",
+        "description": "Ruch jednego interfejsu (automatycznego lub wybranego)."
+      },
+      "network-down-value": {
+        "label": "Pobieranie — wartość",
+        "description": "SIEĆ ↓ 12 MiB/s."
+      },
+      "wifi": {
+        "label": "Sygnał Wi-Fi",
+        "description": "Siła sygnału interfejsu bezprzewodowego."
+      },
+      "processes": {
+        "label": "Liczba procesów i wątków",
+        "description": "Liczby dla całej maszyny; nigdy pojedynczy proces."
+      },
+      "summary": {
+        "label": "Podsumowanie systemu",
+        "description": "CPU / GPU / RAM / SIEĆ w jednym pasku, z maleńkimi trendami."
+      }
+    },
+    "categories": {
+      "CPU": "CPU",
+      "Memory": "Pamięć",
+      "GPU": "GPU",
+      "Thermals": "Temperatury",
+      "Storage": "Pamięć masowa",
+      "Network": "Sieć",
+      "Processes": "Procesy",
+      "Custom": "Własne",
+      "Templates": "Szablony"
+    },
+    "onDemand": "Odczytywana z dysku na żądanie (polecenie administracyjne NVMe), nigdy co sekundę: nie pokazuje wartości na żywo.",
+    "categoriesLabel": "Kategorie widżetów",
+    "loading": "Odczytywanie katalogu metryk…",
+    "addNamed": "Dodaj {{name}}",
+    "anyMetric": "Dowolna metryka",
+    "searchPlaceholder": "Szukaj w katalogu metryk",
+    "searchLabel": "Szukaj metryk",
+    "notReadable": "Nieczytelne na tej maszynie",
+    "noTemplates": "Brak szablonów. Dostosuj widżet i użyj „Zapisz jako szablon”.",
+    "templateName": "Nazwa szablonu"
+  },
+  "visualization": {
+    "presets": {
+      "clean": {
+        "name": "Czysty",
+        "description": "Gładka linia, delikatny gradient i subtelna siatka na ciemnym panelu."
+      },
+      "minimal": {
+        "name": "Minimalny",
+        "description": "Cienka linia i bieżąca wartość. Bez siatki, bez osi, bez panelu."
+      },
+      "technical": {
+        "name": "Techniczny",
+        "description": "Proste odcinki, znaczniki próbek, pełne osie i wszystkie statystyki."
+      },
+      "gaming": {
+        "name": "Gaming",
+        "description": "Gruba jasna linia, mocny gradient, poświata i pogrubione liczby."
+      },
+      "compact": {
+        "name": "Kompaktowy",
+        "description": "Minitrend z małą liczbą: stworzony do maleńkich przestrzeni."
+      },
+      "neon": {
+        "name": "Neon",
+        "description": "Cyjan i magenta na prawie czerni, z miękką poświatą."
+      },
+      "transparent": {
+        "name": "Przezroczysty",
+        "description": "Zupełnie bez panelu — tylko linia i jej liczba. Gotowy na nakładki."
+      }
+    },
+    "renderers": {
+      "line": {
+        "label": "Linia",
+        "description": "Wartości w czasie jako linia."
+      },
+      "area": {
+        "label": "Obszar",
+        "description": "Linia z wypełnionym obszarem pod spodem."
+      },
+      "sparkline": {
+        "label": "Minitrend",
+        "description": "Maleńki trend bez ramki, do małych przestrzeni."
+      },
+      "value": {
+        "label": "Wartość",
+        "description": "Tylko bieżąca liczba."
+      },
+      "bar": {
+        "label": "Pasek",
+        "description": "Bieżąca wartość jako poziomy pasek."
+      },
+      "gauge": {
+        "label": "Wskaźnik",
+        "description": "Bieżąca wartość na pierścieniu. Wymaga znanych granic."
+      }
+    },
+    "gaugeNeedsBounds": "Wskaźnik wymaga znanych granic, a ta metryka ich nie ma. Najpierw ustaw stałą skalę (minimum i maksimum).",
+    "scaleErrors": {
+      "both": "Podaj minimum i maksimum.",
+      "numbers": "Obie granice muszą być liczbami.",
+      "order": "Maksimum musi być większe od minimum."
+    },
+    "savedByYou": "Zapisane przez ciebie."
+  },
+  "overlays": {
+    "limitReached_one": "Najwyżej {{count}} nakładka. Usuń jedną, aby dodać kolejną.",
+    "limitReached_few": "Najwyżej {{count}} nakładki. Usuń jedną, aby dodać kolejną.",
+    "limitReached_many": "Najwyżej {{count}} nakładek. Usuń jedną, aby dodać kolejną.",
+    "limitReached_other": "Najwyżej {{count}} nakładki. Usuń jedną, aby dodać kolejną.",
+    "defaultName": "Nakładka",
+    "session": "Sesja:",
+    "capabilityList": "Możliwości nakładek",
+    "capabilityStatus": {
+      "supported": "Obsługiwane",
+      "limited": "Ograniczone",
+      "unsupported": "Nieobsługiwane"
+    },
+    "capabilities": {
+      "alwaysOnTop": "Zawsze na wierzchu",
+      "clickThrough": "Przepuszczanie kliknięć po zablokowaniu",
+      "positioning": "Pozycjonowanie bezwzględne",
+      "transparentWindow": "Przezroczyste okno",
+      "globalHotkey": "Globalny skrót",
+      "multiMonitorPositioning": "Rozmieszczenie na wielu monitorach",
+      "tray": "Zasobnik systemowy"
+    },
+    "headline": {
+      "alwaysOnTop": "Nad innymi oknami",
+      "globalHotkey": "Globalny skrót",
+      "clickThrough": "Przepuszczanie kliknięć",
+      "transparentWindow": "Przezroczyste",
+      "multiMonitorPositioning": "Wiele monitorów"
+    },
+    "displayServers": {
+      "windows": "Windows",
+      "x11": "X11",
+      "wayland": "Wayland (natywny)",
+      "xWayland": "XWayland (X11 w sesji Wayland)",
+      "other": "Nieobsługiwana platforma"
+    },
+    "verification": {
+      "physicallyVerified": "Sprawdzone na prawdziwym sprzęcie",
+      "implemented": "Zaimplementowane · jeszcze niesprawdzone na sprzęcie",
+      "bestEffort": "Zależne od platformy",
+      "unsupported": "Niedostępne"
+    },
+    "backend": {
+      "title": "Backend nakładek",
+      "unavailable": "Backend niedostępny. Uruchom PULSE poleceniem pnpm app:dev.",
+      "desktopWindow": "Okno pulpitu",
+      "whatHere": "Co nakładki potrafią tutaj"
+    },
+    "backends": {
+      "windowsNative": {
+        "label": "Natywna nakładka Windows",
+        "detail": "Warstwowe, najwyższe, nieaktywujące się okno narzędziowe: HWND_TOPMOST trzyma je na wierzchu, WS_EX_NOACTIVATE zostawia fokus tam, gdzie jest, a WS_EX_TRANSPARENT przepuszcza kliknięcia po zablokowaniu. Zaimplementowane i skompilowane; jeszcze niesprawdzone na maszynie z Windows."
+      },
+      "gnomeBridge": {
+        "label": "Natywny mostek GNOME",
+        "detail": "Rozszerzenie PULSE w GNOME Shell utrzymuje nakładki nad innymi oknami (Mutter make_above) i dostarcza skrót nakładek przez Mutter; PULSE zapewnia przepuszczanie kliknięć przez zablokowane nakładki. Sprawdzone na Fedora 39 / GNOME 45."
+      },
+      "standardWayland": {
+        "label": "Standardowe okno Wayland",
+        "detail": "Zwykłe okno Wayland: przezroczyste, po zablokowaniu przepuszcza kliknięcia, ale to kompozytor decyduje, czy zostaje nad aktywną aplikacją i gdzie trafia."
+      },
+      "x11": {
+        "label": "Okno X11",
+        "detail": "Okno X11 zawsze na wierzchu (_NET_WM_STATE_ABOVE) z pustym kształtem wejścia po zablokowaniu, umieszczane tam, gdzie prosi."
+      },
+      "unsupported": {
+        "label": "Niedostępne",
+        "detail": "Nakładki pulpitu nie są obsługiwane na tej platformie."
+      }
+    },
+    "placementHints": {
+      "gnome": "Tutaj zostaje nad innymi oknami; przeciągnij ją raz do krawędzi w trybie edycji — GNOME sam rozmieszcza okna Wayland.",
+      "notOnTop": "Najlepiej z mostkiem GNOME lub natywnymi nakładkami Windows: tutaj kompozytor może schować ją za aktywną aplikacją.",
+      "noPositioning": "Przeciągnij ją raz na miejsce w trybie edycji: ta sesja nie może pozycjonować okien."
+    },
+    "bridge": {
+      "title": "Mostek GNOME",
+      "connected": "Połączony",
+      "enable": "Włącz",
+      "disable": "Wyłącz",
+      "running": "Działa",
+      "installed": "Zainstalowany",
+      "ships": "Dołączony do PULSE",
+      "setUp": "Skonfiguruj mostek GNOME",
+      "copyUninstall": "Kopiuj polecenie deinstalacji",
+      "sourcePlaceholder": "<źródła PULSE>",
+      "states": {
+        "notApplicable": "Tu niepotrzebny",
+        "unavailable": "Niedostępny",
+        "incompatible": "Niezgodny",
+        "notInstalled": "Niezainstalowany",
+        "installedNeedsLogin": "Zainstalowany — zaloguj się ponownie",
+        "extensionsOff": "Rozszerzenia wyłączone",
+        "disabled": "Wyłączony",
+        "error": "Błąd",
+        "active": "Aktywny",
+        "changing": "Zmienianie…"
+      },
+      "summaries": {
+        "notGnome": "To nie jest sesja GNOME — mostek GNOME tu nie dotyczy",
+        "notWayland": "Niepotrzebny w tej sesji — mostek jest dla GNOME na Wayland",
+        "shellNoAnswer": "Usługa rozszerzeń GNOME Shell nie odpowiedziała",
+        "notChecked": "Jeszcze nie sprawdzono",
+        "shellUnsupported": "GNOME Shell {{version}} nie jest obsługiwany przez mostek (sprawdzono na GNOME 45)",
+        "installedNeedsLogin": "Zainstalowany — wyloguj się i zaloguj ponownie raz, aby go wczytać",
+        "notInstalled": "Niezainstalowany",
+        "extensionsOff": "Rozszerzenia użytkownika są wyłączone w tej sesji",
+        "activeConnected": "Aktywny — utrzymuje nakładki na wierzchu i dostarcza skrót",
+        "active": "Aktywny",
+        "disabled": "Zainstalowany, ale wyłączony",
+        "extensionError": "GNOME Shell zgłosił błąd w rozszerzeniu",
+        "outOfDate": "GNOME Shell {{version}} uznaje zainstalowane rozszerzenie za nieaktualne",
+        "uninstalled": "Odinstalowany",
+        "changing": "GNOME Shell zmienia stan rozszerzenia"
+      },
+      "guidance": {
+        "checkShell": "Sprawdź, czy GNOME Shell obsługuje tę sesję, a potem odśwież.",
+        "standardWayland": "Nakładki nadal działają jako standardowe okna Wayland: po zablokowaniu przepuszczają kliknięcia, ale o kolejności decyduje kompozytor.",
+        "discoverAtLogin": "GNOME Shell 45 wykrywa nowe rozszerzenia tylko przy logowaniu. Po ponownym zalogowaniu włącz je tutaj.",
+        "installSteps": "Zainstaluj rozszerzenie poniższym poleceniem, wyloguj się i zaloguj ponownie raz, a potem je włącz.",
+        "extensionsOn": "Włącz z powrotem rozszerzenia użytkownika (aplikacja Rozszerzenia lub gsettings set org.gnome.shell disable-user-extensions false).",
+        "newerCopyInstalled": "Zainstalowano nowszą kopię. Wyloguj się i zaloguj ponownie, aby ją wczytać.",
+        "reinstallNewer": "Ten PULSE zawiera nowszy mostek. Zainstaluj go ponownie poniższym poleceniem, a potem wyloguj się i zaloguj.",
+        "notGreeted": "Działa. Jeszcze nie przywitał się z tym PULSE: wersje rozszerzenia przed 2 nigdy tego nie robią; nowsze robią to, gdy tylko PULSE się uruchomi.",
+        "enableIt": "Włącz go, aby nakładki pozostawały nad innymi oknami.",
+        "reinstallAfterError": "Zainstaluj go ponownie, wyloguj się i zaloguj. Błąd jest też w journalctl --user -b /usr/bin/gnome-shell.",
+        "reinstallShipped": "Zainstaluj ponownie wersję dołączoną do tego PULSE.",
+        "refreshSoon": "Odśwież za chwilę."
+      },
+      "steps": {
+        "install": "Zainstaluj rozszerzenie",
+        "update": "Zaktualizuj rozszerzenie",
+        "installDetail": "Kopiuje je do ~/.local/share/gnome-shell/extensions/ — tylko twoje konto, bez sudo.",
+        "updateDetail": "Zainstalowana jest v{{installed}}; ten PULSE zawiera v{{bundled}}.",
+        "login": "Wyloguj się i zaloguj ponownie raz",
+        "loginDetail": "GNOME Shell 45 wczytuje kod rozszerzeń tylko przy logowaniu.",
+        "enable": "Włącz je",
+        "enableDetail": "Przyciskiem tutaj albo w aplikacji Rozszerzenia GNOME.",
+        "connected": "Połączono z PULSE",
+        "connectedDetail": "Działające rozszerzenie przywitało się z tym PULSE.",
+        "notConnectedDetail": "Wersje od 2 witają się z PULSE zaraz po jego uruchomieniu."
+      },
+      "details": {
+        "summary": "Co robi · rozwiązywanie problemów · ograniczenia",
+        "unlocks": "<strong>Umożliwia:</strong> nakładki pozostają nad aktywną aplikacją (Mutter <code>make_above</code>), a skrót nakładek działa niezależnie od tego, która aplikacja ma fokus — GNOME 45 nie ma portalu globalnych skrótów. Przepuszczanie kliknięć po zablokowaniu to funkcja samego PULSE i działa z mostkiem lub bez niego.",
+        "safety": "<strong>Bezpieczeństwo:</strong> dotyka tylko okien należących do procesu, który posiada nazwę magistrali PULSE <em>i</em> ma tytuł dokładnie <code>PULSE Overlay :: &lt;id&gt;</code>. Bez odpytywania, bez przechwytywania wejścia, bez plików, bez sieci.",
+        "troubleshooting": "<strong>Rozwiązywanie problemów:</strong> po instalacji lub aktualizacji wyloguj się i zaloguj ponownie — GNOME wczytuje kod rozszerzeń tylko przy logowaniu. Jego dziennik: <code>journalctl --user -b /usr/bin/gnome-shell | grep \"PULSE overlay bridge\"</code>. Jeśli GNOME Shell kiedykolwiek źle się zachowa przy logowaniu, wyłącz rozszerzenia użytkownika z innej sesji poleceniem <code>gsettings set org.gnome.shell disable-user-extensions true</code>.",
+        "limits": "<strong>Ograniczenia:</strong> GNOME nadal sam rozmieszcza okna Wayland, więc pozycje i rozmieszczenie na wielu monitorach należą do kompozytora; przeciągnij nakładkę raz w trybie edycji. Sprawdzone tylko na GNOME 45."
+      }
+    },
+    "layouts": {
+      "horizontal": "Wiersz",
+      "vertical": "Kolumna",
+      "grid": "Siatka"
+    },
+    "page": {
+      "subtitle": "Widżety we własnych małych oknach na pulpicie — nad innymi aplikacjami tam, gdzie system na to pozwala, przepuszczające kliknięcia po zablokowaniu. Bezpieczne okno pulpitu: PULSE nigdy nie wstrzykuje się do gier.",
+      "all": "Wszystkie nakładki",
+      "editAll": "Edytuj wszystkie",
+      "lockAll": "Zablokuj wszystkie",
+      "showAll": "Pokaż wszystkie",
+      "hideAll": "Ukryj wszystkie",
+      "openMini": "Otwórz okno Mini",
+      "newOverlay": "Nowa nakładka",
+      "packs": "Pakiety nakładek",
+      "packsHint": "Dwanaście gotowych nakładek — mikroodczyty, karty, paski na całą szerokość, kolumny i narożne HUD-y. Wszystko pozostaje edytowalne.",
+      "emptyOverlay": "Pusta nakładka",
+      "everyCapability": "Wszystkie możliwości szczegółowo",
+      "yourPacks": "Twoje pakiety",
+      "deletePack": "Usuń pakiet {{name}}"
+    },
+    "hotkey": {
+      "hint": "Przełącza widoczne nakładki między Edycją a Zablokowaniem. Ukryte zachowują swój stan.",
+      "viaBridge": "Dostarczany przez mostek GNOME za pośrednictwem Mutter, niezależnie od tego, która aplikacja ma fokus. Ustawienie skrótu tutaj zmienia ustawienie samego mostka; GNOME używa go od razu.",
+      "viaPortal": "Dostarczany przez twój pulpit za pośrednictwem XDG Desktop Portal, niezależnie od tego, która aplikacja ma fokus. Pulpit może poprosić o zgodę i pozwolić zmienić klawisze we własnych ustawieniach klawiatury.",
+      "unavailable": "Globalne skróty nie są dostępne w tej sesji: {{reason}}",
+      "notRegistered": "Nie zarejestrowano — {{error}}. Poprzedni skrót jest nadal aktywny.",
+      "notBound": "Nie przypisano — {{error}}.",
+      "active": "Aktywny: {{hotkey}}.",
+      "none": "Żaden globalny skrót nie jest aktywny."
+    },
+    "close": {
+      "title": "Zamykanie okna głównego",
+      "when": "Gdy okno główne zostanie zamknięte",
+      "quit": "Zakończ PULSE",
+      "keepRunning": "Działaj dalej, dopóki widoczne są nakładki",
+      "note": "Zakończenie jest domyślne. Gdy PULSE działa dalej, otwórz go ponownie z zasobnika lub przyciskiem „Otwórz PULSE” na nakładce; Zakończ w zasobniku zatrzymuje wszystko."
+    },
+    "editor": {
+      "aria": "Nakładka {{name}}",
+      "name": "Nazwa nakładki",
+      "visible": "Widoczna",
+      "edit": "Edytuj nakładkę",
+      "lock": "Zablokuj nakładkę",
+      "saveAsPack": "Zapisz jako mój pakiet",
+      "saveAsPackBody": "Jej widżety, układ, styl i ramka — do ponownego dodania z Nakładek.",
+      "savePack": "Zapisz pakiet",
+      "packName": "Nazwa pakietu",
+      "fromPack": "Z „{{name}}”",
+      "resetToPack": "Przywróć z pakietu",
+      "style": "Styl nakładki",
+      "layout": "Układ nakładki",
+      "background": "Tło nakładki",
+      "backgroundOpacity": "Krycie tła nakładki",
+      "cornerRadius": "Promień narożników nakładki",
+      "gapBetween": "Odstęp między widżetami",
+      "width": "Szerokość nakładki",
+      "height": "Wysokość nakładki",
+      "fit": "Dopasuj do widżetów",
+      "x": "X nakładki",
+      "y": "Y nakładki",
+      "primaryMonitor": "monitor główny",
+      "cannotPlace": "Ta sesja nie może umieszczać okien: przeciągnij nakładkę za jej pasek w trybie edycji.",
+      "widgets": "Widżety: {{name}}",
+      "widgetWidth": "Szerokość: {{name}}",
+      "widgetHeight": "Wysokość: {{name}}",
+      "moveEarlier": "Przesuń {{name}} wcześniej",
+      "moveLater": "Przesuń {{name}} później",
+      "copyToDashboard": "Kopiuj do pulpitu",
+      "copiesGoTo": "Kopie trafiają do pulpitu „{{name}}”.",
+      "deleteTitle": "Usunąć nakładkę „{{name}}”?",
+      "deleteBody": "Jej okno zostanie zamknięte, a widżety usunięte.",
+      "delete": "Usuń nakładkę"
+    },
+    "surface": {
+      "aria": "Nakładka {{name}}",
+      "empty": "Dodaj widżety w PULSE → Nakładki.",
+      "dragToMove": "{{name}} · przeciągnij, aby przesunąć",
+      "lock": "Zablokuj",
+      "openPulse": "Otwórz PULSE",
+      "dragToResize": "Przeciągnij, aby zmienić rozmiar"
+    },
+    "send": {
+      "aria": "Wyślij {{name}} do nakładki",
+      "title": "Wyślij „{{name}}” do nakładki",
+      "addTo": "Dodaj do „{{name}}”"
+    }
+  },
+  "customize": {
+    "background": "Tło",
+    "backgroundOpacity": "Krycie tła",
+    "border": "Obramowanie",
+    "shadow": "Cień",
+    "corners": "Narożniki",
+    "gap": "Odstęp",
+    "widthShort": "Sz",
+    "heightShort": "Wys",
+    "padding": "Dopełnienie",
+    "layout": "Układ",
+    "borders": {
+      "none": "Brak",
+      "thin": "Cienkie"
+    },
+    "groupLayouts": {
+      "rows": "Wiersze",
+      "inline": "W linii"
+    },
+    "widget": {
+      "section": "Widżet",
+      "title": "Tytuł",
+      "titleLabel": "Tytuł widżetu",
+      "showTitle": "Pokaż tytuł",
+      "background": "Tło widżetu",
+      "opacity": "Krycie widżetu",
+      "backgroundOpacity": "Krycie tła widżetu",
+      "padding": "Dopełnienie widżetu",
+      "border": "Obramowanie widżetu",
+      "corners": "Narożniki widżetu",
+      "cornerRadius": "Promień narożników widżetu"
+    },
+    "metrics": {
+      "section": "Metryki i źródło",
+      "label": "Etykieta metryki {{index}}",
+      "source": "Źródło metryki {{index}}",
+      "automatic": "Automatyczne",
+      "automaticNamed": "Automatyczne — {{name}}",
+      "autoHint": "Wybrane automatycznie — rozsądna wartość domyślna, a nie twierdzenie, która jest ważna.",
+      "groupLayout": "Układ grupy",
+      "tinyTrends": "Maleńkie trendy"
+    },
+    "data": {
+      "section": "Dane",
+      "source": "Źródło danych",
+      "nowLive": "Teraz: na żywo, 1 s, ostatnie 5 minut w pamięci.",
+      "nowHistory": "Teraz: historia, {{range}}.",
+      "modes": {
+        "auto": "Automatycznie",
+        "history": "Historia",
+        "live": "Na żywo"
+      }
+    },
+    "template": {
+      "section": "Szablon",
+      "placeholder": "Nazwa szablonu, np. Mój mini CPU",
+      "save": "Zapisz jako szablon"
+    }
+  },
+  "dashboard": {
+    "addWidget": "Dodaj widżet",
+    "defaultName": "Domyślny",
+    "fallbackName": "Pulpit",
+    "import": {
+      "notExport": "To nie jest eksport pulpitu PULSE.",
+      "version": "Nieobsługiwana wersja eksportu pulpitu: {{version}}.",
+      "noDashboard": "Eksport nie zawiera żadnego prawidłowego pulpitu.",
+      "limit_one": "Najwyżej {{count}} pulpit.",
+      "limit_few": "Najwyżej {{count}} pulpity.",
+      "limit_many": "Najwyżej {{count}} pulpitów.",
+      "limit_other": "Najwyżej {{count}} pulpitu."
+    },
+    "style": "Styl pulpitu",
+    "actions": "Działania pulpitu",
+    "lockLayout": "Zablokuj układ",
+    "editLayout": "Edytuj układ",
+    "new": "Nowy",
+    "empty": "Ten pulpit jest pusty.",
+    "newTitle": "Nowy pulpit",
+    "newSubtitle": "Zacznij od gotowego szablonu albo od pustej siatki. Wszystko pozostaje edytowalne.",
+    "name": "Nazwa pulpitu",
+    "nameOptional": "Nazwa (opcjonalnie)",
+    "blank": "Pusty pulpit",
+    "renameTitle": "Zmień nazwę „{{name}}”",
+    "deleteTitle": "Usunąć „{{name}}”?",
+    "deleteBody": "Jego widżety i układ zostaną usunięte. Szablony i nakładki zostaną zachowane.",
+    "deleteConfirm": "Usuń pulpit",
+    "resetTitle": "Zresetować „{{name}}”?",
+    "resetToTemplate": "Szablon „{{name}}” zastąpi bieżące widżety i styl. Zapisane szablony zostaną zachowane.",
+    "resetToDefault": "Domyślne widżety zastąpią bieżące. Twoje szablony zostaną zachowane.",
+    "resetConfirm": "Resetuj pulpit",
+    "exportTitle": "Eksportuj pulpit",
+    "exportBody": "Przenośny opis w formacie JSON. Nie zawiera identyfikatora sprzętu, ścieżki ani nazwy użytkownika.",
+    "exportedJson": "Wyeksportowany JSON",
+    "importTitle": "Importuj pulpit",
+    "importBody": "Wklej eksport pulpitu PULSE. Zostanie dodany jako nowy pulpit.",
+    "json": "JSON pulpitu",
+    "widgets": "Widżety: {{name}}",
+    "widenToEdit": "Poszerz okno, aby przestawiać widżety; wąskie układy służą do przeglądania."
+  },
+  "widget": {
+    "actions": "Działania: {{name}}",
+    "actionsMenu": "Menu działań: {{name}}",
+    "dragToMoveNamed": "Przeciągnij, aby przesunąć {{name}}",
+    "dragToMove": "Przeciągnij, aby przesunąć (lub użyj strzałek)",
+    "dragToResize": "Przeciągnij, aby zmienić rozmiar (lub Shift + strzałki)",
+    "toOverlay": "Do nakładki"
+  },
+  "history": {
+    "ranges": {
+      "15m": "15 min",
+      "1h": "1 h",
+      "6h": "6 h",
+      "24h": "24 h",
+      "7d": "7 d"
+    },
+    "cpu": {
+      "view": "Widok CPU",
+      "total": "Łącznie",
+      "title": "Historia CPU",
+      "totalNote": "CPU łącznie to użycie całej maszyny mierzone przez backend na wszystkich procesorach logicznych — a nie średnia z nich odtworzona.",
+      "logicalNote": "Najbardziej aktywne procesory logiczne w wybranym oknie czasu. CPU łącznie pozostaje punktem odniesienia.",
+      "loading": "Odczytywanie procesorów…",
+      "logicalHistory": "Historia procesorów logicznych",
+      "showMostActive_one": "Pokaż najbardziej aktywny",
+      "showMostActive_few": "Pokaż {{count}} najbardziej aktywne",
+      "showMostActive_many": "Pokaż {{count}} najbardziej aktywnych",
+      "showMostActive_other": "Pokaż {{count}} najbardziej aktywnego"
+    },
+    "gpu": {
+      "title": "Historia GPU",
+      "none": "Nie wykryto GPU.",
+      "telemetryUnavailable": "Telemetria niedostępna — {{reason}}"
+    },
+    "thermal": {
+      "title": "Historia temperatur",
+      "none": "Na tej maszynie nie ma czytelnego czujnika temperatury.",
+      "notCharted": "Poza wykresem — {{list}}"
+    },
+    "storage": {
+      "title": "Historia pamięci masowej",
+      "none": "Nie wykryto urządzenia pamięci masowej.",
+      "device": "Urządzenie pamięci masowej"
+    },
+    "network": {
+      "title": "Historia sieci",
+      "none": "Nie wykryto interfejsu sieciowego.",
+      "interface": "Interfejs sieciowy"
+    },
+    "memory": {
+      "title": "Historia pamięci",
+      "used": "Użyto {{value}}"
+    },
+    "processes": {
+      "count": "Liczba procesów",
+      "title": "Historia liczby procesów",
+      "footnote": "Tylko liczby dla całej maszyny. PULSE nigdy nie zapisuje historii pojedynczego procesu."
+    },
+    "status": {
+      "title": "Rejestrator historii",
+      "loading": "Odpytywanie historii…",
+      "unavailable": "Historia niedostępna: {{reason}}. Monitorowanie na żywo działa bez zmian.",
+      "unknownReason": "nieznany powód",
+      "state": "Stan",
+      "recording": "Nagrywanie",
+      "stateUnavailable": "Niedostępny",
+      "cadence": "Częstotliwość",
+      "every": "Co {{value}} s",
+      "historized": "Metryki z historią",
+      "batches": "Partie w tej sesji",
+      "lastBatch": "Ostatnia partia",
+      "lastBatchValue_one": "{{time}} · {{count}} wiersz",
+      "lastBatchValue_few": "{{time}} · {{count}} wiersze",
+      "lastBatchValue_many": "{{time}} · {{count}} wierszy",
+      "lastBatchValue_other": "{{time}} · {{count}} wiersza",
+      "sampleWrite": "Próbkowanie / zapis",
+      "median": "{{sample}} ms / {{write}} ms mediana",
+      "database": "Baza danych",
+      "size": "Rozmiar",
+      "rows": "Wiersze",
+      "rowsValue": "surowe: {{raw}} · zagregowane: {{aggregated}} · serie: {{series}}",
+      "schemaJournal": "Schemat / dziennik",
+      "lastError": "Ostatni błąd: {{error}}",
+      "scheduler": "Zapisywane przez jeden harmonogram w tle; przyciski Odśwież nigdy nie nagrywają.",
+      "counting": "Liczenie…",
+      "details": "Szczegóły bazy danych"
+    }
+  },
+  "viz": {
+    "ui": {
+      "preview": "Podgląd",
+      "preset": "Ustawienie wstępne",
+      "presetName": "Nazwa ustawienia wstępnego",
+      "newPresetName": "Nazwa nowego ustawienia wstępnego",
+      "visualization": "Wizualizacja",
+      "visualizationType": "Typ wizualizacji",
+      "timeRange": "Zakres czasu",
+      "size": "Rozmiar",
+      "compactMode": "Tryb kompaktowy",
+      "lineFill": "Linia i wypełnienie",
+      "lineWidth": "Grubość linii",
+      "curve": "Krzywa",
+      "points": "Punkty",
+      "pointMarkers": "Znaczniki punktów",
+      "fillOpacity": "Krycie wypełnienia",
+      "smoothing": "Wygładzanie",
+      "colors": "Kolory",
+      "colorMode": "Tryb koloru",
+      "primary": "Główny",
+      "secondary": "Dodatkowy",
+      "text": "Tekst",
+      "grid": "Siatka",
+      "background": "Tło",
+      "border": "Obramowanie",
+      "gradientStart": "Początek gradientu",
+      "gradientEnd": "Koniec gradientu",
+      "above": "powyżej",
+      "backgroundFrame": "Tło i ramka",
+      "backgroundOpacity": "Krycie tła",
+      "cornerRadius": "Promień narożników",
+      "shadow": "Cień",
+      "textSize": "Rozmiar tekstu",
+      "weight": "Grubość",
+      "fontWeight": "Grubość czcionki",
+      "decimals": "Miejsca po przecinku",
+      "decimalPrecision": "Precyzja dziesiętna",
+      "label": "Etykieta",
+      "unit": "Jednostka",
+      "axesGridScale": "Osie, siatka i skala",
+      "xAxis": "Oś X",
+      "yAxis": "Oś Y",
+      "yScale": "Skala Y",
+      "legendTooltipStatistics": "Legenda, podpowiedź i statystyki",
+      "legend": "Legenda",
+      "tooltip": "Podpowiedź",
+      "current": "Bieżąca",
+      "minimum": "Minimum",
+      "maximum": "Maksimum",
+      "average": "Średnia",
+      "gauge": "Wskaźnik",
+      "ringThickness": "Grubość pierścienia",
+      "arc": "Łuk",
+      "gaugeArc": "Łuk wskaźnika",
+      "fillPlaceholder": "wypełnienie",
+      "fill": "Wypełnienie",
+      "colourOf": "Kolor: {{name}}",
+      "hexOf": "Wartość szesnastkowa: {{name}}",
+      "labelOf": "Etykieta: {{name}}",
+      "customFrom": "Własne (na bazie {{name}})",
+      "presetWord": "ustawienie wstępne",
+      "customizeNamed": "Dostosuj {{name}}",
+      "resetVisualization": "Resetuj wizualizację",
+      "deletePreset": "Usuń ustawienie wstępne",
+      "saveAsPreset": "Zapisz jako ustawienie wstępne",
+      "gaugeUnavailable": "Wskaźnik jest niedostępny: ta metryka nie ma naturalnych granic. Ustaw stałą skalę, aby go użyć.",
+      "height": "Wysokość",
+      "width": "Szerokość",
+      "followingTheme": "Zgodnie z motywem PULSE. Wybranie dowolnego koloru przełącza na Ręczny.",
+      "series": "Serie",
+      "thresholdBands": "Pasma progowe",
+      "thresholdHint": "Wizualne pasma wybrane przez ciebie — a nie ocena, co jest za wysokie na twojej maszynie.",
+      "bandColour": "Kolor pasma {{index}}",
+      "bandUpper": "Górna granica pasma {{index}}",
+      "removeBand": "Usuń pasmo {{index}}",
+      "addBand": "Dodaj pasmo",
+      "compactHides": "Tryb kompaktowy i minitrendy ukrywają osie, siatkę i legendę.",
+      "min": "Min.",
+      "max": "Maks.",
+      "smoothingHint": "Tylko wizualnie: zapisane próbki i podpowiedź zachowują prawdziwe wartości.",
+      "fillFollowsLine": "Wypełnienie w kolorze linii"
+    },
+    "lineWidths": {
+      "thin": "Cienka",
+      "medium": "Średnia",
+      "thick": "Gruba"
+    },
+    "options": {
+      "small": "Mały",
+      "medium": "Średni",
+      "large": "Duży",
+      "custom": "Własny",
+      "straight": "Prosta",
+      "smooth": "Gładka",
+      "stepped": "Schodkowa",
+      "none": "Brak",
+      "visible": "Widoczne",
+      "solid": "Jednolity",
+      "gradient": "Gradient",
+      "theme": "Motyw",
+      "manual": "Ręczny",
+      "threshold": "Próg",
+      "light": "Lekki",
+      "thin": "Cienki",
+      "subtle": "Subtelny",
+      "glow": "Poświata",
+      "regular": "Normalna",
+      "bold": "Pogrubiona",
+      "full": "Pełne koło",
+      "three-quarter": "Trzy czwarte",
+      "half": "Połowa",
+      "auto": "Automatyczna",
+      "fixed": "Stała"
+    },
+    "status": {
+      "loading": "Wczytywanie historii…",
+      "unavailable": "Historia niedostępna: {{reason}}",
+      "collecting": "Zbieranie historii…",
+      "oneSample": "Zbieranie historii… na razie jedna próbka.",
+      "noData": "brak danych",
+      "scaledToPeak": "Przeskalowano do szczytu okna, {{value}}",
+      "overTime": "{{name}} w czasie"
+    },
+    "stats": {
+      "current": "Bieżąca",
+      "min": "Min.",
+      "max": "Maks.",
+      "average": "Śr."
+    }
+  },
+  "appearance": {
+    "styleAria": "Styl {{name}}",
+    "ui": {
+      "styles": "Style",
+      "yourStyles": "Twoje style",
+      "colour": "Kolor",
+      "accentColour": "Kolor akcentu",
+      "accent": "Akcent",
+      "chartPalette": "Paleta wykresów",
+      "surfaces": "Powierzchnie",
+      "panelOpacity": "Krycie paneli",
+      "glassBlur": "Rozmycie szkła",
+      "borderStrength": "Wyrazistość obramowań",
+      "shadowDepth": "Głębokość cieni",
+      "shapeType": "Kształt i czcionka",
+      "cornerRoundness": "Zaokrąglenie narożników",
+      "font": "Czcionka",
+      "textSize": "Rozmiar tekstu",
+      "layoutDensity": "Układ i gęstość",
+      "density": "Gęstość",
+      "widgetPadding": "Dopełnienie widżetów",
+      "gapBetweenWidgets": "Odstęp między widżetami",
+      "overlayPadding": "Dopełnienie nakładek",
+      "overlayGap": "Odstęp w nakładkach",
+      "charts": "Wykresy",
+      "lineThickness": "Grubość linii",
+      "fillOpacity": "Krycie wypełnienia",
+      "lineShape": "Kształt linii",
+      "contentMotion": "Treść i animacje",
+      "widgetTitles": "Tytuły widżetów",
+      "labelsInTinyWidgets": "Etykiety w małych widżetach",
+      "motion": "Animacje",
+      "livePreview": "Podgląd na żywo",
+      "styleName": "Nazwa stylu",
+      "deleteThisStyle": "Usunąć ten styl?",
+      "exportStyle": "Eksportuj styl",
+      "exportedStyle": "Wyeksportowany styl",
+      "importStyle": "Importuj styl",
+      "styleJson": "JSON stylu",
+      "overlayPaddingNote": "Używane, gdy nakładka przyjmuje styl."
+    },
+    "subtitle": "Osiem stylów, które zmieniają powierzchnie, głębię, czcionki, gęstość i wykresy — nie tylko kolory. Dostrój dowolny i zapisz wynik jako własny.",
+    "modeOn": "<strong>Tryb {{mode}}</strong> jest włączony: wybrany styl dotyczy jego.",
+    "leaveMode": "Opuść tryb {{mode}}",
+    "myStyle": "Mój {{name}}",
+    "saveCurrent": "Zapisz bieżący wygląd",
+    "noUserStyles": "Dostrój poniżej styl i zapisz go tutaj. Zapisane style można duplikować, zmieniać ich nazwy, eksportować i udostępniać.",
+    "basedOn": "na bazie {{name}}",
+    "inUse": "W użyciu",
+    "use": "Użyj",
+    "styleAccentTitle": "Akcent stylu ({{color}})",
+    "styleAccent": "Akcent stylu",
+    "fonts": {
+      "style": "Styl",
+      "sans": "Bezszeryfowa",
+      "rounded": "Zaokrąglona",
+      "condensed": "Wąska",
+      "mono": "Mono"
+    },
+    "styleWith": "Styl ({{value}})",
+    "densities": {
+      "compact": "Kompaktowa",
+      "comfortable": "Wygodna",
+      "spacious": "Przestronna"
+    },
+    "chartsNote": "Dotyczy każdego wykresu, który nadal korzysta z ustawienia wstępnego. Dostosowane wykresy zachowują własne ustawienia.",
+    "motionLevels": {
+      "full": "Pełne",
+      "reduced": "Ograniczone",
+      "none": "Brak"
+    },
+    "resetAll": "Przywróć wszystkie zmiany do {{name}}",
+    "livePreviewNamed": "Podgląd na żywo · {{name}}",
+    "saveLook": "Zapisz ten wygląd",
+    "renameStyle": "Zmień nazwę stylu",
+    "deleteBody": "To, co go teraz używa, zachowa wygląd, dopóki nie wybierzesz innego.",
+    "deleteStyle": "Usuń styl",
+    "exportBody": "Przenośny opis stylu w formacie JSON: tylko kolory, czcionki i strojenie.",
+    "importBody": "Wklej eksport stylu PULSE. Zostanie dodany do twoich stylów.",
+    "useStyle": "Użyj stylu",
+    "import": {
+      "notExport": "To nie jest eksport stylu PULSE.",
+      "version": "Nieobsługiwana wersja eksportu stylu: {{version}}.",
+      "noName": "Eksport nie ma nazwy stylu.",
+      "limit_one": "Najwyżej {{count}} zapisany styl.",
+      "limit_few": "Najwyżej {{count}} zapisane style.",
+      "limit_many": "Najwyżej {{count}} zapisanych stylów.",
+      "limit_other": "Najwyżej {{count}} zapisanego stylu."
+    }
+  },
+  "mini": {
+    "shownIn": "Pokazywany w Mini"
+  },
+  "processes": {
+    "nice": {
+      "title": "Własna wartość nice — {{name}}",
+      "range": "PID {{pid}}. Wartości nice mieszczą się od {{min}} (najbardziej uprzywilejowany) do {{max}} (najmniej).",
+      "privileges": "Obniżenie wartości zwykle wymaga uprawnień, których PULSE nie ma.",
+      "value": "Wartość nice"
+    },
+    "affinity": {
+      "title": "Koligacja CPU — {{name}}",
+      "body": "Wybierz procesory logiczne, na których może działać PID {{pid}}.",
+      "selectAll": "Zaznacz wszystkie",
+      "keepOne": "Zostaw co najmniej jeden CPU: proces bez dozwolonego CPU nie może działać."
+    },
+    "status": {
+      "success": "Gotowe",
+      "permissionDenied": "Odmowa dostępu",
+      "staleProcess": "Nie wykonano — PID należy teraz do innego procesu",
+      "processGone": "Proces już się zakończył",
+      "unsupported": "Nieobsługiwane",
+      "partialFailure": "Wykonano częściowo",
+      "invalidRequest": "Nie wykonano",
+      "platformError": "Niepowodzenie"
+    },
+    "outcome": {
+      "suspend": "Wstrzymano proces {{pid}}.",
+      "resume": "Wznowiono proces {{pid}}.",
+      "terminate": "Poproszono proces {{pid}} o zakończenie.",
+      "forceKill": "Wymuszono zakończenie procesu {{pid}}.",
+      "priority": "Zmieniono priorytet procesu {{pid}}.",
+      "affinity": "Zmieniono koligację procesu {{pid}}.",
+      "terminateTree": "Zakończono drzewo procesów {{pid}}.",
+      "openLocation": "Otwarto lokalizację pliku wykonywalnego.",
+      "priorityPartial": "Zmieniono priorytet {{applied}} wątków procesu {{pid}}; {{failed}} wątków odmówiło.",
+      "affinityPartial": "Zmieniono koligację {{applied}} wątków procesu {{pid}}; {{failed}} wątków odmówiło.",
+      "tree_one": "Zakończono {{terminated}} z {{count}} procesu; już zakończone: {{gone}}, odmowy: {{refused}}, pominięte jako nieaktualne: {{stale}}, niepowodzenia: {{failed}}.",
+      "tree_few": "Zakończono {{terminated}} z {{count}} procesów; już zakończone: {{gone}}, odmowy: {{refused}}, pominięte jako nieaktualne: {{stale}}, niepowodzenia: {{failed}}.",
+      "tree_many": "Zakończono {{terminated}} z {{count}} procesów; już zakończone: {{gone}}, odmowy: {{refused}}, pominięte jako nieaktualne: {{stale}}, niepowodzenia: {{failed}}.",
+      "tree_other": "Zakończono {{terminated}} z {{count}} procesu; już zakończone: {{gone}}, odmowy: {{refused}}, pominięte jako nieaktualne: {{stale}}, niepowodzenia: {{failed}}."
+    },
+    "hash": {
+      "computed": "Obliczono",
+      "changedWhileHashing": "Plik zmienił się podczas odczytu",
+      "permissionDenied": "Odmowa dostępu",
+      "notFound": "Nie znaleziono pliku",
+      "notAFile": "To nie jest zwykły plik",
+      "readError": "Błąd odczytu"
+    },
+    "confirm": {
+      "who": "{{name}} (PID {{pid}})",
+      "selfWarning": "Zakończenie PULSE zamknie tę aplikację.",
+      "endTitle": "Zakończyć {{name}}?",
+      "endSigterm": "{{who}} otrzyma SIGTERM z prośbą o zakończenie. Może to chwilę potrwać albo zostać odrzucone.",
+      "endImmediate": "{{who}} zostanie natychmiast zakończony. Niezapisana praca zostanie utracona.",
+      "forceKillTitle": "Wymusić zakończenie {{name}}?",
+      "forceKillBody": "{{who}} otrzyma SIGKILL. Nie można go przechwycić ani zignorować: proces nie ma szansy niczego zapisać ani posprzątać.",
+      "treeTitle": "Zakończyć {{name}} i jego drzewo procesów?",
+      "treeRoot": "Proces główny: {{who}}.",
+      "treeBody_one": "Najpierw zostanie zakończony około {{count}} proces potomny, od najgłębszego, a potem proces główny. Każdy jest sprawdzany ponownie tuż przed zakończeniem; PID, który zmienił właściciela, jest pomijany.",
+      "treeBody_few": "Najpierw zostaną zakończone około {{count}} procesy potomne, od najgłębszych, a potem proces główny. Każdy jest sprawdzany ponownie tuż przed zakończeniem; PID, który zmienił właściciela, jest pomijany.",
+      "treeBody_many": "Najpierw zostanie zakończonych około {{count}} procesów potomnych, od najgłębszych, a potem proces główny. Każdy jest sprawdzany ponownie tuż przed zakończeniem; PID, który zmienił właściciela, jest pomijany.",
+      "treeBody_other": "Najpierw zostanie zakończone około {{count}} procesu potomnego, od najgłębszych, a potem proces główny. Każdy jest sprawdzany ponownie tuż przed zakończeniem; PID, który zmienił właściciela, jest pomijany.",
+      "realtimeTitle": "Ustawić priorytet czasu rzeczywistego?",
+      "realtimeWarning": "Priorytet czasu rzeczywistego może sprawić, że system przestanie odpowiadać.",
+      "realtimeBody": "Dotyczy {{who}}. Bez wymaganego uprawnienia Windows zastosuje zamiast tego Wysoki, a PULSE to zgłosi.",
+      "realtimeConfirm": "Ustaw czas rzeczywisty"
+    },
+    "copy": {
+      "done": "Skopiowano: {{label}}.",
+      "failed": "Nie udało się skopiować: {{label}}."
+    },
+    "category": {
+      "user": "Użytkownik",
+      "system": "System",
+      "kernel": "Wątek jądra",
+      "unknown": "Nieznany"
+    },
+    "state": {
+      "running": "Działa",
+      "sleeping": "Uśpiony",
+      "stopped": "Zatrzymany",
+      "zombie": "Zombie"
+    },
+    "priority": {
+      "realtime": "Czas rzeczywisty",
+      "high": "Wysoki",
+      "aboveNormal": "Powyżej normalnego",
+      "normal": "Normalny",
+      "belowNormal": "Poniżej normalnego",
+      "low": "Niski"
+    },
+    "affinityNone": "brak",
+    "affinitySummary_one": "CPU {{list}} ({{count}} z {{total}})",
+    "affinitySummary_few": "CPU {{list}} ({{count}} z {{total}})",
+    "affinitySummary_many": "CPU {{list}} ({{count}} z {{total}})",
+    "affinitySummary_other": "CPU {{list}} ({{count}} z {{total}})",
+    "trust": {
+      "trusted": "Zaufany podpis",
+      "signedButUntrusted": "Podpisany, niezaufany",
+      "invalid": "Nieprawidłowy podpis",
+      "unsigned": "Niepodpisany",
+      "permissionDenied": "Odmowa dostępu",
+      "unavailable": "Niedostępny"
+    },
+    "provenance": {
+      "userHome": "Plik wykonywalny użytkownika/lokalny (w katalogu domowym, nie z pakietu)",
+      "localInstall": "Plik wykonywalny użytkownika/lokalny (zainstalowany poza menedżerem pakietów)",
+      "notDetected": "Nie wykryto pakietu"
+    },
+    "menu": {
+      "exited": "Proces już się zakończył.",
+      "unavailable": "Niedostępne.",
+      "checking": "Sprawdzanie uprawnień…",
+      "nicePreset": "{{level}} (nice {{value}})",
+      "customNice": "Własna wartość nice…",
+      "forceKill": "Wymuś zakończenie",
+      "inspect": "Sprawdź szczegóły",
+      "search": "Szukaj w internecie",
+      "openLocation": "Otwórz lokalizację pliku",
+      "processName": "Nazwa procesu",
+      "executablePath": "Ścieżka pliku wykonywalnego",
+      "executableUnavailable": "Plik wykonywalny niedostępny.",
+      "instanceId": "ID instancji procesu",
+      "suspend": "Wstrzymaj",
+      "resume": "Wznów",
+      "end": "Zakończ proces",
+      "endTree": "Zakończ drzewo procesów",
+      "setPriority": "Ustaw priorytet",
+      "setAffinity": "Ustaw koligację…",
+      "affinityUnreadable": "Nie udało się odczytać bieżącej koligacji.",
+      "actionsFor": "Działania dla {{name}}",
+      "inspectApplication": "Sprawdź aplikację",
+      "showProcesses": "Pokaż procesy"
+    },
+    "table": {
+      "processDetails": "Szczegóły procesów",
+      "dismiss": "Zamknij",
+      "processView": "Widok procesów",
+      "processCategory": "Kategoria procesów",
+      "refreshProcessDetails": "Odśwież szczegóły procesów",
+      "applications": "Aplikacje",
+      "application": "Aplikacja",
+      "processes": "Procesy",
+      "memory": "Pamięć",
+      "read": "Odczyt",
+      "write": "Zapis",
+      "process": "Proces",
+      "threads": "Wątki",
+      "state": "Stan",
+      "searchPlaceholder": "Szukaj po nazwie lub PID",
+      "searchLabel": "Szukaj procesów po nazwie lub PID"
+    },
+    "filters": {
+      "all": "Wszystkie",
+      "user": "Użytkownika",
+      "system": "Systemowe",
+      "kernel": "Jądra"
+    },
+    "oneOf_one": "1 z {{count}} procesu: {{name}}",
+    "oneOf_few": "1 z {{count}} procesów: {{name}}",
+    "oneOf_many": "1 z {{count}} procesów: {{name}}",
+    "oneOf_other": "1 z {{count}} procesu: {{name}}",
+    "loading": "Przeglądanie tabeli procesów…",
+    "showAll_one": "Pokaż {{count}} proces",
+    "showAll_few": "Pokaż wszystkie {{count}} procesy",
+    "showAll_many": "Pokaż wszystkie {{count}} procesów",
+    "showAll_other": "Pokaż wszystkie {{count}} procesu",
+    "updated": "Zaktualizowano {{time}} · zebrano w {{ms}} ms",
+    "note": "CPU to udział w <strong>całej</strong> mocy tej maszyny, więc wątek w pełni obciążający jeden procesor logiczny to niewielki procent, a kolumna sumuje się mniej więcej do tego, co pokazuje systemowy wskaźnik CPU. Odczyt i Zapis to liczniki I/O platformy dla poszczególnych procesów (zobacz w dokumentacji, czym różnią się Fedora i Windows). Szybkości mierzone są <em>między</em> dwiema migawkami, więc pojawiają się dopiero po odświeżeniu. Kliknij proces, aby go sprawdzić; kliknij prawym przyciskiem (lub Shift+F10), aby zobaczyć działania. Każde działanie dotyczy dokładnie tej instancji procesu, wymaga potwierdzenia, gdy jest niszczące, i nigdy nie uruchamia się samo. Wiersze poleceń celowo nie są zbierane.",
+    "noApplicationMatch": "Żadna aplikacja nie pasuje do wyszukiwania.",
+    "noProcessMatch": "Żaden proces nie pasuje do wyszukiwania.",
+    "groupedByName": "Pogrupowano według nazwy procesu: PULSE nie mógł odczytać plików wykonywalnych tych procesów, więc dwa niepowiązane programy o tej samej nazwie zostałyby policzone razem.",
+    "inspector": {
+      "processInspector": "Inspektor procesów",
+      "closeInspector": "Zamknij inspektora",
+      "identity": "Tożsamość",
+      "processName": "Nazwa procesu",
+      "product": "Produkt",
+      "parent": "Rodzic",
+      "instanceId": "ID instancji",
+      "state": "Stan",
+      "started": "Uruchomiony",
+      "owner": "Właściciel",
+      "category": "Kategoria",
+      "architecture": "Architektura",
+      "resourceUsage": "Użycie zasobów",
+      "memory": "Pamięć",
+      "threads": "Wątki",
+      "read": "Odczyt",
+      "write": "Zapis",
+      "executable": "Plik wykonywalny",
+      "path": "Ścieżka",
+      "file": "Plik",
+      "size": "Rozmiar",
+      "modified": "Zmodyfikowano",
+      "securityProvenance": "Bezpieczeństwo i pochodzenie",
+      "description": "Opis",
+      "company": "Firma",
+      "version": "Wersja",
+      "scheduling": "Planowanie",
+      "priority": "Priorytet",
+      "cpuAffinity": "Koligacja CPU",
+      "processControl": "Sterowanie procesem",
+      "suspend": "Wstrzymaj",
+      "resume": "Wznów",
+      "endProcess": "Zakończ proces",
+      "endProcessTree": "Zakończ drzewo procesów",
+      "forceKill": "Wymuś zakończenie",
+      "provenance": "Pochodzenie",
+      "package": "Pakiet",
+      "signature": "Podpis",
+      "publisher": "Wydawca",
+      "setPriority": "Ustaw priorytet",
+      "stale": "Ten proces się zakończył, a jego PID należy teraz do innego procesu. PULSE nie podejmie wobec niego działań.",
+      "exited": "Proces się zakończył. Nic więcej nie można z nim zrobić.",
+      "reading": "Odczytywanie tego procesu…",
+      "self": "To sam PULSE. Zakończenie go zamknie tę aplikację.",
+      "kernelThread": "Wątek jądra działa wewnątrz jądra: nie ma pliku wykonywalnego ani pakietu i nie może być sterowany z PULSE.",
+      "notInSnapshot": "Nie ma go w ostatniej migawce.",
+      "replaced": "Plik, z którego uruchomiono ten proces, został od tego czasu usunięty lub zastąpiony na dysku.",
+      "copyPath": "Kopiuj ścieżkę",
+      "versionNote": "Opis, produkt i firmę deklaruje sam plik i niczego one nie dowodzą; podpis to to, co zweryfikował Windows.",
+      "computing": "Obliczanie…",
+      "computeHash": "Oblicz SHA-256",
+      "provenanceNote": "Pochodzenie to przesłanka, nie wyrok: pakiet czy prawidłowy podpis nie czynią programu bezpiecznym, a ich brak nie czyni go złośliwym.",
+      "changeAffinity": "Zmień koligację…",
+      "suspendedByPulse": "PULSE wstrzymał ten proces w tej sesji.",
+      "suspendedState": "{{state}} (wstrzymany przez PULSE)",
+      "notApplicableKernel": "Nie dotyczy wątku jądra",
+      "catalog": "(katalog systemowy)",
+      "claimed": "(deklarowany, niezaufany)",
+      "notComputed": "Nie obliczono",
+      "copyHash": "Kopiuj SHA-256",
+      "searchHash": "Szukaj skrótu w internecie",
+      "checkVirusTotal": "Sprawdź skrót w VirusTotal",
+      "custom": "Własny…",
+      "memoryPercent": "Pamięć %",
+      "searchHint": "Otwiera przeglądarkę z wyszukiwaniem nazwy programu w sieci",
+      "virusTotalHint": "Otwiera w przeglądarce stronę VirusTotal dla tego skrótu. Plik nigdy nie jest wysyłany."
+    }
+  },
+  "cards": {
+    "updated": "Zaktualizowano {{time}}",
+    "notReported": "Nie podano",
+    "notReportedByBackend": "Backend tego nie podaje",
+    "cpu": {
+      "title": "Szczegóły CPU",
+      "loading": "Odczytywanie topologii CPU…",
+      "packages": "Obudowy",
+      "packageTemperature": "Temperatura: {{name}}",
+      "showAll_one": "Pokaż {{count}} procesor",
+      "showAll_few": "Pokaż wszystkie {{count}} procesory",
+      "showAll_many": "Pokaż wszystkie {{count}} procesorów",
+      "showAll_other": "Pokaż wszystkie {{count}} procesora",
+      "noProcessors": "Ta maszyna nie udostępnia żadnego pojedynczego procesora logicznego.",
+      "refresh": "Odśwież szczegóły CPU",
+      "note": "Jeden rdzeń fizyczny może obsługiwać kilka procesorów logicznych, więc użycie podawane jest dla każdego procesora logicznego. Częstotliwości to wartości podawane przez system operacyjny. Temperatura obudowy pochodzi z własnego czujnika procesora, nigdy nie jest średnią z rdzeni.",
+      "maxFor": "Maksimum podane dla {{name}}: {{value}}",
+      "noMax": "dla tego procesora nie jest publikowana maksymalna częstotliwość"
+    },
+    "gpu": {
+      "gpuDetails": "Szczegóły GPU",
+      "graphicsAdapters": "Karty graficzne",
+      "refreshGpuDetails": "Odśwież szczegóły GPU",
+      "gpuUsage": "Użycie GPU",
+      "vramUsage": "Użycie VRAM",
+      "coreClock": "Zegar rdzenia",
+      "memoryClock": "Zegar pamięci",
+      "temperature": "Temperatura",
+      "hotspot": "Hotspot",
+      "memoryTemperature": "Temperatura pamięci",
+      "fan": "Wentylator",
+      "loading": "Wykrywanie kart graficznych…",
+      "none": "Nie wykryto sprzętowej karty graficznej. Renderery programowe celowo nie są liczone jako GPU.",
+      "note": "Wartości VRAM opisują dedykowaną pamięć wideo każdej karty. Pamięć systemowa współdzielona ze zintegrowanym GPU nie jest podawana jako VRAM. Temperatury hotspotu i pamięci pochodzą z osobnych czujników, nigdy nie są wyliczane z temperatury GPU, a prędkość wentylatora jest pokazywana tylko wtedy, gdy sterownik podaje prawdziwe obroty na minutę.",
+      "vramKnownOnly": "Zainstalowana VRAM jest znana; użycie na żywo wymaga sterownika producenta, którego ta karta nie zapewnia.",
+      "perfUnavailable": "Telemetria wydajności niedostępna",
+      "perfUnavailableDefault": "Sterownik tej karty nie udostępnia danych o wykorzystaniu, pamięci wideo ani zegarach.",
+      "thermalRemain": "Czujniki temperatury pozostają dostępne."
+    },
+    "storage": {
+      "storageDetails": "Szczegóły pamięci masowej",
+      "storageDevices": "Urządzenia pamięci masowej",
+      "otherVolumes": "Inne woluminy",
+      "refreshStorageDetails": "Odśwież szczegóły pamięci masowej",
+      "read": "Odczyt",
+      "write": "Zapis",
+      "readIops": "IOPS odczytu",
+      "writeIops": "IOPS zapisu",
+      "readLatency": "Opóźnienie odczytu",
+      "writeLatency": "Opóźnienie zapisu",
+      "temperature": "Temperatura",
+      "usedEndurance": "Zużyta wytrzymałość",
+      "availableSpare": "Dostępna rezerwa",
+      "powerOnHours": "Godziny pracy",
+      "unsafeShutdowns": "Niebezpieczne wyłączenia",
+      "mediaErrors": "Błędy nośnika",
+      "loading": "Wykrywanie urządzeń pamięci masowej…",
+      "none": "Nie zinwentaryzowano żadnego fizycznego urządzenia pamięci masowej. Urządzenia loop, RAM-dyski i woluminy device-mapper celowo nie są liczone jako dyski.",
+      "otherVolumesHint": "Zamontowane systemy plików, których PULSE nie mógł powiązać z żadnym z powyższych dysków. Są wymienione osobno, zamiast przypisywać je niewłaściwemu urządzeniu.",
+      "note": "Przepustowość, IOPS i opóźnienie mierzone są <em>między</em> dwiema próbkami, więc pojawiają się dopiero po odświeżeniu. Opóźnienie to średnia z faktycznie ukończonych operacji: przedział bez żadnej nie ma opóźnienia i pokazuje <code>—</code> zamiast 0 ms. Zużyta wytrzymałość i dostępna rezerwa to standardowe wartości samego kontrolera — dostępna rezerwa to zapas bloków zastępczych, a nie wolne miejsce w systemie plików.",
+      "waitingHint": "Aktywność dysku to różnica między dwoma odczytami. Odśwież, aby ją zmierzyć.",
+      "free": "Wolne: {{value}}",
+      "full": "{{name}} zapełniony w {{value}}",
+      "healthUnavailable": "Raport stanu niedostępny",
+      "noHealthLog": "To urządzenie nie udostępnia standardowego dziennika stanu."
+    },
+    "waitingSample": "Oczekiwanie na kolejną próbkę",
+    "network": {
+      "networkDetails": "Szczegóły sieci",
+      "networkInterfaces": "Interfejsy sieciowe",
+      "virtualInterfaces": "Interfejsy wirtualne",
+      "virtualInterfaceList": "Lista interfejsów wirtualnych",
+      "refreshNetworkDetails": "Odśwież szczegóły sieci",
+      "download": "Pobieranie",
+      "upload": "Wysyłanie",
+      "rxPackets": "Pakiety RX",
+      "txPackets": "Pakiety TX",
+      "errors": "Błędy",
+      "dropped": "Odrzucone",
+      "linkRx": "Łącze RX",
+      "linkTx": "Łącze TX",
+      "signal": "Sygnał",
+      "quality": "Jakość",
+      "wiFiRx": "Wi-Fi RX",
+      "wiFiTx": "Wi-Fi TX",
+      "loading": "Wykrywanie interfejsów sieciowych…",
+      "none": "Nie zinwentaryzowano żadnego interfejsu sieciowego. Interfejs pętli zwrotnej jest celowo pominięty: zawsze istnieje i przenosi tylko ruch, który nigdy nie opuścił tej maszyny.",
+      "virtualCount": "Interfejsy wirtualne ({{count}})",
+      "virtualHint": "Mostki, łącza kontenerów i inne interfejsy programowe. Zwinięte, aby maszyna z kontenerami nie zasypała prawdziwych kart — nigdy nie są usuwane.",
+      "note": "Pobieranie to to, co dociera do tej maszyny, a Wysyłanie to, co ją opuszcza. Ruch mierzony jest <em>między</em> dwiema próbkami, więc pojawia się dopiero po odświeżeniu. Szybkości łącza to przepustowość wynegocjowana przez sterownik, w bitach na sekundę — a nie to, ile faktycznie płynie, co podawane jest w bajtach. Odrzucone ramki to licznik lokalny, a <strong>nie</strong> utrata pakietów w Internecie, której PULSE nie mierzy.",
+      "kinds": {
+        "Ethernet": "Ethernet",
+        "Wi-Fi": "Wi-Fi",
+        "Bridge": "Mostek",
+        "Tunnel": "Tunel",
+        "Virtual": "Wirtualny",
+        "Network": "Sieć"
+      },
+      "connected": "Połączony",
+      "disconnected": "Rozłączony",
+      "waitingHint": "Ruch to różnica między dwoma odczytami. Odśwież, aby go zmierzyć.",
+      "wifiUnavailable": "Szczegóły łącza Wi-Fi niedostępne"
+    },
+    "live": {
+      "title": "Próbka systemu na żywo",
+      "loading": "Próbkowanie…",
+      "refresh": "Odśwież próbkę",
+      "reconcile": "użyta + dostępna = całkowita, więc obie powyższe wartości zawsze się zgadzają.",
+      "waitingNext": "Oczekiwanie na następną próbkę"
+    },
+    "engine": {
+      "title": "Silnik metryk",
+      "loading": "Odpytywanie silnika…",
+      "unavailable": "Silnik niedostępny. Uruchom PULSE poleceniem <code>pnpm app:dev</code>, aby dotrzeć do warstwy Rust.",
+      "status": "Stan",
+      "schema": "Schemat",
+      "providers": "Dostawcy",
+      "metrics": "Metryki",
+      "available_one": "({{count}} dostępna)",
+      "available_few": "({{count}} dostępne)",
+      "available_many": "({{count}} dostępnych)",
+      "available_other": "({{count}} dostępnej)",
+      "schemaMismatch": "Backend używa schematu metryk v{{backend}}; ten interfejs oczekuje v{{expected}}.",
+      "empty": "Nie zarejestrowano jeszcze dostawców — PULSE nie zbiera metryk sprzętowych w tej fazie."
+    }
+  },
+  "tray": {
+    "open": "Otwórz PULSE",
+    "edit": "Edytuj nakładki",
+    "lock": "Zablokuj nakładki",
+    "toggle": "Pokaż / ukryj nakładki",
+    "quit": "Zakończ PULSE"
+  }
+}

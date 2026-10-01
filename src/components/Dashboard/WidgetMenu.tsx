@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
 import type { WidgetCardActions } from '@/components/Dashboard/WidgetCard';
 
 /**
@@ -18,6 +19,7 @@ export function WidgetMenu({
   readonly actions: WidgetCardActions;
   readonly extra?: ReactNode;
 }) {
+  const { t } = useTranslation();
   const [anchor, setAnchor] = useState<{ x: number; y: number } | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -46,7 +48,7 @@ export function WidgetMenu({
       <button
         type="button"
         className="widget__tool"
-        aria-label={`${title} actions menu`}
+        aria-label={t('widget.actionsMenu', { name: title })}
         aria-haspopup="menu"
         aria-expanded={anchor !== null}
         onClick={(event) => {
@@ -62,22 +64,22 @@ export function WidgetMenu({
             ref={menuRef}
             className="widget-menu"
             role="menu"
-            aria-label={`${title} actions`}
+            aria-label={t('widget.actions', { name: title })}
             style={{ left: Math.max(4, anchor.x - 160), top: anchor.y }}
           >
             {actions.onCustomize && (
               <button type="button" role="menuitem" onClick={run(actions.onCustomize)}>
-                Customize
+                {t('common.customize')}
               </button>
             )}
             {actions.onDuplicate && (
               <button type="button" role="menuitem" onClick={run(actions.onDuplicate)}>
-                Duplicate
+                {t('common.duplicate')}
               </button>
             )}
             {actions.onSendToOverlay && (
               <button type="button" role="menuitem" onClick={run(actions.onSendToOverlay)}>
-                To overlay
+                {t('widget.toOverlay')}
               </button>
             )}
             {extra}
@@ -88,7 +90,7 @@ export function WidgetMenu({
                 className="widget-menu__danger"
                 onClick={run(actions.onRemove)}
               >
-                Remove
+                {t('common.remove')}
               </button>
             )}
           </div>,

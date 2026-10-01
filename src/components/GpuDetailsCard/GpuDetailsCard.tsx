@@ -1,4 +1,6 @@
 import type { MetricSample } from '@/types/metrics';
+import { Trans, useTranslation } from 'react-i18next';
+import { t } from '@/i18n/i18n';
 import {
   GPU_COUNT,
   GPU_FAN_SPEED_KEY,
@@ -39,6 +41,7 @@ import {
  * contains no list of GPUs and works unchanged from zero devices to four.
  */
 export function GpuDetailsCard() {
+  useTranslation();
   const { status, devices, samples, message, refreshing, refresh } = useGpuDetails();
 
   const countSample = samples.get(metricRefId(GPU_COUNT));
@@ -48,14 +51,14 @@ export function GpuDetailsCard() {
   const timestamp = samples.values().next().value?.timestamp;
 
   return (
-    <div className="card" aria-label="GPU details">
-      <h2 className="card__title">GPU details</h2>
+    <div className="card" aria-label={t('cards.gpu.gpuDetails')}>
+      <h2 className="card__title">{t('cards.gpu.gpuDetails')}</h2>
 
-      {status === 'loading' && <p className="card__muted">Discovering graphics adapters…</p>}
+      {status === 'loading' && <p className="card__muted">{t('cards.gpu.loading')}</p>}
 
       {status === 'error' && (
         <p className="card__muted" title={message}>
-          Backend unavailable. Run PULSE with <code>pnpm app:dev</code> to reach the Rust layer.
+          <Trans i18nKey="overview.backendUnavailable" components={{ code: <code /> }} />
         </p>
       )}
 
@@ -63,18 +66,15 @@ export function GpuDetailsCard() {
         <>
           <dl className="kv">
             <div className="kv__row">
-              <dt>Graphics adapters</dt>
+              <dt>{t('cards.gpu.graphicsAdapters')}</dt>
               <dd>{count}</dd>
             </div>
           </dl>
 
           {devices.length === 0 ? (
-            <p className="card__note">
-              No hardware graphics adapter was detected. Software renderers are deliberately not
-              counted as GPUs.
-            </p>
+            <p className="card__note">{t('cards.gpu.none')}</p>
           ) : (
-            <ul className="gpu-list" aria-label="Graphics adapters">
+            <ul className="gpu-list" aria-label={t('cards.gpu.graphicsAdapters')}>
               {devices.map((device, index) => (
                 <GpuEntry
                   key={device.sourceId}
@@ -88,25 +88,22 @@ export function GpuDetailsCard() {
 
           <div className="card__footer">
             <span className="card__muted">
-              {typeof timestamp === 'number' ? `Updated ${formatSampleTime(timestamp)}` : ''}
+              {typeof timestamp === 'number'
+                ? t('cards.updated', { time: formatSampleTime(timestamp) })
+                : ''}
             </span>
             <button
               type="button"
               className="button"
               onClick={refresh}
               disabled={refreshing}
-              aria-label="Refresh GPU details"
+              aria-label={t('cards.gpu.refreshGpuDetails')}
             >
-              {refreshing ? 'Refreshing…' : 'Refresh'}
+              {refreshing ? t('common.refreshing') : t('common.refresh')}
             </button>
           </div>
 
-          <p className="card__note">
-            VRAM figures describe each adapter&apos;s dedicated video memory. System memory shared
-            with an integrated GPU is not reported as VRAM. Hotspot and memory temperatures are
-            separate sensors, never derived from the GPU temperature, and a fan speed is shown only
-            when the driver reports genuine revolutions per minute.
-          </p>
+          <p className="card__note">{t('cards.gpu.note')}</p>
         </>
       )}
     </div>
@@ -153,7 +150,7 @@ function GpuEntry({
       )}
 
       <dl className="kv kv--compact">
-        <Row label="GPU usage">
+        <Row label={t('cards.gpu.gpuUsage')}>
           {usage !== null ? (
             formatPercent(usage)
           ) : (
@@ -176,7 +173,7 @@ function GpuEntry({
           )}
         </Row>
 
-        <Row label="VRAM usage">
+        <Row label={t('cards.gpu.vramUsage')}>
           {memoryPercent !== null ? (
             formatPercent(memoryPercent)
           ) : (
@@ -184,35 +181,33 @@ function GpuEntry({
           )}
         </Row>
 
-        <Row label="Core clock">
+        <Row label={t('cards.gpu.coreClock')}>
           <Frequency sample={sampleOf(GPU_FREQUENCY_CORE_KEY)} />
         </Row>
 
-        <Row label="Memory clock">
+        <Row label={t('cards.gpu.memoryClock')}>
           <Frequency sample={sampleOf(GPU_FREQUENCY_MEMORY_KEY)} />
         </Row>
 
-        <Row label="Temperature">
+        <Row label={t('cards.gpu.temperature')}>
           <Temperature sample={sampleOf(GPU_TEMPERATURE_CORE_KEY)} />
         </Row>
 
-        <Row label="Hotspot">
+        <Row label={t('cards.gpu.hotspot')}>
           <Temperature sample={sampleOf(GPU_TEMPERATURE_HOTSPOT_KEY)} />
         </Row>
 
-        <Row label="Memory temperature">
+        <Row label={t('cards.gpu.memoryTemperature')}>
           <Temperature sample={sampleOf(GPU_TEMPERATURE_MEMORY_KEY)} />
         </Row>
 
-        <Row label="Fan">
+        <Row label={t('cards.gpu.fan')}>
           <FanSpeed sample={sampleOf(GPU_FAN_SPEED_KEY)} />
         </Row>
       </dl>
 
       {total !== null && used === null && (
-        <p className="gpu-list__note">
-          Installed VRAM is known; live usage needs a vendor driver this adapter does not provide.
-        </p>
+        <p className="gpu-list__note">{t('cards.gpu.vramKnownOnly')}</p>
       )}
     </li>
   );
@@ -237,10 +232,9 @@ function PerformanceUnavailableNotice({
 }) {
   return (
     <p className="gpu-list__notice" role="note">
-      <strong>Performance telemetry unavailable</strong>
-      {reason ??
-        'This adapter\u2019s driver exposes no utilisation, video memory or clock figures.'}
-      {thermalAvailable && ' Thermal sensors remain available.'}
+      <strong>{t('cards.gpu.perfUnavailable')}</strong>
+      {reason ?? t('cards.gpu.perfUnavailableDefault')}
+      {thermalAvailable && ` ${t('cards.gpu.thermalRemain')}`}
     </p>
   );
 }
@@ -295,7 +289,9 @@ function Frequency({ sample }: { readonly sample: MetricSample | undefined }) {
  * tooltip, while the cell itself stays a plain dash.
  */
 function Unavailable({ sample }: { readonly sample: MetricSample | undefined }) {
-  const reason = sample ? describeAvailability(sample.availability) : 'Not reported by the backend';
+  const reason = sample
+    ? describeAvailability(sample.availability)
+    : t('cards.notReportedByBackend');
 
   return (
     <span className="value--unavailable" title={reason}>

@@ -2,7 +2,13 @@ import type { Capability, ProcessDetails, ProcessEntry } from '@/types/processes
 import type { ProcessInspection } from '@/hooks/useProcessInspection';
 import type { ActionTarget, ProcessAction } from '@/hooks/useProcessActions';
 import type { MenuItem } from '@/components/ProcessContextMenu/ContextMenu';
-import { NICE_PRESETS, WINDOWS_PRIORITY_CLASSES, searchTerms } from '@/utils/processes';
+import {
+  NICE_PRESETS,
+  WINDOWS_PRIORITY_CLASSES,
+  priorityLabel,
+  searchTerms,
+} from '@/utils/processes';
+import { t } from '@/i18n/i18n';
 
 /** What the process menu can ask its owner to do. */
 export interface ProcessMenuHandlers {
@@ -15,8 +21,6 @@ export interface ProcessMenuHandlers {
   readonly affinity: (entry: ProcessEntry, details: ProcessDetails) => void;
 }
 
-const CHECKING: Capability = { allowed: false, reason: 'Checking permissions…' };
-
 function gate(inspection: ProcessInspection, pick: (details: ProcessDetails) => Capability) {
   if (inspection.details !== null) return pick(inspection.details);
   if (inspection.status === 'failed') {
@@ -25,11 +29,11 @@ function gate(inspection: ProcessInspection, pick: (details: ProcessDetails) => 
       reason:
         inspection.outcome?.status === 'processGone' ||
         inspection.outcome?.status === 'staleProcess'
-          ? 'Process already exited.'
-          : (inspection.outcome?.reason ?? 'Unavailable.'),
+          ? t('processes.menu.exited')
+          : (inspection.outcome?.reason ?? t('processes.menu.unavailable')),
     };
   }
-  return CHECKING;
+  return { allowed: false, reason: t('processes.menu.checking') };
 }
 
 /**
@@ -58,7 +62,7 @@ export function processMenuItems(
     details?.priorityKind === 'windowsClass'
       ? WINDOWS_PRIORITY_CLASSES.map((entry) => ({
           id: `priority-${entry.value}`,
-          label: entry.label,
+          label: priorityLabel(entry.level),
           checked: priority?.kind === 'windowsClass' && priority.class === entry.value,
           onSelect: run({
             kind: 'priority',
@@ -68,13 +72,16 @@ export function processMenuItems(
       : [
           ...NICE_PRESETS.map((preset) => ({
             id: `priority-${preset.value}`,
-            label: `${preset.label} (nice ${preset.value})`,
+            label: t('processes.menu.nicePreset', {
+              level: priorityLabel(preset.level),
+              value: preset.value,
+            }),
             checked: priority?.kind === 'nice' && priority.value === preset.value,
             onSelect: run({ kind: 'priority', priority: { kind: 'nice', value: preset.value } }),
           })),
           {
             id: 'priority-custom',
-            label: 'Custom nice value…',
+            label: t('processes.menu.customNice'),
             separated: true,
             onSelect: () => {
               if (details) handlers.customNice(entry, details);
@@ -87,7 +94,7 @@ export function processMenuItems(
       ? [
           {
             id: 'force-kill',
-            label: 'Force kill',
+            label: t('processes.menu.forceKill'),
             tone: 'danger',
             ...capability((d) => d.capabilities.forceKill),
             onSelect: run({ kind: 'forceKill' }),
@@ -96,10 +103,10 @@ export function processMenuItems(
       : [];
 
   return [
-    { id: 'inspect', label: 'Inspect details', onSelect: () => handlers.inspect(entry) },
+    { id: 'inspect', label: t('processes.menu.inspect'), onSelect: () => handlers.inspect(entry) },
     {
       id: 'search',
-      label: 'Search online',
+      label: t('processes.menu.search'),
       onSelect: () =>
         handlers.searchOnline(
           searchTerms({
@@ -111,34 +118,34 @@ export function processMenuItems(
     },
     {
       id: 'location',
-      label: 'Open file location',
+      label: t('processes.menu.openLocation'),
       ...capability((d) => d.capabilities.openLocation),
       onSelect: run({ kind: 'openLocation' }),
     },
     {
       id: 'copy',
-      label: 'Copy',
+      label: t('common.copy'),
       separated: true,
       submenu: [
         {
           id: 'copy-name',
-          label: 'Process name',
-          onSelect: () => handlers.copy('Process name', entry.name),
+          label: t('processes.menu.processName'),
+          onSelect: () => handlers.copy(t('processes.menu.processName'), entry.name),
         },
         { id: 'copy-pid', label: 'PID', onSelect: () => handlers.copy('PID', String(entry.pid)) },
         {
           id: 'copy-path',
-          label: 'Executable path',
+          label: t('processes.menu.executablePath'),
           disabled: path === null,
-          reason: path === null ? 'Executable unavailable.' : null,
+          reason: path === null ? t('processes.menu.executableUnavailable') : null,
           onSelect: () => {
-            if (path !== null) handlers.copy('Executable path', path);
+            if (path !== null) handlers.copy(t('processes.menu.executablePath'), path);
           },
         },
         {
           id: 'copy-instance',
-          label: 'Process instance ID',
-          onSelect: () => handlers.copy('Process instance ID', entry.instanceId),
+          label: t('processes.menu.instanceId'),
+          onSelect: () => handlers.copy(t('processes.menu.instanceId'), entry.instanceId),
         },
         {
           id: 'copy-sha256',
@@ -150,20 +157,20 @@ export function processMenuItems(
     },
     {
       id: 'suspend',
-      label: 'Suspend',
+      label: t('processes.menu.suspend'),
       separated: true,
       ...capability((d) => d.capabilities.suspend),
       onSelect: run({ kind: 'suspend' }),
     },
     {
       id: 'resume',
-      label: 'Resume',
+      label: t('processes.menu.resume'),
       ...capability((d) => d.capabilities.resume),
       onSelect: run({ kind: 'resume' }),
     },
     {
       id: 'end',
-      label: 'End process',
+      label: t('processes.menu.end'),
       tone: 'danger',
       separated: true,
       ...capability((d) => d.capabilities.terminate),
@@ -171,7 +178,7 @@ export function processMenuItems(
     },
     {
       id: 'end-tree',
-      label: 'End process tree',
+      label: t('processes.menu.endTree'),
       tone: 'danger',
       ...capability((d) => d.capabilities.terminateTree),
       onSelect: run({ kind: 'terminateTree' }),
@@ -179,17 +186,17 @@ export function processMenuItems(
     ...forceKill,
     {
       id: 'priority',
-      label: 'Set priority',
+      label: t('processes.menu.setPriority'),
       separated: true,
       ...capability((d) => d.capabilities.setPriority),
       submenu: priorityItems,
     },
     {
       id: 'affinity',
-      label: 'Set affinity…',
+      label: t('processes.menu.setAffinity'),
       ...capability((d) =>
         d.affinity.value === null
-          ? { allowed: false, reason: 'The current affinity could not be read.' }
+          ? { allowed: false, reason: t('processes.menu.affinityUnreadable') }
           : d.capabilities.setAffinity,
       ),
       onSelect: () => {

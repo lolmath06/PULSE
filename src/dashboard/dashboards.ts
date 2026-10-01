@@ -20,6 +20,8 @@ import { createWidget, findBlueprint } from '@/dashboard/library';
 import { isValidId, newId } from '@/dashboard/ids';
 import type { StyleId } from '@/design/styles';
 import { isStyleId } from '@/design/styles';
+import { englishText, hasKey, t } from '@/i18n/i18n';
+import { isTextKey } from '@/i18n/text';
 
 /**
  * The `dashboards` section: several named dashboards, one active.
@@ -64,8 +66,26 @@ export function defaultWidgets(): WidgetInstance[] {
   ];
 }
 
-export function defaultDashboard(id = 'default', name = 'Default'): Dashboard {
-  return { id, name, locked: true, styleId: null, origin: null, widgets: defaultWidgets() };
+const DEFAULT_NAME_KEY = 'dashboard.defaultName';
+
+/**
+ * The first dashboard. Its name is PULSE's, so it is stored as a translation
+ * key (with its English text as the fallback) and follows the language.
+ */
+export function defaultDashboard(id = 'default', name?: string): Dashboard {
+  return {
+    id,
+    ...(name ? { name } : { name: englishText(DEFAULT_NAME_KEY), nameKey: DEFAULT_NAME_KEY }),
+    locked: true,
+    styleId: null,
+    origin: null,
+    widgets: defaultWidgets(),
+  };
+}
+
+/** A dashboard's name as shown: a built-in name translated, the user's verbatim. */
+export function dashboardName(dashboard: Pick<Dashboard, 'name' | 'nameKey'>): string {
+  return dashboard.nameKey && hasKey(dashboard.nameKey) ? t(dashboard.nameKey) : dashboard.name;
 }
 
 export function defaultSection(): DashboardsSection {
@@ -79,10 +99,13 @@ export function normalizeDashboard(raw: unknown): Dashboard | null {
     .map((widget) => normalizeWidget(widget, visualDefaultsFor))
     .filter((widget): widget is WidgetInstance => widget !== null);
   const name =
-    typeof raw.name === 'string' && raw.name.trim() ? raw.name.trim().slice(0, 40) : 'Dashboard';
+    typeof raw.name === 'string' && raw.name.trim()
+      ? raw.name.trim().slice(0, 40)
+      : englishText('dashboard.fallbackName');
   return {
     id: isValidId(raw.id) ? raw.id : newId('d'),
     name,
+    ...(isTextKey(raw.nameKey) ? { nameKey: raw.nameKey } : {}),
     locked: raw.locked !== false,
     styleId: isStyleId(raw.styleId) ? raw.styleId : null,
     origin:
@@ -147,7 +170,7 @@ export function createDashboard(section: DashboardsSection, name: string): Dashb
   if (section.items.length >= MAX_DASHBOARDS) return section;
   const dashboard: Dashboard = {
     id: newId('d'),
-    name: name.trim().slice(0, 40) || 'Dashboard',
+    name: name.trim().slice(0, 40) || t('dashboard.fallbackName'),
     locked: false,
     styleId: null,
     origin: null,
@@ -163,17 +186,23 @@ export function renameDashboard(
 ): DashboardsSection {
   const trimmed = name.trim().slice(0, 40);
   if (!trimmed) return section;
-  return mapDashboard(section, id, (dashboard) => ({ ...dashboard, name: trimmed }));
+  // The user's own name from now on: the built-in key, if any, is dropped.
+  return mapDashboard(section, id, ({ nameKey: _builtIn, ...dashboard }) => ({
+    ...dashboard,
+    name: trimmed,
+  }));
 }
 
 /** A copy with new dashboard and widget ids — nothing shared with the original. */
 export function duplicateDashboard(section: DashboardsSection, id: string): DashboardsSection {
   const source = section.items.find((item) => item.id === id);
   if (!source || section.items.length >= MAX_DASHBOARDS) return section;
+  const { nameKey: _builtIn, ...rest } = source;
+  // A copy is the user's own dashboard, named in the language they see.
   const copy: Dashboard = {
-    ...source,
+    ...rest,
     id: newId('d'),
-    name: `${source.name} copy`.slice(0, 40),
+    name: t('common.copyOf', { name: dashboardName(source) }).slice(0, 40),
     widgets: source.widgets.map((widget) => ({ ...widget, id: newId('w') })),
   };
   return { ...section, items: [...section.items, copy], activeId: copy.id };
@@ -304,15 +333,15 @@ export function importDashboard(
   raw: unknown,
 ): { section: DashboardsSection; error?: string } {
   if (!isRecord(raw) || raw.format !== EXPORT_FORMAT) {
-    return { section, error: 'This is not a PULSE dashboard export.' };
+    return { section, error: t('dashboard.import.notExport') };
   }
   if (raw.version !== DASHBOARDS_VERSION) {
-    return { section, error: `Unsupported dashboard export version: ${String(raw.version)}.` };
+    return { section, error: t('dashboard.import.version', { version: String(raw.version) }) };
   }
   const dashboard = normalizeDashboard(raw.dashboard);
-  if (!dashboard) return { section, error: 'The export contains no valid dashboard.' };
+  if (!dashboard) return { section, error: t('dashboard.import.noDashboard') };
   if (section.items.length >= MAX_DASHBOARDS) {
-    return { section, error: `At most ${MAX_DASHBOARDS} dashboards.` };
+    return { section, error: t('dashboard.import.limit', { count: MAX_DASHBOARDS }) };
   }
   const imported: Dashboard = {
     ...dashboard,

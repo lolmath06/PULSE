@@ -1,0 +1,2005 @@
+{
+  "app": {
+    "tagline": "あなたのシステムをひと目で。"
+  },
+  "common": {
+    "comingLater": "今後の PULSE フェーズで提供予定です。",
+    "active": "有効",
+    "copyOf": "{{name}} のコピー",
+    "all": "すべて",
+    "checking": "確認中…",
+    "refresh": "更新",
+    "copy": "コピー",
+    "copied": "コピーしました",
+    "apply": "適用",
+    "duplicate": "複製",
+    "delete": "削除",
+    "preview": "プレビュー",
+    "customize": "カスタマイズ",
+    "removeNamed": "{{name}} を外す",
+    "add": "追加",
+    "widgetCount_other": "{{count}} 個のウィジェット",
+    "cancel": "キャンセル",
+    "rename": "名前を変更",
+    "reset": "リセット",
+    "export": "エクスポート",
+    "import": "インポート",
+    "copyToClipboard": "クリップボードにコピー",
+    "invalidJson": "有効な JSON ではありません。",
+    "remove": "外す",
+    "close": "閉じる",
+    "save": "保存",
+    "deleteNamed": "{{name}} を削除",
+    "refreshing": "更新中…",
+    "hide": "非表示",
+    "showAll": "すべて表示"
+  },
+  "nav": {
+    "main": "メインナビゲーション",
+    "groups": {
+      "monitor": "モニター",
+      "modes": "モード",
+      "studio": "スタジオ"
+    },
+    "routes": {
+      "overview": {
+        "label": "概要",
+        "description": "PULSE の既定のダッシュボード。"
+      },
+      "dashboard": {
+        "label": "ダッシュボード",
+        "description": "自分だけのダッシュボード:ウィジェットを追加・配置・装飾できます。"
+      },
+      "overlays": {
+        "label": "オーバーレイ",
+        "description": "デスクトップ上の独立したウィンドウに置くウィジェット。"
+      },
+      "gaming": {
+        "label": "ゲーミング",
+        "description": "ゲーム中に役立つ指標に絞った軽量ビュー。"
+      },
+      "development": {
+        "label": "開発",
+        "description": "ビルド・コンパイル・作業負荷に焦点を当てたビュー。"
+      },
+      "personal": {
+        "label": "パーソナル",
+        "description": "多数のウィジェットで自由に構成できるダッシュボード。"
+      },
+      "mini": {
+        "label": "ミニ",
+        "description": "ダッシュボードを 1 つ表示する、小さな通常の PULSE ウィンドウ。"
+      },
+      "appearance": {
+        "label": "外観",
+        "description": "スタイル、色、書体、密度、モーション、言語 — すべての画面に。"
+      }
+    },
+    "changeStyle": "スタイルを変更",
+    "style": "スタイル"
+  },
+  "status": {
+    "backendStatus": "バックエンドの状態",
+    "querying": "バックエンドに問い合わせ中…",
+    "unavailableUiOnly": "バックエンドを利用できません — UI のみのモード"
+  },
+  "notFound": {
+    "title": "見つかりません",
+    "subtitle": "PULSE にこのページはありません。",
+    "back": "概要に戻る"
+  },
+  "overview": {
+    "version": "バージョン {{version}}",
+    "systemDetails": "システムの詳細",
+    "detectedPlatform": "検出されたプラットフォーム",
+    "backendUnavailable": "バックエンドを利用できません。Rust レイヤーに接続するには PULSE を <code>pnpm app:dev</code> で起動してください。",
+    "os": "オペレーティングシステム",
+    "platformLayer": "プラットフォームレイヤー",
+    "architecture": "アーキテクチャ",
+    "displayServer": "ディスプレイサーバー",
+    "backendVersion": "バックエンドのバージョン"
+  },
+  "home": {
+    "liveSystem": "ライブシステム",
+    "links": {
+      "dashboards": "ダッシュボード",
+      "dashboardsHint": "テンプレート、ウィジェット、レイアウト",
+      "overlays": "オーバーレイ",
+      "overlaysHint_other": "{{count}} 個のパック、バックエンドの状態",
+      "appearance": "外観",
+      "appearanceHint_other": "{{count}} 種類のスタイル、細かな調整"
+    }
+  },
+  "welcome": {
+    "title": "PULSE へようこそ",
+    "subtitle": "出発点を選んでください。どの選択も後から変更できます — 外観、各モード、ダッシュボード、オーバーレイで。",
+    "label": "ようこそ",
+    "skip": "スキップ",
+    "start": "PULSE を開始",
+    "modeLabel": "モード",
+    "howUse": "どのように使いますか?",
+    "justMonitor": "モニターだけ",
+    "justMonitorHint": "モードなし — スタイルとダッシュボードのみ。",
+    "pickStyle": "スタイルを選ぶ",
+    "styles": "ようこそ画面のスタイル",
+    "starters": "スターター",
+    "startWith": "最初に用意するもの",
+    "dashboard": "ダッシュボード",
+    "starterDashboard": "スターターダッシュボード",
+    "keepDashboards": "現在のダッシュボードを残す",
+    "overlay": "オーバーレイ",
+    "starterOverlay": "スターターオーバーレイ",
+    "noOverlay": "今はオーバーレイなし",
+    "overlaysHere": "この環境のオーバーレイ:",
+    "bridgeNotReady": "— GNOME ブリッジ:{{state}}。設定はオーバーレイで行えます。",
+    "bridgeActive": "— オーバーレイは他のウィンドウより前面に表示されます。",
+    "noBackend": "オーバーレイの機能は、バックエンドが応答するとオーバーレイに表示されます。"
+  },
+  "language": {
+    "label": "言語",
+    "system": "システム({{language}})",
+    "hint": "システムはコンピューターの言語に従います。すべての PULSE ウィンドウに同時に適用されます。"
+  },
+  "metrics": {
+    "catalog": {
+      "cpu": {
+        "count": {
+          "logical": {
+            "name": "論理プロセッサー",
+            "description": "オペレーティングシステムが処理を割り当てる論理プロセッサー(ハードウェアスレッド)の数。同時マルチスレッディングでは物理コア数を上回ります。"
+          },
+          "package": {
+            "name": "プロセッサーパッケージ",
+            "description": "搭載されている物理プロセッサーパッケージ(ソケット)の数。"
+          },
+          "physical": {
+            "name": "物理コア",
+            "description": "物理実行コアの数。異なる (パッケージ, コア) の組として数えるため、2 つのパッケージにある同じ番号のコアが混同されることはありません。"
+          }
+        },
+        "frequency": {
+          "current": {
+            "name": "現在の周波数",
+            "description": "この論理プロセッサーについて OS が現在報告しているクロック周波数。スケーリング、ブースト、電源ポリシーで常に変化するため、シリコンの瞬間的な実測値ではなくプラットフォームの最新値です。"
+          },
+          "max": {
+            "name": "最大周波数",
+            "description": "この論理プロセッサーについてプラットフォームが報告する最大クロック周波数。ハイブリッド CPU ではパフォーマンスコアと効率コアで異なります。ガバナーや電源ポリシーの上限が代わりに公開されることはありません。"
+          }
+        },
+        "temperature": {
+          "package": {
+            "name": "パッケージ温度",
+            "description": "プロセッサーパッケージが自ら報告する温度。パッケージ自身のセンサーであり、各コアの平均でも、シリコンの設計上の熱限界値でもありません。"
+          }
+        },
+        "usage": {
+          "logical": {
+            "name": "CPU 使用率",
+            "description": "前回のサンプル以降、この論理プロセッサーが処理に費やした CPU 時間の割合。同時マルチスレッディングでは 2 つの論理プロセッサーが 1 つの物理コアを共有します。"
+          },
+          "total": {
+            "name": "CPU 使用率",
+            "description": "前回のサンプル以降、マシン全体で処理に費やした CPU 時間の割合。"
+          }
+        }
+      },
+      "gpu": {
+        "count": {
+          "name": "GPU",
+          "description": "PULSE が把握したハードウェアグラフィックスアダプターの数。Microsoft Basic Render Driver や WARP などのソフトウェアアダプターは数えません。"
+        },
+        "fan": {
+          "speed": {
+            "name": "ファン",
+            "description": "アダプターのファンの回転数(毎分回転数)。ファン制御のパーセンテージは速度ではなくデューティ比であり、代わりに公開されることはありません。"
+          }
+        },
+        "frequency": {
+          "core": {
+            "name": "コアクロック",
+            "description": "ドライバーが報告する現在のグラフィックスクロック。ブースト動作や電源ポリシーで常に変化するため、シリコンの瞬間的な実測値ではなくプラットフォームの最新値です。"
+          },
+          "memory": {
+            "name": "メモリークロック",
+            "description": "ドライバーが報告する現在のビデオメモリークロック。"
+          }
+        },
+        "memory": {
+          "free": {
+            "name": "空き VRAM",
+            "description": "まだ割り当て可能な専用ビデオメモリー。"
+          },
+          "total": {
+            "name": "VRAM 合計",
+            "description": "このアダプターに搭載された専用ビデオメモリー。統合 GPU と共有するシステムメモリーは意図的にここに含めません。"
+          },
+          "usage": {
+            "percent": {
+              "name": "VRAM 使用率",
+              "description": "使用中の専用ビデオメモリーの割合。使用バイト数と合計バイト数から算出します。"
+            }
+          },
+          "used": {
+            "name": "使用中の VRAM",
+            "description": "システム全体で現在使用中の専用ビデオメモリー。"
+          }
+        },
+        "temperature": {
+          "core": {
+            "name": "温度",
+            "description": "グラフィックスプロセッサーのダイ温度(自身のセンサーによる)。"
+          },
+          "hotspot": {
+            "name": "ホットスポット",
+            "description": "グラフィックスプロセッサーのパッケージ上で測定された最も高温の点。ダイ温度とは別のセンサーで、負荷時は通常高めに出ます。ダイ温度から算出することはありません。"
+          },
+          "memory": {
+            "name": "メモリー温度",
+            "description": "専用ビデオメモリーの温度(自身のセンサーによる)。"
+          }
+        },
+        "usage": {
+          "core": {
+            "name": "GPU 使用率",
+            "description": "ドライバーが報告する、グラフィックスエンジンの能力のうち使用中の割合。"
+          }
+        }
+      },
+      "memory": {
+        "available": {
+          "name": "利用可能メモリー",
+          "description": "スワップせずに割り当てられる物理メモリー。"
+        },
+        "total": {
+          "name": "メモリー合計",
+          "description": "オペレーティングシステムが使用できる搭載物理メモリー。"
+        },
+        "usage": {
+          "percent": {
+            "name": "メモリー使用率",
+            "description": "使用中の物理メモリーの割合。使用バイト数と合計バイト数から算出します。"
+          }
+        },
+        "used": {
+          "name": "使用中のメモリー",
+          "description": "使用中の物理メモリー。合計から利用可能分を引いた値と定義します。"
+        }
+      },
+      "network": {
+        "interface": {
+          "count": {
+            "name": "インターフェース",
+            "description": "PULSE が監視するネットワークインターフェースの数。ループバックは意図的に除外しています:常に存在し、このマシンの外に出ない通信しか運ばないためです。"
+          },
+          "up_count": {
+            "name": "接続中",
+            "description": "監視中のインターフェースのうち、現在リンクがある数。有効でもケーブル未接続のアダプターや、ネットワークに関連付けられていない無線は数えません。"
+          }
+        },
+        "link": {
+          "receive_speed": {
+            "name": "リンク RX",
+            "description": "ドライバーがネゴシエートしたリンクの受信能力 — 実際に流れている量ではありません。Wi-Fi も Ethernet も再ネゴシエートするため、固定値ではなくゲージです。"
+          },
+          "transmit_speed": {
+            "name": "リンク TX",
+            "description": "リンクの送信能力。Ethernet では受信と同じ、Wi-Fi ではしばしば異なります。"
+          }
+        },
+        "mtu": {
+          "name": "MTU",
+          "description": "このインターフェースが 1 フレームで運べる最大ペイロード。測定値ではなく設定値なので、状態として扱います。"
+        },
+        "receive": {
+          "bytes_per_second": {
+            "name": "ダウンロード",
+            "description": "このマシンに毎秒届くバイト数。OS の累積カウンターの 2 サンプル間の差から求めます。受信とは、このマシンから見た着信のことです。"
+          },
+          "dropped_per_second": {
+            "name": "RX 破棄",
+            "description": "無傷で届いたのに破棄された受信フレーム — バッファーが満杯、または受け取るプロトコルがない場合です。ローカルのカウンターであり、PULSE が測定しないインターネットのパケットロスではありません。"
+          },
+          "errors_per_second": {
+            "name": "RX エラー",
+            "description": "不具合があったためインターフェースが拒否した受信フレーム — チェックサム不良、フレーミングエラーなど。破棄フレームとは別のカウンターで、ゼロでない値が続く場合はケーブルかドライバーの問題であることが多いです。"
+          },
+          "packets_per_second": {
+            "name": "RX パケット",
+            "description": "毎秒届くパケット数(ユニキャストと非ユニキャストの合計)。ゼロは実測値です:その間隔に何も届かなかったことを意味します。"
+          }
+        },
+        "transmit": {
+          "bytes_per_second": {
+            "name": "アップロード",
+            "description": "このマシンから毎秒出ていくバイト数。OS の累積カウンターの 2 サンプル間の差から求めます。送信とは発信のことです。"
+          },
+          "dropped_per_second": {
+            "name": "TX 破棄",
+            "description": "送信前に破棄された送信フレーム。通常はキューが満杯だったためです。"
+          },
+          "errors_per_second": {
+            "name": "TX エラー",
+            "description": "インターフェースが送信に失敗した送信フレーム。"
+          },
+          "packets_per_second": {
+            "name": "TX パケット",
+            "description": "毎秒出ていくパケット数(ユニキャストと非ユニキャストの合計)。"
+          }
+        },
+        "wifi": {
+          "link": {
+            "receive_rate": {
+              "name": "Wi-Fi 受信レート",
+              "description": "アクセスポイントとネゴシエートした受信レート。通信量ではなく能力です:400 Mbit/s でネゴシエートしたリンクは、何も流れていなくても 400 Mbit/s と報告します。"
+            },
+            "transmit_rate": {
+              "name": "Wi-Fi 送信レート",
+              "description": "アクセスポイントとネゴシエートした送信レート。受信レートとはしばしば異なります。"
+            }
+          },
+          "signal": {
+            "quality": {
+              "name": "品質",
+              "description": "0〜100 のリンク品質値。OS 自身が算出する場合にのみ公開します。信号強度から導くことはありません:一般的な dBm からパーセントへの換算式はどれも恣意的で、そうして作った数値は推測なのに実測のように見えてしまうからです。"
+            },
+            "rssi": {
+              "name": "信号",
+              "description": "無線が報告する受信信号強度(dBm)— −40 が強く、−90 がかろうじて使える対数スケールです。複数のリンクで接続している無線では、最も強いアクティブなリンクの値を使います。dBm 値を平均することはありません。"
+            }
+          }
+        }
+      },
+      "process": {
+        "count": {
+          "running": {
+            "name": "実行中",
+            "description": "プロセッサー上で実行中、または実行可能でキューに並んでいるプロセスの数。アイドル状態のデスクトップでは、ほぼすべてのプロセスがタイマーや入力、ディスクを待っているため、ここが小さい数でも正常で、マシンが暇という意味ではありません。Windows はプロセス単位の状態を報告しないため、そこでは値を作らずに利用不可とします。"
+          },
+          "total": {
+            "name": "プロセス",
+            "description": "このマシンに今存在するプロセスの数。PULSE が詳細を読めないものも含みます。アクセスを拒否されたプロセスも存在しており、数に含まれます。"
+          }
+        },
+        "thread": {
+          "count": {
+            "total": {
+              "name": "スレッド",
+              "description": "見えるすべてのプロセスのスレッドの合計。スレッド数を読めなかったプロセスは推測値ではなく 0 として扱うため、保護されたプロセスが多いマシンでは過小評価になりますが、でっち上げにはなりません。"
+            }
+          }
+        }
+      },
+      "storage": {
+        "capacity": {
+          "total": {
+            "name": "容量",
+            "description": "物理デバイスのアドレス可能な総容量。デバイス全体であり、その上のファイルシステムの合計ではありません。"
+          }
+        },
+        "device": {
+          "count": {
+            "name": "ストレージデバイス",
+            "description": "PULSE が把握した物理ストレージデバイスの数。パーティション、ループデバイス、RAM ディスク、device-mapper ボリュームは独立したデバイスとして数えません。"
+          }
+        },
+        "health": {
+          "available_spare": {
+            "name": "予備領域の残量",
+            "description": "デバイスの代替ブロック予備のうち残っている割合。ファイルシステムの空き容量でも未割り当て容量でもありません:満杯のドライブでも通常は予備 100 % と報告されます。"
+          },
+          "media_errors": {
+            "name": "メディアエラー",
+            "description": "コントローラーがデバイスの寿命を通じて検出・記録したメディアおよびデータ整合性のエラー。"
+          },
+          "percentage_used": {
+            "name": "使用済み耐久性",
+            "description": "デバイスの定格書き込み耐久性のうち、消費された割合のコントローラーによる推定値。定格を超えた後の 100 % を超える値も含め、デバイスの申告どおりに報告し、健康スコアに変換することはありません。"
+          },
+          "power_on_hours": {
+            "name": "通電時間",
+            "description": "デバイスのコントローラーが自ら数えた通電時間(時間)。"
+          },
+          "temperature": {
+            "name": "温度",
+            "description": "ストレージコントローラーの複合温度 — デバイスが自身のセンサーから導く単一の値で、個別のセンサーでも他の部品の値でもありません。"
+          },
+          "unsafe_shutdowns": {
+            "name": "安全でないシャットダウン",
+            "description": "シャットダウンの指示を受ける前にデバイスの電源が失われた回数。"
+          }
+        },
+        "io": {
+          "read": {
+            "bytes_per_second": {
+              "name": "読み取り",
+              "description": "デバイスから毎秒読み取ったバイト数。OS の累積カウンターの 2 サンプル間の差から求めます。"
+            },
+            "iops": {
+              "name": "読み取り IOPS",
+              "description": "毎秒完了した読み取り操作の数。ゼロは実測値です:その間隔に完了した読み取りがなかったことを意味します。"
+            },
+            "latency": {
+              "name": "読み取りレイテンシー",
+              "description": "OS から見た読み取り 1 回の平均時間 — キュー待ちを含み、デバイス内部ではなくホスト側で測定します。読み取りが 1 つも完了しなかった間隔にはレイテンシーがなく、ゼロではなく値なしとして報告します。"
+            }
+          },
+          "write": {
+            "bytes_per_second": {
+              "name": "書き込み",
+              "description": "デバイスに毎秒書き込んだバイト数。OS の累積カウンターの 2 サンプル間の差から求めます。"
+            },
+            "iops": {
+              "name": "書き込み IOPS",
+              "description": "毎秒完了した書き込み操作の数。ゼロは実測値です:その間隔に完了した書き込みがなかったことを意味します。"
+            },
+            "latency": {
+              "name": "書き込みレイテンシー",
+              "description": "OS から見た書き込み 1 回の平均時間。書き込みが 1 つも完了しなかった間隔は、ゼロではなく値なしとして報告します。"
+            }
+          }
+        },
+        "volume": {
+          "capacity": {
+            "available": {
+              "name": "利用可能",
+              "description": "このユーザーが実際に書き込める容量。スーパーユーザー用の予約を持つファイルシステムでは空き容量より少なくなりますが、これは意図どおりです:その予約はあなたには使えません。"
+            },
+            "total": {
+              "name": "ボリュームサイズ",
+              "description": "ファイルシステムの総サイズ。1 つのデバイス上の複数のファイルシステムを足してもデバイス容量にはならず、1 つのファイルシステムが複数のデバイスにまたがることもあります。"
+            },
+            "used": {
+              "name": "使用中",
+              "description": "データが入っているファイルシステムの領域。合計から空きブロックを引いた値と定義します。スーパーユーザー用にブロックを予約するファイルシステムでは、使用中と利用可能を足しても合計になりません。"
+            }
+          },
+          "count": {
+            "name": "ボリューム",
+            "description": "PULSE が把握したマウント済みファイルシステムの数。複数のパスから到達できるファイルシステムは 1 回だけ数え、proc や sysfs などの疑似ファイルシステムは数えません。"
+          },
+          "usage": {
+            "percent": {
+              "name": "ボリューム使用率",
+              "description": "データが入っているファイルシステムの割合。使用バイト数と合計バイト数から算出します。"
+            }
+          }
+        }
+      }
+    },
+    "sources": {
+      "cpuSystem": "システム CPU",
+      "memorySystem": "システムメモリー",
+      "gpuSystem": "グラフィックス",
+      "processSystem": "プロセス",
+      "networkSystem": "ネットワーク",
+      "storageSystem": "ストレージ",
+      "cpuPackage": "パッケージ {{index}}"
+    },
+    "availability": {
+      "available": "利用可能",
+      "unsupported": "未対応",
+      "notDetected": "未検出",
+      "permissionDenied": "権限が必要",
+      "temporarilyUnavailable": "一時的に利用不可",
+      "providerError": "プロバイダーエラー",
+      "notRegistered": "未登録"
+    },
+    "availabilityReason": {
+      "unsupported": "未対応:{{reason}}",
+      "notDetected": "未検出:{{reason}}",
+      "permissionDenied": "権限が必要:{{reason}}",
+      "temporarilyUnavailable": "一時的に利用不可:{{reason}}",
+      "providerError": "プロバイダーエラー:{{reason}}",
+      "notRegistered": "未登録:{{reason}}"
+    },
+    "engineState": {
+      "ready": "準備完了",
+      "empty": "空"
+    },
+    "notReported": "このマシンはこの指標を報告していません。",
+    "noneSelected": "指標が選択されていません。",
+    "sourceUnavailable": "ソースを利用できません"
+  },
+  "styles": {
+    "clean": {
+      "name": "クリーン",
+      "tagline": "モダンで落ち着いた、プロフェッショナル",
+      "description": "静かなチャコールの面、やわらかな奥行き、ティールのアクセントひとつ。既定のスタイル:すべて読みやすく、何も主張しすぎません。"
+    },
+    "glass": {
+      "name": "グラス",
+      "tagline": "すりガラス、光沢、上質",
+      "description": "深いオーロラの上に半透明のすりガラスパネル、明るい上端のハイライト、ゆったりした角。見せるためのスタイル。"
+    },
+    "technical": {
+      "name": "テクニカル",
+      "tagline": "計測器のように、緻密で正確",
+      "description": "エンジニアの作業台:方眼の設計図グリッド、直角の縁、等幅の数字、アンバーの表示、すべての軸とサンプルマーカー。"
+    },
+    "neon": {
+      "name": "ネオン",
+      "tagline": "高コントラスト、エレクトリック",
+      "description": "マゼンタとシアンの光をまとった漆黒:光る線、照らされた縁、輝く数字。ドラマチックでも読みやすい。"
+    },
+    "gaming": {
+      "name": "ゲーミング",
+      "tagline": "大胆、高速、エネルギッシュ",
+      "description": "カットされた角、クリムゾンとアンバー、詰まった太字と大きな数字:プレイ中にひと目で読めるように。"
+    },
+    "stealth": {
+      "name": "ステルス",
+      "tagline": "ダークで控えめ、ノイズ少なめ",
+      "description": "装飾はほぼなし、くすんだスレートの文字、塗りもグリッドもなし:探せばそこにあり、そうでなければ見えません。"
+    },
+    "compact": {
+      "name": "コンパクト",
+      "tagline": "詰めて効率的、小さな表示向け",
+      "description": "詰めた余白、小さめの文字、控えめなグラフ:小さなウィジェットやマイクロオーバーレイで 1 ピクセルあたりの情報量を最大に。"
+    },
+    "hud": {
+      "name": "透明 HUD",
+      "tagline": "パネルなし、数字だけ",
+      "description": "装飾なし:やわらかな暗いハロー付きの明るい数字で、どんな壁紙やゲームの上でも読めます。細い線、グリッドなし。"
+    },
+    "accents": {
+      "teal": "ティール",
+      "sky": "スカイ",
+      "blue": "ブルー",
+      "violet": "バイオレット",
+      "magenta": "マゼンタ",
+      "crimson": "クリムゾン",
+      "amber": "アンバー",
+      "lime": "ライム",
+      "mint": "ミント",
+      "silver": "シルバー"
+    },
+    "palettes": {
+      "aurora": "オーロラ",
+      "ocean": "オーシャン",
+      "ember": "エンバー",
+      "forest": "フォレスト",
+      "candy": "キャンディ",
+      "mono": "モノ"
+    }
+  },
+  "modes": {
+    "gaming": {
+      "name": "ゲーミング",
+      "tagline": "オーバーレイ優先。ひと目で読める。",
+      "description": "パフォーマンスと温度を示す大胆でコンパクトなオーバーレイをゲームの横に — ゲームの中には決して入りません。ロックしたオーバーレイはクリックをすべて透過し、フォーカスを奪いません。",
+      "principles": {
+        "noFps": "FPS カウンターなし:PULSE には実際の FPS の情報源がないため、表示しません。",
+        "safeOverlays": "安全なデスクトップオーバーレイのみ — インジェクションなし、DirectX/Vulkan/OpenGL のフックなし。",
+        "borderless": "ボーダーレスまたはウィンドウモードのゲーム向け。排他的フルスクリーンではデスクトップのウィンドウが隠れます。"
+      }
+    },
+    "development": {
+      "name": "開発",
+      "tagline": "ビルド負荷を、エンジニアリングの解像度で。",
+      "description": "CPU、メモリー、ディスク I/O、ネットワーク、プロセス数を緻密で正確なレイアウトで — コンパイル、コンテナー、テスト実行、デバッグに。",
+      "principles": {
+        "realSamples": "すべての値は実際のサンプルで、履歴は PULSE 自身のレコーダーから取得します。",
+        "processesNearby": "急上昇の原因となるプロセスは、プロセスビューからワンクリックで。",
+        "technicalStyle": "テクニカルスタイル:直線とサンプルマーカー — 平滑化はしません。"
+      }
+    },
+    "personal": {
+      "name": "パーソナル",
+      "tagline": "毎日のビューを、自分好みに。",
+      "description": "心地よくバランスの取れた出発点:気になるものを追加し、好きなスタイルを選び、一日中表示しておけます。",
+      "principles": {
+        "editable": "ここではすべて編集可能:ウィジェット、スタイル、レイアウト、オーバーレイ。",
+        "saveLook": "作った見た目は外観で自分のスタイルとして保存できます。",
+        "shareExport": "ダッシュボードはエクスポートで共有 — ハードウェア識別子は含まれません。"
+      }
+    },
+    "mini": {
+      "name": "ミニ",
+      "tagline": "小さくて上品なモニターウィンドウ。",
+      "description": "丁寧にサイズを整えたいくつかの数値を表示する、コンパクトな通常ウィンドウ。操作でき、常に最前面にはなりません — それにはオーバーレイを使ってください。",
+      "principles": {
+        "normalWindow": "ミニは通常のウィンドウです:移動でき、フォーカスでき、タスクバーに表示されます。",
+        "pickLayout": "下でミニのレイアウトを選ぶか、ダッシュボードのひとつを表示してください。"
+      }
+    },
+    "miniLayouts": {
+      "vitals": {
+        "name": "バイタル",
+        "description": "CPU、メモリー、温度、通信量を、それぞれの推移とともに。"
+      },
+      "thermals": {
+        "name": "温度",
+        "description": "温度の推移を色の帯で。SSD も表示します。"
+      },
+      "network": {
+        "name": "ネットワーク",
+        "description": "ダウンロードとアップロード。Wi-Fi があれば信号も。"
+      },
+      "focus": {
+        "name": "フォーカス",
+        "description": "大きな CPU リングひとつと、メモリーと温度のメーター。"
+      }
+    },
+    "page": {
+      "aria": "{{mode}} モード",
+      "eyebrow": "モード",
+      "leave": "モードを終了",
+      "enter": "{{mode}} モードに入る",
+      "style": "{{mode}} のスタイル",
+      "modeDefault": "{{name}}(モードの既定)",
+      "overlaysFor": "{{mode}} 向けオーバーレイ",
+      "packsHint": "{{mode}} モード向けに構成 — それぞれ独立したウィンドウの編集可能なオーバーレイになります。",
+      "behaviour": "動作",
+      "whenOn": "このモードがオンのとき",
+      "lockOverlays": "モード開始時にすべてのオーバーレイをロック(クリック透過、フォーカスしない)",
+      "keepRunning": "メインウィンドウを閉じても PULSE とオーバーレイを実行し続ける",
+      "keyMetrics": "{{mode}} の主要指標",
+      "dashboardAria": "{{mode}} ダッシュボード",
+      "startDashboard": "{{mode}} ダッシュボードをテンプレートから作成し、あとは自由に変更できます。",
+      "createDashboard": "{{mode}} ダッシュボードを作成",
+      "editInDashboard": "ダッシュボードで編集",
+      "switchesKeepRunning": "このモードに入ると「メインウィンドウを閉じたとき」が実行継続に切り替わります。"
+    },
+    "miniPage": {
+      "subtitle": "小さな通常の PULSE ウィンドウ。ミニは操作でき、他のウィンドウと同じように振る舞います。最前面に留まりクリックを透過させたい場合は、オーバーレイを追加してください。",
+      "useHere": "ここでもミニモードを使う",
+      "layouts": "ミニのレイアウト",
+      "whatShows": "ミニに表示するもの",
+      "layout": "ミニのレイアウト",
+      "orDashboard": "またはダッシュボード",
+      "dashboardShown": "ミニに表示するダッシュボード",
+      "style": "ミニのスタイル",
+      "howLooks": "ミニの見た目",
+      "followMode": "ミニモード({{name}})",
+      "modeStyle": "ミニモードのスタイル",
+      "followsAtOnce": "ミニウィンドウには即座に反映されます — 開き直す必要はありません。",
+      "preview": "ミニのプレビュー",
+      "live": "ライブ · {{name}}",
+      "tinyOverlays": "小さなオーバーレイ",
+      "tinyOverlaysHint": "表示をすべての上に置き、クリックを透過させたいときはこれらを使ってください。"
+    }
+  },
+  "presets": {
+    "templates": {
+      "balanced": {
+        "name": "標準バランス",
+        "description": "毎日の概要:サマリーバー、CPU とメモリー、温度、GPU、ネットワーク、ディスク。"
+      },
+      "gaming": {
+        "name": "ゲーミングダッシュボード",
+        "description": "負荷と温度を最優先:CPU と GPU のリング、温度、VRAM、メモリー、通信量。"
+      },
+      "development": {
+        "name": "開発ダッシュボード",
+        "description": "エンジニアリングの解像度でビルド負荷を:CPU、メモリー、ディスク I/O、ネットワーク、プロセス。"
+      },
+      "personal": {
+        "name": "パーソナルスターター",
+        "description": "自分好みに仕上げる心地よくバランスの取れた出発点:リング、グラフ、温度、ネットワーク。"
+      },
+      "thermal": {
+        "name": "温度重視",
+        "description": "PULSE が読み取るすべての温度を色の帯で、その原因となる負荷と並べて。"
+      },
+      "network-io": {
+        "name": "ネットワークと I/O",
+        "description": "通信量とディスクスループットを間近に。ファイルシステム使用量と Wi-Fi も。"
+      },
+      "minimal": {
+        "name": "ミニマルクリーン",
+        "description": "大きな数字 4 つと控えめなグラフ 1 つ。それだけ。"
+      },
+      "showcase": {
+        "name": "華やかショーケース",
+        "description": "最も印象的な PULSE:すりガラス、リング、グラデーションの推移、ライブバー。"
+      }
+    },
+    "packs": {
+      "tiny-thermals": {
+        "name": "ミニ温度",
+        "description": "CPU と GPU の温度とメモリーを、ごく小さなブロックに。",
+        "sample": "CPU 64 °C|GPU 58 °C|RAM 42 %"
+      },
+      "tiny-stats": {
+        "name": "ミニステータス",
+        "description": "CPU、GPU、RAM、温度を細い 1 行に。",
+        "sample": "CPU 24 %|GPU 84 %|RAM 41 %|67 °C"
+      },
+      "top-bar": {
+        "name": "トップバー",
+        "description": "画面上端に横幅いっぱいのサマリーバー。ライブの推移付き。",
+        "sample": "CPU 23 % ∿|GPU 61 % ∿|RAM 44 % ∿|CPU 67 °C ∿|↓ 2.1 MB/s ∿|↑ 180 kB/s ∿"
+      },
+      "bottom-bar": {
+        "name": "ボトムバー",
+        "description": "下端に沿ったメーター:CPU、GPU、メモリーの負荷バーと通信量。",
+        "sample": "CPU ▰▰▰▱▱|GPU ▰▰▱▱▱|RAM ▰▰▰▰▱|↓ 2.1 MB/s|↑ 180 kB/s"
+      },
+      "left-rail": {
+        "name": "左レール",
+        "description": "左端に沿った縦いっぱいのリングと推移の列。",
+        "sample": "◔ CPU 23 %|◑ GPU 61 %|◕ RAM 44 %|CPU 67 °C|↓ 2.1 MB/s"
+      },
+      "right-rail": {
+        "name": "右レール",
+        "description": "右側に縦いっぱいのモニターグラフ:CPU、メモリー、温度、ネットワーク、ディスク。",
+        "sample": "CPU ⌇⌇⌇|RAM ⌇⌇⌇|°C ⌇⌇⌇|↓↑ ⌇⌇⌇|R/W ⌇⌇⌇"
+      },
+      "gaming-corner": {
+        "name": "ゲーミングコーナー",
+        "description": "上隅に置く 6 項目の大胆な HUD:負荷、温度、VRAM、RAM。",
+        "sample": "CPU 31 %|GPU 97 %|CPU 71 °C|GPU 74 °C|VRAM 6.1 GB|RAM 44 %"
+      },
+      "thermal-strip": {
+        "name": "温度ストリップ",
+        "description": "PULSE が読み取れるすべての温度を色の帯と推移で。",
+        "sample": "CPU 71 °C ∿|GPU 64 °C ∿|SSD 41 °C"
+      },
+      "summary-card": {
+        "name": "システムサマリーカード",
+        "description": "上品なフローティングカード:CPU とメモリーのリング、GPU とネットワークをまとめて。",
+        "sample": "◔ CPU 23 %|◕ RAM 44 %|GPU 61 %|↓ 2.1 MB/s"
+      },
+      "network-strip": {
+        "name": "ネットワークストリップ",
+        "description": "ダウンロードとアップロードを推移付きで。Wi-Fi があれば信号も。",
+        "sample": "↓ 12 MB/s ∿|↑ 1.2 MB/s ∿|Wi-Fi −52 dBm"
+      },
+      "minimal-hud": {
+        "name": "ミニマル透明 HUD",
+        "description": "数字 3 つだけ — パネルなし、読みやすさのためのやわらかなハロー。",
+        "sample": "CPU 23 %|GPU 61 %|RAM 44 %"
+      },
+      "dev-rail": {
+        "name": "開発モニターレール",
+        "description": "コーディング作業向け:CPU とメモリーのグラフ、ディスク I/O、ネットワーク、プロセス数。",
+        "sample": "CPU ⌇⌇⌇|RAM ⌇⌇⌇|読取 ∿|書込 ∿|ネット ↓ ∿|412 プロセス"
+      }
+    },
+    "footprints": {
+      "micro": "マイクロ",
+      "card": "フローティングカード",
+      "top-strip": "トップバー",
+      "bottom-strip": "ボトムバー",
+      "left-rail": "左レール",
+      "right-rail": "右レール",
+      "corner": "コーナー HUD",
+      "block": "サマリーブロック"
+    },
+    "overlayPresets": {
+      "tiny-stats": {
+        "name": "ミニステータス",
+        "description": "CPU 24 % | GPU 84 % | RAM 41 %"
+      },
+      "thermal-strip": {
+        "name": "温度ストリップ",
+        "description": "CPU と GPU の温度を横一列に。"
+      },
+      "gaming": {
+        "name": "ゲーミング",
+        "description": "CPU、GPU、VRAM、RAM、ネットワークを縦に積み重ねて。"
+      },
+      "minimal-corner": {
+        "name": "ミニマルコーナー",
+        "description": "CPU と RAM、背景はまったくなし。"
+      }
+    },
+    "text": {
+      "system": "システム",
+      "temperatures": "温度",
+      "memory": "メモリー",
+      "videoMemory": "ビデオメモリー",
+      "network": "ネットワーク",
+      "cpuTotal": "CPU 合計",
+      "processes": "プロセス",
+      "diskIo": "ディスク I/O",
+      "cpuTemperature": "CPU 温度",
+      "filesystem": "ファイルシステム",
+      "processor": "プロセッサー",
+      "temperature": "温度",
+      "storage": "ストレージ",
+      "cpuPackage": "CPU パッケージ",
+      "load": "負荷",
+      "graphics": "グラフィックス",
+      "heat": "温度",
+      "thermals": "温度",
+      "temp": "温度",
+      "netDown": "ネット ↓",
+      "netDownCaps": "ネット ↓",
+      "diskDown": "ディスク ↓",
+      "diskUp": "ディスク ↑",
+      "download": "ダウンロード",
+      "upload": "アップロード",
+      "read": "読み取り",
+      "write": "書き込み",
+      "disk": "ディスク",
+      "running": "実行中",
+      "threads": "スレッド",
+      "clock": "クロック",
+      "hotspot": "ホットスポット",
+      "usage": "使用率",
+      "gpuTemp": "GPU 温度",
+      "ssdTemp": "SSD 温度",
+      "down": "下り",
+      "up": "上り",
+      "core": "コア",
+      "freq": "周波数",
+      "cpuTemp": "CPU 温度",
+      "ramUsed": "RAM 使用",
+      "ramFree": "RAM 空き",
+      "gpuFan": "GPU ファン"
+    },
+    "packAria": "オーバーレイパック {{name}}",
+    "addOverlay": "オーバーレイを追加",
+    "footprint": "占有領域",
+    "templateAria": "テンプレート {{name}}",
+    "appStyle": "アプリのスタイル",
+    "createDashboard": "ダッシュボードを作成"
+  },
+  "library": {
+    "blueprints": {
+      "cpu-total": {
+        "label": "CPU 合計",
+        "description": "マシン全体の CPU 使用率の推移。"
+      },
+      "cpu-value": {
+        "label": "CPU 合計 — 数値",
+        "description": "数値だけ:CPU 23 %。"
+      },
+      "cpu-sparkline": {
+        "label": "CPU 合計 — スパークライン",
+        "description": "CPU 23 % と小さな推移。"
+      },
+      "cpu-group": {
+        "label": "CPU グループ",
+        "description": "使用率とパッケージ温度をまとめて。"
+      },
+      "cpu-logical": {
+        "label": "論理プロセッサー 1 つ",
+        "description": "単一の論理プロセッサー。どれにするかはカスタマイズで選びます。"
+      },
+      "memory": {
+        "label": "メモリー使用率",
+        "description": "使用中の物理メモリーをパーセントで。"
+      },
+      "memory-value": {
+        "label": "メモリー — 数値",
+        "description": "RAM 41 %。"
+      },
+      "memory-used": {
+        "label": "使用中のメモリー — 数値",
+        "description": "使用中のバイト数。例:12.0 GiB。"
+      },
+      "gpu": {
+        "label": "GPU 使用率",
+        "description": "GPU コア負荷の推移。"
+      },
+      "gpu-value": {
+        "label": "GPU — 数値",
+        "description": "GPU 97 %。"
+      },
+      "gpu-group": {
+        "label": "GPU グループ",
+        "description": "使用率、VRAM、温度。"
+      },
+      "thermal": {
+        "label": "CPU と GPU の温度",
+        "description": "両方のセンサーを 1 つのグラフに。読めないセンサーは単に表示されません。"
+      },
+      "cpu-temp-value": {
+        "label": "CPU 温度 — 数値",
+        "description": "71 °C。"
+      },
+      "gpu-temp-value": {
+        "label": "GPU 温度 — 数値",
+        "description": "72 °C。"
+      },
+      "ssd-temp": {
+        "label": "ドライブ温度 — 数値",
+        "description": "毎秒ではなく、必要なときにドライブから読み取ります。"
+      },
+      "storage": {
+        "label": "ディスクの読み取り / 書き込み",
+        "description": "1 台のドライブのスループット(自動または選択)。"
+      },
+      "volume": {
+        "label": "ファイルシステム使用量",
+        "description": "ファイルシステムがどれだけ埋まっているか。"
+      },
+      "network": {
+        "label": "ダウンロード / アップロード",
+        "description": "1 つのインターフェースの通信量(自動または選択)。"
+      },
+      "network-down-value": {
+        "label": "ダウンロード — 数値",
+        "description": "ネット ↓ 12 MiB/s。"
+      },
+      "wifi": {
+        "label": "Wi-Fi 信号",
+        "description": "ワイヤレスインターフェースの信号強度。"
+      },
+      "processes": {
+        "label": "プロセス数とスレッド数",
+        "description": "マシン全体の数。個別のプロセスは扱いません。"
+      },
+      "summary": {
+        "label": "システムサマリー",
+        "description": "CPU / GPU / RAM / ネットを 1 本のバーに、小さな推移付きで。"
+      }
+    },
+    "categories": {
+      "CPU": "CPU",
+      "Memory": "メモリー",
+      "GPU": "GPU",
+      "Thermals": "温度",
+      "Storage": "ストレージ",
+      "Network": "ネットワーク",
+      "Processes": "プロセス",
+      "Custom": "カスタム",
+      "Templates": "テンプレート"
+    },
+    "onDemand": "必要なときにドライブから読み取ります(NVMe の管理コマンド)。毎秒ではないため、ライブの値は表示しません。",
+    "categoriesLabel": "ウィジェットのカテゴリー",
+    "loading": "指標カタログを読み込み中…",
+    "addNamed": "{{name}} を追加",
+    "anyMetric": "任意の指標",
+    "searchPlaceholder": "指標カタログを検索",
+    "searchLabel": "指標を検索",
+    "notReadable": "このマシンでは読み取れません",
+    "noTemplates": "テンプレートはまだありません。ウィジェットをカスタマイズして「テンプレートとして保存」を使ってください。",
+    "templateName": "テンプレート名"
+  },
+  "visualization": {
+    "presets": {
+      "clean": {
+        "name": "クリーン",
+        "description": "暗いパネルに、なめらかな線、やわらかなグラデーション、控えめなグリッド。"
+      },
+      "minimal": {
+        "name": "ミニマル",
+        "description": "細い線と現在値だけ。グリッドも軸もパネルもなし。"
+      },
+      "technical": {
+        "name": "テクニカル",
+        "description": "直線、サンプルマーカー、すべての軸、すべての統計。"
+      },
+      "gaming": {
+        "name": "ゲーミング",
+        "description": "太く明るい線、強いグラデーション、グロー、太字の数字。"
+      },
+      "compact": {
+        "name": "コンパクト",
+        "description": "小さな数字付きのスパークライン:狭い場所向け。"
+      },
+      "neon": {
+        "name": "ネオン",
+        "description": "漆黒にシアンとマゼンタ、やわらかなグロー付き。"
+      },
+      "transparent": {
+        "name": "透明",
+        "description": "パネルなし — 線と数字だけ。オーバーレイ向け。"
+      }
+    },
+    "renderers": {
+      "line": {
+        "label": "ライン",
+        "description": "値の推移を線で。"
+      },
+      "area": {
+        "label": "エリア",
+        "description": "線の下側を塗りつぶしたグラフ。"
+      },
+      "sparkline": {
+        "label": "スパークライン",
+        "description": "狭い場所向けの、装飾のない小さな推移。"
+      },
+      "value": {
+        "label": "数値",
+        "description": "現在の数値だけ。"
+      },
+      "bar": {
+        "label": "バー",
+        "description": "現在値を横棒で。"
+      },
+      "gauge": {
+        "label": "ゲージ",
+        "description": "現在値をリングで。範囲が分かっている必要があります。"
+      }
+    },
+    "gaugeNeedsBounds": "ゲージには既知の範囲が必要ですが、この指標にはありません。先に固定スケール(最小と最大)を設定してください。",
+    "scaleErrors": {
+      "both": "最小値と最大値の両方を入力してください。",
+      "numbers": "両方の境界値は数値である必要があります。",
+      "order": "最大値は最小値より大きくする必要があります。"
+    },
+    "savedByYou": "あなたが保存しました。"
+  },
+  "overlays": {
+    "limitReached_other": "オーバーレイは最大 {{count}} 個です。追加するにはどれかを削除してください。",
+    "defaultName": "オーバーレイ",
+    "session": "セッション:",
+    "capabilityList": "オーバーレイの機能",
+    "capabilityStatus": {
+      "supported": "対応",
+      "limited": "制限あり",
+      "unsupported": "非対応"
+    },
+    "capabilities": {
+      "alwaysOnTop": "常に最前面",
+      "clickThrough": "ロック時のクリック透過",
+      "positioning": "絶対位置指定",
+      "transparentWindow": "透明ウィンドウ",
+      "globalHotkey": "グローバルショートカット",
+      "multiMonitorPositioning": "マルチモニターでの配置",
+      "tray": "システムトレイ"
+    },
+    "headline": {
+      "alwaysOnTop": "他のウィンドウより前面",
+      "globalHotkey": "グローバルショートカット",
+      "clickThrough": "クリック透過",
+      "transparentWindow": "透明",
+      "multiMonitorPositioning": "マルチモニター"
+    },
+    "displayServers": {
+      "windows": "Windows",
+      "x11": "X11",
+      "wayland": "Wayland(ネイティブ)",
+      "xWayland": "XWayland(Wayland セッション内の X11)",
+      "other": "非対応のプラットフォーム"
+    },
+    "verification": {
+      "physicallyVerified": "実機で検証済み",
+      "implemented": "実装済み · 実機では未検証",
+      "bestEffort": "プラットフォーム依存",
+      "unsupported": "利用不可"
+    },
+    "backend": {
+      "title": "オーバーレイのバックエンド",
+      "unavailable": "バックエンドを利用できません。PULSE を pnpm app:dev で起動してください。",
+      "desktopWindow": "デスクトップウィンドウ",
+      "whatHere": "この環境でオーバーレイができること"
+    },
+    "backends": {
+      "windowsNative": {
+        "label": "Windows ネイティブオーバーレイ",
+        "detail": "レイヤード、最前面、非アクティブ化のツールウィンドウ:HWND_TOPMOST で前面に保ち、WS_EX_NOACTIVATE でフォーカスをそのままにし、WS_EX_TRANSPARENT でロック中のクリックを透過します。実装・コンパイル済み。Windows 実機では未検証です。"
+      },
+      "gnomeBridge": {
+        "label": "GNOME ネイティブブリッジ",
+        "detail": "GNOME Shell 内の PULSE 拡張機能が、オーバーレイを他のウィンドウより前面に保ち(Mutter make_above)、オーバーレイのショートカットを Mutter 経由で届けます。ロック中のクリック透過は PULSE が担います。Fedora 39 / GNOME 45 で検証済み。"
+      },
+      "standardWayland": {
+        "label": "標準の Wayland ウィンドウ",
+        "detail": "通常の Wayland ウィンドウ:透明で、ロック中はクリックを透過しますが、フォーカス中のアプリより前面に留まるか、どこに置かれるかはコンポジターが決めます。"
+      },
+      "x11": {
+        "label": "X11 ウィンドウ",
+        "detail": "常に最前面の X11 ウィンドウ(_NET_WM_STATE_ABOVE)。ロック中は入力形状が空になり、指定した位置に配置されます。"
+      },
+      "unsupported": {
+        "label": "利用不可",
+        "detail": "このプラットフォームではデスクトップオーバーレイに対応していません。"
+      }
+    },
+    "placementHints": {
+      "gnome": "ここでは他のウィンドウより前面に留まります。編集モードで一度端までドラッグしてください — GNOME は Wayland ウィンドウを自ら配置します。",
+      "notOnTop": "GNOME ブリッジか Windows ネイティブオーバーレイで最適に動作します。ここではコンポジターがフォーカス中のアプリの背後に置くことがあります。",
+      "noPositioning": "編集モードで一度目的の位置までドラッグしてください。このセッションはウィンドウの位置を指定できません。"
+    },
+    "bridge": {
+      "title": "GNOME ブリッジ",
+      "connected": "接続済み",
+      "enable": "有効化",
+      "disable": "無効化",
+      "running": "実行中",
+      "installed": "インストール済み",
+      "ships": "PULSE に同梱",
+      "setUp": "GNOME ブリッジを設定",
+      "copyUninstall": "アンインストールコマンドをコピー",
+      "sourcePlaceholder": "<PULSE のソース>",
+      "states": {
+        "notApplicable": "この環境では不要",
+        "unavailable": "利用不可",
+        "incompatible": "非互換",
+        "notInstalled": "未インストール",
+        "installedNeedsLogin": "インストール済み — 再ログインが必要",
+        "extensionsOff": "拡張機能がオフ",
+        "disabled": "無効",
+        "error": "エラー",
+        "active": "有効",
+        "changing": "変更中…"
+      },
+      "summaries": {
+        "notGnome": "GNOME セッションではありません — GNOME ブリッジはこの環境では対象外です",
+        "notWayland": "このセッションでは不要です — ブリッジは Wayland 上の GNOME 用です",
+        "shellNoAnswer": "GNOME Shell の拡張機能サービスが応答しませんでした",
+        "notChecked": "まだ確認していません",
+        "shellUnsupported": "GNOME Shell {{version}} はブリッジの対象外です(GNOME 45 で検証済み)",
+        "installedNeedsLogin": "インストール済み — 読み込むには一度ログアウトしてログインし直してください",
+        "notInstalled": "未インストール",
+        "extensionsOff": "このセッションではユーザー拡張機能がオフです",
+        "activeConnected": "有効 — オーバーレイを前面に保ち、ショートカットを届けています",
+        "active": "有効",
+        "disabled": "インストール済みだが無効",
+        "extensionError": "GNOME Shell が拡張機能のエラーを報告しました",
+        "outOfDate": "GNOME Shell {{version}} はインストール済みの拡張機能を古いと判断しています",
+        "uninstalled": "アンインストール済み",
+        "changing": "GNOME Shell が拡張機能の状態を変更中です"
+      },
+      "guidance": {
+        "checkShell": "このセッションで GNOME Shell が動作していることを確認してから、更新してください。",
+        "standardWayland": "オーバーレイは標準の Wayland ウィンドウとして引き続き動作します:ロック中はクリックを透過しますが、重なり順はコンポジターが決めます。",
+        "discoverAtLogin": "GNOME Shell 45 はログイン時にしか新しい拡張機能を検出しません。ログインし直したら、ここで有効にしてください。",
+        "installSteps": "下のコマンドで拡張機能をインストールし、一度ログアウトしてログインし直してから有効にしてください。",
+        "extensionsOn": "ユーザー拡張機能をオンに戻してください(拡張機能アプリ、または gsettings set org.gnome.shell disable-user-extensions false)。",
+        "newerCopyInstalled": "新しいコピーがインストールされています。読み込むにはログアウトしてログインし直してください。",
+        "reinstallNewer": "この PULSE にはより新しいブリッジが同梱されています。下のコマンドで再インストールし、ログアウトしてログインし直してください。",
+        "notGreeted": "実行中。まだこの PULSE にあいさつしていません:バージョン 2 より前の拡張機能はあいさつしません。新しいものは PULSE の起動と同時にあいさつします。",
+        "enableIt": "オーバーレイを他のウィンドウより前面に保つには有効にしてください。",
+        "reinstallAfterError": "再インストールし、ログアウトしてログインし直してください。エラーは journalctl --user -b /usr/bin/gnome-shell にも記録されています。",
+        "reinstallShipped": "この PULSE に同梱のバージョンを再インストールしてください。",
+        "refreshSoon": "少ししてから更新してください。"
+      },
+      "steps": {
+        "install": "拡張機能をインストール",
+        "update": "拡張機能を更新",
+        "installDetail": "~/.local/share/gnome-shell/extensions/ にコピーします — あなたのアカウントのみ、sudo 不要。",
+        "updateDetail": "v{{installed}} がインストール済み。この PULSE には v{{bundled}} が同梱されています。",
+        "login": "一度ログアウトしてログインし直す",
+        "loginDetail": "GNOME Shell 45 は拡張機能のコードをログイン時にしか読み込みません。",
+        "enable": "有効にする",
+        "enableDetail": "ここのボタン、または GNOME の拡張機能アプリで。",
+        "connected": "PULSE に接続済み",
+        "connectedDetail": "実行中の拡張機能がこの PULSE にあいさつしました。",
+        "notConnectedDetail": "バージョン 2 以降は PULSE の起動と同時にあいさつします。"
+      },
+      "details": {
+        "summary": "できること · トラブルシューティング · 制限",
+        "unlocks": "<strong>できること:</strong>オーバーレイがフォーカス中のアプリより前面に留まり(Mutter <code>make_above</code>)、どのアプリにフォーカスがあってもオーバーレイのショートカットが効きます — GNOME 45 にはグローバルショートカットのポータルがありません。ロック中のクリック透過は PULSE 自身の機能で、ブリッジの有無にかかわらず動作します。",
+        "safety": "<strong>安全性:</strong>PULSE のバス名を持つプロセスが所有し、<em>かつ</em>タイトルが正確に <code>PULSE Overlay :: &lt;id&gt;</code> のウィンドウにしか触れません。ポーリングなし、入力の傍受なし、ファイルなし、ネットワークなし。",
+        "troubleshooting": "<strong>トラブルシューティング:</strong>インストールや更新の後はログアウトしてログインし直してください — GNOME は拡張機能のコードをログイン時にしか読み込みません。ログ:<code>journalctl --user -b /usr/bin/gnome-shell | grep \"PULSE overlay bridge\"</code>。ログイン時に GNOME Shell の動作がおかしくなった場合は、別のセッションから <code>gsettings set org.gnome.shell disable-user-extensions true</code> でユーザー拡張機能をオフにしてください。",
+        "limits": "<strong>制限:</strong>GNOME は Wayland ウィンドウを引き続き自ら配置するため、位置とマルチモニターでの配置はコンポジター次第です。編集モードでオーバーレイを一度ドラッグしてください。GNOME 45 でのみ検証済み。"
+      }
+    },
+    "layouts": {
+      "horizontal": "横一列",
+      "vertical": "縦一列",
+      "grid": "グリッド"
+    },
+    "page": {
+      "subtitle": "デスクトップ上の小さな独立ウィンドウに置くウィジェット — システムが許す範囲で他のアプリより前面に、ロック中はクリックを透過。安全なデスクトップウィンドウです:PULSE はゲームに決してインジェクトしません。",
+      "all": "すべてのオーバーレイ",
+      "editAll": "すべて編集",
+      "lockAll": "すべてロック",
+      "showAll": "すべて表示",
+      "hideAll": "すべて非表示",
+      "openMini": "ミニウィンドウを開く",
+      "newOverlay": "新しいオーバーレイ",
+      "packs": "オーバーレイパック",
+      "packsHint": "構成済みのオーバーレイ 12 種 — マイクロ表示、カード、横幅いっぱいのバー、レール、コーナー HUD。すべて編集できます。",
+      "emptyOverlay": "空のオーバーレイ",
+      "everyCapability": "すべての機能の詳細",
+      "yourPacks": "あなたのパック",
+      "deletePack": "パック {{name}} を削除"
+    },
+    "hotkey": {
+      "hint": "表示中のオーバーレイを編集とロックで切り替えます。非表示のオーバーレイは状態を保ちます。",
+      "viaBridge": "どのアプリにフォーカスがあっても、GNOME ブリッジが Mutter 経由で届けます。ここでショートカットを適用するとブリッジ自身の設定が変わり、GNOME は即座に使い始めます。",
+      "viaPortal": "どのアプリにフォーカスがあっても、デスクトップが XDG Desktop Portal 経由で届けます。デスクトップが承認を求めたり、独自のキーボード設定でキーを変更させたりすることがあります。",
+      "unavailable": "このセッションではグローバルショートカットを使えません:{{reason}}",
+      "notRegistered": "登録されていません — {{error}}。以前のショートカットが引き続き有効です。",
+      "notBound": "割り当てられていません — {{error}}。",
+      "active": "有効:{{hotkey}}。",
+      "none": "有効なグローバルショートカットはありません。"
+    },
+    "close": {
+      "title": "メインウィンドウを閉じたとき",
+      "when": "メインウィンドウを閉じたとき",
+      "quit": "PULSE を終了",
+      "keepRunning": "オーバーレイが表示されている間は実行を続ける",
+      "note": "既定は終了です。PULSE が実行を続けている場合は、トレイかオーバーレイの「PULSE を開く」から再び開けます。トレイの「終了」ですべて停止します。"
+    },
+    "editor": {
+      "aria": "オーバーレイ {{name}}",
+      "name": "オーバーレイ名",
+      "visible": "表示",
+      "edit": "オーバーレイを編集",
+      "lock": "オーバーレイをロック",
+      "saveAsPack": "マイパックとして保存",
+      "saveAsPackBody": "ウィジェット、レイアウト、スタイル、枠を保存し、オーバーレイから再追加できます。",
+      "savePack": "パックを保存",
+      "packName": "パック名",
+      "fromPack": "「{{name}}」から",
+      "resetToPack": "パックの状態に戻す",
+      "style": "オーバーレイのスタイル",
+      "layout": "オーバーレイのレイアウト",
+      "background": "オーバーレイの背景",
+      "backgroundOpacity": "オーバーレイ背景の不透明度",
+      "cornerRadius": "オーバーレイの角丸",
+      "gapBetween": "ウィジェット間の間隔",
+      "width": "オーバーレイの幅",
+      "height": "オーバーレイの高さ",
+      "fit": "ウィジェットに合わせる",
+      "x": "オーバーレイの X",
+      "y": "オーバーレイの Y",
+      "primaryMonitor": "プライマリモニター",
+      "cannotPlace": "このセッションはウィンドウを配置できません:編集モードでオーバーレイのバーをドラッグしてください。",
+      "widgets": "{{name}} のウィジェット",
+      "widgetWidth": "{{name}} の幅",
+      "widgetHeight": "{{name}} の高さ",
+      "moveEarlier": "{{name}} を前へ",
+      "moveLater": "{{name}} を後ろへ",
+      "copyToDashboard": "ダッシュボードにコピー",
+      "copiesGoTo": "コピーはダッシュボード「{{name}}」に入ります。",
+      "deleteTitle": "オーバーレイ「{{name}}」を削除しますか?",
+      "deleteBody": "ウィンドウが閉じ、ウィジェットが削除されます。",
+      "delete": "オーバーレイを削除"
+    },
+    "surface": {
+      "aria": "オーバーレイ {{name}}",
+      "empty": "PULSE → オーバーレイからウィジェットを追加してください。",
+      "dragToMove": "{{name}} · ドラッグで移動",
+      "lock": "ロック",
+      "openPulse": "PULSE を開く",
+      "dragToResize": "ドラッグでサイズ変更"
+    },
+    "send": {
+      "aria": "{{name}} をオーバーレイに送る",
+      "title": "「{{name}}」をオーバーレイに送る",
+      "addTo": "「{{name}}」に追加"
+    }
+  },
+  "customize": {
+    "background": "背景",
+    "backgroundOpacity": "背景の不透明度",
+    "border": "枠線",
+    "shadow": "影",
+    "corners": "角",
+    "gap": "間隔",
+    "widthShort": "幅",
+    "heightShort": "高",
+    "padding": "内側の余白",
+    "layout": "レイアウト",
+    "borders": {
+      "none": "なし",
+      "thin": "細い"
+    },
+    "groupLayouts": {
+      "rows": "行",
+      "inline": "横並び"
+    },
+    "widget": {
+      "section": "ウィジェット",
+      "title": "タイトル",
+      "titleLabel": "ウィジェットのタイトル",
+      "showTitle": "タイトルを表示",
+      "background": "ウィジェットの背景",
+      "opacity": "ウィジェットの不透明度",
+      "backgroundOpacity": "ウィジェット背景の不透明度",
+      "padding": "ウィジェットの内側の余白",
+      "border": "ウィジェットの枠線",
+      "corners": "ウィジェットの角",
+      "cornerRadius": "ウィジェットの角丸"
+    },
+    "metrics": {
+      "section": "指標とソース",
+      "label": "指標 {{index}} のラベル",
+      "source": "指標 {{index}} のソース",
+      "automatic": "自動",
+      "automaticNamed": "自動 — {{name}}",
+      "autoHint": "自動で選択 — 妥当な既定値であり、どれが重要かを示すものではありません。",
+      "groupLayout": "グループのレイアウト",
+      "tinyTrends": "小さな推移"
+    },
+    "data": {
+      "section": "データ",
+      "source": "データソース",
+      "nowLive": "現在:ライブ、1 秒、直近 5 分をメモリー上に保持。",
+      "nowHistory": "現在:履歴、{{range}}。",
+      "modes": {
+        "auto": "自動",
+        "history": "履歴",
+        "live": "ライブ"
+      }
+    },
+    "template": {
+      "section": "テンプレート",
+      "placeholder": "テンプレート名(例:マイ CPU ミニ)",
+      "save": "テンプレートとして保存"
+    }
+  },
+  "dashboard": {
+    "addWidget": "ウィジェットを追加",
+    "defaultName": "既定",
+    "fallbackName": "ダッシュボード",
+    "import": {
+      "notExport": "PULSE のダッシュボードのエクスポートではありません。",
+      "version": "対応していないダッシュボードのエクスポートバージョン:{{version}}。",
+      "noDashboard": "エクスポートに有効なダッシュボードが含まれていません。",
+      "limit_other": "ダッシュボードは最大 {{count}} 個です。"
+    },
+    "style": "ダッシュボードのスタイル",
+    "actions": "ダッシュボードの操作",
+    "lockLayout": "レイアウトをロック",
+    "editLayout": "レイアウトを編集",
+    "new": "新規",
+    "empty": "このダッシュボードは空です。",
+    "newTitle": "新しいダッシュボード",
+    "newSubtitle": "構成済みのテンプレート、または空のグリッドから始めます。すべて編集できます。",
+    "name": "ダッシュボード名",
+    "nameOptional": "名前(任意)",
+    "blank": "空のダッシュボード",
+    "renameTitle": "「{{name}}」の名前を変更",
+    "deleteTitle": "「{{name}}」を削除しますか?",
+    "deleteBody": "ウィジェットとレイアウトが削除されます。テンプレートとオーバーレイは残ります。",
+    "deleteConfirm": "ダッシュボードを削除",
+    "resetTitle": "「{{name}}」をリセットしますか?",
+    "resetToTemplate": "テンプレート「{{name}}」で現在のウィジェットとスタイルを置き換えます。保存済みのテンプレートは残ります。",
+    "resetToDefault": "既定のウィジェットで現在のものを置き換えます。テンプレートは残ります。",
+    "resetConfirm": "ダッシュボードをリセット",
+    "exportTitle": "ダッシュボードをエクスポート",
+    "exportBody": "持ち運べる JSON の記述です。ハードウェア識別子、パス、ユーザー名は含みません。",
+    "exportedJson": "エクスポートした JSON",
+    "importTitle": "ダッシュボードをインポート",
+    "importBody": "PULSE のダッシュボードのエクスポートを貼り付けてください。新しいダッシュボードとして追加されます。",
+    "json": "ダッシュボードの JSON",
+    "widgets": "{{name}} のウィジェット",
+    "widenToEdit": "ウィジェットを並べ替えるにはウィンドウを広げてください。狭いレイアウトは閲覧用です。"
+  },
+  "widget": {
+    "actions": "{{name}} の操作",
+    "actionsMenu": "{{name}} の操作メニュー",
+    "dragToMoveNamed": "ドラッグして {{name}} を移動",
+    "dragToMove": "ドラッグで移動(または矢印キー)",
+    "dragToResize": "ドラッグでサイズ変更(または Shift + 矢印キー)",
+    "toOverlay": "オーバーレイへ"
+  },
+  "history": {
+    "ranges": {
+      "15m": "15 分",
+      "1h": "1 時間",
+      "6h": "6 時間",
+      "24h": "24 時間",
+      "7d": "7 日"
+    },
+    "cpu": {
+      "view": "CPU の表示",
+      "total": "合計",
+      "title": "CPU 履歴",
+      "totalNote": "CPU 合計は、バックエンドがすべての論理プロセッサーにわたって測定したマシン全体の使用率です — 個々の値から再計算した平均ではありません。",
+      "logicalNote": "選択した期間で最も活発な論理プロセッサー。基準は引き続き CPU 合計です。",
+      "loading": "プロセッサーを読み込み中…",
+      "logicalHistory": "論理プロセッサーの履歴",
+      "showMostActive_other": "最も活発な {{count}} 個を表示"
+    },
+    "gpu": {
+      "title": "GPU 履歴",
+      "none": "GPU は検出されませんでした。",
+      "telemetryUnavailable": "テレメトリーを利用できません — {{reason}}"
+    },
+    "thermal": {
+      "title": "温度履歴",
+      "none": "このマシンには読み取れる温度センサーがありません。",
+      "notCharted": "グラフ外 — {{list}}"
+    },
+    "storage": {
+      "title": "ストレージ履歴",
+      "none": "ストレージデバイスは検出されませんでした。",
+      "device": "ストレージデバイス"
+    },
+    "network": {
+      "title": "ネットワーク履歴",
+      "none": "ネットワークインターフェースは検出されませんでした。",
+      "interface": "ネットワークインターフェース"
+    },
+    "memory": {
+      "title": "メモリー履歴",
+      "used": "{{value}} 使用中"
+    },
+    "processes": {
+      "count": "プロセス数",
+      "title": "プロセス数の履歴",
+      "footnote": "マシン全体の数のみ。PULSE は個別のプロセスの履歴を決して記録しません。"
+    },
+    "status": {
+      "title": "履歴レコーダー",
+      "loading": "履歴を問い合わせ中…",
+      "unavailable": "履歴を利用できません:{{reason}}。ライブ監視には影響しません。",
+      "unknownReason": "不明な理由",
+      "state": "状態",
+      "recording": "記録中",
+      "stateUnavailable": "利用不可",
+      "cadence": "間隔",
+      "every": "{{value}} 秒ごと",
+      "historized": "履歴を記録する指標",
+      "batches": "このセッションのバッチ数",
+      "lastBatch": "最後のバッチ",
+      "lastBatchValue_other": "{{time}} · {{count}} 行",
+      "sampleWrite": "サンプル / 書き込み",
+      "median": "中央値 {{sample}} ms / {{write}} ms",
+      "database": "データベース",
+      "size": "サイズ",
+      "rows": "行",
+      "rowsValue": "生データ {{raw}} · 集計 {{aggregated}} · 系列 {{series}}",
+      "schemaJournal": "スキーマ / ジャーナル",
+      "lastError": "最後のエラー:{{error}}",
+      "scheduler": "単一のバックグラウンドスケジューラーが書き込みます。更新ボタンで記録されることはありません。",
+      "counting": "集計中…",
+      "details": "データベースの詳細"
+    }
+  },
+  "viz": {
+    "ui": {
+      "preview": "プレビュー",
+      "preset": "プリセット",
+      "presetName": "プリセット名",
+      "newPresetName": "新しいプリセット名",
+      "visualization": "表示形式",
+      "visualizationType": "表示形式の種類",
+      "timeRange": "期間",
+      "size": "サイズ",
+      "compactMode": "コンパクトモード",
+      "lineFill": "線と塗り",
+      "lineWidth": "線の太さ",
+      "curve": "曲線",
+      "points": "点",
+      "pointMarkers": "点のマーカー",
+      "fillOpacity": "塗りの不透明度",
+      "smoothing": "平滑化",
+      "colors": "色",
+      "colorMode": "カラーモード",
+      "primary": "メイン",
+      "secondary": "サブ",
+      "text": "テキスト",
+      "grid": "グリッド",
+      "background": "背景",
+      "border": "枠線",
+      "gradientStart": "グラデーションの開始色",
+      "gradientEnd": "グラデーションの終了色",
+      "above": "以上",
+      "backgroundFrame": "背景と枠",
+      "backgroundOpacity": "背景の不透明度",
+      "cornerRadius": "角丸",
+      "shadow": "影",
+      "textSize": "文字サイズ",
+      "weight": "太さ",
+      "fontWeight": "フォントの太さ",
+      "decimals": "小数点以下",
+      "decimalPrecision": "小数点以下の桁数",
+      "label": "ラベル",
+      "unit": "単位",
+      "axesGridScale": "軸、グリッド、スケール",
+      "xAxis": "X 軸",
+      "yAxis": "Y 軸",
+      "yScale": "Y スケール",
+      "legendTooltipStatistics": "凡例、ツールチップ、統計",
+      "legend": "凡例",
+      "tooltip": "ツールチップ",
+      "current": "現在",
+      "minimum": "最小",
+      "maximum": "最大",
+      "average": "平均",
+      "gauge": "ゲージ",
+      "ringThickness": "リングの太さ",
+      "arc": "円弧",
+      "gaugeArc": "ゲージの円弧",
+      "fillPlaceholder": "塗り",
+      "fill": "塗り",
+      "colourOf": "{{name}} の色",
+      "hexOf": "{{name}} の 16 進値",
+      "labelOf": "{{name}} のラベル",
+      "customFrom": "カスタム({{name}} から)",
+      "presetWord": "プリセット",
+      "customizeNamed": "{{name}} をカスタマイズ",
+      "resetVisualization": "表示形式をリセット",
+      "deletePreset": "プリセットを削除",
+      "saveAsPreset": "プリセットとして保存",
+      "gaugeUnavailable": "ゲージは使えません:この指標には自然な範囲がありません。使うには固定スケールを設定してください。",
+      "height": "高さ",
+      "width": "幅",
+      "followingTheme": "PULSE のテーマに従っています。色を選ぶと手動に切り替わります。",
+      "series": "系列",
+      "thresholdBands": "しきい値の帯",
+      "thresholdHint": "あなたが選ぶ見た目の帯です — あなたのマシンで何が高すぎるかを判断するものではありません。",
+      "bandColour": "帯 {{index}} の色",
+      "bandUpper": "帯 {{index}} の上限",
+      "removeBand": "帯 {{index}} を外す",
+      "addBand": "帯を追加",
+      "compactHides": "コンパクトモードとスパークラインでは軸、グリッド、凡例を隠します。",
+      "min": "最小",
+      "max": "最大",
+      "smoothingHint": "表示のみ:保存されたサンプルとツールチップは実際の値を保ちます。",
+      "fillFollowsLine": "塗りは線の色に合わせる"
+    },
+    "lineWidths": {
+      "thin": "細い",
+      "medium": "中",
+      "thick": "太い"
+    },
+    "options": {
+      "small": "小",
+      "medium": "中",
+      "large": "大",
+      "custom": "カスタム",
+      "straight": "直線",
+      "smooth": "なめらか",
+      "stepped": "階段状",
+      "none": "なし",
+      "visible": "表示",
+      "solid": "単色",
+      "gradient": "グラデーション",
+      "theme": "テーマ",
+      "manual": "手動",
+      "threshold": "しきい値",
+      "light": "ライト",
+      "thin": "細い",
+      "subtle": "控えめ",
+      "glow": "グロー",
+      "regular": "標準",
+      "bold": "太字",
+      "full": "全円",
+      "three-quarter": "4 分の 3",
+      "half": "半円",
+      "auto": "自動",
+      "fixed": "固定"
+    },
+    "status": {
+      "loading": "履歴を読み込み中…",
+      "unavailable": "履歴を利用できません:{{reason}}",
+      "collecting": "履歴を収集中…",
+      "oneSample": "履歴を収集中… まだサンプルは 1 つです。",
+      "noData": "データなし",
+      "scaledToPeak": "期間のピークに合わせて拡大縮小:{{value}}",
+      "overTime": "{{name}} の推移"
+    },
+    "stats": {
+      "current": "現在",
+      "min": "最小",
+      "max": "最大",
+      "average": "平均"
+    }
+  },
+  "appearance": {
+    "styleAria": "{{name}} スタイル",
+    "ui": {
+      "styles": "スタイル",
+      "yourStyles": "あなたのスタイル",
+      "colour": "色",
+      "accentColour": "アクセントカラー",
+      "accent": "アクセント",
+      "chartPalette": "グラフのパレット",
+      "surfaces": "面",
+      "panelOpacity": "パネルの不透明度",
+      "glassBlur": "ガラスのぼかし",
+      "borderStrength": "枠線の強さ",
+      "shadowDepth": "影の深さ",
+      "shapeType": "形と書体",
+      "cornerRoundness": "角の丸み",
+      "font": "フォント",
+      "textSize": "文字サイズ",
+      "layoutDensity": "レイアウトと密度",
+      "density": "密度",
+      "widgetPadding": "ウィジェットの内側の余白",
+      "gapBetweenWidgets": "ウィジェット間の間隔",
+      "overlayPadding": "オーバーレイの内側の余白",
+      "overlayGap": "オーバーレイの間隔",
+      "charts": "グラフ",
+      "lineThickness": "線の太さ",
+      "fillOpacity": "塗りの不透明度",
+      "lineShape": "線の形",
+      "contentMotion": "内容とモーション",
+      "widgetTitles": "ウィジェットのタイトル",
+      "labelsInTinyWidgets": "小さなウィジェットのラベル",
+      "motion": "モーション",
+      "livePreview": "ライブプレビュー",
+      "styleName": "スタイル名",
+      "deleteThisStyle": "このスタイルを削除しますか?",
+      "exportStyle": "スタイルをエクスポート",
+      "exportedStyle": "エクスポートしたスタイル",
+      "importStyle": "スタイルをインポート",
+      "styleJson": "スタイルの JSON",
+      "overlayPaddingNote": "オーバーレイがスタイルを使うときに適用されます。"
+    },
+    "subtitle": "色だけでなく、面、奥行き、書体、密度、グラフまで変える 8 つのスタイル。どれでも調整して、結果を自分のスタイルとして保存できます。",
+    "modeOn": "<strong>{{mode}} モード</strong>がオンです:選んだスタイルはこのモードに適用されます。",
+    "leaveMode": "{{mode}} モードを終了",
+    "myStyle": "マイ {{name}}",
+    "saveCurrent": "現在の見た目を保存",
+    "noUserStyles": "下でスタイルを調整して、ここに保存してください。保存したスタイルは複製、名前の変更、エクスポート、共有ができます。",
+    "basedOn": "{{name}} ベース",
+    "inUse": "使用中",
+    "use": "使う",
+    "styleAccentTitle": "スタイルのアクセント({{color}})",
+    "styleAccent": "スタイルのアクセント",
+    "fonts": {
+      "style": "スタイル",
+      "sans": "サンセリフ",
+      "rounded": "丸ゴシック",
+      "condensed": "コンデンス",
+      "mono": "等幅"
+    },
+    "styleWith": "スタイル({{value}})",
+    "densities": {
+      "compact": "コンパクト",
+      "comfortable": "標準",
+      "spacious": "ゆったり"
+    },
+    "chartsNote": "プリセットのままのすべてのグラフに適用されます。カスタマイズしたグラフは独自の設定を保ちます。",
+    "motionLevels": {
+      "full": "フル",
+      "reduced": "控えめ",
+      "none": "なし"
+    },
+    "resetAll": "すべての調整を {{name}} に戻す",
+    "livePreviewNamed": "ライブプレビュー · {{name}}",
+    "saveLook": "この見た目を保存",
+    "renameStyle": "スタイル名を変更",
+    "deleteBody": "現在このスタイルを使っているものは、別のスタイルを選ぶまで見た目を保ちます。",
+    "deleteStyle": "スタイルを削除",
+    "exportBody": "スタイルの持ち運べる JSON の記述:色、書体、調整のみ。",
+    "importBody": "PULSE のスタイルのエクスポートを貼り付けてください。あなたのスタイルに追加されます。",
+    "useStyle": "スタイルを使う",
+    "import": {
+      "notExport": "PULSE のスタイルのエクスポートではありません。",
+      "version": "対応していないスタイルのエクスポートバージョン:{{version}}。",
+      "noName": "エクスポートにスタイル名がありません。",
+      "limit_other": "保存できるスタイルは最大 {{count}} 個です。"
+    }
+  },
+  "mini": {
+    "shownIn": "ミニに表示中"
+  },
+  "processes": {
+    "nice": {
+      "title": "カスタム nice 値 — {{name}}",
+      "range": "PID {{pid}}。nice 値は {{min}}(最も優遇)から {{max}}(最も低い)までです。",
+      "privileges": "値を下げるには、通常 PULSE が持たない権限が必要です。",
+      "value": "nice 値"
+    },
+    "affinity": {
+      "title": "CPU アフィニティ — {{name}}",
+      "body": "PID {{pid}} が実行できる論理プロセッサーを選んでください。",
+      "selectAll": "すべて選択",
+      "keepOne": "少なくとも 1 つの CPU を残してください:どの CPU も許可されていないプロセスは実行できません。"
+    },
+    "status": {
+      "success": "完了",
+      "permissionDenied": "権限がありません",
+      "staleProcess": "実行されませんでした — その PID は現在別のプロセスのものです",
+      "processGone": "プロセスはすでに終了しています",
+      "unsupported": "非対応",
+      "partialFailure": "一部のみ完了",
+      "invalidRequest": "実行されませんでした",
+      "platformError": "失敗"
+    },
+    "outcome": {
+      "suspend": "プロセス {{pid}} を一時停止しました。",
+      "resume": "プロセス {{pid}} を再開しました。",
+      "terminate": "プロセス {{pid}} に終了を要求しました。",
+      "forceKill": "プロセス {{pid}} を強制終了しました。",
+      "priority": "プロセス {{pid}} の優先度を変更しました。",
+      "affinity": "プロセス {{pid}} のアフィニティを変更しました。",
+      "terminateTree": "{{pid}} のプロセスツリーを終了しました。",
+      "openLocation": "実行ファイルの場所を開きました。",
+      "priorityPartial": "プロセス {{pid}} のスレッド {{applied}} 個の優先度を変更しました。{{failed}} 個のスレッドは拒否しました。",
+      "affinityPartial": "プロセス {{pid}} のスレッド {{applied}} 個のアフィニティを変更しました。{{failed}} 個のスレッドは拒否しました。",
+      "tree_other": "{{count}} 個のプロセスのうち {{terminated}} 個を終了しました。終了済み {{gone}}、拒否 {{refused}}、古いためスキップ {{stale}}、失敗 {{failed}}。"
+    },
+    "hash": {
+      "computed": "計算済み",
+      "changedWhileHashing": "読み取り中にファイルが変更されました",
+      "permissionDenied": "権限がありません",
+      "notFound": "ファイルが見つかりません",
+      "notAFile": "通常のファイルではありません",
+      "readError": "読み取りエラー"
+    },
+    "confirm": {
+      "who": "{{name}}(PID {{pid}})",
+      "selfWarning": "PULSE を終了すると、このアプリが閉じます。",
+      "endTitle": "{{name}} を終了しますか?",
+      "endSigterm": "{{who}} に SIGTERM を送り、終了を求めます。時間がかかったり、拒否されたりすることがあります。",
+      "endImmediate": "{{who}} を直ちに終了します。保存していない作業は失われます。",
+      "forceKillTitle": "{{name}} を強制終了しますか?",
+      "forceKillBody": "{{who}} に SIGKILL を送ります。捕捉も無視もできないため、プロセスは何も保存や後片付けをできません。",
+      "treeTitle": "{{name}} とそのプロセスツリーを終了しますか?",
+      "treeRoot": "ルートプロセス:{{who}}。",
+      "treeBody_other": "まず約 {{count}} 個の子孫プロセスを深いものから順に終了し、最後にルートを終了します。各プロセスは終了直前に再確認し、別のプロセスに引き継がれた PID はスキップします。",
+      "realtimeTitle": "リアルタイム優先度に設定しますか?",
+      "realtimeWarning": "リアルタイム優先度はシステムを応答不能にすることがあります。",
+      "realtimeBody": "{{who}} に適用します。必要な特権がない場合、Windows は代わりに「高」を適用し、PULSE がその旨を表示します。",
+      "realtimeConfirm": "リアルタイムに設定"
+    },
+    "copy": {
+      "done": "{{label}} をコピーしました。",
+      "failed": "{{label}} をコピーできませんでした。"
+    },
+    "category": {
+      "user": "ユーザー",
+      "system": "システム",
+      "kernel": "カーネルスレッド",
+      "unknown": "不明"
+    },
+    "state": {
+      "running": "実行中",
+      "sleeping": "スリープ中",
+      "stopped": "停止",
+      "zombie": "ゾンビ"
+    },
+    "priority": {
+      "realtime": "リアルタイム",
+      "high": "高",
+      "aboveNormal": "通常以上",
+      "normal": "通常",
+      "belowNormal": "通常以下",
+      "low": "低"
+    },
+    "affinityNone": "なし",
+    "affinitySummary_other": "CPU {{list}}({{total}} 個中 {{count}} 個)",
+    "trust": {
+      "trusted": "信頼された署名",
+      "signedButUntrusted": "署名あり・信頼されていない",
+      "invalid": "無効な署名",
+      "unsigned": "署名なし",
+      "permissionDenied": "権限がありません",
+      "unavailable": "利用不可"
+    },
+    "provenance": {
+      "userHome": "ユーザー / ローカルの実行ファイル(パッケージではなくホームディレクトリー内)",
+      "localInstall": "ユーザー / ローカルの実行ファイル(パッケージマネージャー外でインストール)",
+      "notDetected": "パッケージは検出されませんでした"
+    },
+    "menu": {
+      "exited": "プロセスはすでに終了しています。",
+      "unavailable": "利用できません。",
+      "checking": "権限を確認中…",
+      "nicePreset": "{{level}}(nice {{value}})",
+      "customNice": "カスタム nice 値…",
+      "forceKill": "強制終了",
+      "inspect": "詳細を調べる",
+      "search": "オンラインで検索",
+      "openLocation": "ファイルの場所を開く",
+      "processName": "プロセス名",
+      "executablePath": "実行ファイルのパス",
+      "executableUnavailable": "実行ファイルを利用できません。",
+      "instanceId": "プロセスインスタンス ID",
+      "suspend": "一時停止",
+      "resume": "再開",
+      "end": "プロセスを終了",
+      "endTree": "プロセスツリーを終了",
+      "setPriority": "優先度を設定",
+      "setAffinity": "アフィニティを設定…",
+      "affinityUnreadable": "現在のアフィニティを読み取れませんでした。",
+      "actionsFor": "{{name}} の操作",
+      "inspectApplication": "アプリケーションを調べる",
+      "showProcesses": "プロセスを表示"
+    },
+    "table": {
+      "processDetails": "プロセスの詳細",
+      "dismiss": "閉じる",
+      "processView": "プロセスの表示",
+      "processCategory": "プロセスのカテゴリー",
+      "refreshProcessDetails": "プロセスの詳細を更新",
+      "applications": "アプリケーション",
+      "application": "アプリケーション",
+      "processes": "プロセス",
+      "memory": "メモリー",
+      "read": "読み取り",
+      "write": "書き込み",
+      "process": "プロセス",
+      "threads": "スレッド",
+      "state": "状態",
+      "searchPlaceholder": "名前または PID で検索",
+      "searchLabel": "名前または PID でプロセスを検索"
+    },
+    "filters": {
+      "all": "すべて",
+      "user": "ユーザー",
+      "system": "システム",
+      "kernel": "カーネル"
+    },
+    "oneOf_other": "{{name}} の {{count}} 個のプロセスのうち 1 つ",
+    "loading": "プロセステーブルを走査中…",
+    "showAll_other": "{{count}} 個のプロセスをすべて表示",
+    "updated": "{{time}} 更新 · 収集 {{ms}} ms",
+    "note": "CPU はこのマシンの<strong>全体</strong>の能力に対する割合です。そのため 1 つの論理プロセッサーを使い切るスレッドでも小さな割合になり、列の合計はシステム CPU ゲージの値とほぼ一致します。読み取りと書き込みは、プラットフォームのプロセスごとの I/O カウンターです(Fedora と Windows の違いはドキュメントを参照)。レートは 2 つのスナップショットの<em>間</em>で測るため、更新後にのみ表示されます。プロセスをクリックすると詳細を確認でき、右クリック(または Shift+F10)で操作できます。各操作はそのプロセスインスタンスだけを対象とし、破壊的な操作は確認を求め、勝手に実行されることはありません。コマンドラインは意図的に収集しません。",
+    "noApplicationMatch": "この検索に一致するアプリケーションはありません。",
+    "noProcessMatch": "この検索に一致するプロセスはありません。",
+    "groupedByName": "プロセス名でグループ化しています:PULSE はこれらのプロセスの実行ファイルを読み取れなかったため、同じ名前の無関係なプログラムがまとめて数えられることがあります。",
+    "inspector": {
+      "processInspector": "プロセスインスペクター",
+      "closeInspector": "インスペクターを閉じる",
+      "identity": "識別情報",
+      "processName": "プロセス名",
+      "product": "製品",
+      "parent": "親プロセス",
+      "instanceId": "インスタンス ID",
+      "state": "状態",
+      "started": "開始",
+      "owner": "所有者",
+      "category": "カテゴリー",
+      "architecture": "アーキテクチャ",
+      "resourceUsage": "リソース使用量",
+      "memory": "メモリー",
+      "threads": "スレッド",
+      "read": "読み取り",
+      "write": "書き込み",
+      "executable": "実行ファイル",
+      "path": "パス",
+      "file": "ファイル",
+      "size": "サイズ",
+      "modified": "更新日時",
+      "securityProvenance": "セキュリティと出所",
+      "description": "説明",
+      "company": "会社",
+      "version": "バージョン",
+      "scheduling": "スケジューリング",
+      "priority": "優先度",
+      "cpuAffinity": "CPU アフィニティ",
+      "processControl": "プロセスの制御",
+      "suspend": "一時停止",
+      "resume": "再開",
+      "endProcess": "プロセスを終了",
+      "endProcessTree": "プロセスツリーを終了",
+      "forceKill": "強制終了",
+      "provenance": "出所",
+      "package": "パッケージ",
+      "signature": "署名",
+      "publisher": "発行元",
+      "setPriority": "優先度を設定",
+      "stale": "このプロセスは終了し、その PID は現在別のプロセスのものです。PULSE はこれに対して操作を行いません。",
+      "exited": "プロセスは終了しました。これ以上の操作はできません。",
+      "reading": "このプロセスを読み取り中…",
+      "self": "これは PULSE 自身です。終了するとこのアプリが閉じます。",
+      "kernelThread": "カーネルスレッドはカーネル内で動作します:実行ファイルもパッケージもなく、PULSE から制御することはできません。",
+      "notInSnapshot": "最新のスナップショットにありません。",
+      "replaced": "このプロセスの起動元ファイルは、その後ディスク上で削除または置き換えられています。",
+      "copyPath": "パスをコピー",
+      "versionNote": "説明、製品、会社はファイル自身が申告するもので、何の証明にもなりません。署名は Windows が検証したものです。",
+      "computing": "計算中…",
+      "computeHash": "SHA-256 を計算",
+      "provenanceNote": "出所は判断材料であって判定ではありません:パッケージや有効な署名があってもプログラムが安全とは限らず、ないからといって悪意があるとは限りません。",
+      "changeAffinity": "アフィニティを変更…",
+      "suspendedByPulse": "このセッション中に PULSE がこのプロセスを一時停止しました。",
+      "suspendedState": "{{state}}(PULSE により一時停止)",
+      "notApplicableKernel": "カーネルスレッドには適用されません",
+      "catalog": "(システムカタログ)",
+      "claimed": "(自己申告、信頼されていない)",
+      "notComputed": "未計算",
+      "copyHash": "SHA-256 をコピー",
+      "searchHash": "ハッシュをオンラインで検索",
+      "checkVirusTotal": "VirusTotal でハッシュを確認",
+      "custom": "カスタム…",
+      "memoryPercent": "メモリー %",
+      "searchHint": "プログラム名のウェブ検索をブラウザーで開きます",
+      "virusTotalHint": "このハッシュの VirusTotal ページをブラウザーで開きます。ファイルがアップロードされることはありません。"
+    }
+  },
+  "cards": {
+    "updated": "{{time}} 更新",
+    "notReported": "報告なし",
+    "notReportedByBackend": "バックエンドから報告されていません",
+    "cpu": {
+      "title": "CPU の詳細",
+      "loading": "CPU のトポロジーを読み取り中…",
+      "packages": "パッケージ",
+      "packageTemperature": "{{name}} の温度",
+      "showAll_other": "{{count}} 個のプロセッサーをすべて表示",
+      "noProcessors": "このマシンでは個々の論理プロセッサーは公開されていません。",
+      "refresh": "CPU の詳細を更新",
+      "note": "1 つの物理コアが複数の論理プロセッサーを持つことがあるため、使用率は論理プロセッサーごとに報告します。周波数は OS が報告する値です。パッケージ温度はプロセッサー自身のセンサーで、コアの平均ではありません。",
+      "maxFor": "{{name}} の報告された最大値:{{value}}",
+      "noMax": "このプロセッサーの最大周波数は公開されていません"
+    },
+    "gpu": {
+      "gpuDetails": "GPU の詳細",
+      "graphicsAdapters": "グラフィックスアダプター",
+      "refreshGpuDetails": "GPU の詳細を更新",
+      "gpuUsage": "GPU 使用率",
+      "vramUsage": "VRAM 使用率",
+      "coreClock": "コアクロック",
+      "memoryClock": "メモリークロック",
+      "temperature": "温度",
+      "hotspot": "ホットスポット",
+      "memoryTemperature": "メモリー温度",
+      "fan": "ファン",
+      "loading": "グラフィックスアダプターを検出中…",
+      "none": "ハードウェアグラフィックスアダプターは検出されませんでした。ソフトウェアレンダラーは意図的に GPU として数えません。",
+      "note": "VRAM の値は各アダプターの専用ビデオメモリーを表します。統合 GPU と共有するシステムメモリーは VRAM として報告しません。ホットスポットとメモリーの温度は別々のセンサーで、GPU 温度から導くことはありません。ファンの速度は、ドライバーが実際の毎分回転数を報告する場合にのみ表示します。",
+      "vramKnownOnly": "搭載 VRAM は分かっています。ライブの使用量には、このアダプターが提供しないベンダードライバーが必要です。",
+      "perfUnavailable": "パフォーマンスのテレメトリーを利用できません",
+      "perfUnavailableDefault": "このアダプターのドライバーは使用率、ビデオメモリー、クロックの値を公開していません。",
+      "thermalRemain": "温度センサーは引き続き利用できます。"
+    },
+    "storage": {
+      "storageDetails": "ストレージの詳細",
+      "storageDevices": "ストレージデバイス",
+      "otherVolumes": "その他のボリューム",
+      "refreshStorageDetails": "ストレージの詳細を更新",
+      "read": "読み取り",
+      "write": "書き込み",
+      "readIops": "読み取り IOPS",
+      "writeIops": "書き込み IOPS",
+      "readLatency": "読み取りレイテンシー",
+      "writeLatency": "書き込みレイテンシー",
+      "temperature": "温度",
+      "usedEndurance": "使用済み耐久性",
+      "availableSpare": "予備領域の残量",
+      "powerOnHours": "通電時間",
+      "unsafeShutdowns": "安全でないシャットダウン",
+      "mediaErrors": "メディアエラー",
+      "loading": "ストレージデバイスを検出中…",
+      "none": "物理ストレージデバイスは把握されていません。ループデバイス、RAM ディスク、device-mapper ボリュームは意図的にディスクとして数えません。",
+      "otherVolumesHint": "PULSE が上のどのディスクにも結び付けられなかったマウント済みファイルシステム。誤ったデバイスに割り当てず、別に一覧表示しています。",
+      "note": "スループット、IOPS、レイテンシーは 2 つのサンプルの<em>間</em>で測るため、更新後にのみ表示されます。レイテンシーは実際に完了した操作の平均です:操作がなかった間隔にはレイテンシーがなく、0 ms ではなく <code>—</code> と表示します。使用済み耐久性と予備領域の残量はコントローラー自身の標準化された値です — 予備領域とは代替ブロックの蓄えであり、ファイルシステムの空き容量ではありません。",
+      "waitingHint": "ディスクの活動は 2 回の読み取りの差です。測定するには更新してください。",
+      "free": "空き {{value}}",
+      "full": "{{name}} の使用率 {{value}}",
+      "healthUnavailable": "ヘルスレポートを利用できません",
+      "noHealthLog": "このデバイスは標準化されたヘルスログを報告していません。"
+    },
+    "waitingSample": "次のサンプルを待機中",
+    "network": {
+      "networkDetails": "ネットワークの詳細",
+      "networkInterfaces": "ネットワークインターフェース",
+      "virtualInterfaces": "仮想インターフェース",
+      "virtualInterfaceList": "仮想インターフェースの一覧",
+      "refreshNetworkDetails": "ネットワークの詳細を更新",
+      "download": "ダウンロード",
+      "upload": "アップロード",
+      "rxPackets": "RX パケット",
+      "txPackets": "TX パケット",
+      "errors": "エラー",
+      "dropped": "破棄",
+      "linkRx": "リンク RX",
+      "linkTx": "リンク TX",
+      "signal": "信号",
+      "quality": "品質",
+      "wiFiRx": "Wi-Fi RX",
+      "wiFiTx": "Wi-Fi TX",
+      "loading": "ネットワークインターフェースを検出中…",
+      "none": "ネットワークインターフェースは把握されていません。ループバックは意図的に除外しています:常に存在し、このマシンの外に出ない通信しか運ばないためです。",
+      "virtualCount": "仮想インターフェース({{count}})",
+      "virtualHint": "ブリッジ、コンテナーのリンク、その他のソフトウェアインターフェース。コンテナーを動かすマシンで実際のアダプターが埋もれないよう折りたたんでいます — 削除はしません。",
+      "note": "ダウンロードはこのマシンに届く量、アップロードは出ていく量です。通信量は 2 つのサンプルの<em>間</em>で測るため、更新後にのみ表示されます。リンク速度はドライバーがネゴシエートした能力(ビット毎秒)であり、実際に流れている量(バイト単位)ではありません。破棄フレームはローカルのカウンターであり、PULSE が測定しないインターネットのパケットロスでは<strong>ありません</strong>。",
+      "kinds": {
+        "Ethernet": "Ethernet",
+        "Wi-Fi": "Wi-Fi",
+        "Bridge": "ブリッジ",
+        "Tunnel": "トンネル",
+        "Virtual": "仮想",
+        "Network": "ネットワーク"
+      },
+      "connected": "接続中",
+      "disconnected": "切断",
+      "waitingHint": "通信量は 2 回の読み取りの差です。測定するには更新してください。",
+      "wifiUnavailable": "Wi-Fi リンクの詳細を利用できません"
+    },
+    "live": {
+      "title": "ライブシステムサンプル",
+      "loading": "サンプリング中…",
+      "refresh": "サンプルを更新",
+      "reconcile": "使用中 + 利用可能 = 合計 なので、上の 2 つの値は常に整合します。",
+      "waitingNext": "次のサンプルを待機中"
+    },
+    "engine": {
+      "title": "指標エンジン",
+      "loading": "エンジンに問い合わせ中…",
+      "unavailable": "エンジンを利用できません。Rust レイヤーに接続するには PULSE を <code>pnpm app:dev</code> で起動してください。",
+      "status": "状態",
+      "schema": "スキーマ",
+      "providers": "プロバイダー",
+      "metrics": "指標",
+      "available_other": "(利用可能 {{count}})",
+      "schemaMismatch": "バックエンドは指標スキーマ v{{backend}} を使用していますが、このインターフェースは v{{expected}} を想定しています。",
+      "empty": "プロバイダーはまだ登録されていません — このフェーズでは PULSE はハードウェア指標を収集しません。"
+    }
+  },
+  "tray": {
+    "open": "PULSE を開く",
+    "edit": "オーバーレイを編集",
+    "lock": "オーバーレイをロック",
+    "toggle": "オーバーレイの表示 / 非表示",
+    "quit": "PULSE を終了"
+  }
+}

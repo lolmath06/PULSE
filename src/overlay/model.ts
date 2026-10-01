@@ -6,6 +6,8 @@ import { createWidget, findBlueprint } from '@/dashboard/library';
 import { isValidId, newId } from '@/dashboard/ids';
 import type { StyleId } from '@/design/styles';
 import { isStyleId } from '@/design/styles';
+import { englishText, hasKey, t } from '@/i18n/i18n';
+import { isTextKey } from '@/i18n/text';
 
 /**
  * The `overlays` section: desktop overlays and what they show.
@@ -59,6 +61,8 @@ export interface OverlayOrigin {
 export interface Overlay {
   readonly id: string;
   readonly name: string;
+  /** A built-in name's translation key (a pack's); `name` holds its English text. */
+  readonly nameKey?: string;
   readonly span: OverlaySpan;
   readonly origin: OverlayOrigin | null;
   /**
@@ -154,7 +158,11 @@ export function normalizeOverlay(raw: unknown): Overlay | null {
     .filter((widget): widget is WidgetInstance => widget !== null);
   return {
     id: raw.id,
-    name: typeof raw.name === 'string' && raw.name.trim() ? raw.name.slice(0, 40) : 'Overlay',
+    name:
+      typeof raw.name === 'string' && raw.name.trim()
+        ? raw.name.slice(0, 40)
+        : englishText('overlays.defaultName'),
+    ...(isTextKey(raw.nameKey) ? { nameKey: raw.nameKey } : {}),
     styleId: isStyleId(raw.styleId) ? raw.styleId : null,
     span: raw.span === 'fill' ? 'fill' : 'content',
     origin: normalizeOrigin(raw.origin),
@@ -372,7 +380,7 @@ export function createOverlay(
   if (section.items.length >= MAX_OVERLAYS) return { section, id: null };
   const overlay = withFittedGeometry({
     id: newId('o'),
-    name: name.trim().slice(0, 40) || 'Overlay',
+    name: name.trim().slice(0, 40) || englishText('overlays.defaultName'),
     styleId: null,
     span: 'content',
     origin: null,
@@ -461,10 +469,12 @@ export function updateOverlayWidget(
 export function duplicateOverlay(section: OverlaysSection, id: string): OverlaysSection {
   const source = section.items.find((item) => item.id === id);
   if (!source || section.items.length >= MAX_OVERLAYS) return section;
+  const { nameKey: _builtIn, ...rest } = source;
+  // A copy is the user's own overlay, named in the language they see.
   const copy: Overlay = {
-    ...source,
+    ...rest,
     id: newId('o'),
-    name: `${source.name} copy`.slice(0, 40),
+    name: t('common.copyOf', { name: overlayName(source) }).slice(0, 40),
     widgets: source.widgets.map((widget) => ({ ...widget, id: newId('w') })),
     geometry: { ...source.geometry, x: source.geometry.x + 24, y: source.geometry.y + 24 },
   };
@@ -479,8 +489,10 @@ export function createOverlayFromUserPack(
 ): { section: OverlaysSection; id: string | null } {
   if (section.items.length >= MAX_OVERLAYS) return { section, id: null };
   const offset = section.items.length * 24;
+  // Named after the user's pack, never after the built-in pack it began as.
+  const { nameKey: _builtIn, ...rest } = saved;
   const overlay: Overlay = {
-    ...saved,
+    ...rest,
     id: newId('o'),
     name: name.slice(0, 40),
     visible: true,
@@ -521,12 +533,16 @@ export function applyOverlayStyle(
   );
 }
 
+/** An overlay's name as shown: a built-in name translated, the user's verbatim. */
+export function overlayName(overlay: Pick<Overlay, 'name' | 'nameKey'>): string {
+  return overlay.nameKey && hasKey(overlay.nameKey) ? t(overlay.nameKey) : overlay.name;
+}
+
 // --- presets ---------------------------------------------------------------
 
+/** Name and description: `presets.overlayPresets.<id>.*` translations. */
 export interface OverlayPreset {
   readonly id: string;
-  readonly name: string;
-  readonly description: string;
   readonly blueprints: readonly string[];
   readonly patch: Partial<Omit<Overlay, 'id' | 'widgets'>>;
 }
@@ -541,22 +557,16 @@ const TRANSPARENT: OverlayChrome = { ...DEFAULT_CHROME, background: null, opacit
 export const OVERLAY_PRESETS: readonly OverlayPreset[] = [
   {
     id: 'tiny-stats',
-    name: 'Tiny stats',
-    description: 'CPU 24 % | GPU 84 % | RAM 41 %',
     blueprints: ['cpu-value', 'gpu-value', 'memory-value'],
     patch: { layout: 'horizontal' },
   },
   {
     id: 'thermal-strip',
-    name: 'Thermal strip',
-    description: 'CPU and GPU temperatures in a row.',
     blueprints: ['cpu-temp-value', 'gpu-temp-value'],
     patch: { layout: 'horizontal' },
   },
   {
     id: 'gaming',
-    name: 'Gaming',
-    description: 'CPU, GPU, VRAM, RAM and network, stacked.',
     blueprints: [
       'cpu-sparkline',
       'cpu-temp-value',
@@ -568,8 +578,6 @@ export const OVERLAY_PRESETS: readonly OverlayPreset[] = [
   },
   {
     id: 'minimal-corner',
-    name: 'Minimal corner',
-    description: 'CPU and RAM, no background at all.',
     blueprints: ['cpu-value', 'memory-value'],
     patch: { layout: 'vertical', chrome: TRANSPARENT },
   },
@@ -580,5 +588,6 @@ export function createOverlayFromPreset(section: OverlaysSection, preset: Overla
     .map((id) => findBlueprint(id))
     .filter((blueprint) => blueprint !== undefined)
     .map((blueprint) => createWidget(blueprint));
-  return createOverlay(section, preset.name, widgets, preset.patch);
+  const nameKey = `presets.overlayPresets.${preset.id}.name`;
+  return createOverlay(section, englishText(nameKey), widgets, { ...preset.patch, nameKey });
 }

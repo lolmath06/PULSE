@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { CSSProperties, KeyboardEvent, PointerEvent, ReactNode } from 'react';
 import type { WidgetInstance } from '@/dashboard/model';
 import { WidgetContent } from '@/components/Dashboard/WidgetContent';
@@ -46,6 +47,7 @@ export function WidgetCard({
   readonly className?: string;
   readonly extraTools?: ReactNode;
 }) {
+  const { t } = useTranslation();
   const look = useLook();
   // Drawn under the surface's style; the stored widget is never changed.
   const styled = useMemo(() => styleWidget(stored, look), [stored, look]);
@@ -120,14 +122,14 @@ export function WidgetCard({
           <div
             className={`widget__tools${layout.compactTools ? ' widget__tools--compact' : ''}`}
             role="toolbar"
-            aria-label={`${title} actions`}
+            aria-label={t('widget.actions', { name: title })}
           >
             {actions.onMoveStart && (
               <button
                 type="button"
                 className="widget__tool widget__handle"
-                aria-label={`Drag to move ${title}`}
-                title="Drag to move (or use the arrow keys)"
+                aria-label={t('widget.dragToMoveNamed', { name: title })}
+                title={t('widget.dragToMove')}
                 onPointerDown={actions.onMoveStart}
               >
                 ⠿
@@ -139,17 +141,17 @@ export function WidgetCard({
               <>
                 {actions.onCustomize && (
                   <button type="button" className="widget__tool" onClick={actions.onCustomize}>
-                    Customize
+                    {t('common.customize')}
                   </button>
                 )}
                 {actions.onDuplicate && (
                   <button type="button" className="widget__tool" onClick={actions.onDuplicate}>
-                    Duplicate
+                    {t('common.duplicate')}
                   </button>
                 )}
                 {actions.onSendToOverlay && (
                   <button type="button" className="widget__tool" onClick={actions.onSendToOverlay}>
-                    To overlay
+                    {t('widget.toOverlay')}
                   </button>
                 )}
                 {extraTools}
@@ -157,7 +159,7 @@ export function WidgetCard({
                   <button
                     type="button"
                     className="widget__tool widget__tool--danger"
-                    aria-label={`Remove ${title}`}
+                    aria-label={t('common.removeNamed', { name: title })}
                     onClick={actions.onRemove}
                   >
                     ×
@@ -170,7 +172,7 @@ export function WidgetCard({
             <span
               className="widget__resize"
               role="presentation"
-              title="Drag to resize (or Shift + arrow keys)"
+              title={t('widget.dragToResize')}
               onPointerDown={actions.onResizeStart}
             />
           )}

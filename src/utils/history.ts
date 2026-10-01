@@ -6,7 +6,9 @@ import type { VisualizationData, VisualizationSeries } from '@/visualization/typ
 /** One plotted series of a history panel. */
 export interface HistorySeriesSpec {
   readonly ref: MetricRef;
+  /** English; the panel shows `labelKey`'s translation when there is one. */
   readonly label: string;
+  readonly labelKey?: string;
 }
 
 /**

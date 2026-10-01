@@ -6,6 +6,7 @@ import { DENSITIES, PALETTES, isStyleId } from '@/design/styles';
 import { isValidId, newId } from '@/dashboard/ids';
 import type { ModeId } from '@/modes/modes';
 import { MODE_IDS, findMode, isModeId } from '@/modes/modes';
+import { t } from '@/i18n/i18n';
 
 /**
  * The `appearance` section: which style PULSE wears and how the user tuned it.
@@ -326,7 +327,11 @@ export function saveUserStyle(section: AppearanceSection, name: string): Appeara
 export function duplicateUserStyle(section: AppearanceSection, id: string): AppearanceSection {
   const source = section.userStyles.find((entry) => entry.id === id);
   if (!source || section.userStyles.length >= MAX_USER_STYLES) return section;
-  const copy = { ...source, id: newId('s'), name: `${source.name} copy`.slice(0, 40) };
+  const copy = {
+    ...source,
+    id: newId('s'),
+    name: t('common.copyOf', { name: source.name }).slice(0, 40),
+  };
   return { ...section, userStyles: [...section.userStyles, copy] };
 }
 
@@ -364,17 +369,17 @@ export function importUserStyle(
   raw: unknown,
 ): { section: AppearanceSection; error?: string } {
   if (!isRecord(raw) || raw.format !== STYLE_EXPORT_FORMAT) {
-    return { section, error: 'This is not a PULSE style export.' };
+    return { section, error: t('appearance.import.notExport') };
   }
   if (raw.version !== APPEARANCE_VERSION) {
-    return { section, error: `Unsupported style export version: ${String(raw.version)}.` };
+    return { section, error: t('appearance.import.version', { version: String(raw.version) }) };
   }
   const style = isRecord(raw.style) ? raw.style : {};
   if (typeof style.name !== 'string' || !style.name.trim()) {
-    return { section, error: 'The export has no style name.' };
+    return { section, error: t('appearance.import.noName') };
   }
   if (section.userStyles.length >= MAX_USER_STYLES) {
-    return { section, error: `At most ${MAX_USER_STYLES} saved styles.` };
+    return { section, error: t('appearance.import.limit', { count: MAX_USER_STYLES }) };
   }
   const imported: UserStyle = {
     id: newId('s'),

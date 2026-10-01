@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ConfirmDialog } from '@/components/ConfirmDialog/ConfirmDialog';
 import { copyText } from '@/utils/clipboard';
 import type { WidgetInstance } from '@/dashboard/model';
@@ -7,6 +8,7 @@ import {
   activeDashboard,
   addWidget,
   createDashboard,
+  dashboardName,
   deleteDashboard,
   duplicateDashboard,
   duplicateWidget,
@@ -60,8 +62,10 @@ export function DashboardPage({
   readonly onSendToOverlay?: (widget: WidgetInstance) => void;
   readonly headerExtra?: ReactNode;
 }) {
+  const { t } = useTranslation();
   const section = useDashboards();
   const dashboard = activeDashboard(section);
+  const currentName = dashboardName(dashboard);
   const [library, setLibrary] = useState(false);
   const [customizing, setCustomizing] = useState<string | null>(null);
   const [dialog, setDialog] = useState<Dialog | null>(null);
@@ -82,10 +86,10 @@ export function DashboardPage({
       <section className="page page--wide dashboard-page">
         <header className="dashboard-page__header">
           <div className="dashboard-page__title">
-            <h1 className="page__title">Dashboard</h1>
+            <h1 className="page__title">{t('nav.routes.dashboard.label')}</h1>
             <select
               className="history-panel__select"
-              aria-label="Dashboard"
+              aria-label={t('nav.routes.dashboard.label')}
               value={id}
               onChange={(event) =>
                 updateDashboards((current) => setActive(current, event.target.value))
@@ -93,50 +97,50 @@ export function DashboardPage({
             >
               {section.items.map((item) => (
                 <option key={item.id} value={item.id}>
-                  {item.name}
+                  {dashboardName(item)}
                 </option>
               ))}
             </select>
             <StylePicker
-              label="Dashboard style"
+              label={t('dashboard.style')}
               value={dashboard.styleId}
               onChange={(styleId) =>
                 updateDashboards((current) => setDashboardStyle(current, id, styleId))
               }
             />
           </div>
-          <div className="dashboard-page__tools" role="toolbar" aria-label="Dashboard actions">
+          <div className="dashboard-page__tools" role="toolbar" aria-label={t('dashboard.actions')}>
             <button
               type="button"
               className={`button${editing ? ' button--active' : ''}`}
               aria-pressed={editing}
               onClick={() => updateDashboards((current) => setLocked(current, id, editing))}
             >
-              {editing ? 'Lock layout' : 'Edit layout'}
+              {editing ? t('dashboard.lockLayout') : t('dashboard.editLayout')}
             </button>
             <button type="button" className="button" onClick={() => setLibrary(true)}>
-              Add widget
+              {t('dashboard.addWidget')}
             </button>
             <button
               type="button"
               className="button button--quiet"
               onClick={() => open({ kind: 'new' }, '')}
             >
-              New
+              {t('dashboard.new')}
             </button>
             <button
               type="button"
               className="button button--quiet"
-              onClick={() => open({ kind: 'rename' }, dashboard.name)}
+              onClick={() => open({ kind: 'rename' }, currentName)}
             >
-              Rename
+              {t('common.rename')}
             </button>
             <button
               type="button"
               className="button button--quiet"
               onClick={() => updateDashboards((current) => duplicateDashboard(current, id))}
             >
-              Duplicate
+              {t('common.duplicate')}
             </button>
             <button
               type="button"
@@ -144,14 +148,14 @@ export function DashboardPage({
               disabled={section.items.length <= 1}
               onClick={() => open({ kind: 'delete' })}
             >
-              Delete
+              {t('common.delete')}
             </button>
             <button
               type="button"
               className="button button--quiet"
               onClick={() => open({ kind: 'reset' })}
             >
-              Reset
+              {t('common.reset')}
             </button>
             <button
               type="button"
@@ -163,7 +167,7 @@ export function DashboardPage({
                 })
               }
             >
-              Export
+              {t('common.export')}
             </button>
             <button
               type="button"
@@ -174,7 +178,7 @@ export function DashboardPage({
                 setDialog({ kind: 'import' });
               }}
             >
-              Import
+              {t('common.import')}
             </button>
             {headerExtra}
           </div>
@@ -182,9 +186,9 @@ export function DashboardPage({
 
         {dashboard.widgets.length === 0 ? (
           <div className="card dashboard-page__empty">
-            <p className="card__muted">This dashboard is empty.</p>
+            <p className="card__muted">{t('dashboard.empty')}</p>
             <button type="button" className="button" onClick={() => setLibrary(true)}>
-              Add widget
+              {t('dashboard.addWidget')}
             </button>
           </div>
         ) : (
@@ -236,16 +240,16 @@ export function DashboardPage({
 
         {dialog?.kind === 'new' && (
           <Sheet
-            title="New dashboard"
-            subtitle="Start from a composed template, or from a blank grid. Everything stays editable."
+            title={t('dashboard.newTitle')}
+            subtitle={t('dashboard.newSubtitle')}
             onClose={() => setDialog(null)}
           >
             <div className="new-dashboard__name">
               <input
                 type="text"
                 className="customize__text"
-                aria-label="Dashboard name"
-                placeholder="Name (optional)"
+                aria-label={t('dashboard.name')}
+                placeholder={t('dashboard.nameOptional')}
                 maxLength={40}
                 value={name}
                 onChange={(event) => setName(event.target.value)}
@@ -254,18 +258,18 @@ export function DashboardPage({
                 type="button"
                 className="button"
                 onClick={() => {
-                  updateDashboards((current) => createDashboard(current, name || 'Dashboard'));
+                  updateDashboards((current) => createDashboard(current, name));
                   setDialog(null);
                 }}
               >
-                Blank dashboard
+                {t('dashboard.blank')}
               </button>
             </div>
             <TemplateGallery
               onUse={(template) => {
                 updateDashboards(
                   (current) =>
-                    createDashboardFromTemplate(current, template, name.trim() || template.name)
+                    createDashboardFromTemplate(current, template, name.trim() || undefined)
                       .section,
                 );
                 setDialog(null);
@@ -276,9 +280,9 @@ export function DashboardPage({
 
         {dialog?.kind === 'rename' && (
           <ConfirmDialog
-            title={`Rename “${dashboard.name}”`}
+            title={t('dashboard.renameTitle', { name: currentName })}
             body={[]}
-            confirmLabel="Rename"
+            confirmLabel={t('common.rename')}
             tone="neutral"
             confirmDisabled={!name.trim()}
             onCancel={() => setDialog(null)}
@@ -290,7 +294,7 @@ export function DashboardPage({
             <input
               type="text"
               className="customize__text dialog__input"
-              aria-label="Dashboard name"
+              aria-label={t('dashboard.name')}
               maxLength={40}
               value={name}
               onChange={(event) => setName(event.target.value)}
@@ -300,9 +304,9 @@ export function DashboardPage({
 
         {dialog?.kind === 'delete' && (
           <ConfirmDialog
-            title={`Delete “${dashboard.name}”?`}
-            body={['Its widgets and layout are removed. Templates and overlays are kept.']}
-            confirmLabel="Delete dashboard"
+            title={t('dashboard.deleteTitle', { name: currentName })}
+            body={[t('dashboard.deleteBody')]}
+            confirmLabel={t('dashboard.deleteConfirm')}
             tone="danger"
             onCancel={() => setDialog(null)}
             onConfirm={() => {
@@ -314,13 +318,17 @@ export function DashboardPage({
 
         {dialog?.kind === 'reset' && (
           <ConfirmDialog
-            title={`Reset “${dashboard.name}”?`}
+            title={t('dashboard.resetTitle', { name: currentName })}
             body={[
               findTemplate(dashboard.origin?.template)
-                ? `The “${findTemplate(dashboard.origin?.template)!.name}” template replaces the current widgets and style. Your saved templates are kept.`
-                : 'The default widgets replace the current ones. Your templates are kept.',
+                ? t('dashboard.resetToTemplate', {
+                    name: t(
+                      `presets.templates.${findTemplate(dashboard.origin?.template)!.id}.name`,
+                    ),
+                  })
+                : t('dashboard.resetToDefault'),
             ]}
-            confirmLabel="Reset dashboard"
+            confirmLabel={t('dashboard.resetConfirm')}
             tone="warning"
             onCancel={() => setDialog(null)}
             onConfirm={() => {
@@ -332,11 +340,9 @@ export function DashboardPage({
 
         {dialog?.kind === 'export' && (
           <ConfirmDialog
-            title="Export dashboard"
-            body={[
-              'A portable JSON description. It contains no hardware identifier, path or user name.',
-            ]}
-            confirmLabel="Copy to clipboard"
+            title={t('dashboard.exportTitle')}
+            body={[t('dashboard.exportBody')]}
+            confirmLabel={t('common.copyToClipboard')}
             tone="neutral"
             onCancel={() => setDialog(null)}
             onConfirm={() => {
@@ -348,16 +354,16 @@ export function DashboardPage({
               className="dialog__textarea mono"
               readOnly
               value={dialog.text}
-              aria-label="Exported JSON"
+              aria-label={t('dashboard.exportedJson')}
             />
           </ConfirmDialog>
         )}
 
         {dialog?.kind === 'import' && (
           <ConfirmDialog
-            title="Import dashboard"
-            body={['Paste a PULSE dashboard export. It is added as a new dashboard.']}
-            confirmLabel="Import"
+            title={t('dashboard.importTitle')}
+            body={[t('dashboard.importBody')]}
+            confirmLabel={t('common.import')}
             tone="neutral"
             confirmDisabled={!importText.trim()}
             onCancel={() => setDialog(null)}
@@ -366,7 +372,7 @@ export function DashboardPage({
               try {
                 parsed = JSON.parse(importText);
               } catch {
-                setImportError('This is not valid JSON.');
+                setImportError(t('common.invalidJson'));
                 return;
               }
               let error: string | undefined;
@@ -381,7 +387,7 @@ export function DashboardPage({
           >
             <textarea
               className="dialog__textarea mono"
-              aria-label="Dashboard JSON"
+              aria-label={t('dashboard.json')}
               value={importText}
               onChange={(event) => setImportText(event.target.value)}
             />

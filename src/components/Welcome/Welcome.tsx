@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { StyleId } from '@/design/styles';
 import { STYLES } from '@/design/styles';
 import { completeSetup, enterMode, setStyle, updateMode } from '@/design/appearance';
@@ -19,6 +20,8 @@ import { primaryScreen } from '@/overlay/screen';
 import type { DesktopStatus } from '@/overlay/desktop';
 import { getDesktopStatus } from '@/overlay/desktop';
 import { bridgeTone } from '@/overlay/bridgeGuide';
+import { backendLabel } from '@/overlay/desktopText';
+import { LanguageSelect } from '@/components/Language/LanguageSelect';
 import { Sheet } from '@/components/Sheet/Sheet';
 import { StyleCard } from '@/components/Appearance/StyleCard';
 import { Icon } from '@/components/Icon';
@@ -29,6 +32,7 @@ import { Icon } from '@/components/Icon';
  * plainly which overlay backend this desktop gives, GNOME bridge included.
  */
 export function Welcome({ onDone }: { readonly onDone: () => void }) {
+  const { t } = useTranslation();
   const [styleId, setStyleId] = useState<StyleId>('clean');
   const [mode, setMode] = useState<ModeId | null>(null);
   const [template, setTemplate] = useState<string>('keep');
@@ -94,26 +98,30 @@ export function Welcome({ onDone }: { readonly onDone: () => void }) {
 
   return (
     <Sheet
-      title="Welcome to PULSE"
-      subtitle="Choose a starting point. Every choice can be changed later — in Appearance, the modes, Dashboard and Overlays."
+      title={t('welcome.title')}
+      subtitle={t('welcome.subtitle')}
       onClose={skip}
-      label="Welcome"
+      label={t('welcome.label')}
       footer={
         <>
           <button type="button" className="button button--quiet" onClick={skip}>
-            Skip
+            {t('welcome.skip')}
           </button>
           <button type="button" className="button button--primary button--lg" onClick={start}>
-            Start PULSE <Icon name="arrowRight" />
+            {t('welcome.start')} <Icon name="arrowRight" />
           </button>
         </>
       }
     >
-      <section className="welcome__step" aria-label="Mode">
+      <section className="welcome__step welcome__language" aria-label={t('language.label')}>
+        <LanguageSelect />
+      </section>
+
+      <section className="welcome__step" aria-label={t('welcome.modeLabel')}>
         <h3 className="welcome__heading">
-          <span>1</span> How will you use it?
+          <span>1</span> {t('welcome.howUse')}
         </h3>
-        <div className="welcome__modes" role="group" aria-label="Mode">
+        <div className="welcome__modes" role="group" aria-label={t('welcome.modeLabel')}>
           {MODES.filter((m) => m.id !== 'mini').map((m) => (
             <button
               key={m.id}
@@ -123,8 +131,8 @@ export function Welcome({ onDone }: { readonly onDone: () => void }) {
               onClick={() => pickMode(m.id)}
             >
               <Icon name={m.icon} size={22} />
-              <strong>{m.name}</strong>
-              <span>{m.tagline}</span>
+              <strong>{t(`modes.${m.id}.name`)}</strong>
+              <span>{t(`modes.${m.id}.tagline`)}</span>
             </button>
           ))}
           <button
@@ -134,27 +142,27 @@ export function Welcome({ onDone }: { readonly onDone: () => void }) {
             onClick={() => pickMode(null)}
           >
             <Icon name="overview" size={22} />
-            <strong>Just monitor</strong>
-            <span>No mode — a style and the dashboards.</span>
+            <strong>{t('welcome.justMonitor')}</strong>
+            <span>{t('welcome.justMonitorHint')}</span>
           </button>
         </div>
       </section>
 
-      <section className="welcome__step" aria-label="Style">
+      <section className="welcome__step" aria-label={t('nav.style')}>
         <h3 className="welcome__heading">
-          <span>2</span> Pick a style
+          <span>2</span> {t('welcome.pickStyle')}
         </h3>
         <div
           className="style-gallery style-gallery--compact"
           role="group"
-          aria-label="Welcome styles"
+          aria-label={t('welcome.styles')}
         >
           {looks.map(({ style, look }) => (
             <StyleCard
               key={style.id}
               look={look}
-              name={style.name}
-              tagline={style.tagline}
+              name={t(`styles.${style.id}.name`)}
+              tagline={t(`styles.${style.id}.tagline`)}
               active={styleId === style.id}
               onSelect={() => setStyleId(style.id)}
             />
@@ -162,38 +170,38 @@ export function Welcome({ onDone }: { readonly onDone: () => void }) {
         </div>
       </section>
 
-      <section className="welcome__step welcome__starters" aria-label="Starters">
+      <section className="welcome__step welcome__starters" aria-label={t('welcome.starters')}>
         <h3 className="welcome__heading">
-          <span>3</span> Start with
+          <span>3</span> {t('welcome.startWith')}
         </h3>
         <label className="welcome__field">
-          Dashboard
+          {t('welcome.dashboard')}
           <select
             className="history-panel__select"
-            aria-label="Starter dashboard"
+            aria-label={t('welcome.starterDashboard')}
             value={template}
             onChange={(event) => setTemplate(event.target.value)}
           >
-            <option value="keep">Keep my current dashboards</option>
-            {DASHBOARD_TEMPLATES.map((t) => (
-              <option key={t.id} value={t.id}>
-                {t.name}
+            <option value="keep">{t('welcome.keepDashboards')}</option>
+            {DASHBOARD_TEMPLATES.map((template) => (
+              <option key={template.id} value={template.id}>
+                {t(`presets.templates.${template.id}.name`)}
               </option>
             ))}
           </select>
         </label>
         <label className="welcome__field">
-          Overlay
+          {t('welcome.overlay')}
           <select
             className="history-panel__select"
-            aria-label="Starter overlay"
+            aria-label={t('welcome.starterOverlay')}
             value={pack}
             onChange={(event) => setPack(event.target.value)}
           >
-            <option value="none">No overlay for now</option>
+            <option value="none">{t('welcome.noOverlay')}</option>
             {OVERLAY_PACKS.map((p) => (
               <option key={p.id} value={p.id}>
-                {p.name}
+                {t(`presets.packs.${p.id}.name`)}
               </option>
             ))}
           </select>
@@ -207,14 +215,19 @@ export function Welcome({ onDone }: { readonly onDone: () => void }) {
         />
         {backend ? (
           <>
-            Overlays here: <strong>{backend.label}</strong>
+            {t('welcome.overlaysHere')} <strong>{backendLabel(backend)}</strong>
             {bridge && bridge.state !== 'notApplicable' && bridge.state !== 'active' && (
-              <> — the GNOME bridge is {bridge.summary.toLowerCase()}; see Overlays to set it up.</>
+              <>
+                {' '}
+                {t('welcome.bridgeNotReady', {
+                  state: t(`overlays.bridge.states.${bridge.state}`),
+                })}
+              </>
             )}
-            {bridge?.state === 'active' && <> — overlays stay above other windows.</>}
+            {bridge?.state === 'active' && <> {t('welcome.bridgeActive')}</>}
           </>
         ) : (
-          'Overlay capabilities are shown in Overlays once the backend answers.'
+          t('welcome.noBackend')
         )}
       </p>
     </Sheet>

@@ -1,4 +1,17 @@
 <p align="center">
+  <b>English</b> ·
+  <a href="README.fr.md">Français</a> ·
+  <a href="README.es.md">Español</a> ·
+  <a href="README.pt-BR.md">Português (Brasil)</a> ·
+  <a href="README.de.md">Deutsch</a> ·
+  <a href="README.it.md">Italiano</a> ·
+  <a href="README.zh-CN.md">简体中文</a> ·
+  <a href="README.ja.md">日本語</a> ·
+  <a href="README.ko.md">한국어</a> ·
+  <a href="README.ru.md">Русский</a>
+</p>
+
+<p align="center">
   <img src="docs/assets/branding/pulse-hero.webp" alt="PULSE — Your system, at a glance. Windows · Fedora Linux" width="100%">
 </p>
 
@@ -52,6 +65,7 @@ provide a value it says _why_ instead of inventing one.
 | **Modes**             | Gaming, Development, Personal and Mini: each with its own style, live strip, starter dashboard and overlay packs                                                      |
 | **Appearance studio** | Eight built-in styles (Clean, Glass, Technical, Neon, Gaming, Stealth, Compact, Transparent HUD), deep tuning, and saved styles of your own                           |
 | **Processes**         | Applications and processes with CPU, memory and I/O; an inspector with package or signature provenance, SHA-256 on demand, and explicit controls                      |
+| **Languages**         | Sixteen interface languages; follows the system language by default, or pick one in the Welcome sheet or Appearance — numbers and dates follow it too                 |
 
 ## Gallery
 
@@ -221,7 +235,7 @@ platform layer knows which OS it runs on. Read more in the
 | Desktop shell   | [Tauri 2](https://tauri.app)                            |
 | Backend         | Rust (edition 2021, MSRV 1.77.2)                        |
 | Storage         | SQLite via `rusqlite` (bundled)                         |
-| Frontend        | React 19, TypeScript, React Router, D3 shape            |
+| Frontend        | React 19, TypeScript, React Router, D3 shape, i18next   |
 | Build & tooling | Vite, pnpm                                              |
 | Tests & quality | Vitest, `cargo test`, ESLint, Prettier, rustfmt, Clippy |
 
@@ -236,6 +250,7 @@ PULSE/
 │   ├── config/          # the shared UI configuration store
 │   ├── dashboard/       # widget model, grid layout, library, bindings, templates
 │   ├── design/          # styles, tokens, appearance
+│   ├── i18n/            # languages, locale resolution, translation catalogs
 │   ├── live/            # this window's side of the live widget feed
 │   ├── modes/           # Gaming, Development, Personal, Mini
 │   ├── overlay/         # overlay model, desktop commands

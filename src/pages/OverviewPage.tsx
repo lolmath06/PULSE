@@ -1,6 +1,7 @@
+import { Trans, useTranslation } from 'react-i18next';
 import { usePlatformInfo } from '@/hooks/usePlatformInfo';
 import { formatDisplayServer, formatPlatformLabel } from '@/utils/format';
-import { APP_TAGLINE, APP_VERSION } from '@/app/constants';
+import { APP_VERSION } from '@/app/constants';
 import { MetricsEngineCard } from '@/components/MetricsEngineCard/MetricsEngineCard';
 import { LiveSampleCard } from '@/components/LiveSampleCard/LiveSampleCard';
 import { CpuDetailsCard } from '@/components/CpuDetailsCard/CpuDetailsCard';
@@ -19,51 +20,52 @@ import { ProcessHistory } from '@/components/History/ProcessHistory';
 import { HomeHero } from '@/components/Home/HomeHero';
 
 export function OverviewPage() {
+  const { t } = useTranslation();
   const state = usePlatformInfo();
 
   return (
     <section className="page page--home">
       <HomeHero>
         <h1 className="page__hero">PULSE</h1>
-        <p className="page__subtitle home-hero__tagline">{APP_TAGLINE}</p>
-        <p className="page__note">Version {APP_VERSION}</p>
+        <p className="page__subtitle home-hero__tagline">{t('app.tagline')}</p>
+        <p className="page__note">{t('overview.version', { version: APP_VERSION })}</p>
       </HomeHero>
 
-      <h2 className="section-title home__details">System details</h2>
+      <h2 className="section-title home__details">{t('overview.systemDetails')}</h2>
 
-      <div className="card" aria-label="Detected platform">
-        <h2 className="card__title">Detected platform</h2>
+      <div className="card" aria-label={t('overview.detectedPlatform')}>
+        <h2 className="card__title">{t('overview.detectedPlatform')}</h2>
 
-        {state.status === 'loading' && <p className="card__muted">Querying backend…</p>}
+        {state.status === 'loading' && <p className="card__muted">{t('status.querying')}</p>}
 
         {state.status === 'error' && (
           <p className="card__muted">
-            Backend unavailable. Run PULSE with <code>pnpm app:dev</code> to reach the Rust layer.
+            <Trans i18nKey="overview.backendUnavailable" components={{ code: <code /> }} />
           </p>
         )}
 
         {state.status === 'ready' && (
           <dl className="kv">
             <div className="kv__row">
-              <dt>Operating system</dt>
+              <dt>{t('overview.os')}</dt>
               <dd>{formatPlatformLabel(state.info.os, state.info.osVersion)}</dd>
             </div>
             <div className="kv__row">
-              <dt>Platform layer</dt>
+              <dt>{t('overview.platformLayer')}</dt>
               <dd>{state.info.platform}</dd>
             </div>
             <div className="kv__row">
-              <dt>Architecture</dt>
+              <dt>{t('overview.architecture')}</dt>
               <dd>{state.info.arch}</dd>
             </div>
             {formatDisplayServer(state.info.displayServer) && (
               <div className="kv__row">
-                <dt>Display server</dt>
+                <dt>{t('overview.displayServer')}</dt>
                 <dd>{formatDisplayServer(state.info.displayServer)}</dd>
               </div>
             )}
             <div className="kv__row">
-              <dt>Backend version</dt>
+              <dt>{t('overview.backendVersion')}</dt>
               <dd>{state.info.appVersion}</dd>
             </div>
           </dl>

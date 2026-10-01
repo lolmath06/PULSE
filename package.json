@@ -34,8 +34,10 @@
   "dependencies": {
     "@tauri-apps/api": "^2.11.1",
     "d3-shape": "^3.2.0",
+    "i18next": "^26.4.2",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
+    "react-i18next": "^17.0.15",
     "react-router-dom": "^7.18.3"
   },
   "devDependencies": {

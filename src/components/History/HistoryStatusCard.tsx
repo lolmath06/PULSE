@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
+import { formatFixed, formatInteger } from '@/i18n/format';
 import type { HistoryStatus } from '@/types/history';
 import { getHistoryStatus, onHistorySample } from '@/services/history';
 import { formatBytes, formatSampleTime } from '@/utils/units';
@@ -9,6 +11,7 @@ import { formatBytes, formatSampleTime } from '@/utils/units';
  * scans the tables.
  */
 export function HistoryStatusCard() {
+  const { t } = useTranslation();
   const [status, setStatus] = useState<HistoryStatus | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
@@ -34,83 +37,109 @@ export function HistoryStatusCard() {
   const database = status?.database;
 
   return (
-    <div className="card" aria-label="History recorder">
-      <h2 className="card__title">History recorder</h2>
+    <div className="card" aria-label={t('history.status.title')}>
+      <h2 className="card__title">{t('history.status.title')}</h2>
 
       {error && !status && (
         <p className="card__muted" title={error}>
-          Backend unavailable. Run PULSE with <code>pnpm app:dev</code> to reach the Rust layer.
+          <Trans i18nKey="overview.backendUnavailable" components={{ code: <code /> }} />
         </p>
       )}
-      {!error && !status && <p className="card__muted">Querying history…</p>}
+      {!error && !status && <p className="card__muted">{t('history.status.loading')}</p>}
 
       {status && (
         <>
           {status.state === 'unavailable' ? (
             <p className="card__warning" role="status">
-              {`History unavailable: ${status.reason ?? 'unknown reason'}. Live monitoring is unaffected.`}
+              {t('history.status.unavailable', {
+                reason: status.reason ?? t('history.status.unknownReason'),
+              })}
             </p>
           ) : null}
           <dl className="kv">
             <div className="kv__row">
-              <dt>State</dt>
-              <dd>{status.state === 'recording' ? 'Recording' : 'Unavailable'}</dd>
+              <dt>{t('history.status.state')}</dt>
+              <dd>
+                {status.state === 'recording'
+                  ? t('history.status.recording')
+                  : t('history.status.stateUnavailable')}
+              </dd>
             </div>
             <div className="kv__row">
-              <dt>Cadence</dt>
-              <dd>{`Every ${status.cadenceMs / 1000} s`}</dd>
+              <dt>{t('history.status.cadence')}</dt>
+              <dd>
+                {t('history.status.every', {
+                  value: formatNumberSeconds(status.cadenceMs),
+                })}
+              </dd>
             </div>
             <div className="kv__row">
-              <dt>Historized metrics</dt>
+              <dt>{t('history.status.historized')}</dt>
               <dd>{status.historizedMetricCount}</dd>
             </div>
             <div className="kv__row">
-              <dt>Batches this session</dt>
+              <dt>{t('history.status.batches')}</dt>
               <dd>{status.batchesThisSession}</dd>
             </div>
             {status.lastBatch && (
               <div className="kv__row">
-                <dt>Last batch</dt>
-                <dd>{`${formatSampleTime(status.lastBatch.timestampMs)} · ${status.lastBatch.rowCount} rows`}</dd>
+                <dt>{t('history.status.lastBatch')}</dt>
+                <dd>
+                  {t('history.status.lastBatchValue', {
+                    time: formatSampleTime(status.lastBatch.timestampMs),
+                    count: status.lastBatch.rowCount,
+                  })}
+                </dd>
               </div>
             )}
             {status.timings && (
               <div className="kv__row">
-                <dt>Sample / write</dt>
+                <dt>{t('history.status.sampleWrite')}</dt>
                 <dd>
-                  {`${(status.timings.sampleMedianUs / 1000).toFixed(1)} ms / ${(status.timings.insertMedianUs / 1000).toFixed(2)} ms median`}
+                  {t('history.status.median', {
+                    sample: formatFixed(status.timings.sampleMedianUs / 1000, 1),
+                    write: formatFixed(status.timings.insertMedianUs / 1000, 2),
+                  })}
                 </dd>
               </div>
             )}
             {status.databasePath && (
               <div className="kv__row">
-                <dt>Database</dt>
+                <dt>{t('history.status.database')}</dt>
                 <dd className="mono history-status__path">{status.databasePath}</dd>
               </div>
             )}
             {database && (
               <>
                 <div className="kv__row">
-                  <dt>Size</dt>
+                  <dt>{t('history.status.size')}</dt>
                   <dd>{`${formatBytes(database.fileBytes)} + ${formatBytes(database.walBytes)} WAL`}</dd>
                 </div>
                 <div className="kv__row">
-                  <dt>Rows</dt>
-                  <dd>{`${database.rawRows.toLocaleString()} raw · ${database.aggregateRows.toLocaleString()} aggregated · ${database.seriesCount} series`}</dd>
+                  <dt>{t('history.status.rows')}</dt>
+                  <dd>
+                    {t('history.status.rowsValue', {
+                      raw: formatInteger(database.rawRows),
+                      aggregated: formatInteger(database.aggregateRows),
+                      series: database.seriesCount,
+                    })}
+                  </dd>
                 </div>
                 <div className="kv__row">
-                  <dt>Schema / journal</dt>
+                  <dt>{t('history.status.schemaJournal')}</dt>
                   <dd>{`v${database.schemaVersion} · ${database.journalMode.toUpperCase()} · synchronous ${database.synchronous === 1 ? 'NORMAL' : database.synchronous}`}</dd>
                 </div>
               </>
             )}
           </dl>
-          {status.lastError && <p className="card__note">{`Last error: ${status.lastError}`}</p>}
+          {status.lastError && (
+            <p className="card__note">
+              {t('history.status.lastError', { error: status.lastError })}
+            </p>
+          )}
           {status.state === 'recording' && (
             <div className="card__footer">
-              <span className="card__muted">
-                Written by one background scheduler; Refresh buttons never record.
-              </span>
+              <span className="card__muted">{t('history.status.scheduler')}</span>
               <button
                 type="button"
                 className="button"
@@ -120,7 +149,7 @@ export function HistoryStatusCard() {
                   void load(true).finally(() => setLoadingDetails(false));
                 }}
               >
-                {loadingDetails ? 'Counting…' : 'Database details'}
+                {loadingDetails ? t('history.status.counting') : t('history.status.details')}
               </button>
             </div>
           )}
@@ -128,4 +157,10 @@ export function HistoryStatusCard() {
       )}
     </div>
   );
+}
+
+/** A cadence in seconds, as the active locale writes the number. */
+function formatNumberSeconds(ms: number): string {
+  const seconds = ms / 1000;
+  return formatFixed(seconds, Number.isInteger(seconds) ? 0 : 1);
 }

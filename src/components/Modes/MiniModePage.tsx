@@ -1,13 +1,14 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { findMode } from '@/modes/modes';
 import { MINI_LAYOUTS } from '@/modes/miniLayouts';
 import { enterMode, modeStyle, setMini, updateMode } from '@/design/appearance';
 import { resolveLook } from '@/design/look';
 import { StyleScope, PageStyle } from '@/design/LookContext';
 import { withTransition } from '@/design/hooks';
-import { styleById } from '@/design/styles';
 import { updateAppearance, useAppearance } from '@/design/store';
 import { useDashboards } from '@/dashboard/store';
+import { dashboardName } from '@/dashboard/dashboards';
 import { openMiniWindow } from '@/overlay/desktop';
 import { StylePicker } from '@/components/Appearance/StylePicker';
 import { MiniView } from '@/components/Modes/MiniView';
@@ -19,7 +20,9 @@ import { Icon } from '@/components/Icon';
  * see it live, open it.
  */
 export function MiniModePage() {
+  const { t } = useTranslation();
   const mode = findMode('mini')!;
+  const styleName = (id: string) => t(`styles.${id}.name`);
   const appearance = useAppearance();
   const dashboards = useDashboards();
   const styleId = appearance.mini.styleId ?? modeStyle(appearance, 'mini');
@@ -29,19 +32,19 @@ export function MiniModePage() {
 
   return (
     <PageStyle styleId={modeStyle(appearance, 'mini')}>
-      <section className="page page--wide mode-page" aria-label="Mini mode">
+      <section
+        className="page page--wide mode-page"
+        aria-label={t('modes.page.aria', { mode: t('modes.mini.name') })}
+      >
         <header className="mode-hero">
           <span className="mode-hero__icon" aria-hidden="true">
             <Icon name="mini" size={30} />
           </span>
           <div className="mode-hero__text">
-            <p className="page-header__eyebrow">Mode</p>
-            <h1 className="page__title">Mini</h1>
-            <p className="mode-hero__tagline">{mode.tagline}</p>
-            <p className="page__subtitle">
-              A small, normal PULSE window. Mini is interactive and behaves like any other window;
-              for something that stays on top and lets clicks through, add an overlay.
-            </p>
+            <p className="page-header__eyebrow">{t('modes.page.eyebrow')}</p>
+            <h1 className="page__title">{t('modes.mini.name')}</h1>
+            <p className="mode-hero__tagline">{t('modes.mini.tagline')}</p>
+            <p className="page__subtitle">{t('modes.miniPage.subtitle')}</p>
           </div>
           <div className="mode-hero__actions">
             <button
@@ -49,7 +52,7 @@ export function MiniModePage() {
               className="button button--primary button--lg"
               onClick={() => void openMiniWindow().catch(() => undefined)}
             >
-              <Icon name="mini" /> Open Mini window
+              <Icon name="mini" /> {t('overlays.page.openMini')}
             </button>
             {active ? (
               <button
@@ -57,7 +60,7 @@ export function MiniModePage() {
                 className="button button--quiet"
                 onClick={() => withTransition(() => updateAppearance((s) => enterMode(s, null)))}
               >
-                Leave Mini mode
+                {t('appearance.leaveMode', { mode: t('modes.mini.name') })}
               </button>
             ) : (
               <button
@@ -65,7 +68,7 @@ export function MiniModePage() {
                 className="button button--quiet"
                 onClick={() => withTransition(() => updateAppearance((s) => enterMode(s, 'mini')))}
               >
-                Use Mini mode here too
+                {t('modes.miniPage.useHere')}
               </button>
             )}
           </div>
@@ -73,9 +76,9 @@ export function MiniModePage() {
 
         <div className="mini-studio">
           <div className="mini-studio__choices">
-            <section className="card" aria-label="Mini layouts">
-              <h2 className="card__title">What Mini shows</h2>
-              <div className="mini-layouts" role="group" aria-label="Mini layout">
+            <section className="card" aria-label={t('modes.miniPage.layouts')}>
+              <h2 className="card__title">{t('modes.miniPage.whatShows')}</h2>
+              <div className="mini-layouts" role="group" aria-label={t('modes.miniPage.layout')}>
                 {MINI_LAYOUTS.map((layout) => {
                   const chosen = source.kind === 'layout' && source.id === layout.id;
                   return (
@@ -90,17 +93,21 @@ export function MiniModePage() {
                         )
                       }
                     >
-                      <span className="mini-layout__name">{layout.name}</span>
-                      <span className="mini-layout__description">{layout.description}</span>
+                      <span className="mini-layout__name">
+                        {t(`modes.miniLayouts.${layout.id}.name`)}
+                      </span>
+                      <span className="mini-layout__description">
+                        {t(`modes.miniLayouts.${layout.id}.description`)}
+                      </span>
                     </button>
                   );
                 })}
               </div>
               <label className="style-picker mini-studio__dashboard">
-                Or a dashboard
+                {t('modes.miniPage.orDashboard')}
                 <select
                   className="history-panel__select"
-                  aria-label="Dashboard shown in Mini"
+                  aria-label={t('modes.miniPage.dashboardShown')}
                   value={source.kind === 'dashboard' ? source.id : ''}
                   onChange={(event) =>
                     event.target.value &&
@@ -112,40 +119,40 @@ export function MiniModePage() {
                   <option value="">—</option>
                   {dashboards.items.map((item) => (
                     <option key={item.id} value={item.id}>
-                      {item.name}
+                      {dashboardName(item)}
                     </option>
                   ))}
                 </select>
               </label>
             </section>
-            <section className="card" aria-label="Mini style">
-              <h2 className="card__title">How Mini looks</h2>
+            <section className="card" aria-label={t('modes.miniPage.style')}>
+              <h2 className="card__title">{t('modes.miniPage.howLooks')}</h2>
               <div className="customize__row">
                 <StylePicker
-                  label="Mini style"
+                  label={t('modes.miniPage.style')}
                   value={appearance.mini.styleId}
-                  followLabel={`Mini mode (${styleById(modeStyle(appearance, 'mini')).name})`}
+                  followLabel={t('modes.miniPage.followMode', {
+                    name: styleName(modeStyle(appearance, 'mini')),
+                  })}
                   onChange={(value) =>
                     updateAppearance((section) => setMini(section, { styleId: value }))
                   }
                 />
                 <StylePicker
-                  label="Mini mode style"
+                  label={t('modes.miniPage.modeStyle')}
                   value={appearance.modes.mini.styleId}
-                  followLabel={`${styleById(mode.style).name} (mode default)`}
+                  followLabel={t('modes.page.modeDefault', { name: styleName(mode.style) })}
                   onChange={(value) =>
                     updateAppearance((section) => updateMode(section, 'mini', { styleId: value }))
                   }
                 />
               </div>
-              <p className="card__note">
-                The Mini window follows these at once — no need to reopen it.
-              </p>
+              <p className="card__note">{t('modes.miniPage.followsAtOnce')}</p>
             </section>
           </div>
-          <aside className="mini-studio__preview" aria-label="Mini preview">
+          <aside className="mini-studio__preview" aria-label={t('modes.miniPage.preview')}>
             <p className="appearance__preview-label">
-              <Icon name="sparkles" /> Live · {styleById(styleId).name}
+              <Icon name="sparkles" /> {t('modes.miniPage.live', { name: styleName(styleId) })}
             </p>
             <StyleScope look={look} className="mini-frame">
               <span className="mini-frame__bar" aria-hidden="true">
@@ -159,12 +166,13 @@ export function MiniModePage() {
           </aside>
         </div>
 
-        <section className="mode-section" aria-label="Overlays for Mini">
+        <section
+          className="mode-section"
+          aria-label={t('modes.page.overlaysFor', { mode: t('modes.mini.name') })}
+        >
           <div className="mode-section__head">
-            <h2 className="section-title">Tiny overlays</h2>
-            <p className="card__muted">
-              When the reading must stay above everything and let clicks through, use one of these.
-            </p>
+            <h2 className="section-title">{t('modes.miniPage.tinyOverlays')}</h2>
+            <p className="card__muted">{t('modes.miniPage.tinyOverlaysHint')}</p>
           </div>
           <PackGallery status={null} only={mode.packs} />
         </section>

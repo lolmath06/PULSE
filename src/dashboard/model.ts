@@ -4,6 +4,7 @@ import type { VisualizationConfig } from '@/visualization/config';
 import { BASE_CONFIG, isHexColor, normalizeConfig } from '@/visualization/config';
 import { isValidId, newId } from '@/dashboard/ids';
 import type { StyleId } from '@/design/styles';
+import { isTextKey } from '@/i18n/text';
 
 /**
  * The widget model shared by the dashboard, the Mini window and overlays.
@@ -60,6 +61,11 @@ export interface WidgetBinding {
   readonly source: SourceSelection;
   /** Overrides the label shown for this metric, e.g. `↓` for download. */
   readonly label: string | null;
+  /**
+   * A built-in label's translation key (see `src/i18n/text.ts`); `label` then
+   * holds its English text. Absent once the user types their own label.
+   */
+  readonly labelKey?: string;
 }
 
 export const DATA_MODES = ['auto', 'history', 'live'] as const;
@@ -105,6 +111,8 @@ export interface WidgetInstance {
   readonly id: string;
   readonly kind: WidgetKind;
   readonly title: string | null;
+  /** A built-in title's translation key; `title` holds its English text. */
+  readonly titleKey?: string;
   readonly bindings: readonly WidgetBinding[];
   readonly visual: WidgetVisual;
   readonly dataMode: DataMode;
@@ -119,6 +127,8 @@ export interface WidgetInstance {
 export interface Dashboard {
   readonly id: string;
   readonly name: string;
+  /** A built-in name's translation key; `name` holds its English text. */
+  readonly nameKey?: string;
   readonly locked: boolean;
   /** The style this dashboard wears, or `null` for the app's. */
   readonly styleId: StyleId | null;
@@ -181,6 +191,7 @@ export function normalizeBinding(raw: unknown): WidgetBinding | null {
         ? { mode: 'fixed', ref: source.ref }
         : { mode: 'auto' },
     label: text(raw.label, 24),
+    ...(isTextKey(raw.labelKey) ? { labelKey: raw.labelKey } : {}),
   };
 }
 
@@ -262,6 +273,7 @@ export function normalizeWidget(
     id: isValidId(raw.id) ? raw.id : newId('w'),
     kind,
     title: text(raw.title, 48),
+    ...(isTextKey(raw.titleKey) ? { titleKey: raw.titleKey } : {}),
     bindings,
     visual: {
       presetId: typeof visualRaw.presetId === 'string' ? visualRaw.presetId.slice(0, 48) : 'clean',

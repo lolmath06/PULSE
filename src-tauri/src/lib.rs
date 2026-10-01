@@ -138,6 +138,7 @@ pub fn run() {
             commands::desktop::refresh_gnome_bridge,
             commands::desktop::set_gnome_bridge_enabled,
             commands::desktop::overlay_action,
+            commands::desktop::set_tray_labels,
             commands::desktop::open_main_window,
             commands::desktop::open_mini_window,
             commands::desktop::quit_app,

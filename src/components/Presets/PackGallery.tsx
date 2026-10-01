@@ -1,13 +1,14 @@
 import { useMemo, useState } from 'react';
 import type { CSSProperties } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { DesktopStatus } from '@/overlay/desktop';
 import { placementHint } from '@/overlay/bridgeGuide';
 import type { Footprint, OverlayPack } from '@/presets/overlayPacks';
 import {
   FOOTPRINTS,
-  FOOTPRINT_LABELS,
   OVERLAY_PACKS,
   createOverlayFromPack,
+  footprintLabelKey,
 } from '@/presets/overlayPacks';
 import { primaryScreen } from '@/overlay/screen';
 import { updateOverlays, useOverlays } from '@/overlay/store';
@@ -15,7 +16,6 @@ import { MAX_OVERLAYS } from '@/overlay/model';
 import { readAppearance } from '@/design/store';
 import { resolveLook } from '@/design/look';
 import { StyleScope } from '@/design/LookContext';
-import { styleById } from '@/design/styles';
 import { Icon } from '@/components/Icon';
 
 /** Where a footprint sits on the miniature screen, in % of it. */
@@ -45,9 +45,13 @@ export function PackCard({
   readonly onAdd: () => void;
   readonly disabled?: boolean;
 }) {
+  const { t } = useTranslation();
   const look = useMemo(() => resolveLook(pack.styleId), [pack.styleId]);
+  const name = t(`presets.packs.${pack.id}.name`);
+  // The card's illustration: what the pack reads like, item by item.
+  const sample = t(`presets.packs.${pack.id}.sample`).split('|');
   return (
-    <article className="pack-card" aria-label={`${pack.name} overlay pack`}>
+    <article className="pack-card" aria-label={t('presets.packAria', { name })}>
       <StyleScope look={look} className="pack-card__screen">
         <span className="pack-card__wallpaper" aria-hidden="true" />
         <span
@@ -57,7 +61,7 @@ export function PackCard({
           style={SILHOUETTE[pack.footprint]}
           aria-hidden="true"
         >
-          {pack.sample.map((item) => (
+          {sample.map((item) => (
             <span key={item} className="pack-card__item">
               {item}
             </span>
@@ -66,13 +70,13 @@ export function PackCard({
       </StyleScope>
       <div className="pack-card__body">
         <div className="pack-card__title">
-          <h3>{pack.name}</h3>
+          <h3>{name}</h3>
           <span className="pack-card__chips">
-            <span className="chip">{FOOTPRINT_LABELS[pack.footprint]}</span>
-            <span className="chip chip--style">{styleById(pack.styleId).name}</span>
+            <span className="chip">{t(footprintLabelKey(pack.footprint))}</span>
+            <span className="chip chip--style">{t(`styles.${pack.styleId}.name`)}</span>
           </span>
         </div>
-        <p className="pack-card__description">{pack.description}</p>
+        <p className="pack-card__description">{t(`presets.packs.${pack.id}.description`)}</p>
         {hint && pack.needs && (
           <p className="pack-card__hint" title={hint}>
             <Icon name="overlays" /> {hint}
@@ -84,7 +88,7 @@ export function PackCard({
           disabled={disabled}
           onClick={onAdd}
         >
-          <Icon name="plus" /> Add overlay
+          <Icon name="plus" /> {t('presets.addOverlay')}
         </button>
       </div>
     </article>
@@ -104,6 +108,7 @@ export function PackGallery({
   readonly only?: readonly string[];
   readonly onAdded?: (id: string, pack: OverlayPack) => void;
 }) {
+  const { t } = useTranslation();
   const overlays = useOverlays();
   const [filter, setFilter] = useState<Footprint | 'all'>('all');
   const packs = only
@@ -129,7 +134,11 @@ export function PackGallery({
   return (
     <div className="pack-gallery">
       {!only && (
-        <div className="segmented pack-gallery__filter" role="group" aria-label="Footprint">
+        <div
+          className="segmented pack-gallery__filter"
+          role="group"
+          aria-label={t('presets.footprint')}
+        >
           {(['all', ...footprints] as const).map((value) => (
             <button
               key={value}
@@ -138,7 +147,7 @@ export function PackGallery({
               aria-pressed={filter === value}
               onClick={() => setFilter(value)}
             >
-              {value === 'all' ? 'All' : FOOTPRINT_LABELS[value]}
+              {value === 'all' ? t('common.all') : t(footprintLabelKey(value))}
             </button>
           ))}
         </div>
@@ -148,9 +157,7 @@ export function PackGallery({
           <PackCard key={pack.id} pack={pack} hint={hint} disabled={full} onAdd={() => add(pack)} />
         ))}
       </div>
-      {full && (
-        <p className="card__note">At most {MAX_OVERLAYS} overlays. Delete one to add another.</p>
-      )}
+      {full && <p className="card__note">{t('overlays.limitReached', { count: MAX_OVERLAYS })}</p>}
     </div>
   );
 }

@@ -1,10 +1,11 @@
 import type { Availability, EngineState } from '@/types/metrics';
+import { t } from '@/i18n/i18n';
 
 /** Display helpers for the metrics contract. Pure, and free of platform logic. */
 
 /** Short label for the engine's overall state. */
 export function formatEngineState(state: EngineState): string {
-  return state === 'ready' ? 'Ready' : 'Empty';
+  return t(`metrics.engineState.${state}`);
 }
 
 /**
@@ -13,23 +14,22 @@ export function formatEngineState(state: EngineState): string {
  * Deliberately preserves the distinction the backend took care to make: a
  * missing sensor, a permission problem and a transient glitch read differently
  * because the user can act on them differently.
+ *
+ * The status words are translated (they come from the status code, never from
+ * the text); the backend's reason follows verbatim, as technical detail.
  */
 export function describeAvailability(availability: Availability): string {
   switch (availability.status) {
     case 'available':
-      return 'Available';
-    case 'unsupported':
-      return `Not supported: ${availability.reason}`;
-    case 'notDetected':
-      return `Not detected: ${availability.reason}`;
-    case 'permissionDenied':
-      return `Permission required: ${availability.reason}`;
-    case 'temporarilyUnavailable':
-      return `Temporarily unavailable: ${availability.reason}`;
+      return t('metrics.availability.available');
     case 'providerError':
-      return `Provider error: ${availability.error.message}`;
-    case 'notRegistered':
-      return `Not registered: ${availability.reason}`;
+      return t('metrics.availabilityReason.providerError', {
+        reason: availability.error.message,
+      });
+    default:
+      return t(`metrics.availabilityReason.${availability.status}`, {
+        reason: availability.reason,
+      });
   }
 }
 

@@ -13,6 +13,7 @@ import { MetricVisualization } from '@/visualization/MetricVisualization';
 import { summarize } from '@/visualization/series';
 import { CPU_DEFAULTS, CPU_META, LOGICAL_CELL_STYLE } from '@/components/History/chartDefaults';
 import { HistoryPanel } from '@/components/History/HistoryPanel';
+import { useTranslation } from 'react-i18next';
 import { CPU_TOTAL_SERIES } from '@/components/History/series';
 
 /**
@@ -39,14 +40,15 @@ export const LOGICAL_VIEW_LIMIT = 8;
 type View = 'total' | 'logical';
 
 export function CpuHistory() {
+  const { t } = useTranslation();
   const [view, setView] = useState<View>('total');
 
   const toggle = (
-    <div className="segmented" role="group" aria-label="CPU view">
+    <div className="segmented" role="group" aria-label={t('history.cpu.view')}>
       {(
         [
-          ['total', 'Total'],
-          ['logical', 'Logical processors'],
+          ['total', t('history.cpu.total')],
+          ['logical', t('metrics.catalog.cpu.count.logical.name')],
         ] as const
       ).map(([value, text]) => (
         <button
@@ -65,16 +67,12 @@ export function CpuHistory() {
   return (
     <HistoryPanel
       chartId="cpu.total"
-      title="CPU history"
+      title={t('history.cpu.title')}
       meta={CPU_META}
       series={CPU_TOTAL_SERIES}
       defaults={CPU_DEFAULTS}
       controls={toggle}
-      footnote={
-        view === 'total'
-          ? 'CPU Total is the machine-wide usage the backend measures across every logical processor — not an average rebuilt from them.'
-          : 'The most active logical processors over the selected window. CPU Total stays the reference.'
-      }
+      footnote={view === 'total' ? t('history.cpu.totalNote') : t('history.cpu.logicalNote')}
     >
       {view === 'logical'
         ? ({ chart, visible }) => (
@@ -94,6 +92,7 @@ function LogicalProcessorGrid({
   readonly range: HistoryRange;
   readonly enabled: boolean;
 }) {
+  const { t } = useTranslation();
   const { catalog, status: catalogStatus } = useMetricCatalog();
   const [showAll, setShowAll] = useState(false);
 
@@ -128,18 +127,18 @@ function LogicalProcessorGrid({
   );
   const cellConfig = useMemo(() => mergeConfig(config, LOGICAL_CELL_STYLE), [config]);
 
-  if (catalogStatus === 'loading') return <p className="card__muted">Reading processors…</p>;
+  if (catalogStatus === 'loading') {
+    return <p className="card__muted">{t('history.cpu.loading')}</p>;
+  }
   if (processors.length === 0) {
-    return (
-      <p className="card__note">No individual logical processor is exposed on this machine.</p>
-    );
+    return <p className="card__note">{t('cards.cpu.noProcessors')}</p>;
   }
 
   const shown = showAll ? ranked : ranked.slice(0, LOGICAL_VIEW_LIMIT);
 
   return (
     <>
-      <ul className="history-multiples" aria-label="Logical processor history">
+      <ul className="history-multiples" aria-label={t('history.cpu.logicalHistory')}>
         {shown.map(({ series }) => (
           <li key={series.id} className="history-multiples__cell">
             <MetricVisualization
@@ -158,8 +157,8 @@ function LogicalProcessorGrid({
           onClick={() => setShowAll((all) => !all)}
         >
           {showAll
-            ? `Show the ${LOGICAL_VIEW_LIMIT} most active`
-            : `Show all ${ranked.length} processors`}
+            ? t('history.cpu.showMostActive', { count: LOGICAL_VIEW_LIMIT })
+            : t('cards.cpu.showAll', { count: ranked.length })}
         </button>
       )}
     </>

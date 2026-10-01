@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { StyleId } from '@/design/styles';
 import { STYLES, isStyleId } from '@/design/styles';
 
@@ -9,26 +10,27 @@ export function StylePicker({
   value,
   onChange,
   label,
-  followLabel = 'App style',
+  followLabel,
 }: {
   readonly value: StyleId | null;
   readonly onChange: (value: StyleId | null) => void;
   readonly label: string;
   readonly followLabel?: string;
 }) {
+  const { t } = useTranslation();
   return (
     <label className="style-picker">
-      Style
+      {t('nav.style')}
       <select
         className="history-panel__select"
         aria-label={label}
         value={value ?? ''}
         onChange={(event) => onChange(isStyleId(event.target.value) ? event.target.value : null)}
       >
-        <option value="">{followLabel}</option>
+        <option value="">{followLabel ?? t('presets.appStyle')}</option>
         {STYLES.map((style) => (
           <option key={style.id} value={style.id}>
-            {style.name}
+            {t(`styles.${style.id}.name`)}
           </option>
         ))}
       </select>

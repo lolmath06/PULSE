@@ -1,0 +1,2035 @@
+{
+  "app": {
+    "tagline": "Il tuo sistema, a colpo d'occhio."
+  },
+  "common": {
+    "comingLater": "In arrivo in una fase futura di PULSE.",
+    "active": "Attivo",
+    "copyOf": "{{name}} (copia)",
+    "all": "Tutti",
+    "checking": "Verifica in corso…",
+    "refresh": "Aggiorna",
+    "copy": "Copia",
+    "copied": "Copiato",
+    "apply": "Applica",
+    "duplicate": "Duplica",
+    "delete": "Elimina",
+    "preview": "Anteprima",
+    "customize": "Personalizza",
+    "removeNamed": "Rimuovi {{name}}",
+    "add": "Aggiungi",
+    "widgetCount_one": "{{count}} widget",
+    "widgetCount_many": "{{count}} widget",
+    "widgetCount_other": "{{count}} widget",
+    "cancel": "Annulla",
+    "rename": "Rinomina",
+    "reset": "Ripristina",
+    "export": "Esporta",
+    "import": "Importa",
+    "copyToClipboard": "Copia negli appunti",
+    "invalidJson": "Questo non è JSON valido.",
+    "remove": "Rimuovi",
+    "close": "Chiudi",
+    "save": "Salva",
+    "deleteNamed": "Elimina {{name}}",
+    "refreshing": "Aggiornamento…",
+    "hide": "Nascondi",
+    "showAll": "Mostra tutto"
+  },
+  "nav": {
+    "main": "Navigazione principale",
+    "groups": {
+      "monitor": "Monitoraggio",
+      "modes": "Modalità",
+      "studio": "Studio"
+    },
+    "routes": {
+      "overview": {
+        "label": "Panoramica",
+        "description": "La dashboard predefinita di PULSE."
+      },
+      "dashboard": {
+        "label": "Dashboard",
+        "description": "Le tue dashboard: widget che aggiungi, disponi e personalizzi."
+      },
+      "overlays": {
+        "label": "Overlay",
+        "description": "Widget in finestre proprie sul desktop."
+      },
+      "gaming": {
+        "label": "Gaming",
+        "description": "Una vista leggera incentrata sulle metriche utili durante il gioco."
+      },
+      "development": {
+        "label": "Sviluppo",
+        "description": "Una vista incentrata sul carico di build, compilazione e lavoro."
+      },
+      "personal": {
+        "label": "Personale",
+        "description": "Una dashboard liberamente componibile con molti widget."
+      },
+      "mini": {
+        "label": "Mini",
+        "description": "Una piccola finestra PULSE normale che mostra una dashboard."
+      },
+      "appearance": {
+        "label": "Aspetto",
+        "description": "Stili, colori, caratteri, densità, animazioni e lingua, per ogni superficie."
+      }
+    },
+    "changeStyle": "Cambia lo stile",
+    "style": "Stile"
+  },
+  "status": {
+    "backendStatus": "Stato del backend",
+    "querying": "Interrogazione del backend…",
+    "unavailableUiOnly": "Backend non disponibile: solo interfaccia"
+  },
+  "notFound": {
+    "title": "Non trovato",
+    "subtitle": "Questa parte di PULSE non esiste.",
+    "back": "Torna alla panoramica"
+  },
+  "overview": {
+    "version": "Versione {{version}}",
+    "systemDetails": "Dettagli di sistema",
+    "detectedPlatform": "Piattaforma rilevata",
+    "backendUnavailable": "Backend non disponibile. Avvia PULSE con <code>pnpm app:dev</code> per raggiungere il livello Rust.",
+    "os": "Sistema operativo",
+    "platformLayer": "Livello di piattaforma",
+    "architecture": "Architettura",
+    "displayServer": "Server grafico",
+    "backendVersion": "Versione del backend"
+  },
+  "home": {
+    "liveSystem": "Sistema in tempo reale",
+    "links": {
+      "dashboards": "Dashboard",
+      "dashboardsHint": "modelli, widget, layout",
+      "overlays": "Overlay",
+      "overlaysHint_one": "{{count}} pacchetto, stato del backend",
+      "overlaysHint_many": "{{count}} pacchetti, stato del backend",
+      "overlaysHint_other": "{{count}} pacchetti, stato del backend",
+      "appearance": "Aspetto",
+      "appearanceHint_one": "{{count}} stile, regolazione fine",
+      "appearanceHint_many": "{{count}} stili, regolazione fine",
+      "appearanceHint_other": "{{count}} stili, regolazione fine"
+    }
+  },
+  "welcome": {
+    "title": "Benvenuto in PULSE",
+    "subtitle": "Scegli un punto di partenza. Ogni scelta si può cambiare in seguito: in Aspetto, nelle modalità, in Dashboard e in Overlay.",
+    "label": "Benvenuto",
+    "skip": "Salta",
+    "start": "Avvia PULSE",
+    "modeLabel": "Modalità",
+    "howUse": "Come lo userai?",
+    "justMonitor": "Solo monitoraggio",
+    "justMonitorHint": "Nessuna modalità: uno stile e le dashboard.",
+    "pickStyle": "Scegli uno stile",
+    "styles": "Stili di benvenuto",
+    "starters": "Per iniziare",
+    "startWith": "Inizia con",
+    "dashboard": "Dashboard",
+    "starterDashboard": "Dashboard iniziale",
+    "keepDashboards": "Mantieni le mie dashboard attuali",
+    "overlay": "Overlay",
+    "starterOverlay": "Overlay iniziale",
+    "noOverlay": "Nessun overlay per ora",
+    "overlaysHere": "Overlay qui:",
+    "bridgeNotReady": "— bridge GNOME: {{state}}. Vai su Overlay per configurarlo.",
+    "bridgeActive": "— gli overlay restano sopra le altre finestre.",
+    "noBackend": "Le capacità degli overlay compaiono in Overlay quando il backend risponde."
+  },
+  "language": {
+    "label": "Lingua",
+    "system": "Sistema ({{language}})",
+    "hint": "Sistema segue la lingua del computer. Si applica subito a tutte le finestre di PULSE."
+  },
+  "metrics": {
+    "catalog": {
+      "cpu": {
+        "count": {
+          "logical": {
+            "name": "Processori logici",
+            "description": "Numero di processori logici (thread hardware) su cui il sistema operativo pianifica il lavoro. Con il multithreading simultaneo supera il numero di core fisici."
+          },
+          "package": {
+            "name": "Package del processore",
+            "description": "Numero di package fisici del processore (socket) installati."
+          },
+          "physical": {
+            "name": "Core fisici",
+            "description": "Numero di core di esecuzione fisici, contati come coppie (package, core) distinte, così che core con lo stesso numero in due package diversi non vengano mai uniti."
+          }
+        },
+        "frequency": {
+          "current": {
+            "name": "Frequenza attuale",
+            "description": "Frequenza di clock che il sistema operativo riporta attualmente per questo processore logico. Scaling, boost e criteri di alimentazione la modificano di continuo: è l'ultimo valore della piattaforma, non una misura istantanea del silicio."
+          },
+          "max": {
+            "name": "Frequenza massima",
+            "description": "Frequenza di clock massima che la piattaforma riporta per questo processore logico. Su una CPU ibrida differisce tra core ad alte prestazioni e core ad alta efficienza. Un limite del governor o del criterio di alimentazione non viene mai pubblicato al suo posto."
+          }
+        },
+        "temperature": {
+          "package": {
+            "name": "Temperatura del package",
+            "description": "Temperatura che il package del processore riporta di sé. È il sensore proprio del package, mai una media dei singoli core e mai uno dei limiti termici per cui il silicio è progettato."
+          }
+        },
+        "usage": {
+          "logical": {
+            "name": "Utilizzo CPU",
+            "description": "Quota del tempo di CPU che questo processore logico ha passato a lavorare, misurata dal campione precedente. Con il multithreading simultaneo, due processori logici condividono un core fisico."
+          },
+          "total": {
+            "name": "Utilizzo CPU",
+            "description": "Quota del tempo di CPU passato a lavorare sull'intera macchina, misurata dal campione precedente."
+          }
+        }
+      },
+      "gpu": {
+        "count": {
+          "name": "GPU",
+          "description": "Numero di schede grafiche hardware censite da PULSE. Le schede software come Microsoft Basic Render Driver e WARP non vengono contate."
+        },
+        "fan": {
+          "speed": {
+            "name": "Ventola",
+            "description": "Velocità di rotazione della ventola della scheda, in giri al minuto. Una percentuale di controllo della ventola è un ciclo di lavoro, non una velocità, e non viene mai pubblicata al suo posto."
+          }
+        },
+        "frequency": {
+          "core": {
+            "name": "Clock del core",
+            "description": "Clock grafico attuale riportato dal driver. Il boost e i criteri di alimentazione lo modificano di continuo: è l'ultimo valore della piattaforma, non una misura istantanea del silicio."
+          },
+          "memory": {
+            "name": "Clock della memoria",
+            "description": "Clock attuale della memoria video riportato dal driver."
+          }
+        },
+        "memory": {
+          "free": {
+            "name": "VRAM libera",
+            "description": "Memoria video dedicata ancora disponibile per l'allocazione."
+          },
+          "total": {
+            "name": "VRAM totale",
+            "description": "Memoria video dedicata installata su questa scheda. La memoria di sistema condivisa con una GPU integrata non viene deliberatamente riportata qui."
+          },
+          "usage": {
+            "percent": {
+              "name": "Utilizzo VRAM",
+              "description": "Quota di memoria video dedicata in uso, calcolata dai byte usati e totali."
+            }
+          },
+          "used": {
+            "name": "VRAM usata",
+            "description": "Memoria video dedicata attualmente in uso nell'intero sistema."
+          }
+        },
+        "temperature": {
+          "core": {
+            "name": "Temperatura",
+            "description": "Temperatura del die del processore grafico, secondo il suo sensore."
+          },
+          "hotspot": {
+            "name": "Hotspot",
+            "description": "Punto più caldo misurato sul package del processore grafico. Un sensore separato da quello del die, che sotto carico di solito segna di più, e mai derivato da esso."
+          },
+          "memory": {
+            "name": "Temperatura della memoria",
+            "description": "Temperatura della memoria video dedicata, dal suo sensore."
+          }
+        },
+        "usage": {
+          "core": {
+            "name": "Utilizzo GPU",
+            "description": "Quota della capacità del motore grafico in uso, secondo il driver."
+          }
+        }
+      },
+      "memory": {
+        "available": {
+          "name": "Memoria disponibile",
+          "description": "Memoria fisica allocabile senza ricorrere allo swap."
+        },
+        "total": {
+          "name": "Memoria totale",
+          "description": "Memoria fisica installata utilizzabile dal sistema operativo."
+        },
+        "usage": {
+          "percent": {
+            "name": "Utilizzo memoria",
+            "description": "Quota di memoria fisica in uso, calcolata dai byte usati e totali."
+          }
+        },
+        "used": {
+          "name": "Memoria usata",
+          "description": "Memoria fisica in uso, definita come totale meno disponibile."
+        }
+      },
+      "network": {
+        "interface": {
+          "count": {
+            "name": "Interfacce",
+            "description": "Numero di interfacce di rete monitorate da PULSE. L'interfaccia di loopback è esclusa di proposito: esiste sempre e trasporta solo traffico che non ha mai lasciato questa macchina."
+          },
+          "up_count": {
+            "name": "Connesse",
+            "description": "Quante delle interfacce monitorate hanno al momento un collegamento. Una scheda attiva ma senza cavo, o una radio non associata a una rete, non viene contata."
+          }
+        },
+        "link": {
+          "receive_speed": {
+            "name": "Link RX",
+            "description": "La capacità in ingresso del collegamento, come negoziata dal driver, non quanto sta passando. Un indicatore e non un valore fisso, perché sia Wi-Fi sia Ethernet rinegoziano."
+          },
+          "transmit_speed": {
+            "name": "Link TX",
+            "description": "La capacità in uscita del collegamento. Uguale a quella in ingresso su Ethernet; spesso diversa su Wi-Fi."
+          }
+        },
+        "mtu": {
+          "name": "MTU",
+          "description": "Il payload più grande che questa interfaccia trasporta in un singolo frame. Un dato di configurazione e non una lettura, quindi è uno stato."
+        },
+        "receive": {
+          "bytes_per_second": {
+            "name": "Download",
+            "description": "Byte che arrivano a questa macchina al secondo, derivati dai contatori cumulativi del sistema operativo tra due campioni. Ricezione significa in ingresso, dal punto di vista di questa macchina."
+          },
+          "dropped_per_second": {
+            "name": "RX scartati",
+            "description": "Frame in ingresso arrivati integri e comunque scartati: un buffer pieno o nessun protocollo che li volesse. È un contatore locale e non la perdita di pacchetti su Internet, che PULSE non misura."
+          },
+          "errors_per_second": {
+            "name": "Errori RX",
+            "description": "Frame in ingresso che l'interfaccia ha rifiutato perché qualcosa non andava: un checksum errato, un errore di framing. Un contatore diverso dai frame scartati; un tasso persistente diverso da zero indica di solito un problema di cavo o di driver."
+          },
+          "packets_per_second": {
+            "name": "Pacchetti RX",
+            "description": "Pacchetti in arrivo al secondo, unicast e non unicast insieme. Zero è una misura reale: nell'intervallo non è arrivato nulla."
+          }
+        },
+        "transmit": {
+          "bytes_per_second": {
+            "name": "Upload",
+            "description": "Byte che lasciano questa macchina al secondo, derivati dai contatori cumulativi del sistema operativo tra due campioni. Trasmissione significa in uscita."
+          },
+          "dropped_per_second": {
+            "name": "TX scartati",
+            "description": "Frame in uscita scartati prima della trasmissione, di solito perché una coda era piena."
+          },
+          "errors_per_second": {
+            "name": "Errori TX",
+            "description": "Frame in uscita che l'interfaccia non è riuscita a trasmettere."
+          },
+          "packets_per_second": {
+            "name": "Pacchetti TX",
+            "description": "Pacchetti in uscita al secondo, unicast e non unicast insieme."
+          }
+        },
+        "wifi": {
+          "link": {
+            "receive_rate": {
+              "name": "Velocità RX Wi-Fi",
+              "description": "La velocità in ingresso negoziata con l'access point. Una capacità, non traffico: un collegamento negoziato a 400 Mbit/s senza traffico riporta comunque 400 Mbit/s."
+            },
+            "transmit_rate": {
+              "name": "Velocità TX Wi-Fi",
+              "description": "La velocità in uscita negoziata con l'access point. Spesso diversa da quella in ingresso."
+            }
+          },
+          "signal": {
+            "quality": {
+              "name": "Qualità",
+              "description": "Un valore di qualità del collegamento da 0 a 100, pubblicato solo dove il sistema operativo lo calcola da sé. Non viene mai derivato dalla potenza del segnale: ogni formula comune da dBm a percentuale è arbitraria, e un numero così ottenuto sembrerebbe una misura pur essendo una stima."
+            },
+            "rssi": {
+              "name": "Segnale",
+              "description": "Potenza del segnale ricevuto in dBm, secondo la radio: una scala logaritmica in cui −40 è forte e −90 appena utilizzabile. Su una radio associata tramite più collegamenti, è la lettura del collegamento attivo più forte; i valori in dBm non vengono mai mediati."
+            }
+          }
+        }
+      },
+      "process": {
+        "count": {
+          "running": {
+            "name": "In esecuzione",
+            "description": "Quanti processi sono in esecuzione su un processore o in coda pronti a farlo. Quasi tutti i processi di un desktop inattivo sono in attesa (di un timer, di un input, di un disco), quindi un numero piccolo qui è normale e non indica una macchina inattiva. Windows non riporta lo stato dei processi, quindi lì questo valore non è disponibile anziché inventato."
+          },
+          "total": {
+            "name": "Processi",
+            "description": "Quanti processi esistono ora su questa macchina, compresi quelli di cui PULSE non può leggere i dettagli. Un processo rifiutato esiste comunque e viene comunque contato."
+          }
+        },
+        "thread": {
+          "count": {
+            "total": {
+              "name": "Thread",
+              "description": "Tutti i thread di tutti i processi visibili, sommati. I processi il cui numero di thread non è stato letto non contribuiscono con una stima, quindi su una macchina piena di processi protetti è una sottostima, non un'invenzione."
+            }
+          }
+        }
+      },
+      "storage": {
+        "capacity": {
+          "total": {
+            "name": "Capacità",
+            "description": "Capacità indirizzabile totale del dispositivo fisico. È l'intero dispositivo, non la somma dei file system che contiene."
+          }
+        },
+        "device": {
+          "count": {
+            "name": "Dispositivi di archiviazione",
+            "description": "Numero di dispositivi di archiviazione fisici censiti da PULSE. Partizioni, dispositivi loop, RAM disk e volumi device-mapper non contano come dispositivi a sé."
+          }
+        },
+        "health": {
+          "available_spare": {
+            "name": "Riserva disponibile",
+            "description": "Quota rimanente della riserva di blocchi sostitutivi del dispositivo. Non è spazio libero sul file system né capacità non allocata: un'unità completamente piena di solito riporta ancora il 100 % di riserva."
+          },
+          "media_errors": {
+            "name": "Errori del supporto",
+            "description": "Errori del supporto e di integrità dei dati che il controller ha rilevato e contato durante la vita del dispositivo."
+          },
+          "percentage_used": {
+            "name": "Durata consumata",
+            "description": "Stima del controller di quanta parte della durata di scrittura nominale del dispositivo è stata consumata. Riportata esattamente come la dichiara il dispositivo, inclusi valori oltre il 100 % una volta superata la soglia nominale, e mai convertita in un punteggio di salute."
+          },
+          "power_on_hours": {
+            "name": "Ore di accensione",
+            "description": "Ore in cui il controller del dispositivo è stato acceso, secondo il suo conteggio."
+          },
+          "temperature": {
+            "name": "Temperatura",
+            "description": "La temperatura composita del controller di archiviazione: un unico valore che il dispositivo ricava dai propri sensori, non un singolo sensore né la lettura di un altro componente."
+          },
+          "unsafe_shutdowns": {
+            "name": "Spegnimenti non sicuri",
+            "description": "Volte in cui il dispositivo ha perso l'alimentazione senza aver ricevuto prima l'ordine di spegnersi."
+          }
+        },
+        "io": {
+          "read": {
+            "bytes_per_second": {
+              "name": "Lettura",
+              "description": "Byte letti dal dispositivo al secondo, derivati dai contatori cumulativi del sistema operativo tra due campioni."
+            },
+            "iops": {
+              "name": "IOPS in lettura",
+              "description": "Operazioni di lettura completate al secondo. Zero è una misura reale: nell'intervallo non si è completata alcuna lettura."
+            },
+            "latency": {
+              "name": "Latenza di lettura",
+              "description": "Tempo medio di una lettura, come osservato dal sistema operativo: attesa in coda inclusa e misurato dall'host, non dentro il dispositivo. Un intervallo senza letture completate non ha latenza e non ne riporta alcuna anziché zero."
+            }
+          },
+          "write": {
+            "bytes_per_second": {
+              "name": "Scrittura",
+              "description": "Byte scritti sul dispositivo al secondo, derivati dai contatori cumulativi del sistema operativo tra due campioni."
+            },
+            "iops": {
+              "name": "IOPS in scrittura",
+              "description": "Operazioni di scrittura completate al secondo. Zero è una misura reale: nell'intervallo non si è completata alcuna scrittura."
+            },
+            "latency": {
+              "name": "Latenza di scrittura",
+              "description": "Tempo medio di una scrittura, come osservato dal sistema operativo. Un intervallo senza scritture completate non riporta alcun valore anziché zero."
+            }
+          }
+        },
+        "volume": {
+          "capacity": {
+            "available": {
+              "name": "Disponibile",
+              "description": "Spazio in cui questo utente può effettivamente scrivere. Inferiore allo spazio libero sui file system che tengono una riserva per il superutente, ed è voluto: quella riserva non è a tua disposizione."
+            },
+            "total": {
+              "name": "Dimensione del volume",
+              "description": "Dimensione totale del file system. Più file system su un dispositivo non sommano alla capacità del dispositivo, e un file system può estendersi su più dispositivi."
+            },
+            "used": {
+              "name": "Usato",
+              "description": "Spazio del file system che contiene dati, definito come totale meno blocchi liberi. Usato e disponibile non sommano al totale sui file system che riservano blocchi al superutente."
+            }
+          },
+          "count": {
+            "name": "Volumi",
+            "description": "Numero di file system montati censiti da PULSE. Un file system raggiungibile da più percorsi conta una volta; pseudo file system come proc e sysfs non vengono contati."
+          },
+          "usage": {
+            "percent": {
+              "name": "Utilizzo del volume",
+              "description": "Quota del file system che contiene dati, calcolata dai byte usati e totali."
+            }
+          }
+        }
+      }
+    },
+    "sources": {
+      "cpuSystem": "CPU di sistema",
+      "memorySystem": "Memoria di sistema",
+      "gpuSystem": "Grafica",
+      "processSystem": "Processi",
+      "networkSystem": "Rete",
+      "storageSystem": "Archiviazione",
+      "cpuPackage": "Package {{index}}"
+    },
+    "availability": {
+      "available": "Disponibile",
+      "unsupported": "Non supportato",
+      "notDetected": "Non rilevato",
+      "permissionDenied": "Autorizzazione necessaria",
+      "temporarilyUnavailable": "Temporaneamente non disponibile",
+      "providerError": "Errore del provider",
+      "notRegistered": "Non registrato"
+    },
+    "availabilityReason": {
+      "unsupported": "Non supportato: {{reason}}",
+      "notDetected": "Non rilevato: {{reason}}",
+      "permissionDenied": "Autorizzazione necessaria: {{reason}}",
+      "temporarilyUnavailable": "Temporaneamente non disponibile: {{reason}}",
+      "providerError": "Errore del provider: {{reason}}",
+      "notRegistered": "Non registrato: {{reason}}"
+    },
+    "engineState": {
+      "ready": "Pronto",
+      "empty": "Vuoto"
+    },
+    "notReported": "Questa macchina non riporta questa metrica.",
+    "noneSelected": "Nessuna metrica selezionata.",
+    "sourceUnavailable": "Origine non disponibile"
+  },
+  "styles": {
+    "clean": {
+      "name": "Pulito",
+      "tagline": "Moderno, calmo, professionale",
+      "description": "Superfici antracite tranquille, profondità morbida e un unico accento verde acqua. Il predefinito: tutto leggibile, niente che urla."
+    },
+    "glass": {
+      "name": "Vetro",
+      "tagline": "Satinato, luminoso, premium",
+      "description": "Pannelli satinati traslucidi su un'aurora profonda, un riflesso luminoso sul bordo superiore e angoli ariosi. Il pezzo forte."
+    },
+    "technical": {
+      "name": "Tecnico",
+      "tagline": "Strumentazione, densa ed esatta",
+      "description": "Un banco da ingegnere: griglia da progetto, bordi squadrati, cifre a spaziatura fissa, letture ambra, ogni asse e ogni marcatore di campione."
+    },
+    "neon": {
+      "name": "Neon",
+      "tagline": "Alto contrasto, elettrico",
+      "description": "Quasi nero con luce magenta e ciano: linee luminose, bordi illuminati e numeri brillanti. Drammatico, ma leggibile."
+    },
+    "gaming": {
+      "name": "Gaming",
+      "tagline": "Deciso, veloce, energico",
+      "description": "Angoli smussati, cremisi e ambra, caratteri condensati e pesanti e numeri grandi: fatto per essere letto con un'occhiata a metà partita."
+    },
+    "stealth": {
+      "name": "Stealth",
+      "tagline": "Scuro, discreto, poco rumore",
+      "description": "Quasi nessuna cornice, testo ardesia smorzato, niente riempimenti né griglie: presente quando lo cerchi, invisibile quando no."
+    },
+    "compact": {
+      "name": "Compatto",
+      "tagline": "Stretto, efficiente, adatto al piccolo",
+      "description": "Spaziatura più fitta, testo più piccolo e grafici discreti: la massima informazione per pixel per widget piccoli e micro overlay."
+    },
+    "hud": {
+      "name": "HUD trasparente",
+      "tagline": "Niente pannelli, solo i numeri",
+      "description": "Senza cornici: cifre brillanti con un morbido alone scuro per essere lette su qualsiasi sfondo o gioco, linee sottili, nessuna griglia."
+    },
+    "accents": {
+      "teal": "Verde acqua",
+      "sky": "Cielo",
+      "blue": "Blu",
+      "violet": "Viola",
+      "magenta": "Magenta",
+      "crimson": "Cremisi",
+      "amber": "Ambra",
+      "lime": "Lime",
+      "mint": "Menta",
+      "silver": "Argento"
+    },
+    "palettes": {
+      "aurora": "Aurora",
+      "ocean": "Oceano",
+      "ember": "Brace",
+      "forest": "Foresta",
+      "candy": "Caramella",
+      "mono": "Mono"
+    }
+  },
+  "modes": {
+    "gaming": {
+      "name": "Gaming",
+      "tagline": "Prima gli overlay. Si legge con un'occhiata.",
+      "description": "Overlay decisi e compatti per prestazioni e temperature accanto al tuo gioco, mai dentro. Gli overlay bloccati lasciano passare ogni clic e non prendono mai il focus.",
+      "principles": {
+        "noFps": "Nessun contatore FPS: PULSE non ha una vera fonte di FPS, quindi non ne mostra.",
+        "safeOverlays": "Solo overlay desktop sicuri: nessuna iniezione, nessun hook DirectX/Vulkan/OpenGL.",
+        "borderless": "Giochi senza bordi o in finestra; lo schermo intero esclusivo nasconde le finestre del desktop."
+      }
+    },
+    "development": {
+      "name": "Sviluppo",
+      "tagline": "Il carico di build, a risoluzione ingegneristica.",
+      "description": "CPU, memoria, I/O del disco, rete e numero di processi in un layout denso ed esatto: per compilazioni, container, test e sessioni di debug.",
+      "principles": {
+        "realSamples": "Ogni valore è un campione reale; la cronologia viene dal registratore di PULSE.",
+        "processesNearby": "La vista Processi è a un clic per trovare il processo dietro un picco.",
+        "technicalStyle": "Stile tecnico: segmenti dritti e marcatori di campione, niente smussato."
+      }
+    },
+    "personal": {
+      "name": "Personale",
+      "tagline": "La tua vista di tutti i giorni, fatta su misura.",
+      "description": "Un punto di partenza piacevole ed equilibrato da curare: aggiungi ciò che ti interessa, scegli qualsiasi stile, tienilo sullo schermo tutto il giorno.",
+      "principles": {
+        "editable": "Qui tutto è modificabile: widget, stile, layout, overlay.",
+        "saveLook": "Salva l'aspetto che crei come stile personale in Aspetto.",
+        "shareExport": "Condividi una dashboard con Esporta: non contiene alcun identificativo hardware."
+      }
+    },
+    "mini": {
+      "name": "Mini",
+      "tagline": "Una piccola, elegante finestra di monitoraggio.",
+      "description": "Una finestra compatta e normale con poche letture dimensionate con cura. Interattiva, mai sempre in primo piano: per quello, usa un overlay.",
+      "principles": {
+        "normalWindow": "Mini è una finestra normale: spostabile, attivabile, nella barra delle applicazioni.",
+        "pickLayout": "Scegli un layout Mini qui sotto, o mostraci una delle tue dashboard."
+      }
+    },
+    "miniLayouts": {
+      "vitals": {
+        "name": "Parametri vitali",
+        "description": "CPU, memoria, temperatura e traffico, ciascuno con la sua tendenza."
+      },
+      "thermals": {
+        "name": "Temperature",
+        "description": "Temperature nel tempo, a fasce di colore, con l'SSD."
+      },
+      "network": {
+        "name": "Rete",
+        "description": "Download e upload, con il segnale Wi-Fi se presente."
+      },
+      "focus": {
+        "name": "Focus",
+        "description": "Un grande anello CPU, memoria e calore come indicatori."
+      }
+    },
+    "page": {
+      "aria": "Modalità {{mode}}",
+      "eyebrow": "Modalità",
+      "leave": "Esci dalla modalità",
+      "enter": "Entra nella modalità {{mode}}",
+      "style": "Stile {{mode}}",
+      "modeDefault": "{{name}} (predefinito della modalità)",
+      "overlaysFor": "Overlay per {{mode}}",
+      "packsHint": "Composti per la modalità {{mode}}: ognuno diventa un overlay modificabile nella propria finestra.",
+      "behaviour": "Comportamento",
+      "whenOn": "Quando questa modalità è attiva",
+      "lockOverlays": "Blocca ogni overlay all'ingresso (clic passanti, mai attivo)",
+      "keepRunning": "Mantieni PULSE e i suoi overlay in esecuzione alla chiusura della finestra principale",
+      "keyMetrics": "Metriche chiave {{mode}}",
+      "dashboardAria": "Dashboard {{mode}}",
+      "startDashboard": "Crea la dashboard {{mode}} dal suo modello, poi cambia quello che vuoi.",
+      "createDashboard": "Crea la dashboard {{mode}}",
+      "editInDashboard": "Modifica in Dashboard",
+      "switchesKeepRunning": "Entrare nella modalità imposta «chiusura della finestra principale» su resta in esecuzione."
+    },
+    "miniPage": {
+      "subtitle": "Una piccola finestra PULSE normale. Mini è interattiva e si comporta come qualsiasi altra finestra; per qualcosa che resti in primo piano e lasci passare i clic, aggiungi un overlay.",
+      "useHere": "Usa la modalità Mini anche qui",
+      "layouts": "Layout Mini",
+      "whatShows": "Cosa mostra Mini",
+      "layout": "Layout Mini",
+      "orDashboard": "Oppure una dashboard",
+      "dashboardShown": "Dashboard mostrata in Mini",
+      "style": "Stile Mini",
+      "howLooks": "Aspetto di Mini",
+      "followMode": "Modalità Mini ({{name}})",
+      "modeStyle": "Stile della modalità Mini",
+      "followsAtOnce": "La finestra Mini si adegua subito, senza doverla riaprire.",
+      "preview": "Anteprima di Mini",
+      "live": "Dal vivo · {{name}}",
+      "tinyOverlays": "Overlay minuscoli",
+      "tinyOverlaysHint": "Quando la lettura deve restare sopra tutto e lasciar passare i clic, usa uno di questi."
+    }
+  },
+  "presets": {
+    "templates": {
+      "balanced": {
+        "name": "Equilibrato predefinito",
+        "description": "La panoramica di tutti i giorni: una striscia di riepilogo, CPU e memoria, calore, GPU, rete, disco."
+      },
+      "gaming": {
+        "name": "Dashboard gaming",
+        "description": "Prima carico e calore: anelli CPU e GPU, temperature, VRAM, memoria e traffico."
+      },
+      "development": {
+        "name": "Dashboard sviluppo",
+        "description": "Il carico di build a risoluzione ingegneristica: CPU, memoria, I/O del disco, rete, processi."
+      },
+      "personal": {
+        "name": "Inizio personale",
+        "description": "Un inizio piacevole ed equilibrato da fare tuo: anelli, un grafico, calore e rete."
+      },
+      "thermal": {
+        "name": "Focus termico",
+        "description": "Ogni temperatura letta da PULSE, a fasce di colore, accanto al carico che la causa."
+      },
+      "network-io": {
+        "name": "Rete e I/O",
+        "description": "Traffico e throughput del disco da vicino, con occupazione del file system e Wi-Fi."
+      },
+      "minimal": {
+        "name": "Minimale pulito",
+        "description": "Quattro grandi numeri e un grafico discreto. Nient'altro."
+      },
+      "showcase": {
+        "name": "Vetrina spettacolare",
+        "description": "PULSE nella sua veste più sorprendente: vetro satinato, anelli, tendenze sfumate e una striscia dal vivo."
+      }
+    },
+    "packs": {
+      "tiny-thermals": {
+        "name": "Mini temperature",
+        "description": "Temperatura di CPU e GPU con la memoria, in un blocco minuscolo.",
+        "sample": "CPU 64 °C|GPU 58 °C|RAM 42 %"
+      },
+      "tiny-stats": {
+        "name": "Mini statistiche",
+        "description": "CPU, GPU, RAM e temperatura in una riga sottile.",
+        "sample": "CPU 24 %|GPU 84 %|RAM 41 %|67 °C"
+      },
+      "top-bar": {
+        "name": "Barra superiore",
+        "description": "Una striscia di riepilogo a tutta larghezza in cima allo schermo, con tendenze dal vivo.",
+        "sample": "CPU 23 % ∿|GPU 61 % ∿|RAM 44 % ∿|CPU 67 °C ∿|↓ 2,1 MB/s ∿|↑ 180 kB/s ∿"
+      },
+      "bottom-bar": {
+        "name": "Barra inferiore",
+        "description": "Indicatori lungo il bordo inferiore: barre di carico per CPU, GPU e memoria, e traffico.",
+        "sample": "CPU ▰▰▰▱▱|GPU ▰▰▱▱▱|RAM ▰▰▰▰▱|↓ 2,1 MB/s|↑ 180 kB/s"
+      },
+      "left-rail": {
+        "name": "Colonna sinistra",
+        "description": "Una colonna a tutta altezza di anelli e tendenze lungo il bordo sinistro.",
+        "sample": "◔ CPU 23 %|◑ GPU 61 %|◕ RAM 44 %|CPU 67 °C|↓ 2,1 MB/s"
+      },
+      "right-rail": {
+        "name": "Colonna destra",
+        "description": "Grafici di monitoraggio a tutta altezza a destra: CPU, memoria, calore, rete, disco.",
+        "sample": "CPU ⌇⌇⌇|RAM ⌇⌇⌇|°C ⌇⌇⌇|↓↑ ⌇⌇⌇|L/S ⌇⌇⌇"
+      },
+      "gaming-corner": {
+        "name": "Angolo gaming",
+        "description": "Un HUD deciso a sei valori per un angolo in alto: carico, calore, VRAM e RAM.",
+        "sample": "CPU 31 %|GPU 97 %|CPU 71 °C|GPU 74 °C|VRAM 6,1 GB|RAM 44 %"
+      },
+      "thermal-strip": {
+        "name": "Striscia termica",
+        "description": "Ogni temperatura che PULSE può leggere, a fasce di colore, con tendenze.",
+        "sample": "CPU 71 °C ∿|GPU 64 °C ∿|SSD 41 °C"
+      },
+      "summary-card": {
+        "name": "Scheda di riepilogo del sistema",
+        "description": "Un'elegante scheda fluttuante: anelli di CPU e memoria, GPU e rete raggruppate.",
+        "sample": "◔ CPU 23 %|◕ RAM 44 %|GPU 61 %|↓ 2,1 MB/s"
+      },
+      "network-strip": {
+        "name": "Striscia di rete",
+        "description": "Download e upload con le loro tendenze, e il segnale Wi-Fi se presente.",
+        "sample": "↓ 12 MB/s ∿|↑ 1,2 MB/s ∿|Wi-Fi −52 dBm"
+      },
+      "minimal-hud": {
+        "name": "HUD trasparente minimale",
+        "description": "Tre valori e nient'altro: nessun pannello, un morbido alone per la leggibilità.",
+        "sample": "CPU 23 %|GPU 61 %|RAM 44 %"
+      },
+      "dev-rail": {
+        "name": "Colonna di monitoraggio dev",
+        "description": "Per le sessioni di programmazione: grafici di CPU e memoria, I/O del disco, rete e numero di processi.",
+        "sample": "CPU ⌇⌇⌇|RAM ⌇⌇⌇|Lettura ∿|Scrittura ∿|Rete ↓ ∿|412 processi"
+      }
+    },
+    "footprints": {
+      "micro": "Micro",
+      "card": "Scheda fluttuante",
+      "top-strip": "Barra superiore",
+      "bottom-strip": "Barra inferiore",
+      "left-rail": "Colonna sinistra",
+      "right-rail": "Colonna destra",
+      "corner": "HUD d'angolo",
+      "block": "Blocco di riepilogo"
+    },
+    "overlayPresets": {
+      "tiny-stats": {
+        "name": "Mini statistiche",
+        "description": "CPU 24 % | GPU 84 % | RAM 41 %"
+      },
+      "thermal-strip": {
+        "name": "Striscia termica",
+        "description": "Temperature di CPU e GPU in fila."
+      },
+      "gaming": {
+        "name": "Gaming",
+        "description": "CPU, GPU, VRAM, RAM e rete, impilate."
+      },
+      "minimal-corner": {
+        "name": "Angolo minimale",
+        "description": "CPU e RAM, senza alcuno sfondo."
+      }
+    },
+    "text": {
+      "system": "Sistema",
+      "temperatures": "Temperature",
+      "memory": "Memoria",
+      "videoMemory": "Memoria video",
+      "network": "Rete",
+      "cpuTotal": "CPU totale",
+      "processes": "Processi",
+      "diskIo": "I/O del disco",
+      "cpuTemperature": "Temperatura CPU",
+      "filesystem": "File system",
+      "processor": "Processore",
+      "temperature": "Temperatura",
+      "storage": "Archiviazione",
+      "cpuPackage": "Package CPU",
+      "load": "Carico",
+      "graphics": "Grafica",
+      "heat": "Calore",
+      "thermals": "Temperature",
+      "temp": "Temp.",
+      "netDown": "Rete ↓",
+      "netDownCaps": "RETE ↓",
+      "diskDown": "Disco ↓",
+      "diskUp": "Disco ↑",
+      "download": "Download",
+      "upload": "Upload",
+      "read": "Lettura",
+      "write": "Scrittura",
+      "disk": "Disco",
+      "running": "In esecuzione",
+      "threads": "Thread",
+      "clock": "Clock",
+      "hotspot": "Hotspot",
+      "usage": "Utilizzo",
+      "gpuTemp": "Temp. GPU",
+      "ssdTemp": "Temp. SSD",
+      "down": "Giù",
+      "up": "Su",
+      "core": "Core",
+      "freq": "Freq.",
+      "cpuTemp": "Temp. CPU",
+      "ramUsed": "RAM usata",
+      "ramFree": "RAM libera",
+      "gpuFan": "Ventola GPU"
+    },
+    "packAria": "Pacchetto overlay {{name}}",
+    "addOverlay": "Aggiungi overlay",
+    "footprint": "Ingombro",
+    "templateAria": "Modello {{name}}",
+    "appStyle": "Stile dell'app",
+    "createDashboard": "Crea dashboard"
+  },
+  "library": {
+    "blueprints": {
+      "cpu-total": {
+        "label": "CPU totale",
+        "description": "Utilizzo CPU dell'intera macchina nel tempo."
+      },
+      "cpu-value": {
+        "label": "CPU totale — valore",
+        "description": "Solo il numero: CPU 23 %."
+      },
+      "cpu-sparkline": {
+        "label": "CPU totale — sparkline",
+        "description": "CPU 23 % con una piccola tendenza."
+      },
+      "cpu-group": {
+        "label": "Gruppo CPU",
+        "description": "Utilizzo e temperatura del package insieme."
+      },
+      "cpu-logical": {
+        "label": "Un processore logico",
+        "description": "Un singolo processore logico; scegli quale in Personalizza."
+      },
+      "memory": {
+        "label": "Utilizzo memoria",
+        "description": "Memoria fisica in uso, in percentuale."
+      },
+      "memory-value": {
+        "label": "Memoria — valore",
+        "description": "RAM 41 %."
+      },
+      "memory-used": {
+        "label": "Memoria usata — valore",
+        "description": "Byte in uso, es. 12,0 GiB."
+      },
+      "gpu": {
+        "label": "Utilizzo GPU",
+        "description": "Carico del core GPU nel tempo."
+      },
+      "gpu-value": {
+        "label": "GPU — valore",
+        "description": "GPU 97 %."
+      },
+      "gpu-group": {
+        "label": "Gruppo GPU",
+        "description": "Utilizzo, VRAM e temperatura."
+      },
+      "thermal": {
+        "label": "Temperatura CPU e GPU",
+        "description": "Entrambi i sensori su un grafico; uno illeggibile semplicemente non compare."
+      },
+      "cpu-temp-value": {
+        "label": "Temperatura CPU — valore",
+        "description": "71 °C."
+      },
+      "gpu-temp-value": {
+        "label": "Temperatura GPU — valore",
+        "description": "72 °C."
+      },
+      "ssd-temp": {
+        "label": "Temperatura dell'unità — valore",
+        "description": "Letta dall'unità su richiesta, non ogni secondo."
+      },
+      "storage": {
+        "label": "Lettura / scrittura disco",
+        "description": "Throughput di un'unità (automatica o scelta)."
+      },
+      "volume": {
+        "label": "Occupazione del file system",
+        "description": "Quanto è pieno un file system."
+      },
+      "network": {
+        "label": "Download / upload",
+        "description": "Traffico di un'interfaccia (automatica o scelta)."
+      },
+      "network-down-value": {
+        "label": "Download — valore",
+        "description": "RETE ↓ 12 MiB/s."
+      },
+      "wifi": {
+        "label": "Segnale Wi-Fi",
+        "description": "Potenza del segnale di un'interfaccia wireless."
+      },
+      "processes": {
+        "label": "Numero di processi e thread",
+        "description": "Conteggi dell'intera macchina; mai un singolo processo."
+      },
+      "summary": {
+        "label": "Riepilogo di sistema",
+        "description": "CPU / GPU / RAM / RETE in una striscia, con piccole tendenze."
+      }
+    },
+    "categories": {
+      "CPU": "CPU",
+      "Memory": "Memoria",
+      "GPU": "GPU",
+      "Thermals": "Temperature",
+      "Storage": "Archiviazione",
+      "Network": "Rete",
+      "Processes": "Processi",
+      "Custom": "Personalizzati",
+      "Templates": "Modelli"
+    },
+    "onDemand": "Letta dall'unità su richiesta (un comando admin NVMe), mai ogni secondo: non mostra un valore dal vivo.",
+    "categoriesLabel": "Categorie di widget",
+    "loading": "Lettura del catalogo delle metriche…",
+    "addNamed": "Aggiungi {{name}}",
+    "anyMetric": "Qualsiasi metrica",
+    "searchPlaceholder": "Cerca nel catalogo delle metriche",
+    "searchLabel": "Cerca metriche",
+    "notReadable": "Non leggibile su questa macchina",
+    "noTemplates": "Ancora nessun modello. Personalizza un widget e usa «Salva come modello».",
+    "templateName": "Nome del modello"
+  },
+  "visualization": {
+    "presets": {
+      "clean": {
+        "name": "Pulito",
+        "description": "Linea morbida, sfumatura leggera e griglia sottile su un pannello scuro."
+      },
+      "minimal": {
+        "name": "Minimale",
+        "description": "Una linea sottile e il valore attuale. Niente griglia, assi o pannello."
+      },
+      "technical": {
+        "name": "Tecnico",
+        "description": "Segmenti dritti, marcatori di campione, assi completi e tutte le statistiche."
+      },
+      "gaming": {
+        "name": "Gaming",
+        "description": "Linea spessa e brillante, sfumatura intensa, bagliore e numeri in grassetto."
+      },
+      "compact": {
+        "name": "Compatto",
+        "description": "Una sparkline con un numero piccolo: fatta per spazi minuscoli."
+      },
+      "neon": {
+        "name": "Neon",
+        "description": "Ciano e magenta su quasi nero, con un morbido bagliore."
+      },
+      "transparent": {
+        "name": "Trasparente",
+        "description": "Nessun pannello: solo la linea e il suo numero. Pronto per gli overlay."
+      }
+    },
+    "renderers": {
+      "line": {
+        "label": "Linea",
+        "description": "Valori nel tempo come linea."
+      },
+      "area": {
+        "label": "Area",
+        "description": "Una linea con l'area sottostante riempita."
+      },
+      "sparkline": {
+        "label": "Sparkline",
+        "description": "Una tendenza minuscola senza cornici, per spazi piccoli."
+      },
+      "value": {
+        "label": "Valore",
+        "description": "Solo il numero attuale."
+      },
+      "bar": {
+        "label": "Barra",
+        "description": "Il valore attuale come barra orizzontale."
+      },
+      "gauge": {
+        "label": "Indicatore",
+        "description": "Il valore attuale su un anello. Richiede limiti noti."
+      }
+    },
+    "gaugeNeedsBounds": "Un indicatore richiede limiti noti e questa metrica non ne ha. Imposta prima una scala fissa (minimo e massimo).",
+    "scaleErrors": {
+      "both": "Inserisci sia un minimo sia un massimo.",
+      "numbers": "Entrambi i limiti devono essere numeri.",
+      "order": "Il massimo deve essere maggiore del minimo."
+    },
+    "savedByYou": "Salvato da te."
+  },
+  "overlays": {
+    "limitReached_one": "Al massimo {{count}} overlay. Eliminane uno per aggiungerne un altro.",
+    "limitReached_many": "Al massimo {{count}} overlay. Eliminane uno per aggiungerne un altro.",
+    "limitReached_other": "Al massimo {{count}} overlay. Eliminane uno per aggiungerne un altro.",
+    "defaultName": "Overlay",
+    "session": "Sessione:",
+    "capabilityList": "Capacità degli overlay",
+    "capabilityStatus": {
+      "supported": "Supportato",
+      "limited": "Limitato",
+      "unsupported": "Non supportato"
+    },
+    "capabilities": {
+      "alwaysOnTop": "Sempre in primo piano",
+      "clickThrough": "Clic passanti quando bloccato",
+      "positioning": "Posizionamento assoluto",
+      "transparentWindow": "Finestra trasparente",
+      "globalHotkey": "Scorciatoia globale",
+      "multiMonitorPositioning": "Posizionamento multi-monitor",
+      "tray": "Area di notifica"
+    },
+    "headline": {
+      "alwaysOnTop": "Sopra le altre finestre",
+      "globalHotkey": "Scorciatoia globale",
+      "clickThrough": "Clic passanti",
+      "transparentWindow": "Trasparente",
+      "multiMonitorPositioning": "Multi-monitor"
+    },
+    "displayServers": {
+      "windows": "Windows",
+      "x11": "X11",
+      "wayland": "Wayland (nativo)",
+      "xWayland": "XWayland (X11 in una sessione Wayland)",
+      "other": "Piattaforma non supportata"
+    },
+    "verification": {
+      "physicallyVerified": "Verificato su hardware reale",
+      "implemented": "Implementato · non ancora verificato su hardware",
+      "bestEffort": "Dipende dalla piattaforma",
+      "unsupported": "Non disponibile"
+    },
+    "backend": {
+      "title": "Backend degli overlay",
+      "unavailable": "Backend non disponibile. Avvia PULSE con pnpm app:dev.",
+      "desktopWindow": "Finestra del desktop",
+      "whatHere": "Cosa possono fare gli overlay qui"
+    },
+    "backends": {
+      "windowsNative": {
+        "label": "Overlay nativo di Windows",
+        "detail": "Una finestra strumento a livelli, sempre in primo piano e non attivabile: HWND_TOPMOST la tiene sopra, WS_EX_NOACTIVATE lascia il focus dov'è e WS_EX_TRANSPARENT fa passare i clic quando è bloccata. Implementato e compilato; non ancora verificato su una macchina Windows."
+      },
+      "gnomeBridge": {
+        "label": "Bridge nativo GNOME",
+        "detail": "L'estensione PULSE dentro GNOME Shell tiene gli overlay sopra le altre finestre (Mutter make_above) e consegna la scorciatoia degli overlay tramite Mutter; PULSE mantiene i clic passanti sugli overlay bloccati. Verificato su Fedora 39 / GNOME 45."
+      },
+      "standardWayland": {
+        "label": "Finestra Wayland standard",
+        "detail": "Una normale finestra Wayland: trasparente, con clic passanti quando bloccata, ma è il compositor a decidere se resta sopra un'applicazione attiva e dove va."
+      },
+      "x11": {
+        "label": "Finestra X11",
+        "detail": "Una finestra X11 sempre in primo piano (_NET_WM_STATE_ABOVE) con forma di input vuota quando bloccata, posizionata dove richiede."
+      },
+      "unsupported": {
+        "label": "Non disponibile",
+        "detail": "Gli overlay del desktop non sono supportati su questa piattaforma."
+      }
+    },
+    "placementHints": {
+      "gnome": "Qui resta sopra le altre finestre; trascinalo sul bordo una volta in modalità Modifica: GNOME posiziona da sé le finestre Wayland.",
+      "notOnTop": "Meglio con il bridge GNOME o gli overlay nativi di Windows: qui il compositor potrebbe metterlo dietro un'app attiva.",
+      "noPositioning": "Trascinalo in posizione una volta in modalità Modifica: questa sessione non può posizionare finestre."
+    },
+    "bridge": {
+      "title": "Bridge GNOME",
+      "connected": "Connesso",
+      "enable": "Attiva",
+      "disable": "Disattiva",
+      "running": "In esecuzione",
+      "installed": "Installato",
+      "ships": "Incluso in PULSE",
+      "setUp": "Configura il bridge GNOME",
+      "copyUninstall": "Copia disinstallazione",
+      "sourcePlaceholder": "<sorgenti di PULSE>",
+      "states": {
+        "notApplicable": "Non necessario qui",
+        "unavailable": "Non disponibile",
+        "incompatible": "Incompatibile",
+        "notInstalled": "Non installato",
+        "installedNeedsLogin": "Installato: accedi di nuovo",
+        "extensionsOff": "Estensioni disattivate",
+        "disabled": "Disattivato",
+        "error": "Errore",
+        "active": "Attivo",
+        "changing": "Modifica in corso…"
+      },
+      "summaries": {
+        "notGnome": "Non è una sessione GNOME: il bridge GNOME non si applica qui",
+        "notWayland": "Non necessario in questa sessione: il bridge è per GNOME su Wayland",
+        "shellNoAnswer": "Il servizio estensioni di GNOME Shell non ha risposto",
+        "notChecked": "Non ancora verificato",
+        "shellUnsupported": "GNOME Shell {{version}} non è supportato dal bridge (verificato su GNOME 45)",
+        "installedNeedsLogin": "Installato: esci e rientra una volta per caricarlo",
+        "notInstalled": "Non installato",
+        "extensionsOff": "Le estensioni utente sono disattivate in questa sessione",
+        "activeConnected": "Attivo: tiene gli overlay in primo piano e consegna la scorciatoia",
+        "active": "Attivo",
+        "disabled": "Installato ma disattivato",
+        "extensionError": "GNOME Shell ha segnalato un errore nell'estensione",
+        "outOfDate": "GNOME Shell {{version}} considera obsoleta l'estensione installata",
+        "uninstalled": "Disinstallato",
+        "changing": "GNOME Shell sta cambiando lo stato dell'estensione"
+      },
+      "guidance": {
+        "checkShell": "Verifica che GNOME Shell stia eseguendo questa sessione, poi aggiorna.",
+        "standardWayland": "Gli overlay funzionano comunque come finestre Wayland standard: clic passanti quando bloccati, ma è il compositor a decidere l'ordine di sovrapposizione.",
+        "discoverAtLogin": "GNOME Shell 45 rileva le nuove estensioni solo all'accesso. Dopo aver effettuato di nuovo l'accesso, attivala qui.",
+        "installSteps": "Installa l'estensione con il comando qui sotto, esci e rientra una volta, poi attivala.",
+        "extensionsOn": "Riattiva le estensioni utente (app Estensioni, oppure gsettings set org.gnome.shell disable-user-extensions false).",
+        "newerCopyInstalled": "È installata una copia più recente. Esci e rientra per caricarla.",
+        "reinstallNewer": "Questo PULSE include un bridge più recente. Reinstallalo con il comando qui sotto, poi esci e rientra.",
+        "notGreeted": "In esecuzione. Non ha ancora salutato questo PULSE: le versioni dell'estensione precedenti alla 2 non lo fanno mai; quelle più recenti lo fanno appena PULSE si avvia.",
+        "enableIt": "Attivala per tenere gli overlay sopra le altre finestre.",
+        "reinstallAfterError": "Reinstallala, esci e rientra. L'errore compare anche in journalctl --user -b /usr/bin/gnome-shell.",
+        "reinstallShipped": "Reinstalla la versione inclusa in questo PULSE.",
+        "refreshSoon": "Aggiorna tra un momento."
+      },
+      "steps": {
+        "install": "Installa l'estensione",
+        "update": "Aggiorna l'estensione",
+        "installDetail": "La copia in ~/.local/share/gnome-shell/extensions/: solo il tuo account, niente sudo.",
+        "updateDetail": "È installata la v{{installed}}; questo PULSE include la v{{bundled}}.",
+        "login": "Esci e rientra una volta",
+        "loginDetail": "GNOME Shell 45 carica il codice delle estensioni solo all'accesso.",
+        "enable": "Attivala",
+        "enableDetail": "Con il pulsante qui, oppure nell'app Estensioni di GNOME.",
+        "connected": "Connesso a PULSE",
+        "connectedDetail": "L'estensione in esecuzione ha salutato questo PULSE.",
+        "notConnectedDetail": "Le versioni dalla 2 in poi salutano PULSE appena si avvia."
+      },
+      "details": {
+        "summary": "Cosa fa · risoluzione dei problemi · limiti",
+        "unlocks": "<strong>Sblocca:</strong> gli overlay restano sopra l'applicazione attiva (Mutter <code>make_above</code>) e la scorciatoia degli overlay funziona qualunque applicazione abbia il focus: GNOME 45 non ha un portale per le scorciatoie globali. I clic passanti quando bloccato sono di PULSE e funzionano con o senza il bridge.",
+        "safety": "<strong>Sicurezza:</strong> tocca solo le finestre di proprietà del processo che detiene il nome bus di PULSE <em>e</em> intitolate esattamente <code>PULSE Overlay :: &lt;id&gt;</code>. Niente polling, niente intercettazione dell'input, niente file, niente rete.",
+        "troubleshooting": "<strong>Risoluzione dei problemi:</strong> dopo l'installazione o l'aggiornamento, esci e rientra: GNOME carica il codice delle estensioni solo all'accesso. Il suo log: <code>journalctl --user -b /usr/bin/gnome-shell | grep \"PULSE overlay bridge\"</code>. Se GNOME Shell dovesse comportarsi male all'accesso, disattiva le estensioni utente da un'altra sessione con <code>gsettings set org.gnome.shell disable-user-extensions true</code>.",
+        "limits": "<strong>Limiti:</strong> GNOME continua a posizionare da sé le finestre Wayland, quindi posizioni e posizionamento multi-monitor restano del compositor; trascina un overlay una volta in modalità Modifica. Verificato solo su GNOME 45."
+      }
+    },
+    "layouts": {
+      "horizontal": "Riga",
+      "vertical": "Colonna",
+      "grid": "Griglia"
+    },
+    "page": {
+      "subtitle": "Widget in piccole finestre proprie sul desktop: sopra le altre app dove il sistema lo consente, con clic passanti quando bloccati. Una finestra desktop sicura: PULSE non si inietta mai nei giochi.",
+      "all": "Tutti gli overlay",
+      "editAll": "Modifica tutti",
+      "lockAll": "Blocca tutti",
+      "showAll": "Mostra tutti",
+      "hideAll": "Nascondi tutti",
+      "openMini": "Apri la finestra Mini",
+      "newOverlay": "Nuovo overlay",
+      "packs": "Pacchetti di overlay",
+      "packsHint": "Dodici overlay già composti: micro letture, schede, barre a tutta larghezza, colonne e HUD d'angolo. Tutto resta modificabile.",
+      "emptyOverlay": "Overlay vuoto",
+      "everyCapability": "Tutte le capacità, in dettaglio",
+      "yourPacks": "I tuoi pacchetti",
+      "deletePack": "Elimina il pacchetto {{name}}"
+    },
+    "hotkey": {
+      "hint": "Alterna gli overlay visibili tra Modifica e Bloccato. Quelli nascosti mantengono il loro stato.",
+      "viaBridge": "Consegnata dal bridge GNOME tramite Mutter, qualunque applicazione abbia il focus. Applicare qui una scorciatoia cambia l'impostazione del bridge; GNOME la usa subito.",
+      "viaPortal": "Consegnata dal tuo desktop tramite XDG Desktop Portal, qualunque applicazione abbia il focus. Il desktop potrebbe chiederti di approvarla e permetterti di cambiare i tasti nelle sue impostazioni della tastiera.",
+      "unavailable": "Le scorciatoie globali non sono disponibili in questa sessione: {{reason}}",
+      "notRegistered": "Non registrata: {{error}}. La scorciatoia precedente è ancora attiva.",
+      "notBound": "Non assegnata: {{error}}.",
+      "active": "Attiva: {{hotkey}}.",
+      "none": "Nessuna scorciatoia globale attiva."
+    },
+    "close": {
+      "title": "Chiusura della finestra principale",
+      "when": "Quando la finestra principale viene chiusa",
+      "quit": "Esci da PULSE",
+      "keepRunning": "Resta in esecuzione finché ci sono overlay visibili",
+      "note": "Esci è il valore predefinito. Quando PULSE resta in esecuzione, riaprilo dall'area di notifica o con «Apri PULSE» di un overlay; Esci dall'area di notifica ferma tutto."
+    },
+    "editor": {
+      "aria": "Overlay {{name}}",
+      "name": "Nome dell'overlay",
+      "visible": "Visibile",
+      "edit": "Modifica l'overlay",
+      "lock": "Blocca l'overlay",
+      "saveAsPack": "Salva come mio pacchetto",
+      "saveAsPackBody": "I suoi widget, layout, stile e cornice, da aggiungere di nuovo da Overlay.",
+      "savePack": "Salva pacchetto",
+      "packName": "Nome del pacchetto",
+      "fromPack": "Da «{{name}}»",
+      "resetToPack": "Ripristina dal pacchetto",
+      "style": "Stile dell'overlay",
+      "layout": "Layout dell'overlay",
+      "background": "Sfondo dell'overlay",
+      "backgroundOpacity": "Opacità dello sfondo dell'overlay",
+      "cornerRadius": "Raggio degli angoli dell'overlay",
+      "gapBetween": "Spazio tra i widget",
+      "width": "Larghezza dell'overlay",
+      "height": "Altezza dell'overlay",
+      "fit": "Adatta ai widget",
+      "x": "X dell'overlay",
+      "y": "Y dell'overlay",
+      "primaryMonitor": "monitor principale",
+      "cannotPlace": "Questa sessione non può posizionare finestre: trascina l'overlay dalla sua barra in modalità Modifica.",
+      "widgets": "Widget di {{name}}",
+      "widgetWidth": "Larghezza di {{name}}",
+      "widgetHeight": "Altezza di {{name}}",
+      "moveEarlier": "Sposta {{name}} prima",
+      "moveLater": "Sposta {{name}} dopo",
+      "copyToDashboard": "Copia nella dashboard",
+      "copiesGoTo": "Le copie vanno nella dashboard «{{name}}».",
+      "deleteTitle": "Eliminare l'overlay «{{name}}»?",
+      "deleteBody": "La sua finestra si chiude e i suoi widget vengono rimossi.",
+      "delete": "Elimina l'overlay"
+    },
+    "surface": {
+      "aria": "Overlay {{name}}",
+      "empty": "Aggiungi widget da PULSE → Overlay.",
+      "dragToMove": "{{name}} · trascina per spostare",
+      "lock": "Blocca",
+      "openPulse": "Apri PULSE",
+      "dragToResize": "Trascina per ridimensionare"
+    },
+    "send": {
+      "aria": "Invia {{name}} a un overlay",
+      "title": "Invia «{{name}}» a un overlay",
+      "addTo": "Aggiungi a «{{name}}»"
+    }
+  },
+  "customize": {
+    "background": "Sfondo",
+    "backgroundOpacity": "Opacità dello sfondo",
+    "border": "Bordo",
+    "shadow": "Ombra",
+    "corners": "Angoli",
+    "gap": "Spazio",
+    "widthShort": "L",
+    "heightShort": "A",
+    "padding": "Spaziatura interna",
+    "layout": "Layout",
+    "borders": {
+      "none": "Nessuno",
+      "thin": "Sottile"
+    },
+    "groupLayouts": {
+      "rows": "Righe",
+      "inline": "In linea"
+    },
+    "widget": {
+      "section": "Widget",
+      "title": "Titolo",
+      "titleLabel": "Titolo del widget",
+      "showTitle": "Mostra il titolo",
+      "background": "Sfondo del widget",
+      "opacity": "Opacità del widget",
+      "backgroundOpacity": "Opacità dello sfondo del widget",
+      "padding": "Spaziatura interna del widget",
+      "border": "Bordo del widget",
+      "corners": "Angoli del widget",
+      "cornerRadius": "Raggio degli angoli del widget"
+    },
+    "metrics": {
+      "section": "Metriche e origine",
+      "label": "Etichetta della metrica {{index}}",
+      "source": "Origine della metrica {{index}}",
+      "automatic": "Automatica",
+      "automaticNamed": "Automatica — {{name}}",
+      "autoHint": "Scelta automaticamente: un valore predefinito ragionevole, non un'affermazione su quale conti.",
+      "groupLayout": "Layout del gruppo",
+      "tinyTrends": "Piccole tendenze"
+    },
+    "data": {
+      "section": "Dati",
+      "source": "Origine dei dati",
+      "nowLive": "Ora: dal vivo, 1 s, ultimi 5 minuti in memoria.",
+      "nowHistory": "Ora: cronologia, {{range}}.",
+      "modes": {
+        "auto": "Automatico",
+        "history": "Cronologia",
+        "live": "Dal vivo"
+      }
+    },
+    "template": {
+      "section": "Modello",
+      "placeholder": "Nome del modello, es. La mia mini CPU",
+      "save": "Salva come modello"
+    }
+  },
+  "dashboard": {
+    "addWidget": "Aggiungi widget",
+    "defaultName": "Predefinita",
+    "fallbackName": "Dashboard",
+    "import": {
+      "notExport": "Questa non è un'esportazione di dashboard PULSE.",
+      "version": "Versione di esportazione della dashboard non supportata: {{version}}.",
+      "noDashboard": "L'esportazione non contiene alcuna dashboard valida.",
+      "limit_one": "Al massimo {{count}} dashboard.",
+      "limit_many": "Al massimo {{count}} dashboard.",
+      "limit_other": "Al massimo {{count}} dashboard."
+    },
+    "style": "Stile della dashboard",
+    "actions": "Azioni della dashboard",
+    "lockLayout": "Blocca il layout",
+    "editLayout": "Modifica il layout",
+    "new": "Nuova",
+    "empty": "Questa dashboard è vuota.",
+    "newTitle": "Nuova dashboard",
+    "newSubtitle": "Parti da un modello già composto o da una griglia vuota. Tutto resta modificabile.",
+    "name": "Nome della dashboard",
+    "nameOptional": "Nome (facoltativo)",
+    "blank": "Dashboard vuota",
+    "renameTitle": "Rinomina «{{name}}»",
+    "deleteTitle": "Eliminare «{{name}}»?",
+    "deleteBody": "I suoi widget e il suo layout vengono rimossi. Modelli e overlay vengono mantenuti.",
+    "deleteConfirm": "Elimina la dashboard",
+    "resetTitle": "Ripristinare «{{name}}»?",
+    "resetToTemplate": "Il modello «{{name}}» sostituisce i widget e lo stile attuali. I tuoi modelli salvati vengono mantenuti.",
+    "resetToDefault": "I widget predefiniti sostituiscono quelli attuali. I tuoi modelli vengono mantenuti.",
+    "resetConfirm": "Ripristina la dashboard",
+    "exportTitle": "Esporta la dashboard",
+    "exportBody": "Una descrizione JSON portabile. Non contiene identificativi hardware, percorsi o nomi utente.",
+    "exportedJson": "JSON esportato",
+    "importTitle": "Importa una dashboard",
+    "importBody": "Incolla un'esportazione di dashboard PULSE. Viene aggiunta come nuova dashboard.",
+    "json": "JSON della dashboard",
+    "widgets": "Widget di {{name}}",
+    "widenToEdit": "Allarga la finestra per riorganizzare i widget; i layout stretti servono per la consultazione."
+  },
+  "widget": {
+    "actions": "Azioni di {{name}}",
+    "actionsMenu": "Menu azioni di {{name}}",
+    "dragToMoveNamed": "Trascina per spostare {{name}}",
+    "dragToMove": "Trascina per spostare (o usa i tasti freccia)",
+    "dragToResize": "Trascina per ridimensionare (o Maiusc + tasti freccia)",
+    "toOverlay": "In un overlay"
+  },
+  "history": {
+    "ranges": {
+      "15m": "15 min",
+      "1h": "1 h",
+      "6h": "6 h",
+      "24h": "24 h",
+      "7d": "7 g"
+    },
+    "cpu": {
+      "view": "Vista CPU",
+      "total": "Totale",
+      "title": "Cronologia CPU",
+      "totalNote": "CPU totale è l'utilizzo dell'intera macchina che il backend misura su tutti i processori logici, non una media ricostruita da essi.",
+      "logicalNote": "I processori logici più attivi nel periodo selezionato. CPU totale resta il riferimento.",
+      "loading": "Lettura dei processori…",
+      "logicalHistory": "Cronologia dei processori logici",
+      "showMostActive_one": "Mostra il più attivo",
+      "showMostActive_many": "Mostra i {{count}} più attivi",
+      "showMostActive_other": "Mostra i {{count}} più attivi"
+    },
+    "gpu": {
+      "title": "Cronologia GPU",
+      "none": "Nessuna GPU rilevata.",
+      "telemetryUnavailable": "Telemetria non disponibile: {{reason}}"
+    },
+    "thermal": {
+      "title": "Cronologia termica",
+      "none": "Nessun sensore di temperatura leggibile su questa macchina.",
+      "notCharted": "Non rappresentati: {{list}}"
+    },
+    "storage": {
+      "title": "Cronologia archiviazione",
+      "none": "Nessun dispositivo di archiviazione rilevato.",
+      "device": "Dispositivo di archiviazione"
+    },
+    "network": {
+      "title": "Cronologia di rete",
+      "none": "Nessuna interfaccia di rete rilevata.",
+      "interface": "Interfaccia di rete"
+    },
+    "memory": {
+      "title": "Cronologia memoria",
+      "used": "{{value}} usati"
+    },
+    "processes": {
+      "count": "Numero di processi",
+      "title": "Cronologia del numero di processi",
+      "footnote": "Solo conteggi dell'intera macchina. PULSE non registra mai la cronologia di un singolo processo."
+    },
+    "status": {
+      "title": "Registratore della cronologia",
+      "loading": "Interrogazione della cronologia…",
+      "unavailable": "Cronologia non disponibile: {{reason}}. Il monitoraggio dal vivo non è interessato.",
+      "unknownReason": "motivo sconosciuto",
+      "state": "Stato",
+      "recording": "Registrazione",
+      "stateUnavailable": "Non disponibile",
+      "cadence": "Cadenza",
+      "every": "Ogni {{value}} s",
+      "historized": "Metriche registrate",
+      "batches": "Lotti in questa sessione",
+      "lastBatch": "Ultimo lotto",
+      "lastBatchValue_one": "{{time}} · {{count}} riga",
+      "lastBatchValue_many": "{{time}} · {{count}} righe",
+      "lastBatchValue_other": "{{time}} · {{count}} righe",
+      "sampleWrite": "Campionamento / scrittura",
+      "median": "{{sample}} ms / {{write}} ms mediana",
+      "database": "Database",
+      "size": "Dimensione",
+      "rows": "Righe",
+      "rowsValue": "{{raw}} grezze · {{aggregated}} aggregate · {{series}} serie",
+      "schemaJournal": "Schema / journal",
+      "lastError": "Ultimo errore: {{error}}",
+      "scheduler": "Scritto da un unico pianificatore in background; i pulsanti Aggiorna non registrano mai.",
+      "counting": "Conteggio…",
+      "details": "Dettagli del database"
+    }
+  },
+  "viz": {
+    "ui": {
+      "preview": "Anteprima",
+      "preset": "Preimpostazione",
+      "presetName": "Nome della preimpostazione",
+      "newPresetName": "Nome della nuova preimpostazione",
+      "visualization": "Visualizzazione",
+      "visualizationType": "Tipo di visualizzazione",
+      "timeRange": "Intervallo di tempo",
+      "size": "Dimensione",
+      "compactMode": "Modalità compatta",
+      "lineFill": "Linea e riempimento",
+      "lineWidth": "Spessore della linea",
+      "curve": "Curva",
+      "points": "Punti",
+      "pointMarkers": "Marcatori dei punti",
+      "fillOpacity": "Opacità del riempimento",
+      "smoothing": "Smussatura",
+      "colors": "Colori",
+      "colorMode": "Modalità colore",
+      "primary": "Primario",
+      "secondary": "Secondario",
+      "text": "Testo",
+      "grid": "Griglia",
+      "background": "Sfondo",
+      "border": "Bordo",
+      "gradientStart": "Inizio della sfumatura",
+      "gradientEnd": "Fine della sfumatura",
+      "above": "sopra",
+      "backgroundFrame": "Sfondo e cornice",
+      "backgroundOpacity": "Opacità dello sfondo",
+      "cornerRadius": "Raggio degli angoli",
+      "shadow": "Ombra",
+      "textSize": "Dimensione del testo",
+      "weight": "Peso",
+      "fontWeight": "Peso del carattere",
+      "decimals": "Decimali",
+      "decimalPrecision": "Precisione decimale",
+      "label": "Etichetta",
+      "unit": "Unità",
+      "axesGridScale": "Assi, griglia e scala",
+      "xAxis": "Asse X",
+      "yAxis": "Asse Y",
+      "yScale": "Scala Y",
+      "legendTooltipStatistics": "Legenda, tooltip e statistiche",
+      "legend": "Legenda",
+      "tooltip": "Tooltip",
+      "current": "Attuale",
+      "minimum": "Minimo",
+      "maximum": "Massimo",
+      "average": "Media",
+      "gauge": "Indicatore",
+      "ringThickness": "Spessore dell'anello",
+      "arc": "Arco",
+      "gaugeArc": "Arco dell'indicatore",
+      "fillPlaceholder": "riempimento",
+      "fill": "Riempimento",
+      "colourOf": "Colore di {{name}}",
+      "hexOf": "Valore esadecimale di {{name}}",
+      "labelOf": "Etichetta di {{name}}",
+      "customFrom": "Personalizzato (da {{name}})",
+      "presetWord": "preimpostazione",
+      "customizeNamed": "Personalizza {{name}}",
+      "resetVisualization": "Ripristina la visualizzazione",
+      "deletePreset": "Elimina la preimpostazione",
+      "saveAsPreset": "Salva come preimpostazione",
+      "gaugeUnavailable": "L'indicatore non è disponibile: questa metrica non ha limiti naturali. Imposta una scala fissa per usarlo.",
+      "height": "Altezza",
+      "width": "Larghezza",
+      "followingTheme": "Segue il tema di PULSE. Scegliere un colore qualsiasi passa a Manuale.",
+      "series": "Serie",
+      "thresholdBands": "Fasce di soglia",
+      "thresholdHint": "Fasce visive scelte da te, non un giudizio su cosa sia troppo alto sulla tua macchina.",
+      "bandColour": "Colore della fascia {{index}}",
+      "bandUpper": "Limite superiore della fascia {{index}}",
+      "removeBand": "Rimuovi la fascia {{index}}",
+      "addBand": "Aggiungi fascia",
+      "compactHides": "La modalità compatta e le sparkline nascondono assi, griglia e legenda.",
+      "min": "Min",
+      "max": "Max",
+      "smoothingHint": "Solo visivo: i campioni salvati e il tooltip mantengono i valori reali.",
+      "fillFollowsLine": "Il riempimento segue il colore della linea"
+    },
+    "lineWidths": {
+      "thin": "Sottile",
+      "medium": "Media",
+      "thick": "Spessa"
+    },
+    "options": {
+      "small": "Piccola",
+      "medium": "Media",
+      "large": "Grande",
+      "custom": "Personalizzata",
+      "straight": "Dritta",
+      "smooth": "Morbida",
+      "stepped": "A gradini",
+      "none": "Nessuno",
+      "visible": "Visibile",
+      "solid": "Pieno",
+      "gradient": "Sfumatura",
+      "theme": "Tema",
+      "manual": "Manuale",
+      "threshold": "Soglia",
+      "light": "Leggera",
+      "thin": "Sottile",
+      "subtle": "Discreta",
+      "glow": "Bagliore",
+      "regular": "Normale",
+      "bold": "Grassetto",
+      "full": "Cerchio completo",
+      "three-quarter": "Tre quarti",
+      "half": "Metà",
+      "auto": "Automatica",
+      "fixed": "Fissa"
+    },
+    "status": {
+      "loading": "Caricamento della cronologia…",
+      "unavailable": "Cronologia non disponibile: {{reason}}",
+      "collecting": "Raccolta della cronologia…",
+      "oneSample": "Raccolta della cronologia… finora un campione.",
+      "noData": "nessun dato",
+      "scaledToPeak": "Scalato al picco del periodo, {{value}}",
+      "overTime": "{{name}} nel tempo"
+    },
+    "stats": {
+      "current": "Attuale",
+      "min": "Min",
+      "max": "Max",
+      "average": "Media"
+    }
+  },
+  "appearance": {
+    "styleAria": "Stile {{name}}",
+    "ui": {
+      "styles": "Stili",
+      "yourStyles": "I tuoi stili",
+      "colour": "Colore",
+      "accentColour": "Colore d'accento",
+      "accent": "Accento",
+      "chartPalette": "Tavolozza dei grafici",
+      "surfaces": "Superfici",
+      "panelOpacity": "Opacità dei pannelli",
+      "glassBlur": "Sfocatura del vetro",
+      "borderStrength": "Intensità dei bordi",
+      "shadowDepth": "Profondità delle ombre",
+      "shapeType": "Forma e caratteri",
+      "cornerRoundness": "Arrotondamento degli angoli",
+      "font": "Carattere",
+      "textSize": "Dimensione del testo",
+      "layoutDensity": "Layout e densità",
+      "density": "Densità",
+      "widgetPadding": "Spaziatura interna dei widget",
+      "gapBetweenWidgets": "Spazio tra i widget",
+      "overlayPadding": "Spaziatura interna degli overlay",
+      "overlayGap": "Spazio negli overlay",
+      "charts": "Grafici",
+      "lineThickness": "Spessore della linea",
+      "fillOpacity": "Opacità del riempimento",
+      "lineShape": "Forma della linea",
+      "contentMotion": "Contenuto e animazioni",
+      "widgetTitles": "Titoli dei widget",
+      "labelsInTinyWidgets": "Etichette nei widget minuscoli",
+      "motion": "Animazioni",
+      "livePreview": "Anteprima dal vivo",
+      "styleName": "Nome dello stile",
+      "deleteThisStyle": "Eliminare questo stile?",
+      "exportStyle": "Esporta lo stile",
+      "exportedStyle": "Stile esportato",
+      "importStyle": "Importa uno stile",
+      "styleJson": "JSON dello stile",
+      "overlayPaddingNote": "Usata quando un overlay adotta uno stile."
+    },
+    "subtitle": "Otto stili che cambiano superfici, profondità, caratteri, densità e grafici, non solo i colori. Regola uno qualsiasi e salva il risultato come tuo.",
+    "modeOn": "La <strong>modalità {{mode}}</strong> è attiva: lo stile che scegli si applica a essa.",
+    "leaveMode": "Esci dalla modalità {{mode}}",
+    "myStyle": "Il mio {{name}}",
+    "saveCurrent": "Salva l'aspetto attuale",
+    "noUserStyles": "Regola uno stile qui sotto, poi salvalo qui. Gli stili salvati si possono duplicare, rinominare, esportare e condividere.",
+    "basedOn": "basato su {{name}}",
+    "inUse": "In uso",
+    "use": "Usa",
+    "styleAccentTitle": "L'accento dello stile ({{color}})",
+    "styleAccent": "Accento dello stile",
+    "fonts": {
+      "style": "Stile",
+      "sans": "Sans",
+      "rounded": "Arrotondato",
+      "condensed": "Condensato",
+      "mono": "Mono"
+    },
+    "styleWith": "Stile ({{value}})",
+    "densities": {
+      "compact": "Compatta",
+      "comfortable": "Comoda",
+      "spacious": "Spaziosa"
+    },
+    "chartsNote": "Si applica a ogni grafico che segue ancora la sua preimpostazione. I grafici personalizzati mantengono le proprie impostazioni.",
+    "motionLevels": {
+      "full": "Complete",
+      "reduced": "Ridotte",
+      "none": "Nessuna"
+    },
+    "resetAll": "Ripristina ogni regolazione di {{name}}",
+    "livePreviewNamed": "Anteprima dal vivo · {{name}}",
+    "saveLook": "Salva questo aspetto",
+    "renameStyle": "Rinomina lo stile",
+    "deleteBody": "Ciò che lo usa ora mantiene il suo aspetto finché non ne scegli un altro.",
+    "deleteStyle": "Elimina lo stile",
+    "exportBody": "Una descrizione JSON portabile dello stile: solo colori, caratteri e regolazioni.",
+    "importBody": "Incolla un'esportazione di stile PULSE. Viene aggiunta ai tuoi stili.",
+    "useStyle": "Usa lo stile",
+    "import": {
+      "notExport": "Questa non è un'esportazione di stile PULSE.",
+      "version": "Versione di esportazione dello stile non supportata: {{version}}.",
+      "noName": "L'esportazione non ha un nome di stile.",
+      "limit_one": "Al massimo {{count}} stile salvato.",
+      "limit_many": "Al massimo {{count}} stili salvati.",
+      "limit_other": "Al massimo {{count}} stili salvati."
+    }
+  },
+  "mini": {
+    "shownIn": "Mostrata in Mini"
+  },
+  "processes": {
+    "nice": {
+      "title": "Valore nice personalizzato — {{name}}",
+      "range": "PID {{pid}}. I valori nice vanno da {{min}} (più favorito) a {{max}} (meno).",
+      "privileges": "Abbassare il valore di solito richiede privilegi che PULSE non ha.",
+      "value": "Valore nice"
+    },
+    "affinity": {
+      "title": "Affinità CPU — {{name}}",
+      "body": "Scegli i processori logici su cui può girare il PID {{pid}}.",
+      "selectAll": "Seleziona tutti",
+      "keepOne": "Mantieni almeno una CPU: un processo senza CPU consentite non può girare."
+    },
+    "status": {
+      "success": "Fatto",
+      "permissionDenied": "Permesso negato",
+      "staleProcess": "Non eseguito: il PID ora appartiene a un altro processo",
+      "processGone": "Processo già terminato",
+      "unsupported": "Non supportato",
+      "partialFailure": "Eseguito in parte",
+      "invalidRequest": "Non eseguito",
+      "platformError": "Non riuscito"
+    },
+    "outcome": {
+      "suspend": "Processo {{pid}} sospeso.",
+      "resume": "Processo {{pid}} ripreso.",
+      "terminate": "Chiesto al processo {{pid}} di terminare.",
+      "forceKill": "Processo {{pid}} terminato forzatamente.",
+      "priority": "Priorità modificata per il processo {{pid}}.",
+      "affinity": "Affinità modificata per il processo {{pid}}.",
+      "terminateTree": "Albero dei processi di {{pid}} terminato.",
+      "openLocation": "Aperta la posizione dell'eseguibile.",
+      "priorityPartial": "Priorità modificata su {{applied}} thread del processo {{pid}}; {{failed}} thread hanno rifiutato.",
+      "affinityPartial": "Affinità modificata su {{applied}} thread del processo {{pid}}; {{failed}} thread hanno rifiutato.",
+      "tree_one": "{{terminated}} di {{count}} processo terminati; {{gone}} erano già terminati, {{refused}} rifiutati, {{stale}} saltati perché obsoleti, {{failed}} non riusciti.",
+      "tree_many": "{{terminated}} di {{count}} processi terminati; {{gone}} erano già terminati, {{refused}} rifiutati, {{stale}} saltati perché obsoleti, {{failed}} non riusciti.",
+      "tree_other": "{{terminated}} di {{count}} processi terminati; {{gone}} erano già terminati, {{refused}} rifiutati, {{stale}} saltati perché obsoleti, {{failed}} non riusciti."
+    },
+    "hash": {
+      "computed": "Calcolato",
+      "changedWhileHashing": "Il file è cambiato durante la lettura",
+      "permissionDenied": "Permesso negato",
+      "notFound": "File non trovato",
+      "notAFile": "Non è un file normale",
+      "readError": "Errore di lettura"
+    },
+    "confirm": {
+      "who": "{{name}} (PID {{pid}})",
+      "selfWarning": "Terminare PULSE chiuderà questa applicazione.",
+      "endTitle": "Terminare {{name}}?",
+      "endSigterm": "{{who}} riceverà SIGTERM e gli verrà chiesto di terminare. Potrebbe volerci un momento, o potrebbe rifiutarsi.",
+      "endImmediate": "{{who}} verrà terminato immediatamente. Il lavoro non salvato andrà perso.",
+      "forceKillTitle": "Terminare forzatamente {{name}}?",
+      "forceKillBody": "{{who}} riceverà SIGKILL. Non può essere intercettato né ignorato: il processo non ha modo di salvare nulla o di fare pulizia.",
+      "treeTitle": "Terminare {{name}} e il suo albero dei processi?",
+      "treeRoot": "Processo radice: {{who}}.",
+      "treeBody_one": "Verrà terminato prima circa {{count}} processo discendente, dal più profondo, poi la radice. Ognuno viene ricontrollato subito prima di essere terminato; un PID passato a un altro processo viene saltato.",
+      "treeBody_many": "Verranno terminati prima circa {{count}} processi discendenti, dal più profondo, poi la radice. Ognuno viene ricontrollato subito prima di essere terminato; un PID passato a un altro processo viene saltato.",
+      "treeBody_other": "Verranno terminati prima circa {{count}} processi discendenti, dal più profondo, poi la radice. Ognuno viene ricontrollato subito prima di essere terminato; un PID passato a un altro processo viene saltato.",
+      "realtimeTitle": "Impostare la priorità Tempo reale?",
+      "realtimeWarning": "La priorità Tempo reale può rendere il sistema non reattivo.",
+      "realtimeBody": "Si applica a {{who}}. Senza il privilegio necessario, Windows applica Alta al suo posto, e PULSE lo segnalerà.",
+      "realtimeConfirm": "Imposta Tempo reale"
+    },
+    "copy": {
+      "done": "{{label}} copiato.",
+      "failed": "Impossibile copiare {{label}}."
+    },
+    "category": {
+      "user": "Utente",
+      "system": "Sistema",
+      "kernel": "Thread del kernel",
+      "unknown": "Sconosciuto"
+    },
+    "state": {
+      "running": "In esecuzione",
+      "sleeping": "In attesa",
+      "stopped": "Fermato",
+      "zombie": "Zombie"
+    },
+    "priority": {
+      "realtime": "Tempo reale",
+      "high": "Alta",
+      "aboveNormal": "Sopra il normale",
+      "normal": "Normale",
+      "belowNormal": "Sotto il normale",
+      "low": "Bassa"
+    },
+    "affinityNone": "nessuna",
+    "affinitySummary_one": "CPU {{list}} ({{count}} di {{total}})",
+    "affinitySummary_many": "CPU {{list}} ({{count}} di {{total}})",
+    "affinitySummary_other": "CPU {{list}} ({{count}} di {{total}})",
+    "trust": {
+      "trusted": "Firma attendibile",
+      "signedButUntrusted": "Firmato, non attendibile",
+      "invalid": "Firma non valida",
+      "unsigned": "Non firmato",
+      "permissionDenied": "Permesso negato",
+      "unavailable": "Non disponibile"
+    },
+    "provenance": {
+      "userHome": "Eseguibile utente/locale (nella tua cartella home, non da un pacchetto)",
+      "localInstall": "Eseguibile utente/locale (installato fuori dal gestore di pacchetti)",
+      "notDetected": "Pacchetto non rilevato"
+    },
+    "menu": {
+      "exited": "Processo già terminato.",
+      "unavailable": "Non disponibile.",
+      "checking": "Verifica dei permessi…",
+      "nicePreset": "{{level}} (nice {{value}})",
+      "customNice": "Valore nice personalizzato…",
+      "forceKill": "Termina forzatamente",
+      "inspect": "Esamina i dettagli",
+      "search": "Cerca online",
+      "openLocation": "Apri il percorso del file",
+      "processName": "Nome del processo",
+      "executablePath": "Percorso dell'eseguibile",
+      "executableUnavailable": "Eseguibile non disponibile.",
+      "instanceId": "ID istanza del processo",
+      "suspend": "Sospendi",
+      "resume": "Riprendi",
+      "end": "Termina il processo",
+      "endTree": "Termina l'albero dei processi",
+      "setPriority": "Imposta la priorità",
+      "setAffinity": "Imposta l'affinità…",
+      "affinityUnreadable": "Impossibile leggere l'affinità attuale.",
+      "actionsFor": "Azioni per {{name}}",
+      "inspectApplication": "Esamina l'applicazione",
+      "showProcesses": "Mostra i processi"
+    },
+    "table": {
+      "processDetails": "Dettagli dei processi",
+      "dismiss": "Ignora",
+      "processView": "Vista dei processi",
+      "processCategory": "Categoria di processi",
+      "refreshProcessDetails": "Aggiorna i dettagli dei processi",
+      "applications": "Applicazioni",
+      "application": "Applicazione",
+      "processes": "Processi",
+      "memory": "Memoria",
+      "read": "Lettura",
+      "write": "Scrittura",
+      "process": "Processo",
+      "threads": "Thread",
+      "state": "Stato",
+      "searchPlaceholder": "Cerca per nome o PID",
+      "searchLabel": "Cerca processi per nome o PID"
+    },
+    "filters": {
+      "all": "Tutti",
+      "user": "Utente",
+      "system": "Sistema",
+      "kernel": "Kernel"
+    },
+    "oneOf_one": "1 di {{count}} processo di {{name}}",
+    "oneOf_many": "1 di {{count}} processi di {{name}}",
+    "oneOf_other": "1 di {{count}} processi di {{name}}",
+    "loading": "Lettura della tabella dei processi…",
+    "showAll_one": "Mostra {{count}} processo",
+    "showAll_many": "Mostra tutti i {{count}} processi",
+    "showAll_other": "Mostra tutti i {{count}} processi",
+    "updated": "Aggiornato {{time}} · raccolto in {{ms}} ms",
+    "note": "La CPU è una quota della capacità <strong>totale</strong> di questa macchina, quindi un thread che satura un processore logico è una piccola percentuale, e la colonna somma all'incirca quanto mostra l'indicatore CPU di sistema. Lettura e Scrittura sono i contatori di I/O per processo della piattaforma (vedi la documentazione per le differenze tra Fedora e Windows). Le velocità sono misurate <em>tra</em> due istantanee, quindi compaiono solo dopo un aggiornamento. Fai clic su un processo per esaminarlo; clic destro (o Maiusc+F10) per le azioni. Ogni azione punta a quella precisa istanza del processo, viene confermata se distruttiva e non parte mai da sola. Le righe di comando non vengono raccolte di proposito.",
+    "noApplicationMatch": "Nessuna applicazione corrisponde a questa ricerca.",
+    "noProcessMatch": "Nessun processo corrisponde a questa ricerca.",
+    "groupedByName": "Raggruppati per nome del processo: PULSE non ha potuto leggere gli eseguibili di questi processi, quindi due programmi non correlati con lo stesso nome verrebbero contati insieme.",
+    "inspector": {
+      "processInspector": "Ispettore dei processi",
+      "closeInspector": "Chiudi l'ispettore",
+      "identity": "Identità",
+      "processName": "Nome del processo",
+      "product": "Prodotto",
+      "parent": "Padre",
+      "instanceId": "ID istanza",
+      "state": "Stato",
+      "started": "Avviato",
+      "owner": "Proprietario",
+      "category": "Categoria",
+      "architecture": "Architettura",
+      "resourceUsage": "Uso delle risorse",
+      "memory": "Memoria",
+      "threads": "Thread",
+      "read": "Lettura",
+      "write": "Scrittura",
+      "executable": "Eseguibile",
+      "path": "Percorso",
+      "file": "File",
+      "size": "Dimensione",
+      "modified": "Modificato",
+      "securityProvenance": "Sicurezza e provenienza",
+      "description": "Descrizione",
+      "company": "Azienda",
+      "version": "Versione",
+      "scheduling": "Pianificazione",
+      "priority": "Priorità",
+      "cpuAffinity": "Affinità CPU",
+      "processControl": "Controllo del processo",
+      "suspend": "Sospendi",
+      "resume": "Riprendi",
+      "endProcess": "Termina il processo",
+      "endProcessTree": "Termina l'albero dei processi",
+      "forceKill": "Termina forzatamente",
+      "provenance": "Provenienza",
+      "package": "Pacchetto",
+      "signature": "Firma",
+      "publisher": "Editore",
+      "setPriority": "Imposta la priorità",
+      "stale": "Questo processo è terminato e il suo PID ora appartiene a un processo diverso. PULSE non agirà su di esso.",
+      "exited": "Processo terminato. Non si può fare altro.",
+      "reading": "Lettura di questo processo…",
+      "self": "Questo è PULSE stesso. Terminarlo chiuderà questa applicazione.",
+      "kernelThread": "Un thread del kernel gira dentro il kernel: non ha eseguibile né pacchetto e non può essere controllato da PULSE.",
+      "notInSnapshot": "Non presente nell'ultima istantanea.",
+      "replaced": "Il file da cui è partito questo processo è stato poi eliminato o sostituito sul disco.",
+      "copyPath": "Copia il percorso",
+      "versionNote": "Descrizione, prodotto e azienda sono dichiarati dal file stesso e non provano nulla; la firma è ciò che Windows ha verificato.",
+      "computing": "Calcolo…",
+      "computeHash": "Calcola SHA-256",
+      "provenanceNote": "La provenienza è un indizio, non un verdetto: un pacchetto o una firma valida non rendono sicuro un programma, e la loro assenza non lo rende dannoso.",
+      "changeAffinity": "Cambia l'affinità…",
+      "suspendedByPulse": "PULSE ha sospeso questo processo durante questa sessione.",
+      "suspendedState": "{{state}} (sospeso da PULSE)",
+      "notApplicableKernel": "Non applicabile a un thread del kernel",
+      "catalog": "(catalogo di sistema)",
+      "claimed": "(dichiarato, non attendibile)",
+      "notComputed": "Non calcolato",
+      "copyHash": "Copia SHA-256",
+      "searchHash": "Cerca l'hash online",
+      "checkVirusTotal": "Controlla l'hash su VirusTotal",
+      "custom": "Personalizzato…",
+      "memoryPercent": "Memoria %",
+      "searchHint": "Apre il browser su una ricerca web del nome del programma",
+      "virusTotalHint": "Apre nel browser la pagina VirusTotal di questo hash. Il file non viene mai caricato."
+    }
+  },
+  "cards": {
+    "updated": "Aggiornato {{time}}",
+    "notReported": "Non riportato",
+    "notReportedByBackend": "Non riportato dal backend",
+    "cpu": {
+      "title": "Dettagli CPU",
+      "loading": "Lettura della topologia CPU…",
+      "packages": "Package",
+      "packageTemperature": "Temperatura di {{name}}",
+      "showAll_one": "Mostra {{count}} processore",
+      "showAll_many": "Mostra tutti i {{count}} processori",
+      "showAll_other": "Mostra tutti i {{count}} processori",
+      "noProcessors": "Su questa macchina non è esposto alcun processore logico individuale.",
+      "refresh": "Aggiorna i dettagli CPU",
+      "note": "Un core fisico può ospitare più processori logici, quindi l'utilizzo è riportato per processore logico. Le frequenze sono quelle riportate dal sistema operativo. La temperatura del package è il sensore proprio del processore, mai una media dei suoi core.",
+      "maxFor": "Massimo riportato per {{name}}: {{value}}",
+      "noMax": "nessuna frequenza massima è pubblicata per questo processore"
+    },
+    "gpu": {
+      "gpuDetails": "Dettagli GPU",
+      "graphicsAdapters": "Schede grafiche",
+      "refreshGpuDetails": "Aggiorna i dettagli GPU",
+      "gpuUsage": "Utilizzo GPU",
+      "vramUsage": "Utilizzo VRAM",
+      "coreClock": "Clock del core",
+      "memoryClock": "Clock della memoria",
+      "temperature": "Temperatura",
+      "hotspot": "Hotspot",
+      "memoryTemperature": "Temperatura della memoria",
+      "fan": "Ventola",
+      "loading": "Rilevamento delle schede grafiche…",
+      "none": "Nessuna scheda grafica hardware rilevata. I renderer software non vengono contati come GPU, di proposito.",
+      "note": "I valori VRAM descrivono la memoria video dedicata di ciascuna scheda. La memoria di sistema condivisa con una GPU integrata non è riportata come VRAM. Le temperature dell'hotspot e della memoria sono sensori separati, mai derivati dalla temperatura della GPU, e la velocità della ventola è mostrata solo quando il driver riporta veri giri al minuto.",
+      "vramKnownOnly": "La VRAM installata è nota; l'utilizzo dal vivo richiede un driver del produttore che questa scheda non fornisce.",
+      "perfUnavailable": "Telemetria delle prestazioni non disponibile",
+      "perfUnavailableDefault": "Il driver di questa scheda non espone dati su utilizzo, memoria video o clock.",
+      "thermalRemain": "I sensori termici restano disponibili."
+    },
+    "storage": {
+      "storageDetails": "Dettagli archiviazione",
+      "storageDevices": "Dispositivi di archiviazione",
+      "otherVolumes": "Altri volumi",
+      "refreshStorageDetails": "Aggiorna i dettagli dell'archiviazione",
+      "read": "Lettura",
+      "write": "Scrittura",
+      "readIops": "IOPS in lettura",
+      "writeIops": "IOPS in scrittura",
+      "readLatency": "Latenza di lettura",
+      "writeLatency": "Latenza di scrittura",
+      "temperature": "Temperatura",
+      "usedEndurance": "Durata consumata",
+      "availableSpare": "Riserva disponibile",
+      "powerOnHours": "Ore di accensione",
+      "unsafeShutdowns": "Spegnimenti non sicuri",
+      "mediaErrors": "Errori del supporto",
+      "loading": "Rilevamento dei dispositivi di archiviazione…",
+      "none": "Nessun dispositivo di archiviazione fisico censito. Dispositivi loop, RAM disk e volumi device-mapper non vengono contati come dischi, di proposito.",
+      "otherVolumesHint": "File system montati che PULSE non ha potuto collegare a uno dei dischi sopra. Sono elencati a parte anziché attribuiti al dispositivo sbagliato.",
+      "note": "Throughput, IOPS e latenza sono misurati <em>tra</em> due campioni, quindi compaiono solo dopo un aggiornamento. Una latenza è la media delle operazioni effettivamente completate: un intervallo senza operazioni non ha latenza e mostra <code>—</code> anziché 0 ms. Durata consumata e riserva disponibile sono i valori standardizzati del controller stesso: la riserva disponibile è la scorta di blocchi sostitutivi, non lo spazio libero di un file system.",
+      "waitingHint": "L'attività del disco è la differenza tra due letture. Aggiorna per misurarla.",
+      "free": "{{value}} liberi",
+      "full": "{{name}} è pieno al {{value}}",
+      "healthUnavailable": "Report di salute non disponibile",
+      "noHealthLog": "Questo dispositivo non riporta alcun log di salute standardizzato."
+    },
+    "waitingSample": "In attesa di un altro campione",
+    "network": {
+      "networkDetails": "Dettagli di rete",
+      "networkInterfaces": "Interfacce di rete",
+      "virtualInterfaces": "Interfacce virtuali",
+      "virtualInterfaceList": "Elenco delle interfacce virtuali",
+      "refreshNetworkDetails": "Aggiorna i dettagli di rete",
+      "download": "Download",
+      "upload": "Upload",
+      "rxPackets": "Pacchetti RX",
+      "txPackets": "Pacchetti TX",
+      "errors": "Errori",
+      "dropped": "Scartati",
+      "linkRx": "Link RX",
+      "linkTx": "Link TX",
+      "signal": "Segnale",
+      "quality": "Qualità",
+      "wiFiRx": "Wi-Fi RX",
+      "wiFiTx": "Wi-Fi TX",
+      "loading": "Rilevamento delle interfacce di rete…",
+      "none": "Nessuna interfaccia di rete censita. L'interfaccia di loopback è esclusa di proposito: esiste sempre e trasporta solo traffico che non ha mai lasciato questa macchina.",
+      "virtualCount": "Interfacce virtuali ({{count}})",
+      "virtualHint": "Bridge, collegamenti dei container e altre interfacce software. Compresse perché una macchina con container non seppellisca le schede reali: mai rimosse.",
+      "note": "Download è ciò che arriva a questa macchina e Upload ciò che la lascia. Il traffico è misurato <em>tra</em> due campioni, quindi compare solo dopo un aggiornamento. Le velocità di collegamento sono la capacità negoziata dal driver, in bit al secondo, non quanto sta passando, che è in byte. I frame scartati sono un contatore locale e <strong>non</strong> la perdita di pacchetti su Internet, che PULSE non misura.",
+      "kinds": {
+        "Ethernet": "Ethernet",
+        "Wi-Fi": "Wi-Fi",
+        "Bridge": "Bridge",
+        "Tunnel": "Tunnel",
+        "Virtual": "Virtuale",
+        "Network": "Rete"
+      },
+      "connected": "Connessa",
+      "disconnected": "Disconnessa",
+      "waitingHint": "Il traffico è la differenza tra due letture. Aggiorna per misurarlo.",
+      "wifiUnavailable": "Dettagli del collegamento Wi-Fi non disponibili"
+    },
+    "live": {
+      "title": "Campione di sistema dal vivo",
+      "loading": "Campionamento…",
+      "refresh": "Aggiorna il campione",
+      "reconcile": "usata + disponibile = totale, quindi i due valori sopra tornano sempre.",
+      "waitingNext": "In attesa del prossimo campione"
+    },
+    "engine": {
+      "title": "Motore delle metriche",
+      "loading": "Interrogazione del motore…",
+      "unavailable": "Motore non disponibile. Avvia PULSE con <code>pnpm app:dev</code> per raggiungere il livello Rust.",
+      "status": "Stato",
+      "schema": "Schema",
+      "providers": "Provider",
+      "metrics": "Metriche",
+      "available_one": "({{count}} disponibile)",
+      "available_many": "({{count}} disponibili)",
+      "available_other": "({{count}} disponibili)",
+      "schemaMismatch": "Il backend usa lo schema delle metriche v{{backend}}; questa interfaccia si aspetta la v{{expected}}.",
+      "empty": "Nessun provider ancora registrato: PULSE non raccoglie metriche hardware in questa fase."
+    }
+  },
+  "tray": {
+    "open": "Apri PULSE",
+    "edit": "Modifica gli overlay",
+    "lock": "Blocca gli overlay",
+    "toggle": "Mostra / nascondi gli overlay",
+    "quit": "Esci da PULSE"
+  }
+}

@@ -1,4 +1,5 @@
 import type { MetricUnit } from '@/types/metrics';
+import { formatDateTime, formatFixed } from '@/i18n/format';
 
 /**
  * Value and time formatting for visualizations.
@@ -6,7 +7,8 @@ import type { MetricUnit } from '@/types/metrics';
  * Every renderer — the big number, the axis, the tooltip, the bar label —
  * goes through here, so one metric reads the same in every representation.
  * Values arrive in canonical units (bytes, hertz, °C, percent) and are only
- * scaled at this edge.
+ * scaled at this edge. Numbers, dates and times follow the active PULSE
+ * language; unit symbols are the international ones.
  */
 
 export interface FormattedValue {
@@ -58,11 +60,10 @@ const BINARY = ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB'];
 const DECIMAL_BITS = ['bit/s', 'kbit/s', 'Mbit/s', 'Gbit/s', 'Tbit/s'];
 
 function grouped(value: number, decimals: number): string {
-  return value.toLocaleString('en-US', {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-  });
+  return formatFixed(value, decimals, { grouping: true });
 }
+
+const fixed = (value: number, decimals: number) => formatFixed(value, decimals);
 
 /**
  * Splits a value into its number and unit, at `decimals` (or the unit's
@@ -88,7 +89,7 @@ export function formatParts(
       }
       const sign = value < 0 ? '-' : '';
       return {
-        value: sign + (index === 0 ? String(Math.round(scaled)) : scaled.toFixed(digits)),
+        value: sign + (index === 0 ? fixed(Math.round(scaled), 0) : fixed(scaled, digits)),
         unit: `${BINARY[index]}${suffix}`,
       };
     }
@@ -102,21 +103,21 @@ export function formatParts(
       return {
         value:
           (value < 0 ? '-' : '') +
-          (index === 0 ? String(Math.round(scaled)) : scaled.toFixed(digits)),
+          (index === 0 ? fixed(Math.round(scaled), 0) : fixed(scaled, digits)),
         unit: DECIMAL_BITS[index] ?? 'bit/s',
       };
     }
     case 'hertz':
       return value >= 1e9
-        ? { value: (value / 1e9).toFixed(digits), unit: 'GHz' }
-        : { value: String(Math.round(value / 1e6)), unit: 'MHz' };
+        ? { value: fixed(value / 1e9, digits), unit: 'GHz' }
+        : { value: fixed(Math.round(value / 1e6), 0), unit: 'MHz' };
     case 'count':
       return { value: grouped(value, digits), unit: '' };
     case 'ratio':
     case 'none':
-      return { value: value.toFixed(digits), unit: '' };
+      return { value: fixed(value, digits), unit: '' };
     default:
-      return { value: value.toFixed(digits), unit: SIMPLE_UNITS[unit] ?? '' };
+      return { value: fixed(value, digits), unit: SIMPLE_UNITS[unit] ?? '' };
   }
 }
 
@@ -157,22 +158,18 @@ export function formatTime(t: number, spanMs: number): string {
   if (!Number.isFinite(t)) return '—';
   const date = new Date(t);
   if (spanMs > 36 * HOUR_MS) {
-    return date.toLocaleString(undefined, { weekday: 'short', hour: '2-digit', minute: '2-digit' });
+    return formatDateTime(date, { weekday: 'short', hour: '2-digit', minute: '2-digit' });
   }
-  return date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+  return formatDateTime(date, { hour: '2-digit', minute: '2-digit' });
 }
 
 /** A tooltip timestamp: seconds included, the date too for long windows. */
 export function formatTooltipTime(t: number, spanMs: number): string {
   if (!Number.isFinite(t)) return '—';
   const date = new Date(t);
-  const time = date.toLocaleTimeString(undefined, {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-  });
+  const time = formatDateTime(date, { hour: '2-digit', minute: '2-digit', second: '2-digit' });
   if (spanMs > 24 * HOUR_MS) {
-    return `${date.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' })} ${time}`;
+    return `${formatDateTime(date, { weekday: 'short', day: 'numeric', month: 'short' })} ${time}`;
   }
   return time;
 }

@@ -1,5 +1,6 @@
 import type { DeepPartial, VisualizationConfig } from '@/visualization/config';
 import { BASE_CONFIG, mergeConfig } from '@/visualization/config';
+import { t } from '@/i18n/i18n';
 
 /**
  * Visual presets: a **starting point**, never a lock.
@@ -14,8 +15,12 @@ import { BASE_CONFIG, mergeConfig } from '@/visualization/config';
  */
 export interface VisualizationPreset {
   readonly id: string;
-  readonly name: string;
-  readonly description: string;
+  /**
+   * A saved preset's own name. Built-in presets have none: theirs are
+   * translations keyed by id (`visualization.presets.<id>.name`).
+   */
+  readonly name?: string;
+  readonly description?: string;
   readonly style: DeepPartial<VisualizationConfig>;
   /** Saved by the user rather than shipped. */
   readonly custom?: boolean;
@@ -26,8 +31,6 @@ export const DEFAULT_PRESET_ID = 'clean';
 export const BUILT_IN_PRESETS: readonly VisualizationPreset[] = [
   {
     id: 'clean',
-    name: 'Clean',
-    description: 'Smooth line, soft gradient, subtle grid on a dark panel.',
     style: {
       line: { width: 2, curve: 'smooth', points: 'none' },
       fill: { mode: 'gradient', opacity: 0.28 },
@@ -50,8 +53,6 @@ export const BUILT_IN_PRESETS: readonly VisualizationPreset[] = [
   },
   {
     id: 'minimal',
-    name: 'Minimal',
-    description: 'A thin line and the current value. No grid, no axes, no panel.',
     style: {
       line: { width: 1.25, curve: 'smooth', points: 'none' },
       fill: { mode: 'none', opacity: 0 },
@@ -74,8 +75,6 @@ export const BUILT_IN_PRESETS: readonly VisualizationPreset[] = [
   },
   {
     id: 'technical',
-    name: 'Technical',
-    description: 'Straight segments, sample markers, full axes and every statistic.',
     style: {
       line: { width: 1.5, curve: 'straight', points: 'small' },
       fill: { mode: 'none', opacity: 0 },
@@ -106,8 +105,6 @@ export const BUILT_IN_PRESETS: readonly VisualizationPreset[] = [
   },
   {
     id: 'gaming',
-    name: 'Gaming',
-    description: 'Thick bright line, strong gradient, glow and bold numbers.',
     style: {
       line: { width: 3, curve: 'smooth', points: 'none' },
       fill: { mode: 'gradient', opacity: 0.55 },
@@ -140,8 +137,6 @@ export const BUILT_IN_PRESETS: readonly VisualizationPreset[] = [
   },
   {
     id: 'compact',
-    name: 'Compact',
-    description: 'A sparkline with a small number: built for tiny spaces.',
     style: {
       renderer: 'sparkline',
       size: { preset: 'small', width: null, height: null },
@@ -166,8 +161,6 @@ export const BUILT_IN_PRESETS: readonly VisualizationPreset[] = [
   },
   {
     id: 'neon',
-    name: 'Neon',
-    description: 'Cyan and magenta on near-black, with a soft glow.',
     style: {
       line: { width: 2.5, curve: 'smooth', points: 'none' },
       fill: { mode: 'gradient', opacity: 0.4 },
@@ -189,8 +182,6 @@ export const BUILT_IN_PRESETS: readonly VisualizationPreset[] = [
   },
   {
     id: 'transparent',
-    name: 'Transparent',
-    description: 'No panel at all — only the line and its number. Overlay-ready.',
     style: {
       line: { width: 2, curve: 'smooth', points: 'none' },
       fill: { mode: 'solid', opacity: 0.18 },
@@ -210,6 +201,17 @@ export const BUILT_IN_PRESETS: readonly VisualizationPreset[] = [
     },
   },
 ];
+
+/** A preset's name as shown: a built-in one translated, a saved one verbatim. */
+export function presetName(preset: VisualizationPreset): string {
+  return preset.custom ? (preset.name ?? '') : t(`visualization.presets.${preset.id}.name`);
+}
+
+export function presetDescription(preset: VisualizationPreset): string {
+  return preset.custom
+    ? t('visualization.savedByYou')
+    : t(`visualization.presets.${preset.id}.description`);
+}
 
 /** Finds a preset among the built-in ones and `custom`. */
 export function findPreset(

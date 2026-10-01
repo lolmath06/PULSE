@@ -1,5 +1,6 @@
-import type { WidgetInstance } from '@/dashboard/model';
+import type { WidgetBinding, WidgetInstance } from '@/dashboard/model';
 import { GRID_COLUMNS } from '@/dashboard/model';
+import { storedText } from '@/i18n/text';
 
 /** Height of a widget's title line, in px. */
 export const TITLE_HEIGHT = 20;
@@ -45,6 +46,21 @@ export function contentBox(widget: WidgetInstance, width: number, height: number
   return frameLayout(widget, width, height).content;
 }
 
+/** A widget's own title as shown — a built-in one translated — or `null`. */
+export function widgetTitleText(widget: Pick<WidgetInstance, 'title' | 'titleKey'>): string | null {
+  return storedText(widget.titleKey, widget.title);
+}
+
+/** A binding's own label as shown — a built-in one translated — or `null`. */
+export function bindingLabelText(
+  binding: Pick<WidgetBinding, 'label' | 'labelKey'>,
+): string | null {
+  return storedText(binding.labelKey, binding.label);
+}
+
 export function widgetTitle(widget: WidgetInstance): string {
-  return widget.title ?? widget.bindings.map((binding) => binding.label ?? binding.key).join(' · ');
+  return (
+    widgetTitleText(widget) ??
+    widget.bindings.map((binding) => bindingLabelText(binding) ?? binding.key).join(' · ')
+  );
 }

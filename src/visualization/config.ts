@@ -1,3 +1,5 @@
+import { t } from '@/i18n/i18n';
+
 /**
  * The visualization configuration: everything that decides how one metric is
  * drawn, and nothing about which metric or where its data comes from.
@@ -437,9 +439,9 @@ export function normalizeConfig(
 
 /** Why a fixed scale cannot be used, or `null` when it can. */
 export function scaleError(min: number | null, max: number | null): string | null {
-  if (min === null || max === null) return 'Enter both a minimum and a maximum.';
-  if (!Number.isFinite(min) || !Number.isFinite(max)) return 'Both bounds must be numbers.';
-  if (max <= min) return 'The maximum must be greater than the minimum.';
+  if (min === null || max === null) return t('visualization.scaleErrors.both');
+  if (!Number.isFinite(min) || !Number.isFinite(max)) return t('visualization.scaleErrors.numbers');
+  if (max <= min) return t('visualization.scaleErrors.order');
   return null;
 }
 

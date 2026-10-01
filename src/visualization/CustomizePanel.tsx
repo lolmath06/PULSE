@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react';
 import type { ChangeEvent, ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
+import { t as translate } from '@/i18n/i18n';
+import { formatFixed } from '@/i18n/format';
 import type { HistoryRange } from '@/types/history';
 import { HISTORY_RANGES } from '@/types/history';
 import type {
@@ -28,6 +31,7 @@ import {
 import { PERCENT_THRESHOLDS } from '@/visualization/color';
 import { MetricVisualization } from '@/visualization/MetricVisualization';
 import { RENDERERS, rendererSupport } from '@/visualization/registry';
+import { presetDescription, presetName as nameOfPreset } from '@/visualization/presets';
 import type { ChartVisualization } from '@/visualization/store';
 import type { VisualizationData, VisualizationMeta } from '@/visualization/types';
 
@@ -53,33 +57,12 @@ export interface CustomizePanelProps {
   readonly extra?: ReactNode;
 }
 
-const LABELS: Record<string, string> = {
-  small: 'Small',
-  medium: 'Medium',
-  large: 'Large',
-  custom: 'Custom',
-  straight: 'Straight',
-  smooth: 'Smooth',
-  stepped: 'Stepped',
-  none: 'None',
-  visible: 'Visible',
-  solid: 'Solid',
-  gradient: 'Gradient',
-  theme: 'Theme',
-  manual: 'Manual',
-  threshold: 'Threshold',
-  light: 'Light',
-  thin: 'Thin',
-  subtle: 'Subtle',
-  glow: 'Glow',
-  regular: 'Regular',
-  bold: 'Bold',
-  full: 'Full circle',
-  'three-quarter': 'Three quarters',
-  half: 'Half',
+/** An option value's words: `viz.options.<value>`; the value itself when unknown. */
+const label = (value: string) => {
+  const key = `viz.options.${value}`;
+  const text = translate(key);
+  return text === key ? value : text;
 };
-
-const label = (value: string) => LABELS[value] ?? value;
 
 export function Section({
   title,
@@ -228,14 +211,14 @@ export function ColorField({
         type="color"
         className="customize__color-picker"
         value={value}
-        aria-label={`${text} colour`}
+        aria-label={translate('viz.ui.colourOf', { name: text })}
         onChange={(event: ChangeEvent<HTMLInputElement>) => onChange(event.target.value)}
       />
       <input
         type="text"
         className="customize__color-hex mono"
         value={draft}
-        aria-label={`${text} hex value`}
+        aria-label={translate('viz.ui.hexOf', { name: text })}
         spellCheck={false}
         maxLength={7}
         onChange={(event) => {
@@ -247,9 +230,10 @@ export function ColorField({
   );
 }
 
-const pct = (value: number) => `${Math.round(value * 100)} %`;
+const pct = (value: number) => `${formatFixed(value * 100, 0)} %`;
 
 export function CustomizePanel({ title, chart, data, meta, onClose, extra }: CustomizePanelProps) {
+  const { t } = useTranslation();
   const { config, update } = chart;
   const [presetName, setPresetName] = useState('');
   const [scaleDraft, setScaleDraft] = useState({
@@ -267,8 +251,10 @@ export function CustomizePanel({ title, chart, data, meta, onClose, extra }: Cus
 
   const preset = chart.presets.find((entry) => entry.id === chart.presetId);
   const presetStatus = chart.modified
-    ? `Custom (from ${preset?.name ?? 'preset'})`
-    : (preset?.name ?? '');
+    ? t('viz.ui.customFrom', { name: preset ? nameOfPreset(preset) : t('viz.ui.presetWord') })
+    : preset
+      ? nameOfPreset(preset)
+      : '';
 
   /** Changing any colour means the user wants their own colours now. */
   const setColor = (patch: DeepPartial<VisualizationConfig['colors']>) =>
@@ -286,24 +272,28 @@ export function CustomizePanel({ title, chart, data, meta, onClose, extra }: Cus
   const compactLocks = config.display.compact || config.renderer === 'sparkline';
 
   return (
-    <aside className="customize" role="dialog" aria-label={`Customize ${title}`}>
+    <aside
+      className="customize"
+      role="dialog"
+      aria-label={t('viz.ui.customizeNamed', { name: title })}
+    >
       <header className="customize__header">
         <div>
-          <p className="customize__eyebrow">Customize</p>
+          <p className="customize__eyebrow">{t('common.customize')}</p>
           <h3 className="customize__title">{title}</h3>
         </div>
         <button type="button" className="button button--quiet" onClick={onClose}>
-          Close
+          {t('common.close')}
         </button>
       </header>
 
-      <div className="customize__preview" aria-label="Preview">
+      <div className="customize__preview" aria-label={t('viz.ui.preview')}>
         <MetricVisualization data={data} meta={meta} config={config} width={332} height={150} />
       </div>
 
       <div className="customize__scroll">
         {extra}
-        <Section title="Preset" open>
+        <Section title={t('viz.ui.preset')} open>
           <p className="customize__preset-status" aria-live="polite">
             {presetStatus}
           </p>
@@ -312,17 +302,17 @@ export function CustomizePanel({ title, chart, data, meta, onClose, extra }: Cus
               <button
                 key={entry.id}
                 type="button"
-                title={entry.description}
+                title={presetDescription(entry)}
                 className={`customize__preset${entry.id === chart.presetId ? ' customize__preset--active' : ''}`}
                 onClick={() => chart.applyPreset(entry.id)}
               >
-                {entry.name}
+                {nameOfPreset(entry)}
               </button>
             ))}
           </div>
           <div className="customize__row">
             <button type="button" className="button" onClick={chart.reset}>
-              Reset visualization
+              {t('viz.ui.resetVisualization')}
             </button>
             {preset?.custom && (
               <button
@@ -330,7 +320,7 @@ export function CustomizePanel({ title, chart, data, meta, onClose, extra }: Cus
                 className="button button--quiet"
                 onClick={() => chart.deletePreset(preset.id)}
               >
-                Delete preset
+                {t('viz.ui.deletePreset')}
               </button>
             )}
           </div>
@@ -338,8 +328,8 @@ export function CustomizePanel({ title, chart, data, meta, onClose, extra }: Cus
             <input
               type="text"
               className="customize__text"
-              placeholder="Preset name"
-              aria-label="New preset name"
+              placeholder={t('viz.ui.presetName')}
+              aria-label={t('viz.ui.newPresetName')}
               value={presetName}
               maxLength={40}
               onChange={(event) => setPresetName(event.target.value)}
@@ -353,13 +343,17 @@ export function CustomizePanel({ title, chart, data, meta, onClose, extra }: Cus
                 setPresetName('');
               }}
             >
-              Save as preset
+              {t('viz.ui.saveAsPreset')}
             </button>
           </div>
         </Section>
 
-        <Section title="Visualization" open>
-          <div className="customize__renderers" role="group" aria-label="Visualization type">
+        <Section title={t('viz.ui.visualization')} open>
+          <div
+            className="customize__renderers"
+            role="group"
+            aria-label={t('viz.ui.visualizationType')}
+          >
             {RENDERERS.map((renderer) => {
               const support = rendererSupport(renderer.kind, meta, config);
               return (
@@ -369,31 +363,33 @@ export function CustomizePanel({ title, chart, data, meta, onClose, extra }: Cus
                   className={`customize__renderer${renderer.kind === config.renderer ? ' customize__renderer--active' : ''}`}
                   aria-pressed={renderer.kind === config.renderer}
                   disabled={!support.ok}
-                  title={support.ok ? renderer.description : support.reason}
+                  title={
+                    support.ok
+                      ? t(`visualization.renderers.${renderer.kind}.description`)
+                      : support.reason
+                  }
                   onClick={() => update({ renderer: renderer.kind as RendererKind })}
                 >
-                  {renderer.label}
+                  {t(`visualization.renderers.${renderer.kind}.label`)}
                 </button>
               );
             })}
           </div>
           {!rendererSupport('gauge', meta, config).ok && (
-            <p className="customize__hint">
-              Gauge is unavailable: this metric has no natural bounds. Set a fixed scale to use it.
-            </p>
+            <p className="customize__hint">{t('viz.ui.gaugeUnavailable')}</p>
           )}
-          <Field label="Time range">
+          <Field label={t('viz.ui.timeRange')}>
             <Choice
-              ariaLabel="Time range"
+              ariaLabel={t('viz.ui.timeRange')}
               options={HISTORY_RANGES}
               value={chart.range}
-              labelFor={(value) => value}
+              labelFor={(value) => t(`history.ranges.${value}`)}
               onChange={(value: HistoryRange) => chart.setRange(value)}
             />
           </Field>
-          <Field label="Size">
+          <Field label={t('viz.ui.size')}>
             <Choice
-              ariaLabel="Size"
+              ariaLabel={t('viz.ui.size')}
               options={SIZE_PRESETS}
               value={config.size.preset}
               onChange={(preset) => update({ size: { preset } })}
@@ -402,7 +398,7 @@ export function CustomizePanel({ title, chart, data, meta, onClose, extra }: Cus
           {config.size.preset === 'custom' && (
             <div className="customize__row">
               <label className="customize__inline">
-                Height
+                {t('viz.ui.height')}
                 <input
                   type="number"
                   min={LIMITS.height.min}
@@ -412,12 +408,12 @@ export function CustomizePanel({ title, chart, data, meta, onClose, extra }: Cus
                 />
               </label>
               <label className="customize__inline">
-                Width
+                {t('viz.ui.width')}
                 <input
                   type="number"
                   min={LIMITS.width.min}
                   max={LIMITS.width.max}
-                  placeholder="fill"
+                  placeholder={t('viz.ui.fillPlaceholder')}
                   value={config.size.width ?? ''}
                   onChange={(event) =>
                     update({
@@ -432,17 +428,17 @@ export function CustomizePanel({ title, chart, data, meta, onClose, extra }: Cus
           )}
           <div className="customize__toggles">
             <Toggle
-              text="Compact mode"
+              text={t('viz.ui.compactMode')}
               checked={config.display.compact}
               onChange={(compact) => update({ display: { compact } })}
             />
           </div>
         </Section>
 
-        <Section title="Line & fill">
-          <Field label="Line width">
+        <Section title={t('viz.ui.lineFill')}>
+          <Field label={t('viz.ui.lineWidth')}>
             <Slider
-              ariaLabel="Line width"
+              ariaLabel={t('viz.ui.lineWidth')}
               value={config.line.width}
               min={LIMITS.lineWidth.min}
               max={LIMITS.lineWidth.max}
@@ -454,49 +450,49 @@ export function CustomizePanel({ title, chart, data, meta, onClose, extra }: Cus
           <div className="customize__row">
             {(
               [
-                ['Thin', 1],
-                ['Medium', 2],
-                ['Thick', 3.5],
+                ['thin', 1],
+                ['medium', 2],
+                ['thick', 3.5],
               ] as const
-            ).map(([text, width]) => (
+            ).map(([id, width]) => (
               <button
-                key={text}
+                key={id}
                 type="button"
                 className="button button--quiet"
                 onClick={() => update({ line: { width } })}
               >
-                {text}
+                {t(`viz.lineWidths.${id}`)}
               </button>
             ))}
           </div>
-          <Field label="Curve">
+          <Field label={t('viz.ui.curve')}>
             <Choice
-              ariaLabel="Curve"
+              ariaLabel={t('viz.ui.curve')}
               options={CURVE_STYLES}
               value={config.line.curve}
               onChange={(curve) => update({ line: { curve } })}
             />
           </Field>
-          <Field label="Points">
+          <Field label={t('viz.ui.points')}>
             <Choice
-              ariaLabel="Point markers"
+              ariaLabel={t('viz.ui.pointMarkers')}
               options={POINT_STYLES}
               value={config.line.points}
-              labelFor={(value) => (value === 'small' ? 'Small' : label(value))}
+              labelFor={(value) => label(value)}
               onChange={(points) => update({ line: { points } })}
             />
           </Field>
-          <Field label="Fill">
+          <Field label={t('viz.ui.fill')}>
             <Choice
-              ariaLabel="Fill"
+              ariaLabel={t('viz.ui.fill')}
               options={FILL_MODES}
               value={config.fill.mode}
               onChange={(mode) => update({ fill: { mode } })}
             />
           </Field>
-          <Field label="Fill opacity">
+          <Field label={t('viz.ui.fillOpacity')}>
             <Slider
-              ariaLabel="Fill opacity"
+              ariaLabel={t('viz.ui.fillOpacity')}
               value={config.fill.opacity}
               min={0}
               max={1}
@@ -505,12 +501,9 @@ export function CustomizePanel({ title, chart, data, meta, onClose, extra }: Cus
               onChange={(opacity) => update({ fill: { opacity } })}
             />
           </Field>
-          <Field
-            label="Smoothing"
-            hint="Visual only: stored samples and the tooltip keep the real values."
-          >
+          <Field label={t('viz.ui.smoothing')} hint={t('viz.ui.smoothingHint')}>
             <Choice
-              ariaLabel="Smoothing"
+              ariaLabel={t('viz.ui.smoothing')}
               options={SMOOTHING_LEVELS}
               value={config.smoothing}
               onChange={(smoothing) => update({ smoothing })}
@@ -518,10 +511,10 @@ export function CustomizePanel({ title, chart, data, meta, onClose, extra }: Cus
           </Field>
         </Section>
 
-        <Section title="Colors">
-          <Field label="Color mode">
+        <Section title={t('viz.ui.colors')}>
+          <Field label={t('viz.ui.colorMode')}>
             <Choice
-              ariaLabel="Color mode"
+              ariaLabel={t('viz.ui.colorMode')}
               options={COLOR_MODES}
               value={config.colors.mode}
               onChange={(mode) =>
@@ -538,71 +531,69 @@ export function CustomizePanel({ title, chart, data, meta, onClose, extra }: Cus
             />
           </Field>
           {config.colors.mode === 'theme' && (
-            <p className="customize__hint">
-              Following PULSE&apos;s theme. Picking any colour switches to Manual.
-            </p>
+            <p className="customize__hint">{t('viz.ui.followingTheme')}</p>
           )}
           <ColorField
-            text="Primary"
+            text={t('viz.ui.primary')}
             value={config.colors.primary}
             onChange={(primary) => setColor({ primary })}
           />
           <ColorField
-            text="Secondary"
+            text={t('viz.ui.secondary')}
             value={config.colors.secondary}
             onChange={(secondary) => setColor({ secondary })}
           />
           <ColorField
-            text="Text"
+            text={t('viz.ui.text')}
             value={config.colors.text}
             onChange={(text) => setColor({ text })}
           />
           <ColorField
-            text="Grid"
+            text={t('viz.ui.grid')}
             value={config.colors.grid}
             onChange={(grid) => setColor({ grid })}
           />
           <ColorField
-            text="Background"
+            text={t('viz.ui.background')}
             value={config.colors.background}
             onChange={(background) => setColor({ background })}
           />
           <ColorField
-            text="Border"
+            text={t('viz.ui.border')}
             value={config.colors.border}
             onChange={(border) => setColor({ border })}
           />
           <ColorField
-            text="Fill"
+            text={t('viz.ui.fill')}
             value={config.colors.fill ?? config.colors.primary}
             onChange={(fill) => setColor({ fill })}
           />
           <Toggle
-            text="Fill follows the line colour"
+            text={t('viz.ui.fillFollowsLine')}
             checked={config.colors.fill === null}
             onChange={(follow) => setColor({ fill: follow ? null : config.colors.primary })}
           />
           <ColorField
-            text="Gradient start"
+            text={t('viz.ui.gradientStart')}
             value={config.colors.gradientStart}
             onChange={(gradientStart) => setColor({ gradientStart })}
           />
           <ColorField
-            text="Gradient end"
+            text={t('viz.ui.gradientEnd')}
             value={config.colors.gradientEnd}
             onChange={(gradientEnd) => setColor({ gradientEnd })}
           />
 
           {data.series.length > 0 && (
             <div className="customize__series">
-              <p className="customize__subtitle">Series</p>
+              <p className="customize__subtitle">{t('viz.ui.series')}</p>
               {data.series.map((series, index) => {
                 const style = config.colors.series[String(index)];
                 return (
                   <div key={series.id} className="customize__series-row">
                     <input
                       type="color"
-                      aria-label={`${series.label} colour`}
+                      aria-label={t('viz.ui.colourOf', { name: series.label })}
                       value={
                         style?.color ??
                         (index === 0 ? config.colors.primary : config.colors.secondary)
@@ -619,7 +610,7 @@ export function CustomizePanel({ title, chart, data, meta, onClose, extra }: Cus
                     <input
                       type="text"
                       className="customize__text"
-                      aria-label={`${series.label} label`}
+                      aria-label={t('viz.ui.labelOf', { name: series.label })}
                       placeholder={series.label}
                       maxLength={40}
                       value={style?.label ?? ''}
@@ -642,15 +633,13 @@ export function CustomizePanel({ title, chart, data, meta, onClose, extra }: Cus
 
           {config.colors.mode === 'threshold' && (
             <div className="customize__thresholds">
-              <p className="customize__subtitle">Threshold bands</p>
-              <p className="customize__hint">
-                Visual bands you choose — not a judgement of what is too high on your machine.
-              </p>
+              <p className="customize__subtitle">{t('viz.ui.thresholdBands')}</p>
+              <p className="customize__hint">{t('viz.ui.thresholdHint')}</p>
               {config.colors.thresholds.map((band, index) => (
                 <div key={index} className="customize__series-row">
                   <input
                     type="color"
-                    aria-label={`Band ${index + 1} colour`}
+                    aria-label={t('viz.ui.bandColour', { index: index + 1 })}
                     value={band.color}
                     onChange={(event) =>
                       setThresholds(
@@ -662,8 +651,8 @@ export function CustomizePanel({ title, chart, data, meta, onClose, extra }: Cus
                   />
                   <input
                     type="number"
-                    aria-label={`Band ${index + 1} upper bound`}
-                    placeholder="above"
+                    aria-label={t('viz.ui.bandUpper', { index: index + 1 })}
+                    placeholder={t('viz.ui.above')}
                     value={band.upTo ?? ''}
                     onChange={(event) =>
                       setThresholds(
@@ -681,12 +670,12 @@ export function CustomizePanel({ title, chart, data, meta, onClose, extra }: Cus
                   <button
                     type="button"
                     className="button button--quiet"
-                    aria-label={`Remove band ${index + 1}`}
+                    aria-label={t('viz.ui.removeBand', { index: index + 1 })}
                     onClick={() =>
                       setThresholds(config.colors.thresholds.filter((_, i) => i !== index))
                     }
                   >
-                    Remove
+                    {t('common.remove')}
                   </button>
                 </div>
               ))}
@@ -700,24 +689,24 @@ export function CustomizePanel({ title, chart, data, meta, onClose, extra }: Cus
                   ])
                 }
               >
-                Add band
+                {t('viz.ui.addBand')}
               </button>
             </div>
           )}
         </Section>
 
-        <Section title="Background & frame">
-          <Field label="Background">
+        <Section title={t('viz.ui.backgroundFrame')}>
+          <Field label={t('viz.ui.background')}>
             <Choice
-              ariaLabel="Background"
+              ariaLabel={t('viz.ui.background')}
               options={BACKGROUND_MODES}
               value={config.background.mode}
               onChange={(mode) => update({ background: { mode } })}
             />
           </Field>
-          <Field label="Background opacity">
+          <Field label={t('viz.ui.backgroundOpacity')}>
             <Slider
-              ariaLabel="Background opacity"
+              ariaLabel={t('viz.ui.backgroundOpacity')}
               value={config.background.opacity}
               min={0}
               max={1}
@@ -726,17 +715,17 @@ export function CustomizePanel({ title, chart, data, meta, onClose, extra }: Cus
               onChange={(opacity) => update({ background: { opacity } })}
             />
           </Field>
-          <Field label="Border">
+          <Field label={t('viz.ui.border')}>
             <Choice
-              ariaLabel="Border"
+              ariaLabel={t('viz.ui.border')}
               options={BORDER_STYLES}
               value={config.frame.border}
               onChange={(border) => update({ frame: { border } })}
             />
           </Field>
-          <Field label="Corner radius">
+          <Field label={t('viz.ui.cornerRadius')}>
             <Slider
-              ariaLabel="Corner radius"
+              ariaLabel={t('viz.ui.cornerRadius')}
               value={config.frame.radius}
               min={LIMITS.radius.min}
               max={LIMITS.radius.max}
@@ -745,9 +734,9 @@ export function CustomizePanel({ title, chart, data, meta, onClose, extra }: Cus
               onChange={(radius) => update({ frame: { radius } })}
             />
           </Field>
-          <Field label="Shadow">
+          <Field label={t('viz.ui.shadow')}>
             <Choice
-              ariaLabel="Shadow"
+              ariaLabel={t('viz.ui.shadow')}
               options={SHADOW_STYLES}
               value={config.frame.shadow}
               onChange={(shadow) => update({ frame: { shadow } })}
@@ -755,10 +744,10 @@ export function CustomizePanel({ title, chart, data, meta, onClose, extra }: Cus
           </Field>
         </Section>
 
-        <Section title="Text">
-          <Field label="Text size">
+        <Section title={t('viz.ui.text')}>
+          <Field label={t('viz.ui.textSize')}>
             <Slider
-              ariaLabel="Text size"
+              ariaLabel={t('viz.ui.textSize')}
               value={config.text.scale}
               min={LIMITS.textScale.min}
               max={LIMITS.textScale.max}
@@ -767,21 +756,21 @@ export function CustomizePanel({ title, chart, data, meta, onClose, extra }: Cus
               onChange={(scale) => update({ text: { scale } })}
             />
           </Field>
-          <Field label="Weight">
+          <Field label={t('viz.ui.weight')}>
             <Choice
-              ariaLabel="Font weight"
+              ariaLabel={t('viz.ui.fontWeight')}
               options={FONT_WEIGHTS}
               value={config.text.weight}
-              labelFor={(value) => (value === 'medium' ? 'Medium' : label(value))}
+              labelFor={(value) => label(value)}
               onChange={(weight) => update({ text: { weight } })}
             />
           </Field>
-          <Field label="Decimals">
+          <Field label={t('viz.ui.decimals')}>
             <Choice
-              ariaLabel="Decimal precision"
+              ariaLabel={t('viz.ui.decimalPrecision')}
               options={['auto', '0', '1', '2', '3'] as const}
               value={config.text.decimals === null ? 'auto' : (String(config.text.decimals) as '0')}
-              labelFor={(value) => (value === 'auto' ? 'Auto' : value)}
+              labelFor={(value) => (value === 'auto' ? t('viz.options.auto') : value)}
               onChange={(value) =>
                 update({ text: { decimals: value === 'auto' ? null : Number(value) } })
               }
@@ -789,50 +778,46 @@ export function CustomizePanel({ title, chart, data, meta, onClose, extra }: Cus
           </Field>
           <div className="customize__toggles">
             <Toggle
-              text="Label"
+              text={t('viz.ui.label')}
               checked={config.text.showLabel}
               onChange={(showLabel) => update({ text: { showLabel } })}
             />
             <Toggle
-              text="Unit"
+              text={t('viz.ui.unit')}
               checked={config.text.showUnit}
               onChange={(showUnit) => update({ text: { showUnit } })}
             />
           </div>
         </Section>
 
-        <Section title="Axes, grid & scale">
+        <Section title={t('viz.ui.axesGridScale')}>
           <div className="customize__toggles">
             <Toggle
-              text="X axis"
+              text={t('viz.ui.xAxis')}
               checked={config.axes.x}
               disabled={compactLocks}
               onChange={(value) => update({ axes: { x: value } })}
             />
             <Toggle
-              text="Y axis"
+              text={t('viz.ui.yAxis')}
               checked={config.axes.y}
               disabled={compactLocks}
               onChange={(value) => update({ axes: { y: value } })}
             />
             <Toggle
-              text="Grid"
+              text={t('viz.ui.grid')}
               checked={config.axes.grid}
               disabled={compactLocks}
               onChange={(grid) => update({ axes: { grid } })}
             />
           </div>
-          {compactLocks && (
-            <p className="customize__hint">
-              Compact mode and sparklines hide axes, grid and legend.
-            </p>
-          )}
-          <Field label="Y scale">
+          {compactLocks && <p className="customize__hint">{t('viz.ui.compactHides')}</p>}
+          <Field label={t('viz.ui.yScale')}>
             <Choice
-              ariaLabel="Y scale"
+              ariaLabel={t('viz.ui.yScale')}
               options={['auto', 'fixed'] as const}
               value={config.scale.mode}
-              labelFor={(value) => (value === 'auto' ? 'Auto' : 'Fixed')}
+              labelFor={(value) => t(`viz.options.${value}`)}
               onChange={(mode) => {
                 if (mode === 'auto') update({ scale: { mode } });
                 else if (!draftError) update({ scale: { mode, min: parsedMin, max: parsedMax } });
@@ -845,7 +830,7 @@ export function CustomizePanel({ title, chart, data, meta, onClose, extra }: Cus
           </Field>
           <div className="customize__row">
             <label className="customize__inline">
-              Min
+              {t('viz.ui.min')}
               <input
                 type="number"
                 value={scaleDraft.min}
@@ -853,7 +838,7 @@ export function CustomizePanel({ title, chart, data, meta, onClose, extra }: Cus
               />
             </label>
             <label className="customize__inline">
-              Max
+              {t('viz.ui.max')}
               <input
                 type="number"
                 value={scaleDraft.max}
@@ -866,7 +851,7 @@ export function CustomizePanel({ title, chart, data, meta, onClose, extra }: Cus
               disabled={draftError !== null}
               onClick={() => update({ scale: { mode: 'fixed', min: parsedMin, max: parsedMax } })}
             >
-              Apply
+              {t('common.apply')}
             </button>
           </div>
           {draftError && (scaleDraft.min !== '' || scaleDraft.max !== '') && (
@@ -876,46 +861,46 @@ export function CustomizePanel({ title, chart, data, meta, onClose, extra }: Cus
           )}
         </Section>
 
-        <Section title="Legend, tooltip & statistics">
+        <Section title={t('viz.ui.legendTooltipStatistics')}>
           <div className="customize__toggles">
             <Toggle
-              text="Legend"
+              text={t('viz.ui.legend')}
               checked={config.display.legend}
               disabled={compactLocks}
               onChange={(legend) => update({ display: { legend } })}
             />
             <Toggle
-              text="Tooltip"
+              text={t('viz.ui.tooltip')}
               checked={config.display.tooltip}
               onChange={(tooltip) => update({ display: { tooltip } })}
             />
             <Toggle
-              text="Current"
+              text={t('viz.ui.current')}
               checked={config.display.current}
               onChange={(value) => update({ display: { current: value } })}
             />
             <Toggle
-              text="Minimum"
+              text={t('viz.ui.minimum')}
               checked={config.display.min}
               onChange={(value) => update({ display: { min: value } })}
             />
             <Toggle
-              text="Maximum"
+              text={t('viz.ui.maximum')}
               checked={config.display.max}
               onChange={(value) => update({ display: { max: value } })}
             />
             <Toggle
-              text="Average"
+              text={t('viz.ui.average')}
               checked={config.display.average}
               onChange={(average) => update({ display: { average } })}
             />
           </div>
         </Section>
 
-        <Section title="Gauge">
-          <Field label="Ring thickness">
+        <Section title={t('viz.ui.gauge')}>
+          <Field label={t('viz.ui.ringThickness')}>
             <Slider
-              ariaLabel="Ring thickness"
+              ariaLabel={t('viz.ui.ringThickness')}
               value={config.gauge.thickness}
               min={LIMITS.gaugeThickness.min}
               max={LIMITS.gaugeThickness.max}
@@ -924,9 +909,9 @@ export function CustomizePanel({ title, chart, data, meta, onClose, extra }: Cus
               onChange={(thickness) => update({ gauge: { thickness } })}
             />
           </Field>
-          <Field label="Arc">
+          <Field label={t('viz.ui.arc')}>
             <Choice
-              ariaLabel="Gauge arc"
+              ariaLabel={t('viz.ui.gaugeArc')}
               options={GAUGE_ARCS}
               value={config.gauge.arc}
               onChange={(arc) => update({ gauge: { arc } })}
