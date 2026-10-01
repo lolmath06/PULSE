@@ -32,6 +32,7 @@ pub const INTERFACE: &str = "dev.pulse.app.OverlayBridge";
 pub const VERSION: u32 = 2;
 
 /// The highest companion version PULSE records; anything above is clamped.
+#[cfg(target_os = "linux")]
 const MAX_COMPANION_VERSION: u32 = 1_000;
 
 /// The exported object. Its only effects are the callbacks it was built with.
