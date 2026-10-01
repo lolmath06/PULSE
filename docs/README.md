@@ -12,6 +12,14 @@
 | [`metrics/README.md`](metrics/README.md)                           | The planned metrics engine contract                                    |
 | [`widgets/README.md`](widgets/README.md)                           | The planned widget contract                                            |
 | [`user-guide/README.md`](user-guide/README.md)                     | End-user documentation (grows with the features)                       |
+| [`design-system/overview.md`](design-system/overview.md)           | Tokens, hierarchy, density, motion, the eight styles                   |
+| [`design-system/customization.md`](design-system/customization.md) | Appearance studio: every tuning control, saved styles                  |
+| [`modes/overview.md`](modes/overview.md)                           | Gaming, Development, Personal and Mini modes                           |
+| [`presets/overlay-packs.md`](presets/overlay-packs.md)             | The twelve built-in overlay packs and footprints                       |
+| [`presets/dashboard-templates.md`](presets/dashboard-templates.md) | The eight built-in dashboard templates                                 |
+| [`overlay/backends.md`](overlay/backends.md)                       | Overlay backends and the capability matrix                             |
+| [`overlay/gnome-bridge.md`](overlay/gnome-bridge.md)               | The GNOME Shell bridge: install, status, D-Bus contract, safety        |
+| [`overlay/windows-native.md`](overlay/windows-native.md)           | The Windows native overlay backend (not physically verified)           |
 
 ## Project phases
 

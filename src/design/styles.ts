@@ -134,9 +134,12 @@ export interface VisualStyle {
 
 const s = (color: string, alpha = 1): Surface => ({ color, alpha });
 
-/** The card is the surface: charts inside a styled card draw none of their own. */
+/**
+ * The card is the surface: charts inside a styled card draw none of their
+ * own. The colour *mode* stays the widget's — a threshold-coloured
+ * temperature keeps its bands in every style.
+ */
 const CARD_CHART: DeepPartial<VisualizationConfig> = {
-  colors: { mode: 'theme' },
   background: { mode: 'none', opacity: 0 },
   frame: { border: 'none', radius: 0, shadow: 'none' },
 };
@@ -147,7 +150,6 @@ function chart(patch: DeepPartial<VisualizationConfig>): DeepPartial<Visualizati
     ...patch,
     frame: { ...CARD_CHART.frame, ...patch.frame },
     background: { ...CARD_CHART.background, ...patch.background },
-    colors: { ...CARD_CHART.colors, ...patch.colors },
   };
 }
 

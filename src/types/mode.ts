@@ -5,6 +5,12 @@
  * interaction model). It is not the same thing as a dashboard, which describes
  * *what* is displayed. See docs/architecture/overview.md.
  */
-export type AppMode = 'standard' | 'mini' | 'gaming' | 'development';
+export type AppMode = 'standard' | 'mini' | 'gaming' | 'development' | 'personal';
 
-export const APP_MODES: readonly AppMode[] = ['standard', 'mini', 'gaming', 'development'] as const;
+export const APP_MODES: readonly AppMode[] = [
+  'standard',
+  'mini',
+  'gaming',
+  'development',
+  'personal',
+] as const;

@@ -39,6 +39,13 @@ import { MiniApp } from '@/components/Mini/MiniApp';
 import { App } from '@/app/App';
 import { CATALOG, SOURCE_REFS, widgetFrom } from '@/test/dashboard';
 
+/** Adds a built-in pack from the Overlays page, as a user would. */
+async function addPack(name: string) {
+  const card = await screen.findByRole('article', { name: `${name} overlay pack` });
+  fireEvent.click(within(card).getByRole('button', { name: /Add overlay/ }));
+  await waitFor(() => expect(overlays().items.some((item) => item.name === name)).toBe(true));
+}
+
 /** Both return the desktop status: the page asks GNOME afresh once, then reads the cache. */
 const STATUS_COMMANDS = new Set(['get_desktop_status', 'refresh_gnome_bridge']);
 
@@ -379,17 +386,21 @@ describe('overlays page', () => {
     );
     expect(within(list).getByText('Always on top').parentElement!.textContent).toMatch(/Limited/);
     expect(screen.getByText('Wayland (native)')).toBeInTheDocument();
-    await userEvent.setup().click(screen.getByRole('button', { name: /Minimal corner/ }));
-    expect(screen.getByText(/drag the overlay by its bar/)).toBeInTheDocument();
+    await addPack('Minimal Transparent HUD');
+    expect(await screen.findByText(/drag the overlay by its bar/)).toBeInTheDocument();
     expect(screen.queryByLabelText('Overlay x')).toBeNull();
   });
 
-  it('creates an overlay from a preset, then locks and hides it', async () => {
+  it('creates an overlay from a pack, then locks and hides it', async () => {
     const user = userEvent.setup();
     render(<OverlaysPage />);
-    await user.click(screen.getByRole('button', { name: /Tiny stats/ }));
+    await addPack('Tiny Stats');
     expect(overlays().items).toHaveLength(1);
-    const editor = screen.getByLabelText('Overlay Tiny stats');
+    expect(overlays().items[0]).toMatchObject({
+      styleId: 'compact',
+      origin: { pack: 'tiny-stats' },
+    });
+    const editor = await screen.findByLabelText('Overlay Tiny Stats');
     await user.click(within(editor).getByRole('button', { name: 'Lock overlay' }));
     expect(overlays().items[0]!.locked).toBe(true);
     await user.click(within(editor).getByLabelText('Visible'));
@@ -492,9 +503,8 @@ describe('overlays page', () => {
   it('overlays persist across a relaunch', async () => {
     const backend = memoryBackend();
     await act(() => initUiConfig(backend));
-    const user = userEvent.setup();
     const first = render(<OverlaysPage />);
-    await user.click(screen.getByRole('button', { name: /Gaming/ }));
+    await addPack('Gaming Corner');
     const saved = overlays();
     await act(() => flushUiConfig());
     first.unmount();
@@ -517,9 +527,9 @@ describe('send to overlay and Mini', () => {
     expect(overlays().items[0]!.widgets).toHaveLength(2);
   });
 
-  it('Mini is an ordinary interactive window showing a dashboard', () => {
+  it('Mini is an ordinary interactive window showing its layout or a dashboard', () => {
     render(<MiniApp />);
-    expect(screen.getByLabelText('Dashboard shown in Mini')).toBeInTheDocument();
+    expect(screen.getByLabelText('Shown in Mini')).toBeInTheDocument();
     expect(document.querySelectorAll('.widget').length).toBeGreaterThan(0);
     fireEvent.click(screen.getByRole('button', { name: 'Open PULSE' }));
     expect(invoke).toHaveBeenCalledWith('open_main_window');

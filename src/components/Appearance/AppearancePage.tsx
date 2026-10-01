@@ -7,7 +7,10 @@ import {
   FONT_CHOICES,
   MOTION_LEVELS,
   applyUserStyle,
+  chooseStyle,
   customize,
+  effectiveStyle,
+  enterMode,
   deleteUserStyle,
   duplicateUserStyle,
   exportUserStyle,
@@ -15,8 +18,8 @@ import {
   renameUserStyle,
   resetCustomization,
   saveUserStyle,
-  setStyle,
 } from '@/design/appearance';
+import { findMode } from '@/modes/modes';
 import type { StyleId } from '@/design/styles';
 import { ACCENTS, DENSITIES, PALETTES, STYLES } from '@/design/styles';
 import { resolveLook } from '@/design/look';
@@ -65,7 +68,9 @@ export function AppearancePage() {
   const tune = (patch: Partial<Customization>) =>
     updateAppearance((section) => customize(section, patch));
   const choose = (styleId: StyleId) =>
-    withTransition(() => updateAppearance((section) => setStyle(section, styleId)), look);
+    withTransition(() => updateAppearance((section) => chooseStyle(section, styleId)), look);
+  const worn = effectiveStyle(appearance);
+  const mode = findMode(appearance.activeMode);
   const t = look.style.tokens;
 
   return (
@@ -79,6 +84,21 @@ export function AppearancePage() {
         </p>
       </header>
 
+      {mode && (
+        <p className="notice" role="status">
+          <strong>{mode.name} mode</strong> is on: the style you pick applies to it.{' '}
+          <button
+            type="button"
+            className="button button--quiet"
+            onClick={() =>
+              withTransition(() => updateAppearance((section) => enterMode(section, null)), look)
+            }
+          >
+            Leave {mode.name} mode
+          </button>
+        </p>
+      )}
+
       <div className="style-gallery" role="group" aria-label="Styles">
         {looks.map(({ style, look: styleLook }) => (
           <StyleCard
@@ -86,7 +106,7 @@ export function AppearancePage() {
             look={styleLook}
             name={style.name}
             tagline={style.tagline}
-            active={appearance.userStyleId === null && appearance.styleId === style.id}
+            active={appearance.userStyleId === null && worn === style.id}
             onSelect={() => choose(style.id)}
           />
         ))}

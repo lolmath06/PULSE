@@ -4,12 +4,12 @@ import { onUiConfigChange } from '@/config/uiConfigEvents';
 import type { Overlay } from '@/overlay/model';
 import {
   OVERLAY_LAYOUTS,
-  OVERLAY_PRESETS,
   addOverlayWidget,
   applyOverlayStyle,
   createOverlay,
-  createOverlayFromPreset,
+  createOverlayFromUserPack,
   deleteOverlay,
+  duplicateOverlay,
   fitToContent,
   moveOverlayWidget,
   removeOverlayWidget,
@@ -29,7 +29,11 @@ import {
 import { DEFAULT_HOTKEY, setCloseBehavior, useDesktopSettings } from '@/overlay/settings';
 import { addWidget } from '@/dashboard/dashboards';
 import { updateDashboards, updateTemplates, useDashboards } from '@/dashboard/store';
-import { saveTemplate } from '@/dashboard/templates';
+import { deleteUserPack, saveTemplate, saveUserPack } from '@/dashboard/templates';
+import { useTemplates } from '@/dashboard/store';
+import { findPack, resetOverlayToPack } from '@/presets/overlayPacks';
+import { PackGallery } from '@/components/Presets/PackGallery';
+import { Icon } from '@/components/Icon';
 import { widgetTitle } from '@/dashboard/geometry';
 import { newId } from '@/dashboard/ids';
 import { Choice, ColorField, Slider, Toggle } from '@/visualization/CustomizePanel';
@@ -120,32 +124,26 @@ export function OverlaysPage() {
 
       <OverlayBackendPanel status={status} error={statusError} onStatus={setStatus} />
 
-      <div className="card">
-        <h2 className="card__title">New overlay</h2>
-        <div className="overlays-page__presets">
+      <section className="mode-section" aria-label="New overlay">
+        <div className="mode-section__head mode-section__head--row">
+          <div>
+            <h2 className="section-title">Overlay packs</h2>
+            <p className="card__muted">
+              Twelve composed overlays — micro readouts, cards, full-width bars, rails and corner
+              HUDs. Everything stays editable.
+            </p>
+          </div>
           <button
             type="button"
-            className="library__entry overlays-page__preset"
+            className="button"
             onClick={() => updateOverlays((section) => createOverlay(section, 'Overlay').section)}
           >
-            <span className="library__label">Empty</span>
-            <span className="library__description">Add widgets yourself.</span>
+            <Icon name="plus" /> Empty overlay
           </button>
-          {OVERLAY_PRESETS.map((preset) => (
-            <button
-              key={preset.id}
-              type="button"
-              className="library__entry overlays-page__preset"
-              onClick={() =>
-                updateOverlays((section) => createOverlayFromPreset(section, preset).section)
-              }
-            >
-              <span className="library__label">{preset.name}</span>
-              <span className="library__description">{preset.description}</span>
-            </button>
-          ))}
         </div>
-      </div>
+        <PackGallery status={status} />
+        <UserPacks />
+      </section>
 
       {overlays.items.map((overlay) => (
         <OverlayEditor
@@ -285,6 +283,9 @@ function OverlayEditor({
   const set = (change: (o: Overlay) => Overlay) =>
     updateOverlays((section) => updateOverlay(section, overlay.id, change));
   const customized = overlay.widgets.find((widget) => widget.id === customizing);
+  const pack = findPack(overlay.origin?.pack);
+  const [saving, setSaving] = useState(false);
+  const [packName, setPackName] = useState('');
 
   return (
     <div className="card overlay-editor" aria-label={`Overlay ${overlay.name}`}>
@@ -311,11 +312,44 @@ function OverlayEditor({
           >
             {overlay.locked ? 'Edit overlay' : 'Lock overlay'}
           </button>
+          <button
+            type="button"
+            className="button button--quiet"
+            onClick={() => updateOverlays((section) => duplicateOverlay(section, overlay.id))}
+          >
+            Duplicate
+          </button>
+          <button
+            type="button"
+            className="button button--quiet"
+            onClick={() => {
+              setPackName(overlay.name);
+              setSaving(true);
+            }}
+          >
+            Save as my pack
+          </button>
           <button type="button" className="button button--quiet" onClick={() => setDeleting(true)}>
             Delete
           </button>
         </div>
       </header>
+      {pack && (
+        <p className="overlay-editor__origin">
+          <span className="chip">From “{pack.name}”</span>
+          <button
+            type="button"
+            className="button button--quiet"
+            onClick={() =>
+              updateOverlays((section) =>
+                resetOverlayToPack(section, overlay.id, readAppearance().custom),
+              )
+            }
+          >
+            Reset to pack
+          </button>
+        </p>
+      )}
 
       <div className="overlay-editor__body">
         <div className="overlay-editor__preview" aria-label="Preview">
@@ -610,6 +644,29 @@ function OverlayEditor({
           }
         />
       )}
+      {saving && (
+        <ConfirmDialog
+          title="Save as my pack"
+          body={['Its widgets, layout, style and chrome, to add again from Overlays.']}
+          confirmLabel="Save pack"
+          tone="neutral"
+          confirmDisabled={!packName.trim()}
+          onCancel={() => setSaving(false)}
+          onConfirm={() => {
+            updateTemplates((current) => saveUserPack(current, packName, overlay));
+            setSaving(false);
+          }}
+        >
+          <input
+            type="text"
+            className="customize__text dialog__input"
+            aria-label="Pack name"
+            maxLength={40}
+            value={packName}
+            onChange={(event) => setPackName(event.target.value)}
+          />
+        </ConfirmDialog>
+      )}
       {deleting && (
         <ConfirmDialog
           title={`Delete overlay “${overlay.name}”?`}
@@ -623,6 +680,48 @@ function OverlayEditor({
           }}
         />
       )}
+    </div>
+  );
+}
+
+/** The user's saved overlay packs. */
+function UserPacks() {
+  const templates = useTemplates();
+  if (templates.overlays.length === 0) return null;
+  return (
+    <div className="user-packs">
+      <h3 className="section-subtitle">Your packs</h3>
+      <ul className="user-styles">
+        {templates.overlays.map((pack) => (
+          <li key={pack.id} className="user-style">
+            <span className="user-style__name">
+              {pack.name}
+              <small>
+                {pack.overlay.widgets.length} widget{pack.overlay.widgets.length === 1 ? '' : 's'}
+              </small>
+            </span>
+            <button
+              type="button"
+              className="button"
+              onClick={() =>
+                updateOverlays(
+                  (section) => createOverlayFromUserPack(section, pack.name, pack.overlay).section,
+                )
+              }
+            >
+              <Icon name="plus" /> Add
+            </button>
+            <button
+              type="button"
+              className="button button--quiet"
+              aria-label={`Delete pack ${pack.name}`}
+              onClick={() => updateTemplates((current) => deleteUserPack(current, pack.id))}
+            >
+              <Icon name="close" />
+            </button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

@@ -1,4 +1,7 @@
+import { useState } from 'react';
 import { RouterProvider } from 'react-router-dom';
+import { useAppearance } from '@/design/store';
+import { Welcome } from '@/components/Welcome/Welcome';
 import { router } from '@/app/router';
 import { OverlayApp } from '@/components/Overlay/OverlayApp';
 import { MiniApp } from '@/components/Mini/MiniApp';
@@ -22,12 +25,15 @@ export function App() {
   return <MainWindow />;
 }
 
-/** The main window wears the app's style on `:root`. */
+/** The main window wears the app's style on `:root`; the welcome shows once. */
 function MainWindow() {
   const look = useAppLook();
+  const appearance = useAppearance();
+  const [dismissed, setDismissed] = useState(false);
   return (
     <RootLook look={look}>
       <RouterProvider router={router} />
+      {!appearance.setupDone && !dismissed && <Welcome onDone={() => setDismissed(true)} />}
     </RootLook>
   );
 }

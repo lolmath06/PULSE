@@ -43,9 +43,24 @@ export interface OverlayGeometry {
   readonly height: number;
 }
 
+/**
+ * How an overlay is sized along its layout's axis: `content` fits its
+ * widgets; `fill` keeps the stored width (row) or height (column) and spreads
+ * the widgets across it — a full-width bar, a full-height rail.
+ */
+export type OverlaySpan = 'content' | 'fill';
+
+/** Where an overlay came from, so it can be recognised and reset. */
+export interface OverlayOrigin {
+  readonly pack: string;
+  readonly version: number;
+}
+
 export interface Overlay {
   readonly id: string;
   readonly name: string;
+  readonly span: OverlaySpan;
+  readonly origin: OverlayOrigin | null;
   /**
    * The style its window wears (colours, type, glow), or `null` for the
    * app's. The chrome below is always explicit: choosing a style writes the
@@ -124,6 +139,13 @@ export function normalizeGeometry(raw: unknown): OverlayGeometry {
   };
 }
 
+function normalizeOrigin(raw: unknown): OverlayOrigin | null {
+  if (!isRecord(raw) || typeof raw.pack !== 'string' || !isValidId(raw.pack)) return null;
+  const version =
+    typeof raw.version === 'number' && Number.isInteger(raw.version) ? raw.version : 1;
+  return { pack: raw.pack, version: Math.max(1, Math.min(1000, version)) };
+}
+
 export function normalizeOverlay(raw: unknown): Overlay | null {
   if (!isRecord(raw) || !isValidId(raw.id)) return null;
   const widgets = (Array.isArray(raw.widgets) ? raw.widgets : [])
@@ -134,6 +156,8 @@ export function normalizeOverlay(raw: unknown): Overlay | null {
     id: raw.id,
     name: typeof raw.name === 'string' && raw.name.trim() ? raw.name.slice(0, 40) : 'Overlay',
     styleId: isStyleId(raw.styleId) ? raw.styleId : null,
+    span: raw.span === 'fill' ? 'fill' : 'content',
+    origin: normalizeOrigin(raw.origin),
     visible: raw.visible !== false,
     locked: raw.locked === true,
     layout: (OVERLAY_LAYOUTS as readonly string[]).includes(raw.layout as string)
@@ -196,6 +220,49 @@ export const EMPTY_OVERLAY_SIZE = { width: 160, height: 48 } as const;
  * construction, and the overlay size always contains them all.
  */
 export function overlayLayout(
+  overlay: Pick<Overlay, 'layout' | 'columns' | 'gap' | 'chrome' | 'widgets'> &
+    Partial<Pick<Overlay, 'span' | 'geometry'>>,
+): OverlayLayoutResult {
+  const natural = naturalLayout(overlay);
+  if (overlay.span !== 'fill' || !overlay.geometry || overlay.widgets.length === 0) return natural;
+  return filledLayout(overlay, natural, overlay.geometry);
+}
+
+/**
+ * A `fill` overlay: the stored width (row) or height (column) is kept, never
+ * smaller than the widgets need, and the extra room is shared equally —
+ * each widget's box grows, its content centred in it.
+ */
+function filledLayout(
+  overlay: Pick<Overlay, 'layout' | 'widgets'>,
+  natural: OverlayLayoutResult,
+  geometry: OverlayGeometry,
+): OverlayLayoutResult {
+  const n = overlay.widgets.length;
+  if (overlay.layout === 'horizontal') {
+    const width = Math.max(natural.width, Math.round(geometry.width));
+    const extra = (width - natural.width) / n;
+    const boxes = natural.boxes.map((box, i) => ({
+      ...box,
+      x: box.x + extra * i,
+      width: box.width + extra,
+    }));
+    return { width, height: natural.height, boxes };
+  }
+  if (overlay.layout === 'vertical') {
+    const height = Math.max(natural.height, Math.round(geometry.height));
+    const extra = (height - natural.height) / n;
+    const boxes = natural.boxes.map((box, i) => ({
+      ...box,
+      y: box.y + extra * i,
+      height: box.height + extra,
+    }));
+    return { width: natural.width, height, boxes };
+  }
+  return natural;
+}
+
+function naturalLayout(
   overlay: Pick<Overlay, 'layout' | 'columns' | 'gap' | 'chrome' | 'widgets'>,
 ): OverlayLayoutResult {
   const pad = overlay.chrome.padding;
@@ -273,7 +340,8 @@ export function overlayLayout(
 
 /** The size the widgets need, chrome included, in logical pixels. */
 export function contentSize(
-  overlay: Pick<Overlay, 'layout' | 'columns' | 'gap' | 'chrome' | 'widgets'>,
+  overlay: Pick<Overlay, 'layout' | 'columns' | 'gap' | 'chrome' | 'widgets'> &
+    Partial<Pick<Overlay, 'span' | 'geometry'>>,
 ) {
   const { width, height } = overlayLayout(overlay);
   return { width, height };
@@ -306,6 +374,8 @@ export function createOverlay(
     id: newId('o'),
     name: name.trim().slice(0, 40) || 'Overlay',
     styleId: null,
+    span: 'content',
+    origin: null,
     visible: true,
     locked: false,
     layout: 'horizontal',
@@ -385,6 +455,43 @@ export function updateOverlayWidget(
     ...overlay,
     widgets: overlay.widgets.map((widget) => (widget.id === widgetId ? change(widget) : widget)),
   }));
+}
+
+/** A copy of an overlay: new ids, offset a little, same everything else. */
+export function duplicateOverlay(section: OverlaysSection, id: string): OverlaysSection {
+  const source = section.items.find((item) => item.id === id);
+  if (!source || section.items.length >= MAX_OVERLAYS) return section;
+  const copy: Overlay = {
+    ...source,
+    id: newId('o'),
+    name: `${source.name} copy`.slice(0, 40),
+    widgets: source.widgets.map((widget) => ({ ...widget, id: newId('w') })),
+    geometry: { ...source.geometry, x: source.geometry.x + 24, y: source.geometry.y + 24 },
+  };
+  return { ...section, items: [...section.items, copy] };
+}
+
+/** Adds an overlay from one of the user's saved packs. */
+export function createOverlayFromUserPack(
+  section: OverlaysSection,
+  name: string,
+  saved: Overlay,
+): { section: OverlaysSection; id: string | null } {
+  if (section.items.length >= MAX_OVERLAYS) return { section, id: null };
+  const offset = section.items.length * 24;
+  const overlay: Overlay = {
+    ...saved,
+    id: newId('o'),
+    name: name.slice(0, 40),
+    visible: true,
+    locked: false,
+    widgets: saved.widgets.map((widget) => ({ ...widget, id: newId('w') })),
+    geometry:
+      saved.span === 'fill'
+        ? saved.geometry
+        : { ...saved.geometry, x: 40 + offset, y: 40 + offset },
+  };
+  return { section: { ...section, items: [...section.items, overlay] }, id: overlay.id };
 }
 
 export function fitToContent(section: OverlaysSection, id: string): OverlaysSection {

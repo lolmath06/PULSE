@@ -65,7 +65,7 @@ export function defaultWidgets(): WidgetInstance[] {
 }
 
 export function defaultDashboard(id = 'default', name = 'Default'): Dashboard {
-  return { id, name, locked: true, styleId: null, widgets: defaultWidgets() };
+  return { id, name, locked: true, styleId: null, origin: null, widgets: defaultWidgets() };
 }
 
 export function defaultSection(): DashboardsSection {
@@ -85,6 +85,16 @@ export function normalizeDashboard(raw: unknown): Dashboard | null {
     name,
     locked: raw.locked !== false,
     styleId: isStyleId(raw.styleId) ? raw.styleId : null,
+    origin:
+      isRecord(raw.origin) && isValidId(raw.origin.template)
+        ? {
+            template: raw.origin.template,
+            version:
+              typeof raw.origin.version === 'number' && Number.isInteger(raw.origin.version)
+                ? Math.max(1, Math.min(1000, raw.origin.version))
+                : 1,
+          }
+        : null,
     // Repaired on every load: a hand-edited or older file can never leave two
     // widgets on top of each other.
     widgets: repairLayout(uniqueWidgetIds(widgets)),
@@ -140,6 +150,7 @@ export function createDashboard(section: DashboardsSection, name: string): Dashb
     name: name.trim().slice(0, 40) || 'Dashboard',
     locked: false,
     styleId: null,
+    origin: null,
     widgets: [],
   };
   return { ...section, items: [...section.items, dashboard], activeId: dashboard.id };

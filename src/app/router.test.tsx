@@ -60,7 +60,7 @@ describe('PULSE shell', () => {
     await renderAt('/gaming');
 
     expect(screen.getByRole('heading', { level: 1, name: 'Gaming' })).toBeInTheDocument();
-    expect(screen.getByText('Coming in a future PULSE phase.')).toBeInTheDocument();
+    expect(screen.getByText('Overlay-first. Read it in a glance.')).toBeInTheDocument();
   });
 
   it('degrades gracefully when the Tauri backend is unreachable', async () => {

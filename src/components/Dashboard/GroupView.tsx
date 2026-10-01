@@ -56,6 +56,7 @@ export function GroupView({
     orientation,
     sparklines,
     config.text.scale,
+    Math.max(1, ...resolved.map((entry) => entry.label.length)),
   );
   const inline = layout.orientation === 'inline';
   const count = Math.max(1, layout.visible);

@@ -1,20 +1,27 @@
-import { useState } from 'react';
-import { activeDashboard } from '@/dashboard/dashboards';
-import { useDashboards } from '@/dashboard/store';
-import { ROW_HEIGHT } from '@/dashboard/model';
-import { useElementSize } from '@/visualization/useElementSize';
+import { useMemo } from 'react';
 import { openMainWindow } from '@/overlay/desktop';
-import { WidgetCard } from '@/components/Dashboard/WidgetCard';
+import { MINI_LAYOUT_IDS, modeStyle, setMini } from '@/design/appearance';
+import type { MiniLayoutId } from '@/design/appearance';
+import { resolveLook } from '@/design/look';
 import { RootLook } from '@/design/LookContext';
-import { useAppLook } from '@/design/hooks';
+import { updateAppearance, useAppearance } from '@/design/store';
+import { useDashboards } from '@/dashboard/store';
+import { findMiniLayout } from '@/modes/miniLayouts';
+import { MiniView } from '@/components/Modes/MiniView';
+import { Icon } from '@/components/Icon';
 
 /**
  * The Mini window: a small, **ordinary** PULSE window — decorated, focusable,
- * interactive, in the taskbar — showing one dashboard stacked in a single
- * column. Unlike an overlay it is never always-on-top and never click-through.
+ * interactive, in the taskbar — showing one of Mini's own layouts or one of
+ * your dashboards. Unlike an overlay it is never always-on-top and never
+ * click-through. It wears the Mini mode's style unless given its own.
  */
 export function MiniApp() {
-  const look = useAppLook();
+  const appearance = useAppearance();
+  const look = useMemo(
+    () => resolveLook(appearance.mini.styleId ?? modeStyle(appearance, 'mini'), appearance.custom),
+    [appearance],
+  );
   return (
     <RootLook look={look}>
       <MiniContent />
@@ -23,49 +30,57 @@ export function MiniApp() {
 }
 
 function MiniContent() {
-  const section = useDashboards();
-  const [chosen, setChosen] = useState<string | null>(null);
-  const dashboard = section.items.find((item) => item.id === chosen) ?? activeDashboard(section);
-  const [ref, size] = useElementSize<HTMLDivElement>();
-  const width = Math.max(120, (size.width || 360) - 4);
-  const widgets = [...dashboard.widgets].sort(
-    (a, b) => a.layout.y - b.layout.y || a.layout.x - b.layout.x,
-  );
+  const appearance = useAppearance();
+  const dashboards = useDashboards();
+  const source = appearance.mini.source;
+  const value = source.kind === 'layout' ? `layout:${source.id}` : `dashboard:${source.id}`;
 
   return (
     <div className="mini">
       <header className="mini__header">
+        <span className="mini__brand" aria-hidden="true" />
         <select
-          className="history-panel__select"
-          aria-label="Dashboard shown in Mini"
-          value={dashboard.id}
-          onChange={(event) => setChosen(event.target.value)}
+          className="history-panel__select mini__select"
+          aria-label="Shown in Mini"
+          value={value}
+          onChange={(event) => {
+            const [kind, id] = event.target.value.split(':') as [string, string];
+            updateAppearance((section) =>
+              setMini(section, {
+                source:
+                  kind === 'layout'
+                    ? { kind: 'layout', id: id as MiniLayoutId }
+                    : { kind: 'dashboard', id },
+              }),
+            );
+          }}
         >
-          {section.items.map((item) => (
-            <option key={item.id} value={item.id}>
-              {item.name}
-            </option>
-          ))}
+          <optgroup label="Mini layouts">
+            {MINI_LAYOUT_IDS.map((id) => (
+              <option key={id} value={`layout:${id}`}>
+                {findMiniLayout(id).name}
+              </option>
+            ))}
+          </optgroup>
+          <optgroup label="Dashboards">
+            {dashboards.items.map((item) => (
+              <option key={item.id} value={`dashboard:${item.id}`}>
+                {item.name}
+              </option>
+            ))}
+          </optgroup>
         </select>
         <button
           type="button"
-          className="button button--quiet"
+          className="button button--quiet mini__open"
+          title="Open PULSE"
+          aria-label="Open PULSE"
           onClick={() => void openMainWindow().catch(() => undefined)}
         >
-          Open PULSE
+          <Icon name="arrowRight" />
         </button>
       </header>
-      <div ref={ref} className="mini__widgets">
-        {widgets.map((widget) => (
-          <WidgetCard
-            key={widget.id}
-            widget={widget}
-            width={width}
-            height={Math.min(200, Math.max(48, widget.layout.h * ROW_HEIGHT))}
-            editing={false}
-          />
-        ))}
-      </div>
+      <MiniView settings={appearance.mini} />
     </div>
   );
 }

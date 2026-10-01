@@ -15,7 +15,6 @@ import {
   moveWidgetTo,
   removeWidget,
   renameDashboard,
-  resetDashboard,
   resizeWidgetTo,
   setActive,
   setDashboardStyle,
@@ -28,6 +27,13 @@ import { DashboardGrid } from '@/components/Dashboard/DashboardGrid';
 import { WidgetCustomize } from '@/components/Dashboard/WidgetCustomize';
 import { WidgetLibrary } from '@/components/Dashboard/WidgetLibrary';
 import { StylePicker } from '@/components/Appearance/StylePicker';
+import { Sheet } from '@/components/Sheet/Sheet';
+import { TemplateGallery } from '@/components/Presets/TemplateGallery';
+import {
+  createDashboardFromTemplate,
+  findTemplate,
+  resetDashboardToOrigin,
+} from '@/presets/dashboardTemplates';
 import { PageStyle } from '@/design/LookContext';
 
 type Dialog =
@@ -114,7 +120,7 @@ export function DashboardPage({
             <button
               type="button"
               className="button button--quiet"
-              onClick={() => open({ kind: 'new' }, 'Gaming')}
+              onClick={() => open({ kind: 'new' }, '')}
             >
               New
             </button>
@@ -228,20 +234,56 @@ export function DashboardPage({
           />
         )}
 
-        {(dialog?.kind === 'new' || dialog?.kind === 'rename') && (
+        {dialog?.kind === 'new' && (
+          <Sheet
+            title="New dashboard"
+            subtitle="Start from a composed template, or from a blank grid. Everything stays editable."
+            onClose={() => setDialog(null)}
+          >
+            <div className="new-dashboard__name">
+              <input
+                type="text"
+                className="customize__text"
+                aria-label="Dashboard name"
+                placeholder="Name (optional)"
+                maxLength={40}
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+              />
+              <button
+                type="button"
+                className="button"
+                onClick={() => {
+                  updateDashboards((current) => createDashboard(current, name || 'Dashboard'));
+                  setDialog(null);
+                }}
+              >
+                Blank dashboard
+              </button>
+            </div>
+            <TemplateGallery
+              onUse={(template) => {
+                updateDashboards(
+                  (current) =>
+                    createDashboardFromTemplate(current, template, name.trim() || template.name)
+                      .section,
+                );
+                setDialog(null);
+              }}
+            />
+          </Sheet>
+        )}
+
+        {dialog?.kind === 'rename' && (
           <ConfirmDialog
-            title={dialog.kind === 'new' ? 'New dashboard' : `Rename “${dashboard.name}”`}
+            title={`Rename “${dashboard.name}”`}
             body={[]}
-            confirmLabel={dialog.kind === 'new' ? 'Create' : 'Rename'}
+            confirmLabel="Rename"
             tone="neutral"
             confirmDisabled={!name.trim()}
             onCancel={() => setDialog(null)}
             onConfirm={() => {
-              updateDashboards((current) =>
-                dialog.kind === 'new'
-                  ? createDashboard(current, name)
-                  : renameDashboard(current, id, name),
-              );
+              updateDashboards((current) => renameDashboard(current, id, name));
               setDialog(null);
             }}
           >
@@ -273,12 +315,16 @@ export function DashboardPage({
         {dialog?.kind === 'reset' && (
           <ConfirmDialog
             title={`Reset “${dashboard.name}”?`}
-            body={['The default widgets replace the current ones. Your templates are kept.']}
+            body={[
+              findTemplate(dashboard.origin?.template)
+                ? `The “${findTemplate(dashboard.origin?.template)!.name}” template replaces the current widgets and style. Your saved templates are kept.`
+                : 'The default widgets replace the current ones. Your templates are kept.',
+            ]}
             confirmLabel="Reset dashboard"
             tone="warning"
             onCancel={() => setDialog(null)}
             onConfirm={() => {
-              updateDashboards((current) => resetDashboard(current, id));
+              updateDashboards((current) => resetDashboardToOrigin(current, id));
               setDialog(null);
             }}
           />

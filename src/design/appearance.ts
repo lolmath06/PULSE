@@ -4,6 +4,8 @@ import { isHex } from '@/design/color';
 import type { Density, PaletteId, StyleId } from '@/design/styles';
 import { DENSITIES, PALETTES, isStyleId } from '@/design/styles';
 import { isValidId, newId } from '@/dashboard/ids';
+import type { ModeId } from '@/modes/modes';
+import { MODE_IDS, findMode, isModeId } from '@/modes/modes';
 
 /**
  * The `appearance` section: which style PULSE wears and how the user tuned it.
@@ -91,6 +93,33 @@ export interface UserStyle {
   readonly custom: Customization;
 }
 
+/** What the user chose for one mode; `null` fields follow the mode. */
+export interface ModeSettings {
+  readonly styleId: StyleId | null;
+  /** The mode's own dashboard, once made. */
+  readonly dashboardId: string | null;
+  readonly lockOverlays: boolean;
+  readonly keepRunning: boolean;
+}
+
+export const MINI_LAYOUT_IDS = ['vitals', 'thermals', 'network', 'focus'] as const;
+export type MiniLayoutId = (typeof MINI_LAYOUT_IDS)[number];
+
+export type MiniSource =
+  | { readonly kind: 'layout'; readonly id: MiniLayoutId }
+  | { readonly kind: 'dashboard'; readonly id: string };
+
+export interface MiniSettings {
+  readonly source: MiniSource;
+  /** `null`: Mini wears the Mini mode's style. */
+  readonly styleId: StyleId | null;
+}
+
+export const DEFAULT_MINI: MiniSettings = {
+  source: { kind: 'layout', id: 'vitals' },
+  styleId: null,
+};
+
 export interface AppearanceSection {
   readonly version: typeof APPEARANCE_VERSION;
   readonly styleId: StyleId;
@@ -102,7 +131,25 @@ export interface AppearanceSection {
   readonly setupDone: boolean;
   /** The main window reopens where it was left. */
   readonly lastRoute: string | null;
+  /** The mode PULSE is in: it then wears that mode's style. */
+  readonly activeMode: ModeId | null;
+  readonly modes: Readonly<Record<ModeId, ModeSettings>>;
+  readonly mini: MiniSettings;
 }
+
+function defaultModeSettings(id: ModeId): ModeSettings {
+  const mode = findMode(id)!;
+  return {
+    styleId: null,
+    dashboardId: null,
+    lockOverlays: mode.defaults.lockOverlays,
+    keepRunning: mode.defaults.keepRunning,
+  };
+}
+
+const DEFAULT_MODES = Object.fromEntries(
+  MODE_IDS.map((id) => [id, defaultModeSettings(id)]),
+) as Record<ModeId, ModeSettings>;
 
 export const DEFAULT_APPEARANCE: AppearanceSection = {
   version: APPEARANCE_VERSION,
@@ -112,6 +159,9 @@ export const DEFAULT_APPEARANCE: AppearanceSection = {
   userStyles: [],
   setupDone: false,
   lastRoute: null,
+  activeMode: null,
+  modes: DEFAULT_MODES,
+  mini: DEFAULT_MINI,
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -192,7 +242,43 @@ export function normalizeAppearance(raw: unknown): AppearanceSection {
     setupDone: raw.setupDone === true,
     lastRoute:
       typeof raw.lastRoute === 'string' && ROUTE.test(raw.lastRoute) ? raw.lastRoute : null,
+    activeMode: isModeId(raw.activeMode) ? raw.activeMode : null,
+    modes: normalizeModes(raw.modes),
+    mini: normalizeMini(raw.mini),
   };
+}
+
+function normalizeModes(raw: unknown): Record<ModeId, ModeSettings> {
+  const source = isRecord(raw) ? raw : {};
+  return Object.fromEntries(
+    MODE_IDS.map((id) => {
+      const entry = isRecord(source[id]) ? (source[id] as Record<string, unknown>) : {};
+      const fallback = defaultModeSettings(id);
+      return [
+        id,
+        {
+          styleId: isStyleId(entry.styleId) ? entry.styleId : null,
+          dashboardId: isValidId(entry.dashboardId) ? entry.dashboardId : null,
+          lockOverlays:
+            typeof entry.lockOverlays === 'boolean' ? entry.lockOverlays : fallback.lockOverlays,
+          keepRunning:
+            typeof entry.keepRunning === 'boolean' ? entry.keepRunning : fallback.keepRunning,
+        },
+      ];
+    }),
+  ) as Record<ModeId, ModeSettings>;
+}
+
+function normalizeMini(raw: unknown): MiniSettings {
+  const source = isRecord(raw) ? raw : {};
+  const from = isRecord(source.source) ? source.source : {};
+  const kind =
+    from.kind === 'dashboard' && isValidId(from.id)
+      ? ({ kind: 'dashboard', id: from.id } as const)
+      : from.kind === 'layout' && (MINI_LAYOUT_IDS as readonly string[]).includes(from.id as string)
+        ? ({ kind: 'layout', id: from.id as MiniLayoutId } as const)
+        : DEFAULT_MINI.source;
+  return { source: kind, styleId: isStyleId(source.styleId) ? source.styleId : null };
 }
 
 // --- actions -----------------------------------------------------------------
@@ -306,4 +392,47 @@ export function setLastRoute(section: AppearanceSection, route: string): Appeara
 
 export function completeSetup(section: AppearanceSection): AppearanceSection {
   return section.setupDone ? section : { ...section, setupDone: true };
+}
+
+// --- modes ---------------------------------------------------------------------
+
+/** The style PULSE wears: the active mode's, or the chosen one. */
+export function effectiveStyle(section: AppearanceSection): StyleId {
+  if (!section.activeMode) return section.styleId;
+  return section.modes[section.activeMode].styleId ?? findMode(section.activeMode)!.style;
+}
+
+/** The style of a mode: the user's choice, or the mode's own. */
+export function modeStyle(section: AppearanceSection, id: ModeId): StyleId {
+  return section.modes[id].styleId ?? findMode(id)!.style;
+}
+
+export function enterMode(section: AppearanceSection, id: ModeId | null): AppearanceSection {
+  return section.activeMode === id ? section : { ...section, activeMode: id };
+}
+
+export function updateMode(
+  section: AppearanceSection,
+  id: ModeId,
+  patch: Partial<ModeSettings>,
+): AppearanceSection {
+  return { ...section, modes: { ...section.modes, [id]: { ...section.modes[id], ...patch } } };
+}
+
+/**
+ * Chooses a style from the Studio: it goes to the active mode when there is
+ * one (that is what is on screen), otherwise it becomes the app's style.
+ */
+export function chooseStyle(section: AppearanceSection, styleId: StyleId): AppearanceSection {
+  if (section.activeMode) {
+    return { ...updateMode(section, section.activeMode, { styleId }), userStyleId: null };
+  }
+  return setStyle(section, styleId);
+}
+
+export function setMini(
+  section: AppearanceSection,
+  patch: Partial<MiniSettings>,
+): AppearanceSection {
+  return { ...section, mini: { ...section.mini, ...patch } };
 }

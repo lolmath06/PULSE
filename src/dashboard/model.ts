@@ -122,6 +122,8 @@ export interface Dashboard {
   readonly locked: boolean;
   /** The style this dashboard wears, or `null` for the app's. */
   readonly styleId: StyleId | null;
+  /** The template it was made from, so *Reset* can return to it. */
+  readonly origin: { readonly template: string; readonly version: number } | null;
   readonly widgets: readonly WidgetInstance[];
 }
 

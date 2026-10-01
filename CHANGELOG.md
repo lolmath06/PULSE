@@ -7,6 +7,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added — Phase 12: modes, overlay packs, dashboard templates, Mini, welcome
+
+- **Modes** (`src/modes/`): _Gaming_, _Development_, _Personal_ and _Mini_
+  become real pages — each in its own style, with a live strip of its key
+  metrics, its dashboard (created from its template, then editable), its
+  overlay packs and its behaviour (Gaming locks overlays and keeps PULSE
+  running on entry). Entering a mode makes the app wear its style and
+  density; Studio style choices go to the active mode.
+- **Twelve overlay packs** (`src/presets/overlayPacks.ts`): Tiny Thermals,
+  Tiny Stats, Top Bar, Bottom Bar, Left Rail, Right Rail, Gaming Corner,
+  Thermal Strip, System Summary Card, Network Strip, Minimal Transparent HUD,
+  Dev Monitor Rail — eight footprints; bars and rails use the new overlay
+  `span: 'fill'` and the primary monitor's size. Capability hints where the
+  session cannot place or stack as designed. No FPS, no ping (tested).
+- **Eight dashboard templates**: Default balanced, Gaming, Development,
+  Personal starter, Thermal focus, Network & I/O, Minimal clean and the
+  **Fancy showcase**; _New_ opens a template gallery; dashboards remember
+  their origin and _Reset_ returns to it.
+- **Preset lifecycle**: overlays remember their pack (Reset to pack),
+  Duplicate, _Save as my pack_ (user packs in the `templates` section);
+  pack and template versions recorded for future migrations.
+- **Mini**: its own layouts (Vitals, Thermals, Network, Focus) or any
+  dashboard, its own style, a live preview on the Mini page; the Mini window
+  is redesigned and follows changes live.
+- **Welcome** (first run, skippable): mode, style, starter dashboard and
+  overlay, and the overlay backend / GNOME bridge state in one sheet.
+- **Home**: the Overview opens with a live strip, the four modes (each in its
+  style) and shortcuts, above the system details.
+- Micro widgets: an unreadable reading shows `NAME —` (reason beneath or in
+  the tooltip) instead of a lone dash or a paragraph; inline strips size text
+  before adding trends, so values never truncate; trends in wide bars keep a
+  readable length.
+- Docs: [`docs/modes/`](docs/modes/overview.md),
+  [`docs/presets/overlay-packs.md`](docs/presets/overlay-packs.md),
+  [`docs/presets/dashboard-templates.md`](docs/presets/dashboard-templates.md).
+
 ### Added — Phase 12: design system, eight visual styles and the Appearance studio
 
 - **Design system** (`src/design/`, `src/styles/theme.css`, `design.css`):

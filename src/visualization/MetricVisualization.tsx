@@ -137,15 +137,24 @@ export function MetricVisualization({
   const micro = presentation.density === 'micro';
   // In a micro box the message shrinks to a glyph; the full reason stays in
   // the tooltip and the accessible name, so it is never lost.
-  const message = (text: string, warning = false, short = '…') => (
-    <p
-      className={`viz__message${warning ? ' viz__message--warning' : ''}`}
-      title={text}
-      aria-label={text}
-    >
-      {micro ? short : text}
-    </p>
-  );
+  const message = (text: string, warning = false, short = '…') =>
+    info.family === 'instant' && short === '—' && !micro ? (
+      // A number, bar or ring with nothing to show: its name and a dash, the
+      // reason small beneath — never a paragraph where a figure belongs.
+      <p className="viz__message viz__message--instant" title={text} aria-label={text}>
+        <span className="viz__message-value">{config.text.showLabel ? `${meta.label} ` : ''}—</span>
+        <span className="viz__message-reason">{text}</span>
+      </p>
+    ) : (
+      <p
+        className={`viz__message${warning ? ' viz__message--warning' : ''}`}
+        title={text}
+        aria-label={text}
+      >
+        {/* A micro box keeps its label, so a missing reading is never a lone dash. */}
+        {micro ? (config.text.showLabel && short === '—' ? `${meta.label} —` : short) : text}
+      </p>
+    );
 
   let body: ReactNode;
   if (!support.ok) {
@@ -328,10 +337,15 @@ function MicroStrip({
     config.text.scale,
     18,
   );
-  const sparkWidth = width - Math.min(fit.textWidth, textBudget) - 6;
+  // A trend never stretches into a ribbon: in a wide cell (a full-width bar)
+  // it keeps a readable length and the pair is centred.
+  const sparkWidth = Math.min(180, width - Math.min(fit.textWidth, textBudget) - 6);
   const showSpark = wantsSpark && sparkWidth >= 28;
   return (
-    <div className="viz-strip" style={{ width, height }}>
+    <div
+      className="viz-strip"
+      style={{ width, height, justifyContent: width > 360 ? 'center' : undefined }}
+    >
       <span
         className="viz-strip__text"
         style={{ fontSize: fit.fontPx, maxWidth: showSpark ? textBudget : width }}

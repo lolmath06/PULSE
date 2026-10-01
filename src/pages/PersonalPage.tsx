@@ -1,10 +1,6 @@
-import { PagePlaceholder } from '@/components/PagePlaceholder';
+import { findMode } from '@/modes/modes';
+import { ModePage } from '@/components/Modes/ModePage';
 
 export function PersonalPage() {
-  return (
-    <PagePlaceholder
-      title="Personal"
-      subtitle="A freely composable dashboard with movable, resizable widgets."
-    />
-  );
+  return <ModePage mode={findMode('personal')!} />;
 }

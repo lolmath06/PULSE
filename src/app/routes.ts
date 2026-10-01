@@ -71,7 +71,7 @@ export const NAV_ROUTES: readonly NavRoute[] = [
   {
     path: '/personal',
     label: 'Personal',
-    mode: 'standard',
+    mode: 'personal',
     description: 'A freely composable dashboard with many widgets.',
     icon: 'personal',
     group: 'modes',

@@ -6,7 +6,7 @@ import type { OverlayChrome } from '@/overlay/model';
 import { DEFAULT_FRAME } from '@/dashboard/model';
 import { alpha, mix, onColor } from '@/design/color';
 import type { AppearanceSection, Customization, FontChoice, Motion } from '@/design/appearance';
-import { DEFAULT_CUSTOMIZATION } from '@/design/appearance';
+import { DEFAULT_CUSTOMIZATION, effectiveStyle } from '@/design/appearance';
 import type {
   Density,
   FontKey,
@@ -17,6 +17,7 @@ import type {
   WidgetLook,
 } from '@/design/styles';
 import { DENSITY_SCALE, FONT_STACKS, PALETTES, styleById } from '@/design/styles';
+import { findMode } from '@/modes/modes';
 
 /**
  * A style with the user's customization applied: everything a surface needs
@@ -117,9 +118,16 @@ export function resolveLook(styleId: StyleId, custom: Customization = DEFAULT_CU
   };
 }
 
-/** The look the whole app wears. */
+/**
+ * The look the whole app wears: the active mode's style (and density, unless
+ * the user chose one), or the chosen style.
+ */
 export function appLook(section: AppearanceSection): Look {
-  return resolveLook(section.styleId, section.custom);
+  const custom =
+    section.activeMode && section.custom.density === null
+      ? { ...section.custom, density: findMode(section.activeMode)!.density }
+      : section.custom;
+  return resolveLook(effectiveStyle(section), custom);
 }
 
 function surface(value: Surface, alphaValue = value.alpha): string {
@@ -271,7 +279,29 @@ export function frameFollowsStyle(frame: WidgetFrame): boolean {
  */
 export function styleWidget(widget: WidgetInstance, look: Look): WidgetInstance {
   let config = widget.visual.config;
-  if (!widget.visual.modified) config = mergeConfig(config, look.chart);
+  if (!widget.visual.modified) {
+    const own = config;
+    const merged = mergeConfig(config, look.chart);
+    // A style may hide chart parts, never bring back one the widget hides:
+    // a bare micro chart stays bare in Technical.
+    config = {
+      ...merged,
+      axes: {
+        x: own.axes.x && merged.axes.x,
+        y: own.axes.y && merged.axes.y,
+        grid: own.axes.grid && merged.axes.grid,
+      },
+      display: {
+        ...merged.display,
+        legend: own.display.legend && merged.display.legend,
+        current: own.display.current && merged.display.current,
+        min: own.display.min && merged.display.min,
+        max: own.display.max && merged.display.max,
+        average: own.display.average && merged.display.average,
+        compact: own.display.compact,
+      },
+    };
+  }
   const micro =
     widget.kind === 'value' || config.renderer === 'sparkline' || config.display.compact;
   if (!look.microLabels && micro && config.text.showLabel) {

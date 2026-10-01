@@ -2,6 +2,8 @@ import type { WidgetInstance } from '@/dashboard/model';
 import { normalizeWidget } from '@/dashboard/model';
 import { visualDefaultsFor } from '@/dashboard/dashboards';
 import { isValidId, newId } from '@/dashboard/ids';
+import type { Overlay } from '@/overlay/model';
+import { normalizeOverlay } from '@/overlay/model';
 
 /**
  * User widget templates — "My CPU tiny" — reusable on any dashboard and in
@@ -11,6 +13,7 @@ import { isValidId, newId } from '@/dashboard/ids';
 
 export const TEMPLATES_VERSION = 1;
 export const MAX_TEMPLATES = 64;
+export const MAX_USER_PACKS = 32;
 
 export interface WidgetTemplate {
   readonly id: string;
@@ -18,12 +21,25 @@ export interface WidgetTemplate {
   readonly widget: WidgetInstance;
 }
 
+/** An overlay the user saved to reuse: its widgets, layout, style and chrome. */
+export interface UserOverlayPack {
+  readonly id: string;
+  readonly name: string;
+  readonly overlay: Overlay;
+}
+
 export interface TemplatesSection {
   readonly version: typeof TEMPLATES_VERSION;
   readonly items: readonly WidgetTemplate[];
+  /** The user's own overlay packs. */
+  readonly overlays: readonly UserOverlayPack[];
 }
 
-export const EMPTY_TEMPLATES: TemplatesSection = { version: TEMPLATES_VERSION, items: [] };
+export const EMPTY_TEMPLATES: TemplatesSection = {
+  version: TEMPLATES_VERSION,
+  items: [],
+  overlays: [],
+};
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -44,7 +60,37 @@ export function normalizeTemplates(raw: unknown): TemplatesSection {
       widget,
     });
   }
-  return { version: TEMPLATES_VERSION, items };
+  const overlays: UserOverlayPack[] = [];
+  for (const entry of Array.isArray(raw.overlays) ? raw.overlays.slice(0, MAX_USER_PACKS) : []) {
+    if (!isRecord(entry) || typeof entry.name !== 'string' || !entry.name.trim()) continue;
+    const overlay = normalizeOverlay(entry.overlay);
+    if (!overlay) continue;
+    overlays.push({
+      id: isValidId(entry.id) ? entry.id : newId('p'),
+      name: entry.name.trim().slice(0, 40),
+      overlay,
+    });
+  }
+  return { version: TEMPLATES_VERSION, items, overlays };
+}
+
+/** Saves an overlay as one of the user's packs (widgets, layout, style, chrome). */
+export function saveUserPack(
+  section: TemplatesSection,
+  name: string,
+  overlay: Overlay,
+): TemplatesSection {
+  const trimmed = name.trim().slice(0, 40);
+  if (!trimmed || section.overlays.length >= MAX_USER_PACKS) return section;
+  const stored: Overlay = { ...overlay, id: 'o-pack', visible: true, locked: false, origin: null };
+  return {
+    ...section,
+    overlays: [...section.overlays, { id: newId('p'), name: trimmed, overlay: stored }],
+  };
+}
+
+export function deleteUserPack(section: TemplatesSection, id: string): TemplatesSection {
+  return { ...section, overlays: section.overlays.filter((pack) => pack.id !== id) };
 }
 
 export function saveTemplate(

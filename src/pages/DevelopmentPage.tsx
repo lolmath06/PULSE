@@ -1,10 +1,6 @@
-import { PagePlaceholder } from '@/components/PagePlaceholder';
+import { findMode } from '@/modes/modes';
+import { ModePage } from '@/components/Modes/ModePage';
 
 export function DevelopmentPage() {
-  return (
-    <PagePlaceholder
-      title="Development"
-      subtitle="A mode focused on build pressure: CPU load, memory, I/O and thermals."
-    />
-  );
+  return <ModePage mode={findMode('development')!} />;
 }

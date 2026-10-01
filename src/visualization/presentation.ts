@@ -244,6 +244,10 @@ export function groupLayout(
   orientation: 'rows' | 'inline',
   sparklines: boolean,
   scale = 1,
+  /** The longest label, in characters. */
+  labelChars = 4,
+  /** A value with its unit, in characters (`12.3 MB/s` is 9). */
+  valueChars = 7,
 ): GroupLayout {
   const n = Math.max(1, count);
   let mode = orientation;
@@ -253,13 +257,23 @@ export function groupLayout(
     else visible = Math.max(1, Math.floor(height / 13));
   }
   if (mode === 'inline') {
+    // Text first: label and value must fit their cell. The type shrinks (to
+    // 9 px) before the label goes; a trend only gets the room that is left.
     const cell = width / n;
+    const glyph = 0.62;
+    const textWidth = (px: number, label: boolean) =>
+      ((label ? labelChars + 1 : 0) + valueChars) * glyph * px + 20;
+    let fontPx = Math.max(8, Math.min(16, height * 0.42)) * scale;
+    let labels = cell >= 70;
+    while (labels && textWidth(fontPx, true) > cell && fontPx > 9) fontPx -= 0.5;
+    if (labels && textWidth(fontPx, true) > cell) labels = false;
+    while (textWidth(fontPx, labels) > cell && fontPx > 8) fontPx -= 0.5;
     return {
       orientation: 'inline',
       visible: n,
-      fontPx: Math.max(8, Math.min(16, height * 0.42, cell / 5)) * scale,
-      labels: cell >= 70,
-      sparklines: sparklines && height >= 34 && cell >= 120,
+      fontPx,
+      labels,
+      sparklines: sparklines && height >= 34 && cell - textWidth(fontPx, labels) >= 44,
     };
   }
   const row = height / visible;

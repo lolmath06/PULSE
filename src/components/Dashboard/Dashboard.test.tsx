@@ -195,7 +195,7 @@ describe('dashboard page', () => {
     const input = screen.getByLabelText('Dashboard name');
     await user.clear(input);
     await user.type(input, 'Gaming');
-    await user.click(screen.getByRole('button', { name: 'Create' }));
+    await user.click(screen.getByRole('button', { name: 'Blank dashboard' }));
     expect(active().name).toBe('Gaming');
     expect(await screen.findByText('This dashboard is empty.')).toBeInTheDocument();
 

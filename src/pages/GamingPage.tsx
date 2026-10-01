@@ -1,10 +1,6 @@
-import { PagePlaceholder } from '@/components/PagePlaceholder';
+import { findMode } from '@/modes/modes';
+import { ModePage } from '@/components/Modes/ModePage';
 
 export function GamingPage() {
-  return (
-    <PagePlaceholder
-      title="Gaming"
-      subtitle="A low-overhead mode focused on the metrics that matter while playing."
-    />
-  );
+  return <ModePage mode={findMode('gaming')!} />;
 }

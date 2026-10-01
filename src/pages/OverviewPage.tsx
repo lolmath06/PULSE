@@ -16,15 +16,20 @@ import { GpuHistory } from '@/components/History/GpuHistory';
 import { StorageHistory } from '@/components/History/StorageHistory';
 import { NetworkHistory } from '@/components/History/NetworkHistory';
 import { ProcessHistory } from '@/components/History/ProcessHistory';
+import { HomeHero } from '@/components/Home/HomeHero';
 
 export function OverviewPage() {
   const state = usePlatformInfo();
 
   return (
-    <section className="page">
-      <h1 className="page__hero">PULSE</h1>
-      <p className="page__subtitle">{APP_TAGLINE}</p>
-      <p className="page__note">Version {APP_VERSION}</p>
+    <section className="page page--home">
+      <HomeHero>
+        <h1 className="page__hero">PULSE</h1>
+        <p className="page__subtitle home-hero__tagline">{APP_TAGLINE}</p>
+        <p className="page__note">Version {APP_VERSION}</p>
+      </HomeHero>
+
+      <h2 className="section-title home__details">System details</h2>
 
       <div className="card" aria-label="Detected platform">
         <h2 className="card__title">Detected platform</h2>

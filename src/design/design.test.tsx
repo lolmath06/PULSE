@@ -208,6 +208,27 @@ describe('styling widgets at render time', () => {
     expect(widget.visual.config.line.curve).toBe('smooth');
   });
 
+  it('a style hides chart parts but never brings back hidden ones', () => {
+    const bare = cpuChart();
+    const hidden = {
+      ...bare,
+      visual: {
+        ...bare.visual,
+        config: {
+          ...bare.visual.config,
+          axes: { x: false, y: false, grid: false },
+          display: { ...bare.visual.config.display, legend: false, min: false },
+        },
+      },
+    };
+    const technical = styleWidget(hidden, resolveLook('technical')).visual.config;
+    expect(technical.axes).toEqual({ x: false, y: false, grid: false });
+    expect(technical.display.min).toBe(false);
+    const stealth = styleWidget(cpuChart(), resolveLook('stealth')).visual.config;
+    expect(stealth.axes.grid).toBe(false);
+    expect(stealth.display.average).toBe(false);
+  });
+
   it('a customised chart keeps exactly what the user chose', () => {
     const widget = cpuChart();
     const custom = {
