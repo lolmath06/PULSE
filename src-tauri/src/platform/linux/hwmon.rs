@@ -698,7 +698,9 @@ mod tests {
         // How a GPU's sensors are tied to that GPU: they live under the card's
         // own device directory, so nothing has to guess from numbering.
         let tree = HwmonTree::new("under-device");
-        let card = tree.root.join("0000:01:00.0");
+        // A synthetic card directory: only `<card>/hwmon` matters here, and a
+        // real PCI address (`0000:01:00.0`) is not a valid Windows file name.
+        let card = tree.root.join("pci-card-0000-01-00-0");
         let hwmon_root = card.join(DEVICE_HWMON_SUBDIR);
         fs::create_dir_all(&hwmon_root).expect("fixture");
 
@@ -720,7 +722,9 @@ mod tests {
         // The reference machine's own case: an NVIDIA card on `nouveau` with no
         // hwmon node at all. Not a failure — the sensors simply are not there.
         let tree = HwmonTree::new("no-hwmon");
-        let card = tree.root.join("0000:01:00.0");
+        // A synthetic card directory: only `<card>/hwmon` matters here, and a
+        // real PCI address (`0000:01:00.0`) is not a valid Windows file name.
+        let card = tree.root.join("pci-card-0000-01-00-0");
         fs::create_dir_all(&card).expect("fixture");
 
         assert!(devices_under(&card).is_empty());

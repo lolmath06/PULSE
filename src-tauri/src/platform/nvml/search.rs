@@ -180,9 +180,15 @@ mod tests {
         // The one property that matters for the security argument: the path is
         // built from the directory the system reported, never from a relative
         // name the loader would resolve against its own search order.
-        let path = nvml_under_program_files(Path::new("/opt/pf"));
+        // An absolute root on whatever platform runs the test (`/opt/pf` is
+        // not absolute on Windows, which needs a drive). Only a path is built;
+        // nothing is created.
+        let program_files = std::env::temp_dir().join("pulse-program-files-fixture");
+        assert!(program_files.is_absolute());
 
-        assert!(path.starts_with("/opt/pf"));
+        let path = nvml_under_program_files(&program_files);
+
+        assert!(path.starts_with(&program_files));
         assert!(path.is_absolute());
         assert_ne!(path, PathBuf::from(WINDOWS_LIBRARY));
     }

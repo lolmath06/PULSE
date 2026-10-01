@@ -425,7 +425,9 @@ mod tests {
     #[test]
     fn discovers_the_sensors_under_a_card_device_directory() {
         let tree = HwmonTree::new("gpu-thermal");
-        let card = tree.root.join("0000:03:00.0");
+        // A synthetic card directory: only `<card>/hwmon` matters here, and a
+        // real PCI address (`0000:03:00.0`) is not a valid Windows file name.
+        let card = tree.root.join("pci-card-0000-03-00-0");
         let hwmon_root = card.join(crate::platform::linux::hwmon::DEVICE_HWMON_SUBDIR);
         std::fs::create_dir_all(&hwmon_root).expect("fixture");
 
@@ -454,7 +456,9 @@ mod tests {
         // The reference machine: an NVIDIA card on `nouveau`, correctly
         // detected, with no sensor node at all. Not a failure.
         let tree = HwmonTree::new("gpu-no-hwmon");
-        let card = tree.root.join("0000:01:00.0");
+        // A synthetic card directory: only `<card>/hwmon` matters here, and a
+        // real PCI address (`0000:01:00.0`) is not a valid Windows file name.
+        let card = tree.root.join("pci-card-0000-01-00-0");
         std::fs::create_dir_all(&card).expect("fixture");
 
         assert!(discover(&card).is_empty());
