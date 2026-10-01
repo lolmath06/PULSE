@@ -299,12 +299,12 @@ fn terminates_an_owned_child_with_sigterm() {
 #[test]
 fn ends_an_owned_tree_children_first_and_spares_a_sibling() {
     // parent sh → child sh → grandchild sleep, plus a second direct sleep.
-    // `; true` keeps the inner shell from exec-ing into `sleep`, so the
-    // tree really is three levels deep. A fixed literal script — nothing is
-    // interpolated.
+    // Both shells explicitly wait on background children, so neither can
+    // exec into `sleep` and the three-level hierarchy stays in place. A fixed
+    // literal script — nothing is interpolated.
     let mut root = Owned {
         child: Command::new("sh")
-            .args(["-c", "sh -c 'sleep 60; true' & sleep 60; wait"])
+            .args(["-c", "sh -c 'sleep 60 & wait' & sleep 60 & wait"])
             .stdin(Stdio::null())
             .spawn()
             .expect("spawn tree"),
@@ -312,27 +312,38 @@ fn ends_an_owned_tree_children_first_and_spares_a_sibling() {
     let sibling = Owned::sleep();
     let root_pid = root.pid();
 
-    let descendants = || {
-        crate::platform::linux::processes::scan(crate::platform::linux::processes::Depth::Counts)
-            .processes
-    };
-    let children_of = |pid: u32| -> Vec<u32> {
-        descendants()
+    let children_of = |processes: &[crate::processes::RawProcess], pid: u32| -> Vec<u32> {
+        processes
             .iter()
             .filter(|process| process.parent_pid == Some(pid))
             .map(|process| process.instance.pid)
             .collect()
     };
+    let mut tree = None;
     assert!(
         wait_until(|| {
-            let children = children_of(root_pid);
-            children.len() == 2 && children.iter().any(|child| !children_of(*child).is_empty())
+            let processes = crate::platform::linux::processes::scan(
+                crate::platform::linux::processes::Depth::Counts,
+            )
+            .processes;
+            let children = children_of(&processes, root_pid);
+            let grandchildren: Vec<u32> = children
+                .iter()
+                .flat_map(|pid| children_of(&processes, *pid))
+                .collect();
+
+            if children.len() == 2 && grandchildren.len() == 1 {
+                let mut observed = children;
+                observed.extend(grandchildren);
+                tree = Some(observed);
+                true
+            } else {
+                false
+            }
         }),
         "the three-level tree formed"
     );
-    let mut tree: Vec<u32> = children_of(root_pid);
-    let grandchildren: Vec<u32> = tree.iter().flat_map(|pid| children_of(*pid)).collect();
-    tree.extend(grandchildren);
+    let tree = tree.expect("the complete tree was observed in one snapshot");
 
     let control = control();
     let result = control.terminate_tree(root.instance());
