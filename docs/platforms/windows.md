@@ -727,12 +727,15 @@ Nothing below has been run on Windows.
 
 ## Packaging
 
-Planned targets: NSIS (`.exe`) and MSI, configured in `tauri.conf.json`.
+NSIS (`.exe`) and MSI, built natively by CI on `windows-latest`
+(Phase 13A, [`../release/windows-ci.md`](../release/windows-ci.md)). The NSIS
+installer installs for the current user — PULSE needs no administrator
+rights, so its installer asks for none.
 
-One caveat already worth recording: PULSE's version is `0.1.0-dev`, and **MSI
-requires a strictly numeric `major.minor.patch` version**. The pre-release
-suffix must be dropped or translated before the first MSI is produced. Installer
-production is a later phase, so this is documented rather than solved now.
+MSI requires a strictly numeric version while PULSE is `0.1.0-dev`: the MSI's
+own version is set explicitly (`bundle.windows.wix.version = "0.1.0"`) and the
+WiX upgrade code is pinned, so the app version keeps its pre-release suffix.
+Binaries are unsigned for now (SmartScreen may warn).
 
 ## Testing note
 

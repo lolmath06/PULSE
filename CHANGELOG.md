@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added — Phase 13A: native Windows CI and Windows artifacts
+
+- **CI rebuilt for native Windows evidence** (`.github/workflows/ci.yml`):
+  _Linux quality_, _Windows native quality_, _MSRV 1.77.2 (Linux)_ and
+  _Windows package_. On `windows-latest` the real crate — Tauri, the Win32
+  overlay glue, bundled SQLite — is checked, tested and linted with MSVC
+  (`--locked`), plus the 1.77.2 MSRV check; the frontend checks run natively
+  too. Runs on pushes to `main` and `phase*` branches, pull requests and by
+  hand; `contents: read` only.
+- **Windows package** (`.github/workflows/windows-package.yml`, reusable):
+  `pnpm tauri build --bundles nsis msi -- --locked`, then the NSIS installer,
+  the MSI and the portable executable are verified (present, non-empty),
+  checksummed (`SHA256SUMS.txt`), described (`build-info.txt`) and uploaded
+  as `PULSE-windows-x64-<short-sha>`; the job fails on any missing binary.
+- **Release workflow prepared** (`.github/workflows/release.yml`): a `v*` tag
+  matching the app version builds Windows and Linux bundles and creates a
+  **draft** pre-release; a manual run is a dry run. Not used yet — no v1.
+- Bundle metadata: publisher, category, descriptions; MSI version set
+  explicitly (`0.1.0`, the app stays `0.1.0-dev`) with a pinned WiX upgrade
+  code; NSIS installs per user (no administrator prompt).
+- Docs: [`docs/release/`](docs/release/ci.md) — the three validation levels,
+  downloading and verifying artifacts, the Phase 13B physical checklist (not
+  executed), the release process.
+
 ### Added — Phase 12: modes, overlay packs, dashboard templates, Mini, welcome
 
 - **Modes** (`src/modes/`): _Gaming_, _Development_, _Personal_ and _Mini_

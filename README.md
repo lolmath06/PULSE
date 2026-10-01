@@ -194,6 +194,19 @@ This has a concrete consequence, written into the project's rules:
 
 macOS is not a target.
 
+### CI and Windows status
+
+| Evidence                                                                            | Status                                                  |
+| ----------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| Windows cross-target harness (from Fedora)                                          | passing                                                 |
+| Native Windows CI (GitHub `windows-latest`): build, tests, clippy, MSRV, NSIS + MSI | set up — see [`docs/release/ci.md`](docs/release/ci.md) |
+| Physical Windows validation                                                         | **pending** (Phase 13B)                                 |
+| Fedora / GNOME Wayland physical validation                                          | done (Phase 12)                                         |
+
+Each green CI run leaves a downloadable `PULSE-windows-x64-<sha>` artifact
+(installer, MSI, portable executable, SHA-256 sums) —
+[`docs/release/windows-ci.md`](docs/release/windows-ci.md).
+
 ## Stack
 
 | Layer           | Technology                             |
@@ -347,6 +360,9 @@ Start at [`docs/README.md`](docs/README.md).
   [platform capabilities](docs/overlay/platform-capabilities.md),
   [user guide](docs/overlay/user-guide.md)
 - [Widgets](docs/widgets/README.md)
+- [CI](docs/release/ci.md) — [Windows CI & artifacts](docs/release/windows-ci.md),
+  [Windows physical validation](docs/release/windows-physical-validation.md),
+  [release process](docs/release/release-process.md)
 
 ## Roadmap
 
