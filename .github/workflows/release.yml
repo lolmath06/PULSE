@@ -1,0 +1,159 @@
+# Release workflow — PREPARED, NOT YET USED.
+#
+# - A pushed tag `v<version>` (matching tauri.conf.json) builds the Windows and
+#   Linux bundles and creates a DRAFT, pre-release GitHub Release with them and
+#   their SHA-256 sums. A person reviews the draft and publishes it by hand.
+# - A manual run (workflow_dispatch) is a dry run: it builds and uploads the
+#   bundles as workflow artifacts and creates no release.
+#
+# Pushing a branch never runs this workflow. No v1.0.0 exists yet: Windows has
+# not been validated on physical hardware (docs/release/release-process.md).
+
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  version:
+    name: Check version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.read.outputs.version }}
+    steps:
+      - name: Check out
+        uses: actions/checkout@v5
+
+      - name: Read and check the version
+        id: read
+        run: |
+          version=$(jq -r .version src-tauri/tauri.conf.json)
+          cargo_version=$(grep -m1 '^version' src-tauri/Cargo.toml | cut -d'"' -f2)
+          package_version=$(jq -r .version package.json)
+          echo "tauri.conf.json $version, Cargo.toml $cargo_version, package.json $package_version"
+          if [ "$version" != "$cargo_version" ] || [ "$version" != "$package_version" ]; then
+            echo "::error::Versions disagree"; exit 1
+          fi
+          if [ "${{ github.ref_type }}" = "tag" ] && [ "${{ github.ref_name }}" != "v$version" ]; then
+            echo "::error::Tag ${{ github.ref_name }} does not match the app version v$version"; exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+  windows:
+    name: Windows package
+    needs: [version]
+    uses: ./.github/workflows/windows-package.yml
+
+  linux:
+    name: Linux package
+    needs: [version]
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check out
+        uses: actions/checkout@v5
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libappindicator3-dev \
+            librsvg2-dev \
+            patchelf \
+            build-essential \
+            libxdo-dev \
+            libssl-dev \
+            rpm
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Tauri Linux build
+        run: pnpm tauri build --bundles deb rpm appimage -- --locked
+
+      - name: Collect and verify artifacts
+        run: |
+          short=$(echo "${{ github.sha }}" | cut -c1-7)
+          mkdir linux-artifacts
+          bundle=src-tauri/target/release/bundle
+          for pattern in "deb/*.deb" "rpm/*.rpm" "appimage/*.AppImage"; do
+            files=( $bundle/$pattern )
+            if [ ! -s "${files[0]}" ]; then echo "::error::Missing $pattern"; exit 1; fi
+            cp "${files[0]}" linux-artifacts/
+          done
+          cd linux-artifacts && sha256sum * > SHA256SUMS-linux.txt && cat SHA256SUMS-linux.txt
+          echo "LINUX_ARTIFACT=PULSE-linux-x64-$short" >> "$GITHUB_ENV"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.LINUX_ARTIFACT }}
+          path: linux-artifacts/
+          if-no-files-found: error
+          retention-days: 30
+
+  # Only for a pushed tag, and only ever a DRAFT pre-release.
+  draft-release:
+    name: Draft GitHub Release
+    if: github.ref_type == 'tag'
+    needs: [version, windows, linux]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release
+          merge-multiple: true
+
+      - name: Combine checksums
+        run: |
+          cd release
+          rm -f SHA256SUMS.txt SHA256SUMS-linux.txt
+          sha256sum * > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+
+      - name: Create draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cat > notes.md <<'EOF'
+          PULSE ${{ needs.version.outputs.version }} — draft pre-release built by GitHub Actions.
+
+          - Windows: NSIS installer, MSI and portable executable (unsigned; SmartScreen may warn).
+          - Linux: .deb, .rpm and AppImage.
+          - Verify downloads against SHA256SUMS.txt.
+
+          Physical validation status is recorded in docs/release/release-process.md.
+          EOF
+          gh release create "${{ github.ref_name }}" release/* \
+            --repo "${{ github.repository }}" \
+            --draft --prerelease \
+            --title "PULSE ${{ needs.version.outputs.version }}" \
+            --notes-file notes.md
