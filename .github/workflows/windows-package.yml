@@ -1,0 +1,169 @@
+# Builds the real PULSE Windows application with Tauri on a native Windows
+# runner and publishes the installers as a GitHub Actions artifact.
+#
+# Reusable: called by ci.yml (every relevant push / PR / dispatch) and by
+# release.yml (tags). The same steps produce what CI tests and what a release
+# ships, so the two can never drift apart.
+#
+# What a green run proves: the application, its Tauri/Win32 glue and its
+# installers BUILD natively on Windows. It does NOT prove PULSE works on a
+# physical Windows machine — see docs/release/windows-physical-validation.md.
+
+name: Windows package
+
+on:
+  workflow_call:
+    outputs:
+      artifact:
+        description: Name of the uploaded Windows artifact
+        value: ${{ jobs.package.outputs.artifact }}
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  package:
+    name: Windows package
+    runs-on: windows-latest
+    timeout-minutes: 60
+    outputs:
+      artifact: ${{ steps.names.outputs.artifact }}
+    defaults:
+      run:
+        shell: pwsh
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v5
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust build
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri -> target
+          key: windows-package
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Name the artifact set
+        id: names
+        run: |
+          $version = (Get-Content src-tauri/tauri.conf.json -Raw | ConvertFrom-Json).version
+          $short = "${{ github.sha }}".Substring(0, 7)
+          $base = "PULSE-windows-x64-$short"
+          "version=$version" >> $env:GITHUB_OUTPUT
+          "short=$short" >> $env:GITHUB_OUTPUT
+          "base=$base" >> $env:GITHUB_OUTPUT
+          "artifact=$base" >> $env:GITHUB_OUTPUT
+          Write-Host "PULSE $version, commit $short -> $base"
+
+      # The canonical build: frontend (beforeBuildCommand) + release binary +
+      # installers. --locked is forwarded to cargo.
+      - name: Tauri Windows build
+        run: pnpm tauri build --bundles nsis msi -- --locked
+
+      - name: Collect artifacts
+        run: |
+          $base = "${{ steps.names.outputs.base }}"
+          $out = New-Item -ItemType Directory -Force -Path windows-artifacts
+          $bundle = "src-tauri/target/release/bundle"
+
+          $setup = @(Get-ChildItem "$bundle/nsis" -Filter *-setup.exe -ErrorAction SilentlyContinue)
+          $msi = @(Get-ChildItem "$bundle/msi" -Filter *.msi -ErrorAction SilentlyContinue)
+          $exe = Get-Item "src-tauri/target/release/pulse.exe" -ErrorAction SilentlyContinue
+
+          if ($setup.Count -ne 1) { throw "Expected exactly one NSIS setup .exe, found $($setup.Count)" }
+          if ($msi.Count -ne 1) { throw "Expected exactly one .msi, found $($msi.Count)" }
+          if (-not $exe) { throw "The release executable pulse.exe is missing" }
+
+          Copy-Item $setup[0].FullName "$out/$base-setup.exe"
+          Copy-Item $msi[0].FullName "$out/$base.msi"
+          Copy-Item $exe.FullName "$out/$base-portable.exe"
+          Write-Host "NSIS:     $($setup[0].Name) -> $base-setup.exe"
+          Write-Host "MSI:      $($msi[0].Name) -> $base.msi"
+          Write-Host "Portable: pulse.exe -> $base-portable.exe"
+
+      - name: Write build info
+        run: |
+          $lines = @(
+            "PULSE version: ${{ steps.names.outputs.version }}",
+            "Commit: ${{ github.sha }}",
+            "Short commit: ${{ steps.names.outputs.short }}",
+            "Ref: ${{ github.ref }}",
+            "Workflow run: ${{ github.run_id }} (attempt ${{ github.run_attempt }})",
+            "Runner image: $env:ImageOS $env:ImageVersion",
+            "Rust: $(rustc --version)",
+            "Node: $(node --version)",
+            "pnpm: $(pnpm --version)",
+            "Target: x86_64-pc-windows-msvc",
+            "Bundles: nsis, msi, portable exe",
+            "Built (UTC): $((Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ'))",
+            "Code signing: none (unsigned pre-release; SmartScreen may warn)",
+            "Physical Windows validation: NOT YET PERFORMED"
+          )
+          $lines | Set-Content -Encoding utf8 windows-artifacts/build-info.txt
+          Get-Content windows-artifacts/build-info.txt
+
+      - name: Verify artifacts
+        run: |
+          $base = "${{ steps.names.outputs.base }}"
+          $mandatory = @("$base-setup.exe", "$base.msi", "$base-portable.exe")
+          $sums = @()
+          foreach ($name in $mandatory) {
+            $path = "windows-artifacts/$name"
+            if (-not (Test-Path $path)) { throw "Missing mandatory artifact: $name" }
+            $size = (Get-Item $path).Length
+            if ($size -le 0) { throw "Empty artifact: $name" }
+            $hash = (Get-FileHash -Algorithm SHA256 $path).Hash.ToLower()
+            $sums += "$hash  $name"
+            Write-Host ("{0,-48} {1,12:N0} bytes  {2}" -f $name, $size, $hash)
+          }
+          # Unix sha256sum format: "<hash>  <file>", LF line endings.
+          [IO.File]::WriteAllText("$PWD/windows-artifacts/SHA256SUMS.txt", ($sums -join "`n") + "`n")
+          Get-Content windows-artifacts/SHA256SUMS.txt
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.names.outputs.artifact }}
+          path: windows-artifacts/
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Summary
+        run: |
+          $base = "${{ steps.names.outputs.base }}"
+          @(
+            "## PULSE Windows package",
+            "",
+            "| Step | Result |",
+            "| --- | --- |",
+            "| Tauri bundle (NSIS + MSI) | PASS |",
+            "| Mandatory artifacts verified | PASS |",
+            "",
+            "Artifact **$base**:",
+            "",
+            "- ``$base-setup.exe`` — NSIS installer (current user, no admin)",
+            "- ``$base.msi`` — MSI installer",
+            "- ``$base-portable.exe`` — the raw application (needs WebView2, present on Windows 10/11)",
+            "- ``SHA256SUMS.txt``, ``build-info.txt``",
+            "",
+            "Commit: ``${{ github.sha }}``",
+            "",
+            "**Physical Windows validation: NOT YET PERFORMED.** Unsigned pre-release build; SmartScreen may warn."
+          ) -join "`n" >> $env:GITHUB_STEP_SUMMARY

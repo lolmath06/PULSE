@@ -1,10 +1,18 @@
 name: CI
 
+# Three levels of Windows evidence exist and must not be confused
+# (docs/release/ci.md):
+#   1. the cross-target harness (Fedora/Linux, `pnpm rust:windows`)
+#   2. native Windows CI — this workflow's `windows` and `windows-package` jobs
+#   3. physical Windows validation — a person, a real machine; never CI
 on:
   push:
-    branches: [main]
+    branches: [main, 'phase*']
   pull_request:
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 # A new push to a branch supersedes the previous run.
 concurrency:
@@ -16,62 +24,17 @@ env:
   RUST_BACKTRACE: 1
 
 jobs:
-  # Lint, typecheck and unit-test the frontend. Platform-independent, so it runs
-  # once on Linux rather than twice.
-  frontend:
-    name: Frontend
+  # The reference platform. ubuntu-latest catches Linux regressions but is not
+  # a Fedora test (different kernel, WebKitGTK, desktop and sensors).
+  linux:
+    name: Linux quality
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v5
+      - name: Check out
+        uses: actions/checkout@v5
 
-      - uses: pnpm/action-setup@v4
-
-      - uses: actions/setup-node@v5
-        with:
-          node-version: 22
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Check formatting
-        run: pnpm format:check
-
-      - name: Lint
-        run: pnpm lint
-
-      - name: Typecheck
-        run: pnpm typecheck
-
-      - name: Test
-        run: pnpm test
-
-      - name: Build
-        run: pnpm build
-
-  # The cross-platform gate. PULSE treats Windows and Fedora Linux as two
-  # first-class platforms, so the Rust backend is checked on both.
-  #
-  # NOTE: ubuntu-latest catches Linux regressions but is NOT a Fedora test —
-  # different kernel, WebKitGTK, desktop environment and sensor modules.
-  # Real Fedora validation is manual. See docs/development/testing.md.
-  backend:
-    name: Backend (${{ matrix.name }})
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: ubuntu-latest
-            name: Linux
-          - os: windows-latest
-            name: Windows
-
-    steps:
-      - uses: actions/checkout@v5
-
-      - name: Install Linux system dependencies
-        if: matrix.os == 'ubuntu-latest'
+      - name: Install system dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y \
@@ -80,11 +43,91 @@ jobs:
             librsvg2-dev \
             patchelf \
             build-essential \
-            curl wget file \
             libxdo-dev \
             libssl-dev
 
-      - name: Install Rust
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+          # For the cross-target Windows harness (type-checks only, no linking).
+          targets: x86_64-pc-windows-msvc
+
+      - name: Cache Rust build
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            src-tauri -> target
+            tools/windows-check -> target
+          key: linux
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Frontend format
+        run: pnpm format:check
+
+      - name: Frontend lint
+        run: pnpm lint
+
+      - name: Frontend typecheck
+        run: pnpm typecheck
+
+      - name: Frontend tests
+        run: pnpm test
+
+      - name: Frontend build
+        run: pnpm build
+
+      - name: Rust format
+        run: cargo fmt --manifest-path src-tauri/Cargo.toml --all --check
+
+      - name: Rust clippy
+        run: cargo clippy --locked --manifest-path src-tauri/Cargo.toml --all-targets -- -D warnings
+
+      - name: Rust tests
+        run: cargo test --locked --manifest-path src-tauri/Cargo.toml
+
+      # Level 1 evidence: still useful next to native CI — it is what a
+      # Fedora developer runs before every commit.
+      - name: Windows cross-target harness
+        run: pnpm rust:windows
+
+      - name: Windows cross-target harness clippy
+        run: pnpm rust:windows:lint
+
+      - name: Linux app build
+        run: pnpm tauri build --no-bundle -- --locked
+
+  # Level 2 evidence: the REAL crate and its `cfg(target_os = "windows")`
+  # Tauri/Win32 glue, compiled and tested by MSVC on Windows.
+  windows:
+    name: Windows native quality
+    runs-on: windows-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check out
+        uses: actions/checkout@v5
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
@@ -93,113 +136,95 @@ jobs:
         uses: Swatinem/rust-cache@v2
         with:
           workspaces: src-tauri -> target
-          key: ${{ matrix.os }}
-
-      - name: Check formatting
-        run: cargo fmt --manifest-path src-tauri/Cargo.toml --all --check
-
-      - name: Clippy
-        run: cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets -- -D warnings
-
-      - name: Test
-        run: cargo test --manifest-path src-tauri/Cargo.toml --all-features
-
-      - name: Build
-        run: cargo build --manifest-path src-tauri/Cargo.toml
-
-  # The declared minimum Rust version, 1.77.2, is a promise about the WHOLE
-  # locked dependency graph, not only PULSE's own code. This job builds the
-  # production configuration with that exact toolchain and `--locked`, on both
-  # platforms. On Windows this is also where the bundled SQLite C amalgamation
-  # is compiled with MSVC — something the Fedora harness cannot do.
-  msrv:
-    name: MSRV 1.77.2 (${{ matrix.name }})
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: ubuntu-latest
-            name: Linux
-          - os: windows-latest
-            name: Windows
-
-    steps:
-      - uses: actions/checkout@v5
-
-      - name: Install Linux system dependencies
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            libwebkit2gtk-4.1-dev \
-            libappindicator3-dev \
-            librsvg2-dev \
-            patchelf \
-            build-essential \
-            libxdo-dev \
-            libssl-dev
-
-      - name: Install Rust 1.77.2
-        uses: dtolnay/rust-toolchain@1.77.2
-
-      - name: Build (bundled SQLite included)
-        run: cargo build --locked --manifest-path src-tauri/Cargo.toml
-
-      - name: Test
-        run: cargo test --locked --manifest-path src-tauri/Cargo.toml
-
-  # Proves the whole application actually assembles on both platforms —
-  # frontend bundle plus Rust binary, the way `pnpm app:build` does.
-  # Installer/bundle production is deliberately left to a later phase.
-  app:
-    name: App build (${{ matrix.name }})
-    runs-on: ${{ matrix.os }}
-    needs: [frontend, backend]
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: ubuntu-latest
-            name: Linux
-          - os: windows-latest
-            name: Windows
-
-    steps:
-      - uses: actions/checkout@v5
-
-      - name: Install Linux system dependencies
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            libwebkit2gtk-4.1-dev \
-            libappindicator3-dev \
-            librsvg2-dev \
-            patchelf \
-            build-essential \
-            curl wget file \
-            libxdo-dev \
-            libssl-dev
-
-      - uses: pnpm/action-setup@v4
-
-      - uses: actions/setup-node@v5
-        with:
-          node-version: 22
-          cache: pnpm
-
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Cache Rust build
-        uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: src-tauri -> target
-          key: app-${{ matrix.os }}
+          key: windows
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build application
-        run: pnpm tauri build --no-bundle
+      - name: Frontend typecheck
+        run: pnpm typecheck
+
+      - name: Frontend lint
+        run: pnpm lint
+
+      - name: Frontend format
+        run: pnpm format:check
+
+      - name: Frontend tests
+        run: pnpm test
+
+      # The frontend bundle builds on Windows too (Vite, paths, line endings).
+      - name: Frontend build
+        run: pnpm build
+
+      - name: Rust check
+        run: cargo check --locked --manifest-path src-tauri/Cargo.toml --all-targets
+
+      - name: Rust tests
+        run: cargo test --locked --manifest-path src-tauri/Cargo.toml
+
+      - name: Rust clippy
+        run: cargo clippy --locked --manifest-path src-tauri/Cargo.toml --all-targets -- -D warnings
+
+      - name: Set up Rust 1.77.2
+        uses: dtolnay/rust-toolchain@1.77.2
+
+      # The MSRV is a promise about the whole locked graph, on Windows too —
+      # including the bundled SQLite C amalgamation compiled by MSVC.
+      - name: MSRV check
+        run: cargo +1.77.2 check --locked --manifest-path src-tauri/Cargo.toml --all-targets
+
+      - name: Summary
+        shell: pwsh
+        run: |
+          @(
+            "## PULSE Windows native CI",
+            "",
+            "| Check | Result |",
+            "| --- | --- |",
+            "| Frontend typecheck, lint, format, tests | PASS |",
+            "| Native Rust compile (MSVC, incl. Win32 overlay glue) | PASS |",
+            "| Rust tests | PASS |",
+            "| Clippy | PASS |",
+            "| MSRV 1.77.2 | PASS |",
+            "",
+            "Commit: ``${{ github.sha }}``",
+            "",
+            "**Physical Windows validation: NOT YET PERFORMED.**"
+          ) -join "`n" >> $env:GITHUB_STEP_SUMMARY
+
+  # The declared MSRV on the reference platform.
+  msrv-linux:
+    name: MSRV 1.77.2 (Linux)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Check out
+        uses: actions/checkout@v5
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libappindicator3-dev \
+            librsvg2-dev \
+            patchelf \
+            build-essential \
+            libxdo-dev \
+            libssl-dev
+
+      - name: Set up Rust 1.77.2
+        uses: dtolnay/rust-toolchain@1.77.2
+
+      - name: MSRV check
+        run: cargo check --locked --manifest-path src-tauri/Cargo.toml --all-targets
+
+      - name: MSRV tests
+        run: cargo test --locked --manifest-path src-tauri/Cargo.toml
+
+  # Real installers, only once native Windows quality is green.
+  windows-package:
+    name: Windows package
+    needs: [windows]
+    uses: ./.github/workflows/windows-package.yml

@@ -42,8 +42,16 @@
     },
     "windows": {
       "nsis": {
-        "installMode": "perMachine"
+        "installMode": "currentUser"
+      },
+      "wix": {
+        "version": "0.1.0",
+        "upgradeCode": "da6d24c5-619e-50aa-849a-3db0ed9470df"
       }
-    }
+    },
+    "publisher": "PULSE contributors",
+    "category": "Utility",
+    "shortDescription": "A modular, cross-platform system monitor with desktop overlays.",
+    "longDescription": "PULSE is a modular, cross-platform system monitoring dashboard for Windows and Fedora Linux, with live metrics, history, dashboards and desktop overlays."
   }
 }
