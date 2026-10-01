@@ -1,7 +1,8 @@
 #!/bin/sh
-# Fails if any commit to be published attributes authorship to Claude or
-# Anthropic: an author/committer identity, or an attribution trailer
-# (Co-Authored-By, Generated-By, Assisted-By, Signed-off-by, ...).
+# Fails if any commit to be published attributes authorship to Claude,
+# Anthropic, Codex, OpenAI or ChatGPT: an author/committer identity, or an
+# attribution trailer (Co-Authored-By, Generated-By, Assisted-By,
+# Signed-off-by, ...).
 # Ordinary file content is never scanned.
 #
 #   scripts/check-git-attribution.sh            # every commit reachable from HEAD
@@ -10,15 +11,20 @@
 set -eu
 
 [ "$#" -eq 0 ] && set -- HEAD
-pattern='claude|anthropic'
+ai_pattern='claude|anthropic|codex|openai|chatgpt'
+attribution_trailer_pattern='^([[:alnum:]-]*-by|author|committer|co-author)[[:space:]]*:'
 found=0
 
 for commit in $(git rev-list "$@"); do
-  hits=$(git cat-file commit "$commit" | awk '
-    /^$/ { body = 1; next }
-    !body && /^(author|committer) / { print; next }
-    body && tolower($0) ~ /^[a-z-]*(authored|generated|assisted|signed-off)[a-z-]*-?by:/ { print }
-  ' | grep -iE "$pattern" || true)
+  identities=$(git cat-file commit "$commit" | awk '
+    /^$/ { exit }
+    /^(author|committer) / { print }
+  ')
+  trailers=$(git log -1 --format=%B "$commit" |
+    git interpret-trailers --parse |
+    grep -iE "$attribution_trailer_pattern" || true)
+  hits=$(printf '%s\n%s\n' "$identities" "$trailers" |
+    grep -iE "$ai_pattern" || true)
   if [ -n "$hits" ]; then
     found=1
     echo "attribution in $(git log -1 --format='%h %s' "$commit"):"
@@ -27,7 +33,7 @@ for commit in $(git rev-list "$@"); do
 done
 
 if [ "$found" -ne 0 ]; then
-  echo "Claude/Anthropic attribution found. Rewrite these commits before publishing." >&2
+  echo "Prohibited AI attribution found. Rewrite these commits before publishing." >&2
   exit 1
 fi
-echo "No Claude/Anthropic attribution in $(git rev-list --count "$@") commit(s)."
+echo "No Claude/Anthropic/Codex/OpenAI/ChatGPT attribution in $(git rev-list --count "$@") commit(s)."
