@@ -4,7 +4,7 @@ version = "0.1.0-dev"
 description = "A modular, cross-platform system monitoring dashboard for Windows and Fedora Linux."
 authors = ["PULSE contributors"]
 license-file = "../LICENSE"
-repository = "https://github.com/pulse-monitor/pulse"
+repository = "https://github.com/lolmath06/PULSE"
 edition = "2021"
 rust-version = "1.77.2"
 

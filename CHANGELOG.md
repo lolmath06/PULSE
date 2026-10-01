@@ -1409,5 +1409,5 @@ establishes the architecture everything else will be built on.
   packaging, which requires a strictly numeric version. This must be resolved
   before the first Windows installer is produced.
 
-[Unreleased]: https://github.com/pulse-monitor/pulse/compare/v0.1.0-dev...HEAD
-[0.1.0-dev]: https://github.com/pulse-monitor/pulse/releases/tag/v0.1.0-dev
+[Unreleased]: https://github.com/lolmath06/PULSE/compare/v0.1.0-dev...HEAD
+[0.1.0-dev]: https://github.com/lolmath06/PULSE/releases/tag/v0.1.0-dev

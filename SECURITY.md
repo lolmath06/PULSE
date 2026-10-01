@@ -15,7 +15,7 @@ applied to `main`.
 **Please do not open a public issue for a security vulnerability.**
 
 Report it privately through
-[GitHub Security Advisories](https://github.com/pulse-monitor/pulse/security/advisories/new).
+[GitHub Security Advisories](https://github.com/lolmath06/PULSE/security/advisories/new).
 
 Please include:
 

@@ -4,7 +4,7 @@
 
 > A modular, cross-platform system monitoring dashboard for Windows and Fedora Linux.
 
-[![CI](https://github.com/pulse-monitor/pulse/actions/workflows/ci.yml/badge.svg)](https://github.com/pulse-monitor/pulse/actions/workflows/ci.yml)
+[![CI](https://github.com/lolmath06/PULSE/actions/workflows/ci.yml/badge.svg)](https://github.com/lolmath06/PULSE/actions/workflows/ci.yml)
 [![License: Proprietary](https://img.shields.io/badge/License-Proprietary-informational.svg)](LICENSE)
 
 ---
@@ -245,8 +245,8 @@ sudo dnf install -y \
 ## Development setup
 
 ```bash
-git clone https://github.com/pulse-monitor/pulse.git
-cd pulse
+git clone https://github.com/lolmath06/PULSE.git
+cd PULSE
 pnpm install
 ```
 

@@ -8,7 +8,7 @@ body:
         Thanks for taking the time to report a bug.
 
         PULSE is in Phase 0 (foundation) — most features do not exist yet.
-        Please check the [roadmap](https://github.com/pulse-monitor/pulse#roadmap)
+        Please check the [roadmap](https://github.com/lolmath06/PULSE#roadmap)
         before reporting a missing feature as a bug.
 
   - type: textarea
