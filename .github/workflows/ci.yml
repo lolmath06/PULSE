@@ -33,6 +33,12 @@ jobs:
     steps:
       - name: Check out
         uses: actions/checkout@v5
+        with:
+          # Full history, for the attribution check below.
+          fetch-depth: 0
+
+      - name: Commit attribution
+        run: sh scripts/check-git-attribution.sh HEAD
 
       - name: Install system dependencies
         run: |
