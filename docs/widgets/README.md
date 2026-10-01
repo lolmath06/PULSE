@@ -1,7 +1,11 @@
 # PULSE Widgets
 
-> Status: **not implemented.** Phase 0 ships no widget engine. This records the
-> contract so that later work does not have to reverse-engineer intent.
+> **Historical — the Phase 0 contract.** The widget engine has since been
+> built; today's widgets, renderers and layout are documented in
+> [`../dashboard/widgets.md`](../dashboard/widgets.md),
+> [`../visualization/renderers.md`](../visualization/renderers.md) and
+> [`../dashboard/layout.md`](../dashboard/layout.md). This page is kept as the
+> original statement of intent.
 
 ## What a widget is
 

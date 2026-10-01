@@ -1,0 +1,2353 @@
+{
+  "catalog": [
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Number of logical processors (hardware threads) the operating system schedules work on. With simultaneous multithreading this exceeds the number of physical cores.",
+      "displayName": "Logical processors",
+      "kind": "state",
+      "metric": {
+        "key": "cpu.count.logical",
+        "sourceId": "cpu:system"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "System CPU",
+      "unit": "count",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Number of physical processor packages (sockets) installed.",
+      "displayName": "Processor packages",
+      "kind": "state",
+      "metric": {
+        "key": "cpu.count.package",
+        "sourceId": "cpu:system"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "System CPU",
+      "unit": "count",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Number of physical execution cores, counted as distinct (package, core) pairs so that identically numbered cores in two different packages are never merged.",
+      "displayName": "Physical cores",
+      "kind": "state",
+      "metric": {
+        "key": "cpu.count.physical",
+        "sourceId": "cpu:system"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "System CPU",
+      "unit": "count",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Clock frequency the operating system currently reports for this logical processor. Scaling, boost and power policies move it continuously, so it is the platform's latest figure rather than an instantaneous measurement of the silicon.",
+      "displayName": "Current frequency",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.frequency.current",
+        "sourceId": "cpu:logical-0"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "CPU 0",
+      "unit": "hertz",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Clock frequency the operating system currently reports for this logical processor. Scaling, boost and power policies move it continuously, so it is the platform's latest figure rather than an instantaneous measurement of the silicon.",
+      "displayName": "Current frequency",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.frequency.current",
+        "sourceId": "cpu:logical-1"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "CPU 1",
+      "unit": "hertz",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Clock frequency the operating system currently reports for this logical processor. Scaling, boost and power policies move it continuously, so it is the platform's latest figure rather than an instantaneous measurement of the silicon.",
+      "displayName": "Current frequency",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.frequency.current",
+        "sourceId": "cpu:logical-10"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "CPU 10",
+      "unit": "hertz",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Clock frequency the operating system currently reports for this logical processor. Scaling, boost and power policies move it continuously, so it is the platform's latest figure rather than an instantaneous measurement of the silicon.",
+      "displayName": "Current frequency",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.frequency.current",
+        "sourceId": "cpu:logical-11"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "CPU 11",
+      "unit": "hertz",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Clock frequency the operating system currently reports for this logical processor. Scaling, boost and power policies move it continuously, so it is the platform's latest figure rather than an instantaneous measurement of the silicon.",
+      "displayName": "Current frequency",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.frequency.current",
+        "sourceId": "cpu:logical-12"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "CPU 12",
+      "unit": "hertz",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Clock frequency the operating system currently reports for this logical processor. Scaling, boost and power policies move it continuously, so it is the platform's latest figure rather than an instantaneous measurement of the silicon.",
+      "displayName": "Current frequency",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.frequency.current",
+        "sourceId": "cpu:logical-13"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "CPU 13",
+      "unit": "hertz",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Clock frequency the operating system currently reports for this logical processor. Scaling, boost and power policies move it continuously, so it is the platform's latest figure rather than an instantaneous measurement of the silicon.",
+      "displayName": "Current frequency",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.frequency.current",
+        "sourceId": "cpu:logical-14"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "CPU 14",
+      "unit": "hertz",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Clock frequency the operating system currently reports for this logical processor. Scaling, boost and power policies move it continuously, so it is the platform's latest figure rather than an instantaneous measurement of the silicon.",
+      "displayName": "Current frequency",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.frequency.current",
+        "sourceId": "cpu:logical-15"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "CPU 15",
+      "unit": "hertz",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Clock frequency the operating system currently reports for this logical processor. Scaling, boost and power policies move it continuously, so it is the platform's latest figure rather than an instantaneous measurement of the silicon.",
+      "displayName": "Current frequency",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.frequency.current",
+        "sourceId": "cpu:logical-2"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "CPU 2",
+      "unit": "hertz",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Clock frequency the operating system currently reports for this logical processor. Scaling, boost and power policies move it continuously, so it is the platform's latest figure rather than an instantaneous measurement of the silicon.",
+      "displayName": "Current frequency",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.frequency.current",
+        "sourceId": "cpu:logical-3"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "CPU 3",
+      "unit": "hertz",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Clock frequency the operating system currently reports for this logical processor. Scaling, boost and power policies move it continuously, so it is the platform's latest figure rather than an instantaneous measurement of the silicon.",
+      "displayName": "Current frequency",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.frequency.current",
+        "sourceId": "cpu:logical-4"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "CPU 4",
+      "unit": "hertz",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Clock frequency the operating system currently reports for this logical processor. Scaling, boost and power policies move it continuously, so it is the platform's latest figure rather than an instantaneous measurement of the silicon.",
+      "displayName": "Current frequency",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.frequency.current",
+        "sourceId": "cpu:logical-5"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "CPU 5",
+      "unit": "hertz",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Clock frequency the operating system currently reports for this logical processor. Scaling, boost and power policies move it continuously, so it is the platform's latest figure rather than an instantaneous measurement of the silicon.",
+      "displayName": "Current frequency",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.frequency.current",
+        "sourceId": "cpu:logical-6"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "CPU 6",
+      "unit": "hertz",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Clock frequency the operating system currently reports for this logical processor. Scaling, boost and power policies move it continuously, so it is the platform's latest figure rather than an instantaneous measurement of the silicon.",
+      "displayName": "Current frequency",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.frequency.current",
+        "sourceId": "cpu:logical-7"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "CPU 7",
+      "unit": "hertz",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Clock frequency the operating system currently reports for this logical processor. Scaling, boost and power policies move it continuously, so it is the platform's latest figure rather than an instantaneous measurement of the silicon.",
+      "displayName": "Current frequency",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.frequency.current",
+        "sourceId": "cpu:logical-8"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "CPU 8",
+      "unit": "hertz",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Clock frequency the operating system currently reports for this logical processor. Scaling, boost and power policies move it continuously, so it is the platform's latest figure rather than an instantaneous measurement of the silicon.",
+      "displayName": "Current frequency",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.frequency.current",
+        "sourceId": "cpu:logical-9"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "CPU 9",
+      "unit": "hertz",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Maximum clock frequency the platform reports for this logical processor. On a hybrid CPU this differs between performance and efficiency cores. A governor or power-policy ceiling is never published here in its place.",
+      "displayName": "Maximum frequency",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.frequency.max",
+        "sourceId": "cpu:logical-0"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "CPU 0",
+      "unit": "hertz",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Maximum clock frequency the platform reports for this logical processor. On a hybrid CPU this differs between performance and efficiency cores. A governor or power-policy ceiling is never published here in its place.",
+      "displayName": "Maximum frequency",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.frequency.max",
+        "sourceId": "cpu:logical-1"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "CPU 1",
+      "unit": "hertz",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Maximum clock frequency the platform reports for this logical processor. On a hybrid CPU this differs between performance and efficiency cores. A governor or power-policy ceiling is never published here in its place.",
+      "displayName": "Maximum frequency",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.frequency.max",
+        "sourceId": "cpu:logical-10"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "CPU 10",
+      "unit": "hertz",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Maximum clock frequency the platform reports for this logical processor. On a hybrid CPU this differs between performance and efficiency cores. A governor or power-policy ceiling is never published here in its place.",
+      "displayName": "Maximum frequency",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.frequency.max",
+        "sourceId": "cpu:logical-11"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "CPU 11",
+      "unit": "hertz",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Maximum clock frequency the platform reports for this logical processor. On a hybrid CPU this differs between performance and efficiency cores. A governor or power-policy ceiling is never published here in its place.",
+      "displayName": "Maximum frequency",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.frequency.max",
+        "sourceId": "cpu:logical-12"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "CPU 12",
+      "unit": "hertz",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Maximum clock frequency the platform reports for this logical processor. On a hybrid CPU this differs between performance and efficiency cores. A governor or power-policy ceiling is never published here in its place.",
+      "displayName": "Maximum frequency",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.frequency.max",
+        "sourceId": "cpu:logical-13"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "CPU 13",
+      "unit": "hertz",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Maximum clock frequency the platform reports for this logical processor. On a hybrid CPU this differs between performance and efficiency cores. A governor or power-policy ceiling is never published here in its place.",
+      "displayName": "Maximum frequency",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.frequency.max",
+        "sourceId": "cpu:logical-14"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "CPU 14",
+      "unit": "hertz",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Maximum clock frequency the platform reports for this logical processor. On a hybrid CPU this differs between performance and efficiency cores. A governor or power-policy ceiling is never published here in its place.",
+      "displayName": "Maximum frequency",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.frequency.max",
+        "sourceId": "cpu:logical-15"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "CPU 15",
+      "unit": "hertz",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Maximum clock frequency the platform reports for this logical processor. On a hybrid CPU this differs between performance and efficiency cores. A governor or power-policy ceiling is never published here in its place.",
+      "displayName": "Maximum frequency",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.frequency.max",
+        "sourceId": "cpu:logical-2"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "CPU 2",
+      "unit": "hertz",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Maximum clock frequency the platform reports for this logical processor. On a hybrid CPU this differs between performance and efficiency cores. A governor or power-policy ceiling is never published here in its place.",
+      "displayName": "Maximum frequency",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.frequency.max",
+        "sourceId": "cpu:logical-3"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "CPU 3",
+      "unit": "hertz",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Maximum clock frequency the platform reports for this logical processor. On a hybrid CPU this differs between performance and efficiency cores. A governor or power-policy ceiling is never published here in its place.",
+      "displayName": "Maximum frequency",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.frequency.max",
+        "sourceId": "cpu:logical-4"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "CPU 4",
+      "unit": "hertz",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Maximum clock frequency the platform reports for this logical processor. On a hybrid CPU this differs between performance and efficiency cores. A governor or power-policy ceiling is never published here in its place.",
+      "displayName": "Maximum frequency",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.frequency.max",
+        "sourceId": "cpu:logical-5"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "CPU 5",
+      "unit": "hertz",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Maximum clock frequency the platform reports for this logical processor. On a hybrid CPU this differs between performance and efficiency cores. A governor or power-policy ceiling is never published here in its place.",
+      "displayName": "Maximum frequency",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.frequency.max",
+        "sourceId": "cpu:logical-6"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "CPU 6",
+      "unit": "hertz",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Maximum clock frequency the platform reports for this logical processor. On a hybrid CPU this differs between performance and efficiency cores. A governor or power-policy ceiling is never published here in its place.",
+      "displayName": "Maximum frequency",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.frequency.max",
+        "sourceId": "cpu:logical-7"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "CPU 7",
+      "unit": "hertz",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Maximum clock frequency the platform reports for this logical processor. On a hybrid CPU this differs between performance and efficiency cores. A governor or power-policy ceiling is never published here in its place.",
+      "displayName": "Maximum frequency",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.frequency.max",
+        "sourceId": "cpu:logical-8"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "CPU 8",
+      "unit": "hertz",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Maximum clock frequency the platform reports for this logical processor. On a hybrid CPU this differs between performance and efficiency cores. A governor or power-policy ceiling is never published here in its place.",
+      "displayName": "Maximum frequency",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.frequency.max",
+        "sourceId": "cpu:logical-9"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "CPU 9",
+      "unit": "hertz",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Temperature the processor package reports for itself. It is the package's own sensor, never an average of the individual cores, and never one of the thermal limits the silicon is designed around.",
+      "displayName": "Package temperature",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.temperature.package",
+        "sourceId": "cpu:package-0"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "Package 0",
+      "unit": "celsius",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Share of CPU time this logical processor spent doing work, measured since the previous sample. With simultaneous multithreading, two logical processors share one physical core.",
+      "displayName": "CPU usage",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.usage.logical",
+        "sourceId": "cpu:logical-0"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "CPU 0",
+      "unit": "percent",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Share of CPU time this logical processor spent doing work, measured since the previous sample. With simultaneous multithreading, two logical processors share one physical core.",
+      "displayName": "CPU usage",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.usage.logical",
+        "sourceId": "cpu:logical-1"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "CPU 1",
+      "unit": "percent",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Share of CPU time this logical processor spent doing work, measured since the previous sample. With simultaneous multithreading, two logical processors share one physical core.",
+      "displayName": "CPU usage",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.usage.logical",
+        "sourceId": "cpu:logical-10"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "CPU 10",
+      "unit": "percent",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Share of CPU time this logical processor spent doing work, measured since the previous sample. With simultaneous multithreading, two logical processors share one physical core.",
+      "displayName": "CPU usage",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.usage.logical",
+        "sourceId": "cpu:logical-11"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "CPU 11",
+      "unit": "percent",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Share of CPU time this logical processor spent doing work, measured since the previous sample. With simultaneous multithreading, two logical processors share one physical core.",
+      "displayName": "CPU usage",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.usage.logical",
+        "sourceId": "cpu:logical-12"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "CPU 12",
+      "unit": "percent",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Share of CPU time this logical processor spent doing work, measured since the previous sample. With simultaneous multithreading, two logical processors share one physical core.",
+      "displayName": "CPU usage",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.usage.logical",
+        "sourceId": "cpu:logical-13"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "CPU 13",
+      "unit": "percent",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Share of CPU time this logical processor spent doing work, measured since the previous sample. With simultaneous multithreading, two logical processors share one physical core.",
+      "displayName": "CPU usage",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.usage.logical",
+        "sourceId": "cpu:logical-14"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "CPU 14",
+      "unit": "percent",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Share of CPU time this logical processor spent doing work, measured since the previous sample. With simultaneous multithreading, two logical processors share one physical core.",
+      "displayName": "CPU usage",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.usage.logical",
+        "sourceId": "cpu:logical-15"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "CPU 15",
+      "unit": "percent",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Share of CPU time this logical processor spent doing work, measured since the previous sample. With simultaneous multithreading, two logical processors share one physical core.",
+      "displayName": "CPU usage",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.usage.logical",
+        "sourceId": "cpu:logical-2"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "CPU 2",
+      "unit": "percent",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Share of CPU time this logical processor spent doing work, measured since the previous sample. With simultaneous multithreading, two logical processors share one physical core.",
+      "displayName": "CPU usage",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.usage.logical",
+        "sourceId": "cpu:logical-3"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "CPU 3",
+      "unit": "percent",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Share of CPU time this logical processor spent doing work, measured since the previous sample. With simultaneous multithreading, two logical processors share one physical core.",
+      "displayName": "CPU usage",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.usage.logical",
+        "sourceId": "cpu:logical-4"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "CPU 4",
+      "unit": "percent",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Share of CPU time this logical processor spent doing work, measured since the previous sample. With simultaneous multithreading, two logical processors share one physical core.",
+      "displayName": "CPU usage",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.usage.logical",
+        "sourceId": "cpu:logical-5"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "CPU 5",
+      "unit": "percent",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Share of CPU time this logical processor spent doing work, measured since the previous sample. With simultaneous multithreading, two logical processors share one physical core.",
+      "displayName": "CPU usage",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.usage.logical",
+        "sourceId": "cpu:logical-6"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "CPU 6",
+      "unit": "percent",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Share of CPU time this logical processor spent doing work, measured since the previous sample. With simultaneous multithreading, two logical processors share one physical core.",
+      "displayName": "CPU usage",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.usage.logical",
+        "sourceId": "cpu:logical-7"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "CPU 7",
+      "unit": "percent",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Share of CPU time this logical processor spent doing work, measured since the previous sample. With simultaneous multithreading, two logical processors share one physical core.",
+      "displayName": "CPU usage",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.usage.logical",
+        "sourceId": "cpu:logical-8"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "CPU 8",
+      "unit": "percent",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Share of CPU time this logical processor spent doing work, measured since the previous sample. With simultaneous multithreading, two logical processors share one physical core.",
+      "displayName": "CPU usage",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.usage.logical",
+        "sourceId": "cpu:logical-9"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "CPU 9",
+      "unit": "percent",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "cpu",
+      "description": "Share of CPU time spent doing work across the whole machine, measured since the previous sample.",
+      "displayName": "CPU usage",
+      "kind": "gauge",
+      "metric": {
+        "key": "cpu.usage.total",
+        "sourceId": "cpu:system"
+      },
+      "providerId": "linux.cpu",
+      "sourceLabel": "System CPU",
+      "unit": "percent",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "memory",
+      "description": "Installed physical memory usable by the operating system.",
+      "displayName": "Total memory",
+      "kind": "gauge",
+      "metric": {
+        "key": "memory.total",
+        "sourceId": "memory:system"
+      },
+      "providerId": "linux.memory",
+      "sourceLabel": "System memory",
+      "unit": "bytes",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "memory",
+      "description": "Physical memory in use, defined as total minus available.",
+      "displayName": "Used memory",
+      "kind": "gauge",
+      "metric": {
+        "key": "memory.used",
+        "sourceId": "memory:system"
+      },
+      "providerId": "linux.memory",
+      "sourceLabel": "System memory",
+      "unit": "bytes",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "memory",
+      "description": "Physical memory that can be allocated without swapping.",
+      "displayName": "Available memory",
+      "kind": "gauge",
+      "metric": {
+        "key": "memory.available",
+        "sourceId": "memory:system"
+      },
+      "providerId": "linux.memory",
+      "sourceLabel": "System memory",
+      "unit": "bytes",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "memory",
+      "description": "Share of physical memory in use, computed from used and total bytes.",
+      "displayName": "Memory usage",
+      "kind": "gauge",
+      "metric": {
+        "key": "memory.usage.percent",
+        "sourceId": "memory:system"
+      },
+      "providerId": "linux.memory",
+      "sourceLabel": "System memory",
+      "unit": "percent",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "gpu",
+      "description": "Number of hardware graphics adapters PULSE inventoried. Software adapters such as Microsoft Basic Render Driver and WARP are not counted.",
+      "displayName": "GPUs",
+      "kind": "state",
+      "metric": {
+        "key": "gpu.count",
+        "sourceId": "gpu:system"
+      },
+      "providerId": "linux.gpu",
+      "sourceLabel": "Graphics",
+      "unit": "count",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "gpu",
+      "description": "Speed the adapter's fan is turning at, in revolutions per minute. A fan control percentage is a duty cycle rather than a speed, and is never published in its place.",
+      "displayName": "Fan",
+      "kind": "gauge",
+      "metric": {
+        "key": "gpu.fan.speed",
+        "sourceId": "gpu:nvidia-5ec0a5e0-0000-4000-8000-000000000001"
+      },
+      "providerId": "linux.gpu",
+      "sourceLabel": "NVIDIA GeForce RTX 4070",
+      "unit": "rpm",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "gpu",
+      "description": "Current graphics clock the driver reports. Boost behaviour and power policies move it continuously, so it is the platform's latest figure rather than an instantaneous measurement of the silicon.",
+      "displayName": "Core clock",
+      "kind": "gauge",
+      "metric": {
+        "key": "gpu.frequency.core",
+        "sourceId": "gpu:nvidia-5ec0a5e0-0000-4000-8000-000000000001"
+      },
+      "providerId": "linux.gpu",
+      "sourceLabel": "NVIDIA GeForce RTX 4070",
+      "unit": "hertz",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "gpu",
+      "description": "Current video memory clock the driver reports.",
+      "displayName": "Memory clock",
+      "kind": "gauge",
+      "metric": {
+        "key": "gpu.frequency.memory",
+        "sourceId": "gpu:nvidia-5ec0a5e0-0000-4000-8000-000000000001"
+      },
+      "providerId": "linux.gpu",
+      "sourceLabel": "NVIDIA GeForce RTX 4070",
+      "unit": "hertz",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "gpu",
+      "description": "Dedicated video memory still available for allocation.",
+      "displayName": "Free VRAM",
+      "kind": "gauge",
+      "metric": {
+        "key": "gpu.memory.free",
+        "sourceId": "gpu:nvidia-5ec0a5e0-0000-4000-8000-000000000001"
+      },
+      "providerId": "linux.gpu",
+      "sourceLabel": "NVIDIA GeForce RTX 4070",
+      "unit": "bytes",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "gpu",
+      "description": "Dedicated video memory installed on this adapter. System memory shared with an integrated GPU is deliberately not reported here.",
+      "displayName": "Total VRAM",
+      "kind": "state",
+      "metric": {
+        "key": "gpu.memory.total",
+        "sourceId": "gpu:nvidia-5ec0a5e0-0000-4000-8000-000000000001"
+      },
+      "providerId": "linux.gpu",
+      "sourceLabel": "NVIDIA GeForce RTX 4070",
+      "unit": "bytes",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "gpu",
+      "description": "Share of dedicated video memory in use, computed from used and total bytes.",
+      "displayName": "VRAM usage",
+      "kind": "gauge",
+      "metric": {
+        "key": "gpu.memory.usage.percent",
+        "sourceId": "gpu:nvidia-5ec0a5e0-0000-4000-8000-000000000001"
+      },
+      "providerId": "linux.gpu",
+      "sourceLabel": "NVIDIA GeForce RTX 4070",
+      "unit": "percent",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "gpu",
+      "description": "Dedicated video memory currently in use across the whole system.",
+      "displayName": "Used VRAM",
+      "kind": "gauge",
+      "metric": {
+        "key": "gpu.memory.used",
+        "sourceId": "gpu:nvidia-5ec0a5e0-0000-4000-8000-000000000001"
+      },
+      "providerId": "linux.gpu",
+      "sourceLabel": "NVIDIA GeForce RTX 4070",
+      "unit": "bytes",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "gpu",
+      "description": "Temperature of the graphics processor die, as its own sensor reports it.",
+      "displayName": "Temperature",
+      "kind": "gauge",
+      "metric": {
+        "key": "gpu.temperature.core",
+        "sourceId": "gpu:nvidia-5ec0a5e0-0000-4000-8000-000000000001"
+      },
+      "providerId": "linux.gpu",
+      "sourceLabel": "NVIDIA GeForce RTX 4070",
+      "unit": "celsius",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "gpu",
+      "description": "Hottest point measured on the graphics processor package. A separate sensor from the die temperature, typically reading higher under load, and never derived from it.",
+      "displayName": "Hotspot",
+      "kind": "gauge",
+      "metric": {
+        "key": "gpu.temperature.hotspot",
+        "sourceId": "gpu:nvidia-5ec0a5e0-0000-4000-8000-000000000001"
+      },
+      "providerId": "linux.gpu",
+      "sourceLabel": "NVIDIA GeForce RTX 4070",
+      "unit": "celsius",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "gpu",
+      "description": "Temperature of the dedicated video memory, from its own sensor.",
+      "displayName": "Memory temperature",
+      "kind": "gauge",
+      "metric": {
+        "key": "gpu.temperature.memory",
+        "sourceId": "gpu:nvidia-5ec0a5e0-0000-4000-8000-000000000001"
+      },
+      "providerId": "linux.gpu",
+      "sourceLabel": "NVIDIA GeForce RTX 4070",
+      "unit": "celsius",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "gpu",
+      "description": "Share of the graphics engine's capacity in use, as the driver reports it.",
+      "displayName": "GPU usage",
+      "kind": "gauge",
+      "metric": {
+        "key": "gpu.usage.core",
+        "sourceId": "gpu:nvidia-5ec0a5e0-0000-4000-8000-000000000001"
+      },
+      "providerId": "linux.gpu",
+      "sourceLabel": "NVIDIA GeForce RTX 4070",
+      "unit": "percent",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "storage",
+      "description": "Total addressable capacity of the physical device. This is the whole device, not the sum of the filesystems on it.",
+      "displayName": "Capacity",
+      "kind": "state",
+      "metric": {
+        "key": "storage.capacity.total",
+        "sourceId": "storage:wwid-eui.5ec0a5e000000001"
+      },
+      "providerId": "linux.storage",
+      "sourceLabel": "PULSE Demo NVMe 2TB · NVMe",
+      "unit": "bytes",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "storage",
+      "description": "Total addressable capacity of the physical device. This is the whole device, not the sum of the filesystems on it.",
+      "displayName": "Capacity",
+      "kind": "state",
+      "metric": {
+        "key": "storage.capacity.total",
+        "sourceId": "storage:wwid-eui.5ec0a5e000000002"
+      },
+      "providerId": "linux.storage",
+      "sourceLabel": "PULSE Demo SATA SSD 1TB · SATA",
+      "unit": "bytes",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "storage",
+      "description": "Number of physical storage devices PULSE inventoried. Partitions, loop devices, RAM disks and device-mapper volumes are not counted as devices of their own.",
+      "displayName": "Storage devices",
+      "kind": "state",
+      "metric": {
+        "key": "storage.device.count",
+        "sourceId": "storage:system"
+      },
+      "providerId": "linux.storage",
+      "sourceLabel": "Storage",
+      "unit": "count",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "storage",
+      "description": "Share of the device's reserve of replacement blocks that remains. This is not free space on the filesystem and not unallocated capacity: a completely full drive normally still reports 100 % spare.",
+      "displayName": "Available spare",
+      "kind": "gauge",
+      "metric": {
+        "key": "storage.health.available_spare",
+        "sourceId": "storage:wwid-eui.5ec0a5e000000001"
+      },
+      "providerId": "linux.storage",
+      "sourceLabel": "PULSE Demo NVMe 2TB · NVMe",
+      "unit": "percent",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "reason": "NVMe health is only defined for NVMe devices",
+        "status": "unsupported"
+      },
+      "category": "storage",
+      "description": "Share of the device's reserve of replacement blocks that remains. This is not free space on the filesystem and not unallocated capacity: a completely full drive normally still reports 100 % spare.",
+      "displayName": "Available spare",
+      "kind": "gauge",
+      "metric": {
+        "key": "storage.health.available_spare",
+        "sourceId": "storage:wwid-eui.5ec0a5e000000002"
+      },
+      "providerId": "linux.storage",
+      "sourceLabel": "PULSE Demo SATA SSD 1TB · SATA",
+      "unit": "percent",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "storage",
+      "description": "Media and data integrity errors the controller has detected and counted over the device's life.",
+      "displayName": "Media errors",
+      "kind": "counter",
+      "metric": {
+        "key": "storage.health.media_errors",
+        "sourceId": "storage:wwid-eui.5ec0a5e000000001"
+      },
+      "providerId": "linux.storage",
+      "sourceLabel": "PULSE Demo NVMe 2TB · NVMe",
+      "unit": "count",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "reason": "NVMe health is only defined for NVMe devices",
+        "status": "unsupported"
+      },
+      "category": "storage",
+      "description": "Media and data integrity errors the controller has detected and counted over the device's life.",
+      "displayName": "Media errors",
+      "kind": "counter",
+      "metric": {
+        "key": "storage.health.media_errors",
+        "sourceId": "storage:wwid-eui.5ec0a5e000000002"
+      },
+      "providerId": "linux.storage",
+      "sourceLabel": "PULSE Demo SATA SSD 1TB · SATA",
+      "unit": "count",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "storage",
+      "description": "The controller's estimate of how much of the device's rated write endurance has been consumed. Reported exactly as the device states it, including values above 100 % once the rating has been exceeded, and never converted into a health score.",
+      "displayName": "Used endurance",
+      "kind": "gauge",
+      "metric": {
+        "key": "storage.health.percentage_used",
+        "sourceId": "storage:wwid-eui.5ec0a5e000000001"
+      },
+      "providerId": "linux.storage",
+      "sourceLabel": "PULSE Demo NVMe 2TB · NVMe",
+      "unit": "percent",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "reason": "NVMe health is only defined for NVMe devices",
+        "status": "unsupported"
+      },
+      "category": "storage",
+      "description": "The controller's estimate of how much of the device's rated write endurance has been consumed. Reported exactly as the device states it, including values above 100 % once the rating has been exceeded, and never converted into a health score.",
+      "displayName": "Used endurance",
+      "kind": "gauge",
+      "metric": {
+        "key": "storage.health.percentage_used",
+        "sourceId": "storage:wwid-eui.5ec0a5e000000002"
+      },
+      "providerId": "linux.storage",
+      "sourceLabel": "PULSE Demo SATA SSD 1TB · SATA",
+      "unit": "percent",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "storage",
+      "description": "Hours the device's controller has been powered on, as it counts them.",
+      "displayName": "Power-on hours",
+      "kind": "counter",
+      "metric": {
+        "key": "storage.health.power_on_hours",
+        "sourceId": "storage:wwid-eui.5ec0a5e000000001"
+      },
+      "providerId": "linux.storage",
+      "sourceLabel": "PULSE Demo NVMe 2TB · NVMe",
+      "unit": "hours",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "storage",
+      "description": "Hours the device's controller has been powered on, as it counts them.",
+      "displayName": "Power-on hours",
+      "kind": "counter",
+      "metric": {
+        "key": "storage.health.power_on_hours",
+        "sourceId": "storage:wwid-eui.5ec0a5e000000002"
+      },
+      "providerId": "linux.storage",
+      "sourceLabel": "PULSE Demo SATA SSD 1TB · SATA",
+      "unit": "hours",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "storage",
+      "description": "The storage controller's composite temperature — a single figure the device derives from its own sensors, not one individual sensor and not any other component's reading.",
+      "displayName": "Temperature",
+      "kind": "gauge",
+      "metric": {
+        "key": "storage.health.temperature",
+        "sourceId": "storage:wwid-eui.5ec0a5e000000001"
+      },
+      "providerId": "linux.storage",
+      "sourceLabel": "PULSE Demo NVMe 2TB · NVMe",
+      "unit": "celsius",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "storage",
+      "description": "The storage controller's composite temperature — a single figure the device derives from its own sensors, not one individual sensor and not any other component's reading.",
+      "displayName": "Temperature",
+      "kind": "gauge",
+      "metric": {
+        "key": "storage.health.temperature",
+        "sourceId": "storage:wwid-eui.5ec0a5e000000002"
+      },
+      "providerId": "linux.storage",
+      "sourceLabel": "PULSE Demo SATA SSD 1TB · SATA",
+      "unit": "celsius",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "storage",
+      "description": "Times the device lost power without being told to shut down first.",
+      "displayName": "Unsafe shutdowns",
+      "kind": "counter",
+      "metric": {
+        "key": "storage.health.unsafe_shutdowns",
+        "sourceId": "storage:wwid-eui.5ec0a5e000000001"
+      },
+      "providerId": "linux.storage",
+      "sourceLabel": "PULSE Demo NVMe 2TB · NVMe",
+      "unit": "count",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "reason": "NVMe health is only defined for NVMe devices",
+        "status": "unsupported"
+      },
+      "category": "storage",
+      "description": "Times the device lost power without being told to shut down first.",
+      "displayName": "Unsafe shutdowns",
+      "kind": "counter",
+      "metric": {
+        "key": "storage.health.unsafe_shutdowns",
+        "sourceId": "storage:wwid-eui.5ec0a5e000000002"
+      },
+      "providerId": "linux.storage",
+      "sourceLabel": "PULSE Demo SATA SSD 1TB · SATA",
+      "unit": "count",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "storage",
+      "description": "Bytes read from the device per second, derived from the operating system's cumulative counters between two samples.",
+      "displayName": "Read",
+      "kind": "gauge",
+      "metric": {
+        "key": "storage.io.read.bytes_per_second",
+        "sourceId": "storage:wwid-eui.5ec0a5e000000001"
+      },
+      "providerId": "linux.storage",
+      "sourceLabel": "PULSE Demo NVMe 2TB · NVMe",
+      "unit": "bytesPerSecond",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "storage",
+      "description": "Bytes read from the device per second, derived from the operating system's cumulative counters between two samples.",
+      "displayName": "Read",
+      "kind": "gauge",
+      "metric": {
+        "key": "storage.io.read.bytes_per_second",
+        "sourceId": "storage:wwid-eui.5ec0a5e000000002"
+      },
+      "providerId": "linux.storage",
+      "sourceLabel": "PULSE Demo SATA SSD 1TB · SATA",
+      "unit": "bytesPerSecond",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "storage",
+      "description": "Read operations completing per second. Zero is a real measurement: it means no read completed during the interval.",
+      "displayName": "Read IOPS",
+      "kind": "gauge",
+      "metric": {
+        "key": "storage.io.read.iops",
+        "sourceId": "storage:wwid-eui.5ec0a5e000000001"
+      },
+      "providerId": "linux.storage",
+      "sourceLabel": "PULSE Demo NVMe 2TB · NVMe",
+      "unit": "operationsPerSecond",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "storage",
+      "description": "Read operations completing per second. Zero is a real measurement: it means no read completed during the interval.",
+      "displayName": "Read IOPS",
+      "kind": "gauge",
+      "metric": {
+        "key": "storage.io.read.iops",
+        "sourceId": "storage:wwid-eui.5ec0a5e000000002"
+      },
+      "providerId": "linux.storage",
+      "sourceLabel": "PULSE Demo SATA SSD 1TB · SATA",
+      "unit": "operationsPerSecond",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "storage",
+      "description": "Mean time a read took, as the operating system observed it — queueing included, and measured from the host rather than inside the device. An interval in which no read completed has no latency at all, and reports none rather than zero.",
+      "displayName": "Read latency",
+      "kind": "gauge",
+      "metric": {
+        "key": "storage.io.read.latency",
+        "sourceId": "storage:wwid-eui.5ec0a5e000000001"
+      },
+      "providerId": "linux.storage",
+      "sourceLabel": "PULSE Demo NVMe 2TB · NVMe",
+      "unit": "milliseconds",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "storage",
+      "description": "Mean time a read took, as the operating system observed it — queueing included, and measured from the host rather than inside the device. An interval in which no read completed has no latency at all, and reports none rather than zero.",
+      "displayName": "Read latency",
+      "kind": "gauge",
+      "metric": {
+        "key": "storage.io.read.latency",
+        "sourceId": "storage:wwid-eui.5ec0a5e000000002"
+      },
+      "providerId": "linux.storage",
+      "sourceLabel": "PULSE Demo SATA SSD 1TB · SATA",
+      "unit": "milliseconds",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "storage",
+      "description": "Bytes written to the device per second, derived from the operating system's cumulative counters between two samples.",
+      "displayName": "Write",
+      "kind": "gauge",
+      "metric": {
+        "key": "storage.io.write.bytes_per_second",
+        "sourceId": "storage:wwid-eui.5ec0a5e000000001"
+      },
+      "providerId": "linux.storage",
+      "sourceLabel": "PULSE Demo NVMe 2TB · NVMe",
+      "unit": "bytesPerSecond",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "storage",
+      "description": "Bytes written to the device per second, derived from the operating system's cumulative counters between two samples.",
+      "displayName": "Write",
+      "kind": "gauge",
+      "metric": {
+        "key": "storage.io.write.bytes_per_second",
+        "sourceId": "storage:wwid-eui.5ec0a5e000000002"
+      },
+      "providerId": "linux.storage",
+      "sourceLabel": "PULSE Demo SATA SSD 1TB · SATA",
+      "unit": "bytesPerSecond",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "storage",
+      "description": "Write operations completing per second. Zero is a real measurement: it means no write completed during the interval.",
+      "displayName": "Write IOPS",
+      "kind": "gauge",
+      "metric": {
+        "key": "storage.io.write.iops",
+        "sourceId": "storage:wwid-eui.5ec0a5e000000001"
+      },
+      "providerId": "linux.storage",
+      "sourceLabel": "PULSE Demo NVMe 2TB · NVMe",
+      "unit": "operationsPerSecond",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "storage",
+      "description": "Write operations completing per second. Zero is a real measurement: it means no write completed during the interval.",
+      "displayName": "Write IOPS",
+      "kind": "gauge",
+      "metric": {
+        "key": "storage.io.write.iops",
+        "sourceId": "storage:wwid-eui.5ec0a5e000000002"
+      },
+      "providerId": "linux.storage",
+      "sourceLabel": "PULSE Demo SATA SSD 1TB · SATA",
+      "unit": "operationsPerSecond",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "storage",
+      "description": "Mean time a write took, as the operating system observed it. An interval in which no write completed reports no value rather than zero.",
+      "displayName": "Write latency",
+      "kind": "gauge",
+      "metric": {
+        "key": "storage.io.write.latency",
+        "sourceId": "storage:wwid-eui.5ec0a5e000000001"
+      },
+      "providerId": "linux.storage",
+      "sourceLabel": "PULSE Demo NVMe 2TB · NVMe",
+      "unit": "milliseconds",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "storage",
+      "description": "Mean time a write took, as the operating system observed it. An interval in which no write completed reports no value rather than zero.",
+      "displayName": "Write latency",
+      "kind": "gauge",
+      "metric": {
+        "key": "storage.io.write.latency",
+        "sourceId": "storage:wwid-eui.5ec0a5e000000002"
+      },
+      "providerId": "linux.storage",
+      "sourceLabel": "PULSE Demo SATA SSD 1TB · SATA",
+      "unit": "milliseconds",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "storage",
+      "description": "Space this user can actually write to. Lower than the free space on filesystems that keep a reserve for the superuser, which is deliberate: the reserve is not available to you.",
+      "displayName": "Available",
+      "kind": "gauge",
+      "metric": {
+        "key": "storage.volume.capacity.available",
+        "sourceId": "volume:wwid-eui.5ec0a5e000000001-p3"
+      },
+      "providerId": "linux.storage",
+      "sourceLabel": "/",
+      "unit": "bytes",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "storage",
+      "description": "Space this user can actually write to. Lower than the free space on filesystems that keep a reserve for the superuser, which is deliberate: the reserve is not available to you.",
+      "displayName": "Available",
+      "kind": "gauge",
+      "metric": {
+        "key": "storage.volume.capacity.available",
+        "sourceId": "volume:wwid-eui.5ec0a5e000000002-p1"
+      },
+      "providerId": "linux.storage",
+      "sourceLabel": "/mnt/data",
+      "unit": "bytes",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "storage",
+      "description": "Total size of the filesystem. Several filesystems on one device do not add up to the device's capacity, and a filesystem may span devices.",
+      "displayName": "Volume size",
+      "kind": "state",
+      "metric": {
+        "key": "storage.volume.capacity.total",
+        "sourceId": "volume:wwid-eui.5ec0a5e000000001-p3"
+      },
+      "providerId": "linux.storage",
+      "sourceLabel": "/",
+      "unit": "bytes",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "storage",
+      "description": "Total size of the filesystem. Several filesystems on one device do not add up to the device's capacity, and a filesystem may span devices.",
+      "displayName": "Volume size",
+      "kind": "state",
+      "metric": {
+        "key": "storage.volume.capacity.total",
+        "sourceId": "volume:wwid-eui.5ec0a5e000000002-p1"
+      },
+      "providerId": "linux.storage",
+      "sourceLabel": "/mnt/data",
+      "unit": "bytes",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "storage",
+      "description": "Space on the filesystem that holds data, defined as total minus free blocks. Used and available do not sum to the total on filesystems that reserve blocks for the superuser.",
+      "displayName": "Used",
+      "kind": "gauge",
+      "metric": {
+        "key": "storage.volume.capacity.used",
+        "sourceId": "volume:wwid-eui.5ec0a5e000000001-p3"
+      },
+      "providerId": "linux.storage",
+      "sourceLabel": "/",
+      "unit": "bytes",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "storage",
+      "description": "Space on the filesystem that holds data, defined as total minus free blocks. Used and available do not sum to the total on filesystems that reserve blocks for the superuser.",
+      "displayName": "Used",
+      "kind": "gauge",
+      "metric": {
+        "key": "storage.volume.capacity.used",
+        "sourceId": "volume:wwid-eui.5ec0a5e000000002-p1"
+      },
+      "providerId": "linux.storage",
+      "sourceLabel": "/mnt/data",
+      "unit": "bytes",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "storage",
+      "description": "Number of mounted filesystems PULSE inventoried. A filesystem reachable at several paths counts once; pseudo-filesystems such as proc and sysfs are not counted.",
+      "displayName": "Volumes",
+      "kind": "state",
+      "metric": {
+        "key": "storage.volume.count",
+        "sourceId": "storage:system"
+      },
+      "providerId": "linux.storage",
+      "sourceLabel": "Storage",
+      "unit": "count",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "storage",
+      "description": "Share of the filesystem that holds data, computed from used and total bytes.",
+      "displayName": "Volume usage",
+      "kind": "gauge",
+      "metric": {
+        "key": "storage.volume.usage.percent",
+        "sourceId": "volume:wwid-eui.5ec0a5e000000001-p3"
+      },
+      "providerId": "linux.storage",
+      "sourceLabel": "/",
+      "unit": "percent",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "storage",
+      "description": "Share of the filesystem that holds data, computed from used and total bytes.",
+      "displayName": "Volume usage",
+      "kind": "gauge",
+      "metric": {
+        "key": "storage.volume.usage.percent",
+        "sourceId": "volume:wwid-eui.5ec0a5e000000002-p1"
+      },
+      "providerId": "linux.storage",
+      "sourceLabel": "/mnt/data",
+      "unit": "percent",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "network",
+      "description": "Number of network interfaces PULSE monitors. The loopback interface is deliberately excluded: it always exists and only ever carries traffic that never left this machine.",
+      "displayName": "Interfaces",
+      "kind": "state",
+      "metric": {
+        "key": "network.interface.count",
+        "sourceId": "network:system"
+      },
+      "providerId": "linux.network",
+      "sourceLabel": "Network",
+      "unit": "count",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "network",
+      "description": "How many of the monitored interfaces currently carry a link. An adapter that is enabled but has no cable, or a radio not associated with a network, is not counted.",
+      "displayName": "Connected",
+      "kind": "gauge",
+      "metric": {
+        "key": "network.interface.up_count",
+        "sourceId": "network:system"
+      },
+      "providerId": "linux.network",
+      "sourceLabel": "Network",
+      "unit": "count",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "network",
+      "description": "The inbound capacity of the link, as the driver negotiated it — not how much is flowing. A gauge rather than a fixed value because Wi-Fi and Ethernet both renegotiate.",
+      "displayName": "Link RX",
+      "kind": "gauge",
+      "metric": {
+        "key": "network.link.receive_speed",
+        "sourceId": "network:mac-025ec0a5e001"
+      },
+      "providerId": "linux.network",
+      "sourceLabel": "enp6s0 · Ethernet",
+      "unit": "bitsPerSecond",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "network",
+      "description": "The inbound capacity of the link, as the driver negotiated it — not how much is flowing. A gauge rather than a fixed value because Wi-Fi and Ethernet both renegotiate.",
+      "displayName": "Link RX",
+      "kind": "gauge",
+      "metric": {
+        "key": "network.link.receive_speed",
+        "sourceId": "network:mac-025ec0a5e002"
+      },
+      "providerId": "linux.network",
+      "sourceLabel": "wlp4s0 · Wi-Fi",
+      "unit": "bitsPerSecond",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "network",
+      "description": "The outbound capacity of the link. Equal to the inbound figure on Ethernet; frequently different on Wi-Fi.",
+      "displayName": "Link TX",
+      "kind": "gauge",
+      "metric": {
+        "key": "network.link.transmit_speed",
+        "sourceId": "network:mac-025ec0a5e001"
+      },
+      "providerId": "linux.network",
+      "sourceLabel": "enp6s0 · Ethernet",
+      "unit": "bitsPerSecond",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "network",
+      "description": "The outbound capacity of the link. Equal to the inbound figure on Ethernet; frequently different on Wi-Fi.",
+      "displayName": "Link TX",
+      "kind": "gauge",
+      "metric": {
+        "key": "network.link.transmit_speed",
+        "sourceId": "network:mac-025ec0a5e002"
+      },
+      "providerId": "linux.network",
+      "sourceLabel": "wlp4s0 · Wi-Fi",
+      "unit": "bitsPerSecond",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "network",
+      "description": "The largest payload this interface carries in a single frame. A configuration fact rather than a reading, so it is a state.",
+      "displayName": "MTU",
+      "kind": "state",
+      "metric": {
+        "key": "network.mtu",
+        "sourceId": "network:mac-025ec0a5e001"
+      },
+      "providerId": "linux.network",
+      "sourceLabel": "enp6s0 · Ethernet",
+      "unit": "bytes",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "network",
+      "description": "The largest payload this interface carries in a single frame. A configuration fact rather than a reading, so it is a state.",
+      "displayName": "MTU",
+      "kind": "state",
+      "metric": {
+        "key": "network.mtu",
+        "sourceId": "network:mac-025ec0a5e002"
+      },
+      "providerId": "linux.network",
+      "sourceLabel": "wlp4s0 · Wi-Fi",
+      "unit": "bytes",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "network",
+      "description": "Bytes arriving at this machine per second, derived from the operating system's cumulative counters between two samples. Receive means inbound, from this machine's point of view.",
+      "displayName": "Download",
+      "kind": "gauge",
+      "metric": {
+        "key": "network.receive.bytes_per_second",
+        "sourceId": "network:mac-025ec0a5e001"
+      },
+      "providerId": "linux.network",
+      "sourceLabel": "enp6s0 · Ethernet",
+      "unit": "bytesPerSecond",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "network",
+      "description": "Bytes arriving at this machine per second, derived from the operating system's cumulative counters between two samples. Receive means inbound, from this machine's point of view.",
+      "displayName": "Download",
+      "kind": "gauge",
+      "metric": {
+        "key": "network.receive.bytes_per_second",
+        "sourceId": "network:mac-025ec0a5e002"
+      },
+      "providerId": "linux.network",
+      "sourceLabel": "wlp4s0 · Wi-Fi",
+      "unit": "bytesPerSecond",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "network",
+      "description": "Inbound frames that arrived intact and were discarded anyway — a full buffer, or no protocol handler wanting them. This is a local counter and is not Internet packet loss, which PULSE does not measure.",
+      "displayName": "RX dropped",
+      "kind": "gauge",
+      "metric": {
+        "key": "network.receive.dropped_per_second",
+        "sourceId": "network:mac-025ec0a5e001"
+      },
+      "providerId": "linux.network",
+      "sourceLabel": "enp6s0 · Ethernet",
+      "unit": "packetsPerSecond",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "network",
+      "description": "Inbound frames that arrived intact and were discarded anyway — a full buffer, or no protocol handler wanting them. This is a local counter and is not Internet packet loss, which PULSE does not measure.",
+      "displayName": "RX dropped",
+      "kind": "gauge",
+      "metric": {
+        "key": "network.receive.dropped_per_second",
+        "sourceId": "network:mac-025ec0a5e002"
+      },
+      "providerId": "linux.network",
+      "sourceLabel": "wlp4s0 · Wi-Fi",
+      "unit": "packetsPerSecond",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "network",
+      "description": "Inbound frames the interface rejected because something was wrong with them — a bad checksum, a framing error. A different counter from dropped frames, and a persistent non-zero rate usually means a cable or a driver problem.",
+      "displayName": "RX errors",
+      "kind": "gauge",
+      "metric": {
+        "key": "network.receive.errors_per_second",
+        "sourceId": "network:mac-025ec0a5e001"
+      },
+      "providerId": "linux.network",
+      "sourceLabel": "enp6s0 · Ethernet",
+      "unit": "packetsPerSecond",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "network",
+      "description": "Inbound frames the interface rejected because something was wrong with them — a bad checksum, a framing error. A different counter from dropped frames, and a persistent non-zero rate usually means a cable or a driver problem.",
+      "displayName": "RX errors",
+      "kind": "gauge",
+      "metric": {
+        "key": "network.receive.errors_per_second",
+        "sourceId": "network:mac-025ec0a5e002"
+      },
+      "providerId": "linux.network",
+      "sourceLabel": "wlp4s0 · Wi-Fi",
+      "unit": "packetsPerSecond",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "network",
+      "description": "Packets arriving per second, unicast and non-unicast together. Zero is a real measurement: it means nothing arrived during the interval.",
+      "displayName": "RX packets",
+      "kind": "gauge",
+      "metric": {
+        "key": "network.receive.packets_per_second",
+        "sourceId": "network:mac-025ec0a5e001"
+      },
+      "providerId": "linux.network",
+      "sourceLabel": "enp6s0 · Ethernet",
+      "unit": "packetsPerSecond",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "network",
+      "description": "Packets arriving per second, unicast and non-unicast together. Zero is a real measurement: it means nothing arrived during the interval.",
+      "displayName": "RX packets",
+      "kind": "gauge",
+      "metric": {
+        "key": "network.receive.packets_per_second",
+        "sourceId": "network:mac-025ec0a5e002"
+      },
+      "providerId": "linux.network",
+      "sourceLabel": "wlp4s0 · Wi-Fi",
+      "unit": "packetsPerSecond",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "network",
+      "description": "Bytes leaving this machine per second, derived from the operating system's cumulative counters between two samples. Transmit means outbound.",
+      "displayName": "Upload",
+      "kind": "gauge",
+      "metric": {
+        "key": "network.transmit.bytes_per_second",
+        "sourceId": "network:mac-025ec0a5e001"
+      },
+      "providerId": "linux.network",
+      "sourceLabel": "enp6s0 · Ethernet",
+      "unit": "bytesPerSecond",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "network",
+      "description": "Bytes leaving this machine per second, derived from the operating system's cumulative counters between two samples. Transmit means outbound.",
+      "displayName": "Upload",
+      "kind": "gauge",
+      "metric": {
+        "key": "network.transmit.bytes_per_second",
+        "sourceId": "network:mac-025ec0a5e002"
+      },
+      "providerId": "linux.network",
+      "sourceLabel": "wlp4s0 · Wi-Fi",
+      "unit": "bytesPerSecond",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "network",
+      "description": "Outbound frames discarded before transmission, usually because a queue was full.",
+      "displayName": "TX dropped",
+      "kind": "gauge",
+      "metric": {
+        "key": "network.transmit.dropped_per_second",
+        "sourceId": "network:mac-025ec0a5e001"
+      },
+      "providerId": "linux.network",
+      "sourceLabel": "enp6s0 · Ethernet",
+      "unit": "packetsPerSecond",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "network",
+      "description": "Outbound frames discarded before transmission, usually because a queue was full.",
+      "displayName": "TX dropped",
+      "kind": "gauge",
+      "metric": {
+        "key": "network.transmit.dropped_per_second",
+        "sourceId": "network:mac-025ec0a5e002"
+      },
+      "providerId": "linux.network",
+      "sourceLabel": "wlp4s0 · Wi-Fi",
+      "unit": "packetsPerSecond",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "network",
+      "description": "Outbound frames the interface failed to transmit.",
+      "displayName": "TX errors",
+      "kind": "gauge",
+      "metric": {
+        "key": "network.transmit.errors_per_second",
+        "sourceId": "network:mac-025ec0a5e001"
+      },
+      "providerId": "linux.network",
+      "sourceLabel": "enp6s0 · Ethernet",
+      "unit": "packetsPerSecond",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "network",
+      "description": "Outbound frames the interface failed to transmit.",
+      "displayName": "TX errors",
+      "kind": "gauge",
+      "metric": {
+        "key": "network.transmit.errors_per_second",
+        "sourceId": "network:mac-025ec0a5e002"
+      },
+      "providerId": "linux.network",
+      "sourceLabel": "wlp4s0 · Wi-Fi",
+      "unit": "packetsPerSecond",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "network",
+      "description": "Packets leaving per second, unicast and non-unicast together.",
+      "displayName": "TX packets",
+      "kind": "gauge",
+      "metric": {
+        "key": "network.transmit.packets_per_second",
+        "sourceId": "network:mac-025ec0a5e001"
+      },
+      "providerId": "linux.network",
+      "sourceLabel": "enp6s0 · Ethernet",
+      "unit": "packetsPerSecond",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "network",
+      "description": "Packets leaving per second, unicast and non-unicast together.",
+      "displayName": "TX packets",
+      "kind": "gauge",
+      "metric": {
+        "key": "network.transmit.packets_per_second",
+        "sourceId": "network:mac-025ec0a5e002"
+      },
+      "providerId": "linux.network",
+      "sourceLabel": "wlp4s0 · Wi-Fi",
+      "unit": "packetsPerSecond",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "network",
+      "description": "The inbound rate negotiated with the access point. A capacity, not traffic: a link negotiated at 400 Mbit/s carrying nothing still reports 400 Mbit/s.",
+      "displayName": "Wi-Fi RX rate",
+      "kind": "gauge",
+      "metric": {
+        "key": "network.wifi.link.receive_rate",
+        "sourceId": "network:mac-025ec0a5e002"
+      },
+      "providerId": "linux.network",
+      "sourceLabel": "wlp4s0 · Wi-Fi",
+      "unit": "bitsPerSecond",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "network",
+      "description": "The outbound rate negotiated with the access point. Frequently different from the inbound rate.",
+      "displayName": "Wi-Fi TX rate",
+      "kind": "gauge",
+      "metric": {
+        "key": "network.wifi.link.transmit_rate",
+        "sourceId": "network:mac-025ec0a5e002"
+      },
+      "providerId": "linux.network",
+      "sourceLabel": "wlp4s0 · Wi-Fi",
+      "unit": "bitsPerSecond",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "network",
+      "description": "A 0–100 link quality figure, published only where the operating system computes one itself. It is never derived from the signal strength: every common dBm-to-percentage formula is arbitrary, and a number produced that way would look like a measurement while being a guess.",
+      "displayName": "Quality",
+      "kind": "gauge",
+      "metric": {
+        "key": "network.wifi.signal.quality",
+        "sourceId": "network:mac-025ec0a5e002"
+      },
+      "providerId": "linux.network",
+      "sourceLabel": "wlp4s0 · Wi-Fi",
+      "unit": "percent",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "network",
+      "description": "Received signal strength in dBm, as the radio reports it — a logarithmic scale where −40 is strong and −90 is barely usable. On a radio associated over several links, this is the strongest active link's reading; dBm values are never averaged together.",
+      "displayName": "Signal",
+      "kind": "gauge",
+      "metric": {
+        "key": "network.wifi.signal.rssi",
+        "sourceId": "network:mac-025ec0a5e002"
+      },
+      "providerId": "linux.network",
+      "sourceLabel": "wlp4s0 · Wi-Fi",
+      "unit": "decibelMilliwatts",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "process",
+      "description": "How many processes are executing on a processor or queued and ready to. Nearly every process on an idle desktop is waiting instead — for a timer, for input, for a disk — so a small number here is normal and not a sign of an idle machine. Windows reports no process-level state, so this figure is unavailable there rather than fabricated.",
+      "displayName": "Running",
+      "kind": "gauge",
+      "metric": {
+        "key": "process.count.running",
+        "sourceId": "process:system"
+      },
+      "providerId": "linux.processes",
+      "sourceLabel": "Processes",
+      "unit": "count",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "process",
+      "description": "How many processes exist on this machine right now, including the ones PULSE cannot read the details of. A process that is refused still exists and is still counted.",
+      "displayName": "Processes",
+      "kind": "gauge",
+      "metric": {
+        "key": "process.count.total",
+        "sourceId": "process:system"
+      },
+      "providerId": "linux.processes",
+      "sourceLabel": "Processes",
+      "unit": "count",
+      "valueType": "number"
+    },
+    {
+      "availability": {
+        "status": "available"
+      },
+      "category": "process",
+      "description": "Every thread of every visible process, added up. Processes whose thread count could not be read contribute nothing rather than a guess, so on a machine full of protected processes this is an understatement rather than an invention.",
+      "displayName": "Threads",
+      "kind": "gauge",
+      "metric": {
+        "key": "process.thread.count.total",
+        "sourceId": "process:system"
+      },
+      "providerId": "linux.processes",
+      "sourceLabel": "Processes",
+      "unit": "count",
+      "valueType": "number"
+    }
+  ],
+  "generatedBy": "scripts/showcase/catalog (PULSE metric declarations, fictional hardware)",
+  "sourceRefs": {
+    "cpu:logical-0": "cpu:logical-0",
+    "cpu:logical-1": "cpu:logical-1",
+    "cpu:logical-10": "cpu:logical-10",
+    "cpu:logical-11": "cpu:logical-11",
+    "cpu:logical-12": "cpu:logical-12",
+    "cpu:logical-13": "cpu:logical-13",
+    "cpu:logical-14": "cpu:logical-14",
+    "cpu:logical-15": "cpu:logical-15",
+    "cpu:logical-2": "cpu:logical-2",
+    "cpu:logical-3": "cpu:logical-3",
+    "cpu:logical-4": "cpu:logical-4",
+    "cpu:logical-5": "cpu:logical-5",
+    "cpu:logical-6": "cpu:logical-6",
+    "cpu:logical-7": "cpu:logical-7",
+    "cpu:logical-8": "cpu:logical-8",
+    "cpu:logical-9": "cpu:logical-9",
+    "cpu:package-0": "cpu:package-0",
+    "cpu:system": "cpu:system",
+    "gpu:nvidia-5ec0a5e0-0000-4000-8000-000000000001": "gpu:8b69ca74e948b5c2",
+    "gpu:system": "gpu:system",
+    "memory:system": "memory:system",
+    "network:mac-025ec0a5e001": "network:1b54516b27ce9b7e",
+    "network:mac-025ec0a5e002": "network:77178cbf4b7af7aa",
+    "network:system": "network:system",
+    "process:system": "process:system",
+    "storage:system": "storage:system",
+    "storage:wwid-eui.5ec0a5e000000001": "storage:b42f40a35b26a5f8",
+    "storage:wwid-eui.5ec0a5e000000002": "storage:defbb4fcbc3af3d1",
+    "volume:wwid-eui.5ec0a5e000000001-p3": "volume:94531a6ceb6965bd",
+    "volume:wwid-eui.5ec0a5e000000002-p1": "volume:78c2aeceba36a2d6"
+  }
+}

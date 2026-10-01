@@ -1,0 +1,125 @@
+/*
+ * Shared styling for the README hero and the GitHub social preview.
+ *
+ * Colours are PULSE's Clean style tokens (src/design/styles.ts): canvas
+ * #0b0e12, accent #38d6c4, second accent #8f9cff, text #e9eef4 / #95a2b2,
+ * and the same two radial washes the app's backdrop uses.
+ */
+:root {
+  --bg: #0b0e12;
+  --accent: #38d6c4;
+  --accent-2: #8f9cff;
+  --text: #e9eef4;
+  --muted: #95a2b2;
+  --faint: #606c7b;
+  --border: rgba(255, 255, 255, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', 'Cantarell', 'Segoe UI', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.canvas {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background:
+    radial-gradient(900px 520px at 82% -10%, rgba(56, 214, 196, 0.11), transparent 62%),
+    radial-gradient(800px 560px at -8% 112%, rgba(143, 156, 255, 0.08), transparent 60%), var(--bg);
+}
+
+/* The logo's own pulse path, drawn large and quiet across the canvas. */
+.trace {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.trace path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+}
+
+.brand img {
+  display: block;
+  border-radius: 22%;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 18px 48px rgba(0, 0, 0, 0.45),
+    0 0 60px rgba(56, 214, 196, 0.12);
+}
+
+.wordmark {
+  font-family: 'Inter Display', 'Inter', 'Cantarell', 'Segoe UI', system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  line-height: 1;
+}
+
+.tagline {
+  color: var(--text);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.platforms {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  color: var(--muted);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.platforms .dot {
+  width: 0.32em;
+  height: 0.32em;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 10px rgba(56, 214, 196, 0.6);
+}
+
+.platforms .sep {
+  color: var(--faint);
+}
+
+/* A real capture of the app, framed as a window edge — no fake chrome. */
+.shot {
+  position: absolute;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  box-shadow:
+    0 40px 90px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(0, 0, 0, 0.4),
+    0 0 120px rgba(56, 214, 196, 0.08);
+}
+
+.shot img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: left top;
+}

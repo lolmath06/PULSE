@@ -2,13 +2,13 @@
 
 ## Supported versions
 
-PULSE is in early development (Phase 0, `0.1.0-dev`). There is no released
+PULSE is in pre-release development (`0.1.0-dev`). There is no released
 version yet and therefore no long-term support commitment. Security fixes are
-applied to `main`.
+applied to the current development branch.
 
-| Version              | Supported |
-| -------------------- | --------- |
-| `0.1.x-dev` (`main`) | ✅        |
+| Version     | Supported |
+| ----------- | --------- |
+| `0.1.x-dev` | ✅        |
 
 ## Reporting a vulnerability
 
@@ -60,7 +60,9 @@ explicit, documented, opt-in decision — not an implementation detail.
 ### Data
 
 PULSE collects system metrics for display on the user's own machine. It has no
-telemetry, sends nothing to any server, and stores no personal data. Any future
+telemetry, sends nothing to any server, and stores no personal data. The only
+outbound actions are explicit clicks in the process inspector (_Search online_,
+_Check hash on VirusTotal_), which open the user's browser on that page. Any future
 feature that would transmit data off the machine must be opt-in and documented.
 
 ### Secrets

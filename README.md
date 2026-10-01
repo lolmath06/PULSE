@@ -1,231 +1,171 @@
-# PULSE
+<p align="center">
+  <img src="docs/assets/branding/pulse-hero.webp" alt="PULSE — Your system, at a glance. Windows · Fedora Linux" width="100%">
+</p>
 
-**Your system, at a glance.**
+<p align="center">
+  <strong>A cross-platform system monitor for Windows and Fedora Linux — live metrics,<br>
+  local history, dashboards you compose, and desktop overlays.</strong>
+</p>
 
-> A modular, cross-platform system monitoring dashboard for Windows and Fedora Linux.
+<p align="center">
+  <a href="https://github.com/lolmath06/PULSE/actions/workflows/ci.yml"><img src="https://github.com/lolmath06/PULSE/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <img src="https://img.shields.io/badge/version-0.1.0--dev-38d6c4" alt="Version 0.1.0-dev">
+  <img src="https://img.shields.io/badge/platforms-Windows%20%7C%20Fedora%20Linux-8f9cff" alt="Platforms: Windows and Fedora Linux">
+  <img src="https://img.shields.io/badge/Tauri-2-24C8DB?logo=tauri&logoColor=white" alt="Tauri 2">
+  <img src="https://img.shields.io/badge/Rust-1.77.2%2B-dea584?logo=rust&logoColor=white" alt="Rust 1.77.2+">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Proprietary-informational" alt="proprietary license"></a>
+</p>
 
-[![CI](https://github.com/lolmath06/PULSE/actions/workflows/ci.yml/badge.svg)](https://github.com/lolmath06/PULSE/actions/workflows/ci.yml)
-[![License: Proprietary](https://img.shields.io/badge/License-Proprietary-informational.svg)](LICENSE)
+<p align="center">
+  <a href="#gallery">Gallery</a> ·
+  <a href="#build-from-source">Build from source</a> ·
+  <a href="docs/README.md">Documentation</a> ·
+  <a href="#platforms-and-status">Status</a> ·
+  <a href="CHANGELOG.md">Changelog</a>
+</p>
 
----
+<p align="center">
+  <img src="docs/assets/demo/pulse-demo.webp" alt="PULSE in motion: overview, a dashboard created from a template, styles, history, the process inspector and overlay packs" width="100%">
+</p>
 
-## Status
+## What PULSE is
 
-**Phase 11 — Modular dashboard, widgets & desktop overlays.** Version `0.1.0-dev`.
+PULSE shows what your machine is doing — processor, graphics, memory, storage,
+network and processes — and lets you decide **how** it is shown: on the
+Overview, on dashboards you build from widgets, in a small Mini window, or as
+overlays that sit on the desktop above other windows.
 
-PULSE can now answer, on Fedora and Windows behind exactly the same contract:
+It runs natively on **Windows 10/11** and **Fedora Linux** behind one shared
+metric contract, so a widget bound to "GPU temperature" or "logical processor 3"
+means the same thing on both. It reads everything with the user's own
+permissions, keeps its history in a local file, and when a machine cannot
+provide a value it says _why_ instead of inventing one.
 
-> How many physical cores and logical processors does my CPU have, what is each
-> logical processor doing, which GPUs does this machine have, what is their
-> stable identity, what load, memory and clocks do they report, how hot are the
-> processor and the graphics card actually running, which storage devices does
-> this machine have, how full are its filesystems, how much is it really
-> reading and writing, what does an NVMe controller say about its own wear —
-> and which network interfaces does it have, which are connected, how much are
-> they actually carrying, how good is the Wi-Fi link — and what is actually
-> running on this machine, which applications are using the processor, the
-> memory and the disk, and how many processes and threads are there?
+## Highlights
 
-On top of the Phase 0 foundation, the Phase 1 metrics contract and the Phase 2
-collectors, it reads **per-logical-processor usage, per-logical-processor
-frequency and CPU topology natively on both platforms** — `/proc/stat` and
-`/sys/devices/system/cpu` on one side; `GetSystemTimes`,
-`NtQuerySystemInformationEx`, `CallNtPowerInformation` and
-`GetLogicalProcessorInformationEx` on the other. No third-party monitoring
-crate, no subprocess, no elevated privileges.
+|                       |                                                                                                                                                                       |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Live monitoring**   | CPU usage and topology, per-logical-processor usage and clocks, memory, GPU load / VRAM / clocks / temperatures / fan, storage I/O and NVMe health, network and Wi-Fi |
+| **Local history**     | Recorded every 5 s into a local SQLite file; ranges from 15 minutes to 7 days, with min / max / average kept when older data is compacted                             |
+| **Dashboards**        | Several dashboards of movable, resizable widgets; eight templates; line, area, sparkline, value, bar and gauge renderers; import and export                           |
+| **Overlays & Mini**   | Twelve overlay packs — readouts, bars, rails, corner HUDs — click-through when locked; a tray, a configurable global shortcut and a compact Mini window               |
+| **Modes**             | Gaming, Development, Personal and Mini: each with its own style, live strip, starter dashboard and overlay packs                                                      |
+| **Appearance studio** | Eight built-in styles (Clean, Glass, Technical, Neon, Gaming, Stealth, Compact, Transparent HUD), deep tuning, and saved styles of your own                           |
+| **Processes**         | Applications and processes with CPU, memory and I/O; an inspector with package or signature provenance, SHA-256 on demand, and explicit controls                      |
 
-GPU support arrived in Phase 4: adapters are inventoried through DRM on Fedora
-and DXGI on Windows, identified by the most stable thing each platform genuinely
-offers (an NVML hardware UUID where possible, a PCI address otherwise), and
-measured through NVML or the `amdgpu` driver's sysfs attributes — **both loaded
-at runtime, so a missing vendor driver costs metrics rather than preventing
-PULSE from starting**. A card no backend serves is still shown, named and
-identified, with an honest reason on every metric it cannot provide.
+## Gallery
 
-Phase 5 added temperatures and cooling: the CPU package temperature through
-`hwmon` on Fedora, and per GPU a core temperature, a hotspot temperature, a
-memory temperature and a fan speed in genuine revolutions per minute. What makes
-that work is mostly what it refuses — a thermal limit is not a temperature, a
-core average is not a package reading, a fan control percentage is not an RPM,
-and a hotspot is a different sensor from the die. Where a reading is not
-available it says so, with the reason, and **PULSE never writes to a fan
-control, a limit or a power setting**.
+<table>
+  <tr>
+    <td width="50%"><img src="docs/assets/screenshots/overview.webp" alt="The Overview: live strip, modes and system details"><br><sub><b>Overview</b> — a live strip of the essentials, the four modes, and system details.</sub></td>
+    <td width="50%"><img src="docs/assets/screenshots/dashboard.webp" alt="The Fancy showcase dashboard template in the Glass style"><br><sub><b>Dashboards</b> — the <i>Fancy showcase</i> template, wearing its own Glass style.</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/assets/screenshots/dashboard-templates.webp" alt="The template gallery with eight dashboard templates"><br><sub><b>Templates</b> — eight composed starting points; everything stays editable.</sub></td>
+    <td><img src="docs/assets/screenshots/history.webp" alt="CPU details per logical processor and 24-hour CPU history"><br><sub><b>History</b> — per-logical-processor detail above 24 hours of recorded CPU load.</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/assets/screenshots/processes.webp" alt="The process table with the inspector open on a rustc process"><br><sub><b>Processes</b> — the inspector: identity, resources, executable and provenance.</sub></td>
+    <td><img src="docs/assets/screenshots/appearance.webp" alt="The Appearance studio with eight styles and a live preview"><br><sub><b>Appearance</b> — eight styles, deep tuning and a live preview.</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/assets/screenshots/overlays.webp" alt="The overlay pack gallery"><br><sub><b>Overlays</b> — twelve packs, from a three-line readout to full-height rails.</sub></td>
+    <td><img src="docs/assets/screenshots/mode-development.webp" alt="The Development mode page in the Technical style"><br><sub><b>Modes</b> — Development, in its Technical style: a dense strip, a template, its packs.</sub></td>
+  </tr>
+</table>
 
-Phase 6 added storage. Physical devices are inventoried through
-`/sys/class/block` on Fedora and SetupAPI on Windows; filesystems through
-`/proc/self/mountinfo` and the volume GUID API; activity from
-`/proc/diskstats` and `IOCTL_DISK_PERFORMANCE`, as **rates derived between two
-samples** rather than totals read once; and an NVMe controller's standardised
-SMART / Health log through a read-only ioctl on each platform. What makes that
-work is again mostly what it refuses — a disk is not a filesystem, a mount point
-is not an identity, `0 ms` is not a latency for a disk that completed no
-operation, and `100 - percentage_used` is not a health score.
+<p align="center">
+  <img src="docs/assets/screenshots/mini-window.webp" alt="The Mini window showing the Vitals layout" width="380"><br>
+  <sub><b>Mini</b> — a small, ordinary window with its own layouts (here: Vitals).</sub>
+</p>
 
-Phase 7 added networking. Interfaces are inventoried through `rtnetlink` on
-Fedora and `GetIfTable2` on Windows — one transaction returning every
-interface's identity, state and counters at a single instant; traffic, packet
-rates, errors and drops are **rates derived between two samples** rather than
-totals read once; and Wi-Fi link quality comes from `nl80211` or the Windows
-realtime-quality API. What makes that work is again mostly what it refuses — a
-local drop counter is not Internet packet loss, a link capacity in bits is not
-traffic in bytes, and a signal strength in dBm is never converted into a
-made-up quality percentage.
+<sub>Every image is a capture of the real PULSE interface. To keep them reproducible and free of
+anyone's personal data, the backend's answers come from a deterministic fictional machine —
+see [`scripts/showcase/`](scripts/showcase/README.md).</sub>
 
-Phase 8 added processes and applications, and with them the first deliberate
-**limit** on the metrics engine. A desktop runs several hundred processes, most
-of them for less than a second; a catalog entry is a promise that a saved
-dashboard reference still resolves months later. Putting six metrics per PID in
-the catalog would add roughly two thousand definitions and replace most of them
-every refresh, so PULSE registers exactly three low-cardinality figures —
-process count, running count, total thread count — and serves the rows through
-a `ProcessSnapshotService` and a command of its own. Processes are identified by
-**PID plus start time**, because a PID is recycled and PULSE refuses to credit
-a new process with its predecessor's CPU time. Process CPU is normalised
-against the whole machine on both platforms, so one thread saturating one of 32
-logical processors reads `3.1 %` and the column sums to roughly what the system
-CPU gauge shows — rather than `3200 %` on Fedora and `100 %` on Windows for the
-same work. And what PULSE does **not** collect matters as much: no command
-lines, no arguments, no environment variables.
+## Why PULSE
 
-Since Phase 9, clicking a process opens an **inspector** — owner, start time,
-architecture, executable, Fedora package or Windows signature and publisher,
-SHA-256 on demand — and a right-click menu offers **explicit** controls: suspend
-and resume, end process or process tree, priority and CPU affinity. Every action
-targets the exact process instance (PID + start token, re-validated just before
-acting), destructive ones are confirmed, nothing ever runs automatically, and
-PULSE never elevates. Provenance is shown as evidence, never as a verdict. See
-[`docs/processes/`](docs/processes/inspector.md).
+Most monitors decide for you what matters. PULSE starts from the opposite
+premise — **you compose it** — and is strict about what it shows:
 
-The catalog is **sized by the machine**: `16 + 3N + P + 11G + 13D + 4V + 11I +
-4W` metrics for `N` logical processors, `P` addressable CPU packages, `G` GPUs,
-`D` storage devices, `V` volumes, `I` network interfaces and `W` Wi-Fi radios —
-314 on the 32-thread, single-package, single-GPU laptop this was built on, with
-its internal NVMe drive, an external USB disk, seven mounted filesystems, twelve
-published network interfaces and one Wi-Fi radio — and the same 314 whether it
-is running 180 processes or 900. Nothing anywhere hardcodes those numbers. References stay identical across operating systems, so a widget
-bound to `cpu.usage.logical@cpu:logical-3`, to an NVIDIA card's UUID, to a
-drive's serial number, or to a Wi-Fi radio's permanent MAC address, moves from
-Fedora to Windows unchanged.
+- **Honest availability.** Every metric carries a status: available,
+  unsupported on this platform, not detected on this machine, blocked by
+  permissions, temporarily unavailable, or a provider error — each with a
+  reason. A missing sensor is shown as missing, never as `0`.
+- **Distinctions other tools blur.** A physical core is not a logical
+  processor; dedicated VRAM is not shared system memory; a storage device is
+  not a volume; a thermal limit is not a temperature; a local drop counter is
+  not Internet packet loss.
+- **Stable identities.** GPUs, disks and network interfaces are identified by
+  what survives reboots (an NVML UUID, a drive's WWID, a permanent MAC), never
+  by `nvme0n1`, an adapter index or a randomised address — so saved dashboards
+  keep pointing at the right hardware, and exports contain no raw hardware
+  identifiers.
+- **Modes and dashboards are separate.** A mode describes _how_ PULSE behaves;
+  a dashboard describes _what_ it shows. Any dashboard, any style, any mode.
 
-PULSE is careful about distinctions other monitors blur: a **physical core** is
-not a **logical processor**, dedicated **VRAM** is not system memory shared with
-an integrated GPU, a **storage device** is not a **volume** is not a **mount
-point**, and a **dropped frame** is not **packet loss**. It is equally careful
-about identity — a GPU is never identified by its product name, its DRM card
-number, its NVML index or its DXGI adapter index; a disk is never identified by
-`nvme0n1`, `sda` or `PhysicalDrive0`; and a network interface is never
-identified by `eth0`, an interface index, an IP address or the **randomised**
-MAC both operating systems now put on Wi-Fi by default; and a process is never
-identified by its PID alone — because every one of those can change between
-boots, between networks, or between one process and the next.
+## What it monitors
 
-**Phase 11 — dashboards and overlays.** PULSE is now your own monitor:
-configurable dashboards of widgets (add, move, resize, duplicate, customize,
-lock, several dashboards, templates, import/export), tiny widgets down to a
-60×20 value or an 80×24 sparkline, and **desktop overlays** — separate
-frameless, transparent windows that stay above other applications where the
-system allows and let clicks through when locked, with a tray and a
-configurable global shortcut. A small, ordinary _Mini_ window shows a
-dashboard. Everything is drawn by the Phase 10 engine and fed by one shared
-live sampler; all UI settings live in one atomic, versioned file. No game
-injection, no fake FPS.
+What a given machine can report depends on its hardware, drivers and
+platform; PULSE reads what is genuinely there.
 
-**Phase 10 — history and visualization.** PULSE also remembers: one
-backend scheduler records the stable numeric metrics every five seconds into a
-local SQLite file (raw for 24 hours, one-minute min/max/average/count for seven
-days), and every system section has a history chart — CPU Total, memory,
-temperatures, GPU, storage read/write, network download/upload and process
-counts. Each chart can be drawn as a line, area, sparkline, value, bar or gauge,
-with presets (Clean, Minimal, Technical, Gaming, Compact, Neon, Transparent) and
-a Customize panel for colours, size, curve, fill, background, grid, axes and
-statistics. Live cards still refresh on demand, and Refresh never writes history.
+| Area          | Metrics                                                                                                                                                                   |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **CPU**       | Total usage; usage and current / maximum frequency per logical processor; physical cores, logical processors and packages; package temperature where a sensor exists      |
+| **Memory**    | Total, used, available, usage                                                                                                                                             |
+| **GPU**       | Every adapter, named and identified; usage, VRAM, core and memory clocks, core / hotspot / memory temperatures and fan RPM where NVML or the `amdgpu` driver exposes them |
+| **Storage**   | Devices and volumes; capacity and usage; read / write throughput, IOPS and latency; NVMe health (temperature, wear, spare, power-on hours, unsafe shutdowns, errors)      |
+| **Network**   | Interfaces and link state; download / upload, packets, errors and drops; link speeds; Wi-Fi signal and link rates                                                         |
+| **Processes** | Process, running and thread counts; per-process and per-application CPU, memory, threads and disk I/O                                                                     |
 
-## Vision
+Vendor GPU libraries are loaded at runtime: a missing driver costs those
+metrics, never the ability to start. Details: [metrics documentation](docs/metrics/README.md).
 
-Most system monitors decide for you what matters. PULSE is built on the opposite
-premise: **you compose it.** Dashboards, widgets, layouts, colours and modes are
-configuration, not hardcoded screens.
+## Local-first and safe by design
 
-Two ideas shape the design:
+- **History stays on your machine** — a local SQLite file, raw samples for 24
+  hours and one-minute min / max / average / count aggregates for 7 days.
+  ([retention](docs/history/retention.md))
+- **No telemetry.** PULSE sends nothing to any server. The only outbound
+  actions are ones you click — _Search online_ for a process name or a hash,
+  _Check hash on VirusTotal_ — which open your browser on that page (a file is never uploaded).
+- **No command lines, no arguments, no environment variables** are collected
+  for processes.
+- **Process controls are explicit.** Suspend / resume, end process or tree,
+  priority and affinity run only when you choose them; destructive ones ask
+  first. Each targets one exact process instance — PID plus start token,
+  re-validated just before acting — so a recycled PID is never hit by mistake.
+- **No elevation.** PULSE runs with the user's own rights and never escalates;
+  what needs more is reported as permission-denied, with the reason.
+- **Read-only hardware access.** No fan, limit or power setting is ever
+  written; no game is injected into — overlays are separate windows.
 
-- **Modes describe how PULSE behaves** — a normal window, a low-overhead Gaming
-  view, a Development view, or **Mini**: a permanent, borderless, always-on-top
-  desktop overlay that lives at the edge of your screen while you work or play.
-- **Dashboards describe what is displayed** — sets of widgets and their layout,
-  independent of the mode rendering them.
+See [SECURITY.md](SECURITY.md) and [process controls](docs/processes/controls.md).
 
-Keeping those separate is what makes it possible to have both a 20-widget
-Personal dashboard and a single thin line of numbers at the bottom of the screen,
-driven by the same engine.
+## Platforms and status
 
-## Planned features
+|                      | Windows 10 / 11                                                     | Fedora Linux                                                    |
+| -------------------- | ------------------------------------------------------------------- | --------------------------------------------------------------- |
+| Support level        | First-class                                                         | First-class                                                     |
+| Native data sources  | Win32 / NT APIs, DXGI + D3DKMT, SetupAPI, IP Helper, NVML           | `/proc`, `/sys`, `hwmon`, DRM, `rtnetlink` + `nl80211`, NVML    |
+| Overlays             | Native layered topmost windows                                      | GNOME Shell bridge on Wayland; standard Wayland and X11 windows |
+| Automated validation | Native CI: build, tests, Clippy, MSRV 1.77.2, NSIS / MSI / portable | CI: lint, typecheck, tests, app build, Clippy, MSRV 1.77.2      |
+| Physical validation  | Final pre-release gate, pending                                     | Performed (Fedora 39, GNOME 45 on Wayland)                      |
 
-- CPU, GPU, RAM, storage, network, temperature and sensor monitoring
-- Real-time graphs and historical data
-- Fully configurable dashboards
-- Movable, resizable widgets
-- Personal mode with 20+ widgets
-- Gaming, Development and Mini modes
-- Mini: a permanent desktop overlay — transparent, borderless, always-on-top,
-  optionally click-through, freely positioned, multi-monitor
-- Alerts, themes, presets
-- Tray icon and autostart
-- Packaged builds for Windows and Fedora Linux
-
-None of this is implemented yet. See [Roadmap](#roadmap).
-
-## Platforms
-
-PULSE targets **Windows** and **Fedora Linux** as two first-class platforms.
-Neither is the reference platform; neither is experimental.
-
-|                     | Windows                      | Fedora Linux                          |
-| ------------------- | ---------------------------- | ------------------------------------- |
-| Support level       | First-class                  | First-class                           |
-| Versions            | Windows 10 and 11            | Fedora 39+ (Wayland and X11)          |
-| Data sources        | PDH, Win32, WMI, vendor SDKs | `/proc`, `/sys`, `hwmon`, vendor SDKs |
-| Packaging (planned) | NSIS, MSI                    | RPM, plus DEB and AppImage            |
-
-This has a concrete consequence, written into the project's rules:
-
-> **A system-facing feature is not considered complete until its behavior on
-> both Windows and Fedora Linux has been designed and, whenever materially
-> testable, validated.**
-
+PULSE is at version **0.1.0-dev** and feature-complete for its first release.
+Native Windows builds are compiled, tested and packaged in CI on every run;
+the remaining gate before a public release is the
+[physical Windows checklist](docs/release/windows-physical-validation.md).
+There is no published release yet — see the [release process](docs/release/release-process.md).
 macOS is not a target.
 
-### CI and Windows status
+## Build from source
 
-| Evidence                                                                            | Status                                                  |
-| ----------------------------------------------------------------------------------- | ------------------------------------------------------- |
-| Windows cross-target harness (from Fedora)                                          | passing                                                 |
-| Native Windows CI (GitHub `windows-latest`): build, tests, clippy, MSRV, NSIS + MSI | set up — see [`docs/release/ci.md`](docs/release/ci.md) |
-| Physical Windows validation                                                         | **pending** (Phase 13B)                                 |
-| Fedora / GNOME Wayland physical validation                                          | done (Phase 12)                                         |
+**Prerequisites:** Node.js 20.19+ with pnpm (`corepack enable pnpm`), and Rust
+1.77.2+ via [rustup](https://rustup.rs) ([MSRV notes](docs/development/msrv.md)).
 
-Each green CI run leaves a downloadable `PULSE-windows-x64-<sha>` artifact
-(installer, MSI, portable executable, SHA-256 sums) —
-[`docs/release/windows-ci.md`](docs/release/windows-ci.md).
-
-## Stack
-
-| Layer           | Technology                             |
-| --------------- | -------------------------------------- |
-| Desktop shell   | [Tauri 2](https://tauri.app)           |
-| Backend         | Rust                                   |
-| Frontend        | React 19 + TypeScript                  |
-| Build           | Vite                                   |
-| Package manager | pnpm                                   |
-| Tests           | Vitest (frontend), `cargo test` (Rust) |
-| Quality         | ESLint, Prettier, rustfmt, Clippy      |
-
-## Prerequisites
-
-- **Node.js 20.19+** (22 LTS recommended) and **pnpm 10+** (`corepack enable pnpm`)
-- **Rust 1.77.2+** via [rustup](https://rustup.rs) — verified minimum for the
-  whole locked dependency graph ([MSRV](docs/development/msrv.md))
-
-### Fedora Linux
+<details>
+<summary><b>Fedora Linux</b> system packages</summary>
 
 ```bash
 sudo dnf install -y \
@@ -237,38 +177,92 @@ sudo dnf install -y \
   gcc gcc-c++ make
 ```
 
-### Windows
+</details>
+
+<details>
+<summary><b>Windows</b> prerequisites</summary>
 
 - **Microsoft C++ Build Tools** with the "Desktop development with C++" workload
 - **WebView2 Runtime** (preinstalled on Windows 11 and current Windows 10)
 
-## Development setup
+</details>
 
 ```bash
 git clone https://github.com/lolmath06/PULSE.git
 cd PULSE
 pnpm install
+pnpm app:dev      # run PULSE in development
+pnpm app:build    # build the desktop application and its bundles
 ```
 
-## Running PULSE
+Each green CI run also produces an unsigned Windows build (NSIS installer, MSI,
+portable executable and checksums) for testing — see
+[Windows CI & artifacts](docs/release/windows-ci.md).
 
-```bash
-pnpm app:dev
+## Architecture
+
+```mermaid
+flowchart LR
+  UI["React UI<br/>pages · dashboards · overlays · Mini"] --> CMD["Tauri commands"]
+  CMD --> CORE["Application core<br/>metrics engine · live sampler · history · processes · UI config"]
+  CORE --> DB[("SQLite<br/>history")]
+  CORE --> PLAT["Platform layer"]
+  PLAT --> LNX["Linux"]
+  PLAT --> WIN["Windows"]
 ```
 
-This starts the Vite dev server and the Rust backend, and opens the PULSE
-window.
+The frontend never reads `/proc`, `/sys`, DXGI or NVML — everything
+system-facing crosses the command boundary as a typed payload, and only the
+platform layer knows which OS it runs on. Read more in the
+[architecture overview](docs/architecture/overview.md).
 
-For frontend-only work (no backend, faster iteration):
+| Layer           | Technology                                              |
+| --------------- | ------------------------------------------------------- |
+| Desktop shell   | [Tauri 2](https://tauri.app)                            |
+| Backend         | Rust (edition 2021, MSRV 1.77.2)                        |
+| Storage         | SQLite via `rusqlite` (bundled)                         |
+| Frontend        | React 19, TypeScript, React Router, D3 shape            |
+| Build & tooling | Vite, pnpm                                              |
+| Tests & quality | Vitest, `cargo test`, ESLint, Prettier, rustfmt, Clippy |
 
-```bash
-pnpm dev
+<details>
+<summary><b>Repository layout</b></summary>
+
+```text
+PULSE/
+├── src/                 # React frontend
+│   ├── app/             # router, routes, app constants
+│   ├── components/      # Dashboard, Overlay, Mini, History, ProcessInspector…
+│   ├── config/          # the shared UI configuration store
+│   ├── dashboard/       # widget model, grid layout, library, bindings, templates
+│   ├── design/          # styles, tokens, appearance
+│   ├── live/            # this window's side of the live widget feed
+│   ├── modes/           # Gaming, Development, Personal, Mini
+│   ├── overlay/         # overlay model, desktop commands
+│   ├── presets/         # dashboard templates and overlay packs
+│   ├── services/        # the invoke() boundary
+│   ├── types/           # shared types, mirrors of Rust payloads
+│   └── visualization/   # chart engine: renderers, config, Customize
+├── src-tauri/           # Rust backend
+│   └── src/
+│       ├── commands/    # Tauri command surface
+│       ├── desktop.rs   # overlay windows, Mini, tray, global shortcut
+│       ├── history/     # scheduler, SQLite store, queries, retention
+│       ├── live/        # one shared 1 s sampler, in-memory rings
+│       ├── metrics/     # metrics engine, model, well-known declarations
+│       ├── overlay/     # capabilities, geometry, specs, settings, GNOME bridge
+│       ├── platform/    # the platform seam: linux/ and windows/
+│       ├── processes/   # snapshots, inspector, controls, provenance
+│       └── ui_config/   # the shared UI configuration file (atomic, versioned)
+├── integrations/        # the GNOME Shell overlay bridge extension
+├── tools/windows-check/ # type-checks the Windows code from Linux
+├── scripts/showcase/    # regenerates the README media
+└── docs/
 ```
 
-The status bar will report _"Backend unavailable — UI-only mode"_. That is
-expected outside the Tauri runtime.
+</details>
 
-## Commands
+## Development
 
 | Command                             | What it does                            |
 | ----------------------------------- | --------------------------------------- |
@@ -283,118 +277,60 @@ expected outside the Tauri runtime.
 | `pnpm rust:fmt`                     | `cargo fmt --check`                     |
 | `pnpm rust:lint`                    | Clippy, warnings denied                 |
 | `pnpm rust:test`                    | `cargo test`                            |
+| `pnpm rust:windows`                 | Type-check the Windows code from Linux  |
 | `pnpm check:all`                    | Everything CI runs                      |
 
-## Structure
+`pnpm dev` runs the interface without the Rust backend; the status bar then
+reports that the backend is unavailable, which is expected outside Tauri.
+See [getting started](docs/development/getting-started.md) and
+[testing](docs/development/testing.md).
 
-```text
-PULSE/
-├── src/                 # React frontend
-│   ├── app/             # router, routes, app constants
-│   ├── components/      # reusable components (Dashboard, Overlay, Mini, History…)
-│   ├── config/          # the shared UI configuration store
-│   ├── dashboard/       # widget model, grid layout, library, bindings, templates
-│   ├── live/            # this window's side of the live widget feed
-│   ├── overlay/         # overlay model, presets, desktop commands
-│   ├── features/        # feature slices
-│   ├── hooks/
-│   ├── layouts/
-│   ├── pages/           # one component per route
-│   ├── services/        # the invoke() boundary
-│   ├── stores/
-│   ├── styles/          # design tokens, global CSS
-│   ├── types/           # shared types, mirrors of Rust payloads
-│   ├── utils/
-│   └── visualization/   # generic chart engine: renderers, config, presets, Customize
-├── src-tauri/           # Rust backend
-│   └── src/
-│       ├── commands/    # Tauri command surface
-│       ├── desktop.rs   # overlay windows, Mini, tray, global shortcut (Tauri glue)
-│       ├── history/     # persistent metric history: scheduler, SQLite store, queries
-│       ├── live/        # the live widget feed: one shared 1 s sampler, in-memory rings
-│       ├── overlay/     # overlay core: capabilities, geometry, specs, settings
-│       ├── ui_config/   # the shared UI configuration file (atomic, versioned)
-│       ├── metrics/     # metrics engine, model, well-known declarations
-│       ├── platform/    # the platform seam
-│       ├── processes/   # process snapshots — high-cardinality, outside the catalog
-│       │   ├── linux/   # /proc, /sys, hwmon, Wayland/X11
-│       │   └── windows/ # WMI, PDH, vendor SDKs
-│       ├── services/    # cross-platform logic
-│       └── state/
-├── docs/                # architecture, platforms, metrics, widgets
-└── .github/workflows/   # CI
-```
-
-The layering rule, in one line:
-
-```text
-React UI  →  Tauri commands  →  application core  →  platform layer  →  { Linux | Windows }
-```
-
-The frontend never reads `/proc`, `/sys`, WMI, PDH or NVML. Ever. Only the
-platform layer knows which OS it is running on.
+A system-facing feature is not considered complete until its behaviour on both
+Windows and Fedora Linux has been designed and, whenever materially testable,
+validated.
 
 ## Documentation
 
 Start at [`docs/README.md`](docs/README.md).
 
-- [Architecture overview](docs/architecture/overview.md)
-- [Mini overlay design](docs/architecture/mini-overlay.md)
-- [Getting started](docs/development/getting-started.md)
-- [Testing](docs/development/testing.md)
-- [Fedora Linux](docs/platforms/fedora.md) · [Windows](docs/platforms/windows.md)
-- [Metrics engine](docs/metrics/README.md) — [model](docs/metrics/model.md),
-  [identifiers](docs/metrics/identifiers.md), [providers](docs/metrics/providers.md),
-  [CPU & memory](docs/metrics/cpu-memory.md),
-  [advanced CPU](docs/metrics/cpu-advanced.md), [GPU](docs/metrics/gpu.md),
-  [thermals](docs/metrics/thermals.md), [storage](docs/metrics/storage.md),
-  [network](docs/metrics/network.md), [processes](docs/metrics/processes.md)
-- [History](docs/history/architecture.md) — [storage](docs/history/storage.md),
-  [retention](docs/history/retention.md)
-- [Visualization](docs/visualization/architecture.md) —
-  [renderers](docs/visualization/renderers.md),
-  [customization](docs/visualization/customization.md)
-- [Dashboard](docs/dashboard/architecture.md) — [widgets](docs/dashboard/widgets.md),
-  [layout](docs/dashboard/layout.md)
-- [Overlays](docs/overlay/architecture.md) —
-  [platform capabilities](docs/overlay/platform-capabilities.md),
-  [user guide](docs/overlay/user-guide.md)
-- [Widgets](docs/widgets/README.md)
-- [CI](docs/release/ci.md) — [Windows CI & artifacts](docs/release/windows-ci.md),
-  [Windows physical validation](docs/release/windows-physical-validation.md),
+- **Using PULSE** — [user guide](docs/user-guide/README.md) ·
+  [modes](docs/modes/overview.md) · [overlays](docs/overlay/user-guide.md) ·
+  [appearance](docs/design-system/customization.md) ·
+  [dashboard templates](docs/presets/dashboard-templates.md) ·
+  [overlay packs](docs/presets/overlay-packs.md)
+- **Metrics** — [engine](docs/metrics/README.md) · [model](docs/metrics/model.md) ·
+  [identifiers](docs/metrics/identifiers.md) · [CPU & memory](docs/metrics/cpu-memory.md) ·
+  [advanced CPU](docs/metrics/cpu-advanced.md) · [GPU](docs/metrics/gpu.md) ·
+  [thermals](docs/metrics/thermals.md) · [storage](docs/metrics/storage.md) ·
+  [network](docs/metrics/network.md) · [processes](docs/metrics/processes.md)
+- **Processes** — [inspector](docs/processes/inspector.md) ·
+  [provenance](docs/processes/provenance.md) · [controls](docs/processes/controls.md)
+- **History & visualization** — [history](docs/history/architecture.md) ·
+  [storage](docs/history/storage.md) · [retention](docs/history/retention.md) ·
+  [visualization](docs/visualization/architecture.md) ·
+  [renderers](docs/visualization/renderers.md)
+- **Dashboards & overlays** — [dashboard](docs/dashboard/architecture.md) ·
+  [widgets](docs/dashboard/widgets.md) · [layout](docs/dashboard/layout.md) ·
+  [overlay architecture](docs/overlay/architecture.md) ·
+  [backends](docs/overlay/backends.md) · [GNOME bridge](docs/overlay/gnome-bridge.md)
+- **Design** — [design system](docs/design-system/overview.md)
+- **Platforms** — [Fedora Linux](docs/platforms/fedora.md) · [Windows](docs/platforms/windows.md)
+- **Release** — [CI](docs/release/ci.md) · [Windows CI & artifacts](docs/release/windows-ci.md) ·
+  [physical Windows validation](docs/release/windows-physical-validation.md) ·
   [release process](docs/release/release-process.md)
-
-## Roadmap
-
-| Phase | Scope                                                          | Status      |
-| ----- | -------------------------------------------------------------- | ----------- |
-| 0     | Foundation: structure, platform abstraction, shell, docs, CI   | Done        |
-| 1     | Metrics engine: model, contract, catalog, frontend API         | Done        |
-| 2     | First real collectors: aggregate CPU usage, physical memory    | Done        |
-| 3     | Advanced CPU: per-logical-processor usage, frequency, topology | Done        |
-| 4     | GPU inventory, identity and core telemetry                     | Done        |
-| 5     | Temperatures and fan speeds                                    | Done        |
-| 6     | Storage devices, volumes, I/O and NVMe health                  | Done        |
-| 7     | Network interfaces, traffic and Wi-Fi quality                  | Done        |
-| 8     | Processes, applications and their CPU, memory and I/O          | Done        |
-| 9     | Process inspector, provenance and controls                     | Done        |
-| 10    | Persistent history, time series, modular visualization engine  | Done        |
-| 11    | Configurable dashboard, widgets, desktop overlays              | **Current** |
-| 1+    | Active network probes                                          | Planned     |
-| 1+    | Widget engine, configurable dashboards                         | Planned     |
-| 1+    | Mini overlay, Gaming and Development modes                     | Planned     |
-| 1+    | Themes, presets, alerts, tray, autostart                       | Planned     |
-| 1+    | Packaged installers and releases                               | Planned     |
 
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). Run `pnpm check:all` before opening a
-pull request, and remember the cross-platform rule above.
+pull request, and keep the cross-platform rule above in mind.
 
 ## Security
 
-See [SECURITY.md](SECURITY.md).
+Please report vulnerabilities privately — see [SECURITY.md](SECURITY.md).
 
 ## License
 
-[Proprietary](LICENSE).
+PULSE is released under the [proprietary license](LICENSE). Third-party crates and
+packages keep their own licenses, as recorded in `src-tauri/Cargo.lock` and
+`pnpm-lock.yaml`; SQLite, compiled in through `rusqlite`, is in the public
+domain.

@@ -54,3 +54,7 @@ desktop.ini
 # --- misc -----------------------------------------------------------------
 .cache/
 tmp/
+
+# --- showcase tooling (scripts/showcase) ---------------------------------
+# Raw frames, browser profiles, cargo output and the MP4 — never committed.
+showcase-output/

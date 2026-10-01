@@ -1,0 +1,33 @@
+# Showcase catalog generator.
+#
+# Prints the metric catalog of a *fictional* demonstration machine, built by
+# PULSE's own metric declaration code. Like tools/windows-check, it includes
+# the application's tauri-free modules by path, so every display name,
+# description, unit and availability in the showcase fixture is exactly what
+# the real backend would declare for that hardware. Only the hardware itself
+# (and later its readings) is made up.
+#
+#     cargo run --manifest-path scripts/showcase/catalog/Cargo.toml \
+#       --target-dir showcase-output/cargo > scripts/showcase/fixture/catalog.json
+#
+# Showcase tooling only: nothing in the application depends on this crate.
+[package]
+name = "pulse-showcase-catalog"
+version = "0.1.0-dev"
+edition = "2021"
+license-file = "../../../LICENSE"
+publish = false
+
+[[bin]]
+name = "pulse-showcase-catalog"
+path = "src/main.rs"
+
+# Kept identical to tools/windows-check so the same module set compiles.
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+rusqlite = "0.32"
+
+[target.'cfg(target_os = "linux")'.dependencies]
+libc = "0.2"

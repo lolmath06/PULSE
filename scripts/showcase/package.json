@@ -1,0 +1,16 @@
+{
+  "name": "pulse-showcase",
+  "private": true,
+  "type": "module",
+  "description": "Showcase capture tooling for the PULSE repository. Not part of the application.",
+  "scripts": {
+    "catalog": "node catalog.mjs",
+    "screenshots": "node screenshots.mjs",
+    "branding": "node branding.mjs",
+    "demo": "node demo.mjs",
+    "all": "node screenshots.mjs && node branding.mjs && node demo.mjs"
+  },
+  "devDependencies": {
+    "playwright-core": "1.56.1"
+  }
+}
