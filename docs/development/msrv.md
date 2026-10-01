@@ -60,14 +60,14 @@ cargo +1.77.2 build --manifest-path src-tauri/Cargo.toml
 Pins that the resolver cannot find by itself, because the crates declare no
 `rust-version`:
 
-| Crate                          | Pinned          | Why                                                                                                     |
-| ------------------------------ | --------------- | ------------------------------------------------------------------------------------------------------- |
-| `rusqlite`                     | `0.32` (0.32.1) | libsqlite3-sys 0.31+ uses `#[expect]` (1.81), 0.38 `cfg_select!`                                        |
-| `windows-version`              | `0.1` (0.1.7)   | 0.100 is edition 2024 and declares Rust 1.95                                                            |
-| `dlopen2` / `dlopen2_derive`   | 0.8.0 / 0.4.0   | 0.8.1+ / 0.4.2+ are edition 2024 (via `tao`, Linux)                                                     |
-| `tauri-plugin-global-shortcut` | `~2.3` (2.3.2)  | 2.4 declares Rust 1.90 (Phase 11)                                                                       |
+| Crate                          | Pinned          | Why                                                                                                        |
+| ------------------------------ | --------------- | ---------------------------------------------------------------------------------------------------------- |
+| `rusqlite`                     | `0.32` (0.32.1) | libsqlite3-sys 0.31+ uses `#[expect]` (1.81), 0.38 `cfg_select!`                                           |
+| `windows-version`              | `0.1` (0.1.7)   | 0.100 is edition 2024 and declares Rust 1.95                                                               |
+| `dlopen2` / `dlopen2_derive`   | 0.8.0 / 0.4.0   | 0.8.1+ / 0.4.2+ are edition 2024 (via `tao`, Linux)                                                        |
+| `tauri-plugin-global-shortcut` | `~2.3` (2.3.2)  | 2.4 declares Rust 1.90 (Phase 11)                                                                          |
 | `open`                         | 5.3.3           | 5.3.4+ uses `std::path::absolute` on Windows, which is unstable on Rust 1.77.2 (via `tauri-plugin-opener`) |
-| `getrandom` / `wasi`           | 0.3.3 / 0.14.2  | newer ones pull edition-2024 `wit-bindgen`; wasm-only, pinned so no locked manifest needs a newer Cargo |
+| `getrandom` / `wasi`           | 0.3.3 / 0.14.2  | newer ones pull edition-2024 `wit-bindgen`; wasm-only, pinned so no locked manifest needs a newer Cargo    |
 
 `zbus` (Linux, the Wayland portal shortcut client) is a direct dependency
 since the Phase 11 final corrective. It adds no crate: zbus 5.12.0 was already
