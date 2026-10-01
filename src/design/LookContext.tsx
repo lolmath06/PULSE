@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import type { StyleId } from '@/design/styles';
 import type { Look } from '@/design/look';
 import { scopeProps, tokensFor } from '@/design/look';
-import { LookContext } from '@/design/lookContext';
+import { LookContext } from '@/design/lookContextValue';
 import { useScopedLook } from '@/design/hooks';
 
 /** Provides `look` to everything below without drawing anything. */

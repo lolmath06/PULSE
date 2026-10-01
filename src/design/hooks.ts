@@ -3,7 +3,7 @@ import type { StyleId } from '@/design/styles';
 import type { Look } from '@/design/look';
 import { appLook, resolveLook } from '@/design/look';
 import { useAppearance } from '@/design/store';
-import { LookContext } from '@/design/lookContext';
+import { LookContext } from '@/design/lookContextValue';
 
 /** The look of the surface a component is drawn on. */
 export function useLook(): Look {

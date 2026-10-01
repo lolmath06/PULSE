@@ -4,14 +4,16 @@ PULSE's look is one system shared by every surface — the main window, the
 dashboard, overlay windows and their previews, the Mini window, the Studio.
 It lives in `src/design/` and `src/styles/`:
 
-| File                         | Role                                                                                 |
-| ---------------------------- | ------------------------------------------------------------------------------------ |
-| `src/design/styles.ts`       | the eight built-in styles, as data                                                   |
-| `src/design/appearance.ts`   | the `appearance` configuration section: style, customization, saved styles           |
-| `src/design/look.ts`         | style + customization → a resolved **look** → CSS tokens; render-time widget styling |
-| `src/design/LookContext.tsx` | `RootLook` (a whole window), `StyleScope` / `PageStyle` (one part), `useLook()`      |
-| `src/styles/theme.css`       | the token contract and its defaults (Clean), per-style touches tokens cannot express |
-| `src/styles/design.css`      | the component layer: controls, dialogs, widgets, overlays, the Studio                |
+| File                             | Role                                                                                 |
+| -------------------------------- | ------------------------------------------------------------------------------------ |
+| `src/design/styles.ts`           | the eight built-in styles, as data                                                   |
+| `src/design/appearance.ts`       | the `appearance` configuration section: style, customization, saved styles           |
+| `src/design/look.ts`             | style + customization → a resolved **look** → CSS tokens; render-time widget styling |
+| `src/design/LookContext.tsx`     | `RootLook` (a whole window), `StyleScope` / `PageStyle` (one part), `LookProvider`   |
+| `src/design/hooks.ts`            | `useLook()`, `useAppLook()`, `useScopedLook()`, `withTransition()`                   |
+| `src/design/lookContextValue.ts` | the React context object itself                                                      |
+| `src/styles/theme.css`           | the token contract and its defaults (Clean), per-style touches tokens cannot express |
+| `src/styles/design.css`          | the component layer: controls, dialogs, widgets, overlays, the Studio                |
 
 ## Tokens
 

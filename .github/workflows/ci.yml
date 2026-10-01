@@ -40,6 +40,10 @@ jobs:
       - name: Commit attribution
         run: sh scripts/check-git-attribution.sh HEAD
 
+      # Linux keeps paths that differ only by case; Windows cannot.
+      - name: Case-insensitive path collisions
+        run: sh scripts/check-case-collisions.sh
+
       - name: Install system dependencies
         run: |
           sudo apt-get update
