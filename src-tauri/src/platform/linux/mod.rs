@@ -15,12 +15,14 @@ mod os_release;
 pub mod processes;
 pub mod storage;
 
+#[cfg(any(target_os = "linux", test))]
 use std::path::Path;
 use std::sync::Arc;
 
 use super::{HostPlatform, PlatformKind};
 use crate::metrics::providers::MetricProvider;
 
+#[cfg(target_os = "linux")]
 const WEBKIT_DISABLE_DMABUF_RENDERER: &str = "WEBKIT_DISABLE_DMABUF_RENDERER";
 
 /// Disables WebKit's DMA-BUF renderer on nouveau, where it crashes the web
@@ -57,6 +59,7 @@ fn has_nouveau_drm_card(drm_class: &Path) -> bool {
     })
 }
 
+#[cfg(any(target_os = "linux", test))]
 fn is_drm_card_name(name: &str) -> bool {
     let Some(index) = name.strip_prefix("card") else {
         return false;
@@ -65,6 +68,7 @@ fn is_drm_card_name(name: &str) -> bool {
     !index.is_empty() && index.bytes().all(|byte| byte.is_ascii_digit())
 }
 
+#[cfg(any(target_os = "linux", test))]
 fn is_nouveau_driver_path(path: &Path) -> bool {
     path.file_name()
         .map(|name| name == "nouveau")
