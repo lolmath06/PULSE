@@ -59,7 +59,7 @@ jobs:
   linux:
     name: Linux package
     needs: [version]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 60
     steps:
       - name: Check out
@@ -95,6 +95,24 @@ jobs:
 
       - name: Tauri Linux build
         run: pnpm tauri build --bundles deb rpm appimage -- --locked
+
+      - name: Verify Linux glibc baseline
+        run: |
+          binary=src-tauri/target/release/pulse
+          maximum=GLIBC_2.35
+          highest=$(readelf --version-info "$binary" \
+            | grep -oE 'GLIBC_[0-9]+(\.[0-9]+)+' \
+            | sort -Vu \
+            | tail -n 1)
+          if [ -z "$highest" ]; then
+            echo "::error::No required GLIBC version found in $binary"
+            exit 1
+          fi
+          echo "Highest required GLIBC version: $highest"
+          if [ "$(printf '%s\n' "$maximum" "$highest" | sort -V | tail -n 1)" != "$maximum" ]; then
+            echo "::error::$binary requires $highest, above the $maximum release baseline"
+            exit 1
+          fi
 
       - name: Collect and verify artifacts
         run: |

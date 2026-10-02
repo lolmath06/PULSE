@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.0] — 2026-10-03
 
+### Fixed — Release candidate compatibility
+
+- **nouveau/WebKit:** on Linux, PULSE detects DRM `card<N>` devices using the
+  `nouveau` driver and sets `WEBKIT_DISABLE_DMABUF_RENDERER=1` before WebKit
+  starts, unless the user already defined it. This prevents the physically
+  reproduced `nouveau_pushbuf_data` `kref` crash without forcing software
+  rendering or changing other GPU drivers.
+- **Linux glibc baseline:** Release packages now build on Ubuntu 22.04, and the
+  workflow rejects a `pulse` binary requiring a GLIBC version newer than 2.35.
+
 ### Validated — Phase 13B/13C: Windows and project closure
 
 - **Physical Windows runtime validation completed:** live system data,
@@ -31,9 +41,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Historical Phase 12 statements describing Windows behaviour as unverified
   refer to its status when that implementation was introduced; the core native
   Windows behaviour was subsequently physically validated in Phase 13B.
-- The project remains `0.1.0-dev`: no release tag or public GitHub Release has
-  been created. Version promotion and signing remain deliberate future
-  publishing decisions.
+- The project version is now `1.0.0`, but no release tag or public GitHub
+  Release has been created yet. This entry therefore describes the release
+  candidate, not a published release.
 
 
 ### Added — Phase 13A: native Windows CI and Windows artifacts
@@ -52,13 +62,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   as `PULSE-windows-x64-<short-sha>`; the job fails on any missing binary.
 - **Release workflow prepared** (`.github/workflows/release.yml`): a `v*` tag
   matching the app version builds Windows and Linux bundles and creates a
-  **draft** pre-release; a manual run is a dry run. Not used yet — no v1.
+  **draft** GitHub Release; a manual run is a dry run. No v1 tag or GitHub
+  Release exists yet.
 - Bundle metadata: publisher, category, descriptions; MSI version set
-  explicitly (`0.1.0`, the app stays `0.1.0-dev`) with a pinned WiX upgrade
-  code; NSIS installs per user (no administrator prompt).
+  explicitly (`1.0.0`, matching the app) with a pinned WiX upgrade code; NSIS
+  installs per user (no administrator prompt).
 - Docs: [`docs/release/`](docs/release/ci.md) — the three validation levels,
-  downloading and verifying artifacts, the Phase 13B physical checklist (not
-  executed), the release process.
+  downloading and verifying artifacts, the completed Phase 13B physical
+  checklist, the release process.
 
 ### Added — Phase 12: modes, overlay packs, dashboard templates, Mini, welcome
 

@@ -56,6 +56,8 @@ impl history::HistoryEventSink for TauriHistoryEvents {
 
 /// Builds and runs the PULSE application.
 pub fn run() {
+    platform::prepare_runtime_environment();
+
     let app = tauri::Builder::default()
         .manage(state::AppState::new())
         .plugin(

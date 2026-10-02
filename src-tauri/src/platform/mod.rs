@@ -42,6 +42,12 @@ pub mod gpu;
 pub mod nvml;
 pub mod windows;
 
+/// Applies platform-specific process environment fixes before UI startup.
+pub fn prepare_runtime_environment() {
+    #[cfg(target_os = "linux")]
+    linux::prepare_runtime_environment();
+}
+
 /// Platform families PULSE ships a backend implementation for.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]

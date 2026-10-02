@@ -15,10 +15,61 @@ mod os_release;
 pub mod processes;
 pub mod storage;
 
+use std::path::Path;
 use std::sync::Arc;
 
 use super::{HostPlatform, PlatformKind};
 use crate::metrics::providers::MetricProvider;
+
+const WEBKIT_DISABLE_DMABUF_RENDERER: &str = "WEBKIT_DISABLE_DMABUF_RENDERER";
+
+/// Disables WebKit's DMA-BUF renderer on nouveau, where it crashes the web
+/// process. This runs before Tauri creates WebKit and preserves user choices.
+#[cfg(target_os = "linux")]
+pub fn prepare_runtime_environment() {
+    if std::env::var_os(WEBKIT_DISABLE_DMABUF_RENDERER).is_some() {
+        return;
+    }
+
+    if has_nouveau_drm_card(Path::new("/sys/class/drm")) {
+        std::env::set_var(WEBKIT_DISABLE_DMABUF_RENDERER, "1");
+        eprintln!(
+            "PULSE: nouveau DRM driver detected; set {WEBKIT_DISABLE_DMABUF_RENDERER}=1 to prevent WebKit DMA-BUF renderer crashes"
+        );
+    }
+}
+
+#[cfg(target_os = "linux")]
+fn has_nouveau_drm_card(drm_class: &Path) -> bool {
+    let Ok(entries) = std::fs::read_dir(drm_class) else {
+        return false;
+    };
+
+    entries.filter_map(Result::ok).any(|entry| {
+        entry
+            .file_name()
+            .to_str()
+            .map(is_drm_card_name)
+            .unwrap_or(false)
+            && std::fs::read_link(entry.path().join("device/driver"))
+                .map(|driver| is_nouveau_driver_path(&driver))
+                .unwrap_or(false)
+    })
+}
+
+fn is_drm_card_name(name: &str) -> bool {
+    let Some(index) = name.strip_prefix("card") else {
+        return false;
+    };
+
+    !index.is_empty() && index.bytes().all(|byte| byte.is_ascii_digit())
+}
+
+fn is_nouveau_driver_path(path: &Path) -> bool {
+    path.file_name()
+        .map(|name| name == "nouveau")
+        .unwrap_or(false)
+}
 
 /// Linux implementation of [`HostPlatform`].
 #[derive(Debug, Default)]
@@ -117,6 +168,37 @@ fn detect_display_server(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn recognises_drm_card_names() {
+        assert!(is_drm_card_name("card0"));
+        assert!(is_drm_card_name("card12"));
+    }
+
+    #[test]
+    fn rejects_non_card_drm_names() {
+        assert!(!is_drm_card_name("card"));
+        assert!(!is_drm_card_name("card0-DP-1"));
+        assert!(!is_drm_card_name("renderD128"));
+        assert!(!is_drm_card_name("controlD64"));
+    }
+
+    #[test]
+    fn recognises_nouveau_driver_paths() {
+        assert!(is_nouveau_driver_path(Path::new(
+            "../../../bus/pci/drivers/nouveau"
+        )));
+    }
+
+    #[test]
+    fn rejects_other_driver_paths() {
+        assert!(!is_nouveau_driver_path(Path::new(
+            "../../../bus/pci/drivers/nvidia"
+        )));
+        assert!(!is_nouveau_driver_path(Path::new(
+            "../../../bus/pci/drivers/amdgpu"
+        )));
+    }
 
     #[test]
     fn session_type_wins_over_environment_sockets() {

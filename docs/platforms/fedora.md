@@ -404,11 +404,6 @@ and `platform/linux/processes/control/runtime_tests.rs`). Details:
 - **GPU without NVML** (nouveau / no proprietary driver): `gpu.usage.core` is
   unavailable, writes no rows, and the GPU history panel says _Telemetry
   unavailable_ instead of drawing zeros.
-- **XWayland + nouveau note:** running the dev build with `GDK_BACKEND=x11` on
-  the nouveau driver crashed the WebKit web process (`nouveau_pushbuf_data:
-assertion kref failed`) — a driver issue; `WEBKIT_DISABLE_COMPOSITING_MODE=1`
-  avoids it. The native Wayland default is unaffected. History kept recording
-  through the web process crash, since it lives in Rust.
 
 ## Dashboard, widgets and overlays (Phase 11)
 
@@ -466,20 +461,31 @@ assertion kref failed`) — a driver issue; `WEBKIT_DISABLE_COMPOSITING_MODE=1`
   another focused application.
 - **Cost (debug build, measured over 60 s):** 1.33 % of one core with the main
   window alone, 3.95 % with two live overlays (four live widgets).
-- **nouveau + X11:** WebKit crashes under `GDK_BACKEND=x11` unless
-  `WEBKIT_DISABLE_COMPOSITING_MODE=1`; in that mode transparent overlay areas
-  may show previous frames' glyphs. Native Wayland is the default and is not
-  affected by the crash.
 
 ## Packaging
 
-Planned targets: `rpm` (primary for Fedora), plus `deb` and `appimage` for
-reach. Configured in `tauri.conf.json`; installer production is a later phase.
+Release targets are `rpm` (primary for Fedora), plus `deb` and AppImage for
+reach. They are configured in `tauri.conf.json` and built by the Release job.
+
+### nouveau/WebKit runtime workaround
+
+Physically reproduced on Fedora 39 with nouveau: the 1.0.0 AppImage built on
+Ubuntu started PULSE, then `WebKitWebProcess` crashed in `nouveau_pushbuf_data`
+with the `kref` assertion. The same AppImage worked with only
+`WEBKIT_DISABLE_DMABUF_RENDERER=1`; `LIBGL_ALWAYS_SOFTWARE`, llvmpipe and other
+driver overrides were unnecessary.
+
+Before WebKit starts, PULSE therefore checks exact DRM `card<N>` entries in
+`/sys/class/drm`. It sets `WEBKIT_DISABLE_DMABUF_RENDERER=1` only when a card's
+`device/driver` symlink ends in `nouveau`, and only when the user has not
+already defined that variable. Connector, render and control nodes are ignored;
+other drivers and existing user choices are unchanged.
 
 ## Testing note
 
-CI runs on `ubuntu-latest`. That catches Linux regressions — wrong `cfg` gating,
-missing Linux paths, build breakage — but **it is not a Fedora test**. Different
-kernel, different WebKitGTK, different GNOME, different sensor modules. Real
-Fedora validation is manual and is required before any system-facing feature is
-considered complete.
+Normal CI runs on `ubuntu-latest`; Release packaging is pinned to Ubuntu 22.04
+for its GLIBC 2.35 baseline. That catches Linux regressions — wrong `cfg`
+gating, missing Linux paths, build breakage — but **it is not a Fedora test**.
+Different kernel, different WebKitGTK, different GNOME, different sensor
+modules. Real Fedora validation is manual and is required before any
+system-facing feature is considered complete.
