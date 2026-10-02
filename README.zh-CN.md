@@ -24,7 +24,7 @@
 
 <p align="center">
   <a href="https://github.com/lolmath06/PULSE/actions/workflows/ci.yml"><img src="https://github.com/lolmath06/PULSE/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-  <img src="https://img.shields.io/badge/version-0.1.0--dev-38d6c4" alt="版本 0.1.0-dev">
+  <img src="https://img.shields.io/badge/version-1.0.0-38d6c4" alt="版本 0.1.0-dev">
   <img src="https://img.shields.io/badge/platforms-Windows%20%7C%20Fedora%20Linux-8f9cff" alt="平台：Windows 和 Fedora Linux">
   <img src="https://img.shields.io/badge/Tauri-2-24C8DB?logo=tauri&logoColor=white" alt="Tauri 2">
   <img src="https://img.shields.io/badge/Rust-1.77.2%2B-dea584?logo=rust&logoColor=white" alt="Rust 1.77.2+">

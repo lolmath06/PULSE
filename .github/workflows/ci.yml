@@ -200,7 +200,7 @@ jobs:
             "",
             "Commit: ``${{ github.sha }}``",
             "",
-            "**Physical Windows validation: NOT YET PERFORMED.**"
+            "**Physical Windows validation is a separate manual gate; see `docs/release/windows-physical-validation.md`.**"
           ) -join "`n" >> $env:GITHUB_STEP_SUMMARY
 
   # The declared MSRV on the reference platform.

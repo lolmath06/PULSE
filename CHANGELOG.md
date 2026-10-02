@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] — 2026-10-03
+
 ### Validated — Phase 13B/13C: Windows and project closure
 
 - **Physical Windows runtime validation completed:** live system data,
@@ -1438,5 +1440,6 @@ establishes the architecture everything else will be built on.
   packaging, which requires a strictly numeric version. This must be resolved
   before the first Windows installer is produced.
 
-[Unreleased]: https://github.com/lolmath06/PULSE/compare/v0.1.0-dev...HEAD
+[Unreleased]: https://github.com/lolmath06/PULSE/compare/v1.0.0...HEAD
 [0.1.0-dev]: https://github.com/lolmath06/PULSE/releases/tag/v0.1.0-dev
+[1.0.0]: https://github.com/lolmath06/PULSE/releases/tag/v1.0.0

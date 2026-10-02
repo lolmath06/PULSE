@@ -50,11 +50,10 @@ never uploads an empty or partial set.
 
 ### MSI version
 
-MSI requires a numeric `major.minor.patch` version. The app is `0.1.0-dev`,
-so `tauri.conf.json` sets the MSI's own version explicitly
-(`bundle.windows.wix.version = "0.1.0"`) and pins the WiX upgrade code (the
-one Tauri derives for PULSE), so a later MSI upgrades this one in place. The
-NSIS installer and the app keep `0.1.0-dev`.
+MSI requires a numeric `major.minor.patch` version. For the stable `1.0.0`
+release, the application version and `bundle.windows.wix.version` are both
+`1.0.0`. The WiX upgrade code remains pinned so later MSI releases upgrade
+PULSE in place.
 
 ## Downloading and verifying
 
@@ -71,11 +70,11 @@ NSIS installer and the app keep `0.1.0-dev`.
 
 3. Record the short SHA and the setup hash in the physical validation report.
 
-## Unsigned pre-release
+## Unsigned builds
 
 The binaries are **not code-signed**. Windows SmartScreen may show _Windows
 protected your PC_; _More info → Run anyway_ proceeds. This is expected for
-an unsigned pre-release; no certificate or publisher identity is claimed.
+an unsigned build; no certificate or publisher identity is claimed.
 
 ## Which file to test
 

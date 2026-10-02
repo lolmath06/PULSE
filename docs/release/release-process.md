@@ -1,53 +1,60 @@
 # Release process
 
-## Current state — Phase 13C
+## Release status
 
-PULSE's planned development and cross-platform validation scope is complete.
+Phase 13 development and cross-platform validation are complete.
 
-- Every push to `main` or a `phase*` branch, and every pull request, runs CI.
-- Native Linux quality, native Windows quality, the Rust 1.77.2 MSRV gate and
-  Windows packaging are green on the final Phase 13 commit.
-- Windows physical runtime validation is complete.
-- The final Windows artifact for
-  `a7014c4c8d60995b4388ed63bc098e80521e19c2` has been physically smoke-tested:
-  portable, NSIS installation/application launch/uninstall, MSI
-  install/uninstall and SHA-256 verification all passed.
-- The version intentionally remains `0.1.0-dev`.
-- There is no release tag.
-- There is no published GitHub Release.
-- `release.yml` is prepared but has not been used to publish a release.
+The first stable publication target is **PULSE 1.0.0**.
 
-The absence of a versioned public release is therefore a **publishing
-decision**, not an unfinished Windows-validation task.
+A branch push never publishes PULSE. A version becomes a GitHub Release only
+through an explicit `v<version>` tag, followed by human review of the generated
+draft.
 
-See
-[`windows-physical-validation.md`](windows-physical-validation.md) for the
-physical evidence and [`windows-ci.md`](windows-ci.md) for the automated
-Windows pipeline.
+Windows physical validation is recorded in
+[`windows-physical-validation.md`](windows-physical-validation.md).
+Automated Windows build and packaging coverage is documented in
+[`windows-ci.md`](windows-ci.md).
 
-## Publishing a version later
+## Release candidate
 
-When a public version is deliberately chosen:
+Before creating a version tag:
 
-1. Choose the release version.
-2. Set that version in `src-tauri/tauri.conf.json`,
-   `src-tauri/Cargo.toml` and `package.json`; they must agree.
-3. Set `bundle.windows.wix.version` to the corresponding numeric
-   `major.minor.patch` value.
-4. Review whether code signing is desired for that release.
-5. Create and push `v<version>` only after explicitly approving the release.
-6. `release.yml` verifies the tag/version pair, builds Windows and Linux
-   bundles, combines `SHA256SUMS.txt`, and creates a **draft pre-release**.
-7. Review the draft assets, checksums and notes, then publish it manually if
-   desired.
+1. The version in `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml` and
+   `package.json` must agree.
+2. `bundle.windows.wix.version` must contain the corresponding numeric
+   `major.minor.patch`.
+3. Normal CI must be green.
+4. Run the _Release_ workflow manually with `workflow_dispatch`.
+   This is a dry run: it builds Windows and Linux packages as workflow
+   artifacts and does **not** create a GitHub Release.
+5. Inspect the generated Windows and Linux artifacts and perform any desired
+   release-candidate package smoke tests.
 
-A manual `workflow_dispatch` run of _Release_ remains a dry run: it builds
-artifacts but creates no public release.
+## Publishing
+
+Once the release candidate is approved:
+
+1. Create the annotated version tag `v<version>` on the approved commit.
+2. Push that tag explicitly.
+3. `release.yml` verifies the tag against the application version.
+4. It builds:
+   - Windows NSIS installer;
+   - Windows MSI;
+   - Windows portable executable;
+   - Linux `.deb`;
+   - Linux `.rpm`;
+   - Linux AppImage.
+5. It combines the package checksums.
+6. It creates a **draft GitHub Release**.
+7. Review the draft, assets, checksums and release notes.
+8. Publish the draft manually.
+
+The tag-triggered workflow does not bypass human publication review.
 
 ## Signing
 
 Windows and Linux packages are currently unsigned.
 
-Windows SmartScreen may therefore warn about the binaries. Signing requires a
-real certificate and publisher identity and remains a deliberate future
-publishing decision rather than a Phase 13 validation requirement.
+Windows SmartScreen may therefore warn about the Windows binaries. Code signing
+requires a real certificate and publisher identity and is not silently
+improvised as part of the release process.

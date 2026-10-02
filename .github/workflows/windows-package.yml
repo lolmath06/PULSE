@@ -113,8 +113,8 @@ jobs:
             "Target: x86_64-pc-windows-msvc",
             "Bundles: nsis, msi, portable exe",
             "Built (UTC): $((Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ'))",
-            "Code signing: none (unsigned pre-release; SmartScreen may warn)",
-            "Physical Windows validation: NOT YET PERFORMED"
+            "Code signing: none (unsigned build; SmartScreen may warn)",
+            "Physical Windows validation: not performed by CI; see repository validation record"
           )
           $lines | Set-Content -Encoding utf8 windows-artifacts/build-info.txt
           Get-Content windows-artifacts/build-info.txt
@@ -165,5 +165,5 @@ jobs:
             "",
             "Commit: ``${{ github.sha }}``",
             "",
-            "**Physical Windows validation: NOT YET PERFORMED.** Unsigned pre-release build; SmartScreen may warn."
+            "**Physical Windows validation is a separate manual gate.** Unsigned build; SmartScreen may warn."
           ) -join "`n" >> $env:GITHUB_STEP_SUMMARY

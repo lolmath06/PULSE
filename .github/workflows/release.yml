@@ -1,13 +1,13 @@
-# Release workflow — PREPARED, NOT YET USED.
+# Release workflow — stable release pipeline.
 #
 # - A pushed tag `v<version>` (matching tauri.conf.json) builds the Windows and
-#   Linux bundles and creates a DRAFT, pre-release GitHub Release with them and
+#   Linux bundles and creates a DRAFT GitHub Release with them and
 #   their SHA-256 sums. A person reviews the draft and publishes it by hand.
 # - A manual run (workflow_dispatch) is a dry run: it builds and uploads the
 #   bundles as workflow artifacts and creates no release.
 #
-# Pushing a branch never runs this workflow. No v1.0.0 exists yet: Windows has
-# not been validated on physical hardware (docs/release/release-process.md).
+# Pushing a branch never runs this workflow. Physical Windows validation is
+# tracked separately in docs/release/windows-physical-validation.md.
 
 name: Release
 
@@ -117,7 +117,7 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-  # Only for a pushed tag, and only ever a DRAFT pre-release.
+  # Only for a pushed tag, and always created as a DRAFT for human review.
   draft-release:
     name: Draft GitHub Release
     if: github.ref_type == 'tag'
@@ -144,7 +144,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           cat > notes.md <<'EOF'
-          PULSE ${{ needs.version.outputs.version }} — draft pre-release built by GitHub Actions.
+          PULSE ${{ needs.version.outputs.version }} — draft release built by GitHub Actions.
 
           - Windows: NSIS installer, MSI and portable executable (unsigned; SmartScreen may warn).
           - Linux: .deb, .rpm and AppImage.
@@ -154,6 +154,6 @@ jobs:
           EOF
           gh release create "${{ github.ref_name }}" release/* \
             --repo "${{ github.repository }}" \
-            --draft --prerelease \
+            --draft \
             --title "PULSE ${{ needs.version.outputs.version }}" \
             --notes-file notes.md
