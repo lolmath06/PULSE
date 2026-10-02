@@ -1,5 +1,5 @@
 import { readFileSync, readdirSync, statSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { join, relative, sep } from 'node:path';
 import ts from 'typescript';
 import { describe, expect, it } from 'vitest';
 
@@ -22,6 +22,7 @@ import { describe, expect, it } from 'vitest';
  */
 
 const ROOT = join(__dirname, '..');
+const normalizedRelative = (path: string) => relative(ROOT, path).split(sep).join('/');
 
 /** Directories and files that hold no interface copy, or copy by design. */
 const SKIPPED = [/\.test\.tsx?$/, /^test\//, /^i18n\//, /^types\//, /fixtures\.ts$/, /\.d\.ts$/];
@@ -146,7 +147,7 @@ const VISIBLE_PROPERTIES = new Set([
 ]);
 
 function audit(path: string): Finding[] {
-  const file = relative(ROOT, path);
+  const file = normalizedRelative(path);
   const source = ts.createSourceFile(
     path,
     readFileSync(path, 'utf8'),
@@ -215,7 +216,7 @@ function audit(path: string): Finding[] {
 describe('hard-coded interface strings', () => {
   it('leaves no user-visible English in components (beyond the reviewed allowlist)', () => {
     const findings = sourceFiles(ROOT)
-      .filter((path) => !SKIPPED.some((pattern) => pattern.test(relative(ROOT, path))))
+      .filter((path) => !SKIPPED.some((pattern) => pattern.test(normalizedRelative(path))))
       .flatMap(audit);
     expect(findings.map((f) => `${f.file}:${f.line} ${JSON.stringify(f.text)}`)).toEqual([]);
   });
