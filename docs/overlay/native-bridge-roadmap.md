@@ -2,9 +2,10 @@
 
 **Phase 12 update:** the GNOME bridge is in production
 ([`gnome-bridge.md`](gnome-bridge.md), physically verified) and the Windows
-native backend is implemented ([`windows-native.md`](windows-native.md),
-compiled, **not physically verified**). The rest of this page is the
-original plan, kept for the record; the St-actor fallback was never needed.
+native backend is implemented ([`windows-native.md`](windows-native.md))
+and its core behaviour was physically verified in Phase 13B. The rest of this
+page is the original plan, kept for the record; the St-actor fallback was never
+needed.
 
 ## Linux — GNOME Wayland
 
@@ -22,9 +23,12 @@ original plan, kept for the record; the St-actor fallback was never needed.
 Other Wayland compositors (KDE: KWin scripts / `GlobalShortcuts` portal;
 wlroots: `wlr-layer-shell`) are not started.
 
-## Windows — NOT IMPLEMENTED IN 11.5A · NOT PHYSICALLY TESTED
+## Windows — original Phase 11.5A plan; implemented and validated later
 
-Nothing here has been written or run on Windows.
+At Phase 11.5A, nothing in this section had been written or run on Windows.
+The native backend was subsequently implemented in Phase 12 and its core
+behaviour was physically validated in Phase 13B. The design bullets below are
+preserved as the historical plan.
 
 **Desktop / borderless games — native HWND overlay:**
 
@@ -44,4 +48,6 @@ Nothing here has been written or run on Windows.
 - no DLL injection, no DirectX / Vulkan / OpenGL hooking, nothing that
   anti-cheat software could treat as tampering.
 
-No Windows runtime claim is made anywhere.
+This historical plan made no Windows runtime claim at Phase 11.5A.
+Current Windows validation evidence is recorded in
+[`../release/windows-physical-validation.md`](../release/windows-physical-validation.md).

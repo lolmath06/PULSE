@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Validated — Phase 13B/13C: Windows and project closure
+
+- **Physical Windows runtime validation completed:** live system data,
+  internationalisation, Mini/overlay synchronisation, native topmost and
+  click-through overlay behaviour, Ctrl+Shift+F12 Edit/Locked switching,
+  process inspection/control on a disposable process, history/config
+  persistence, Keep running and explicit Quit were exercised on real Windows
+  hardware.
+- **Final Windows package validated** for canonical commit
+  `a7014c4c8d60995b4388ed63bc098e80521e19c2`, CI run `36984860809`, artifact
+  `PULSE-windows-x64-a7014c4`: all three binary SHA-256 values matched,
+  portable launch passed, NSIS install/application launch/uninstall passed and
+  MSI install/uninstall passed.
+- **Native CI closure:** Linux quality, Windows native quality, Rust 1.77.2
+  MSRV and Windows packaging all pass on the canonical Phase 13 state.
+- **Licensing cleanup:** PULSE now uses its proprietary source-available
+  license; active project history and metadata no longer present PULSE itself
+  under its former project license. Third-party components keep their own
+  licenses.
+- Historical Phase 12 statements describing Windows behaviour as unverified
+  refer to its status when that implementation was introduced; the core native
+  Windows behaviour was subsequently physically validated in Phase 13B.
+- The project remains `0.1.0-dev`: no release tag or public GitHub Release has
+  been created. Version promotion and signing remain deliberate future
+  publishing decisions.
+
+
 ### Added — Phase 13A: native Windows CI and Windows artifacts
 
 - **CI rebuilt for native Windows evidence** (`.github/workflows/ci.yml`):
@@ -104,7 +131,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Docs: [`docs/design-system/overview.md`](docs/design-system/overview.md),
   [`customization.md`](docs/design-system/customization.md).
 
-### Added — Phase 12: Windows native overlay backend (not physically verified)
+### Added — Phase 12: Windows native overlay backend (unverified at implementation; validated in Phase 13B)
 
 - **Windows overlays are native tool windows**: `WS_EX_TOOLWINDOW` (no
   taskbar button, not in Alt+Tab), `WS_EX_TOPMOST` with
@@ -117,7 +144,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   back and a mismatch logged. tao's own flags are driven the same way.
 - Style arithmetic unit-tested on every host (Lock → Edit → Lock exact
   across tao rewrites); the Win32 FFI type-checked for
-  `x86_64-pc-windows-msvc`. **Not run on Windows**
+  `x86_64-pc-windows-msvc`. **Not run on Windows at Phase 12 implementation time; later physically validated in Phase 13B**
   ([`docs/overlay/windows-native.md`](docs/overlay/windows-native.md)).
 - `windows-sys` gains the `Win32_UI_WindowsAndMessaging` feature (no new
   crate). Docs: [`docs/overlay/backends.md`](docs/overlay/backends.md).
@@ -311,8 +338,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - New `docs/dashboard/{architecture,widgets,layout}.md` and
   `docs/overlay/{architecture,platform-capabilities,user-guide}.md`; updated
-  the architecture overview, Fedora and Windows platform docs (Windows
-  protocol · NOT EXECUTED), the MSRV notes and README.
+  the architecture overview, Fedora and Windows platform docs (the Windows
+  protocol was not executed during Phase 11; core paths were later physically
+  exercised in Phase 13B), the MSRV notes and README.
 
 ### Added — Phase 10: Persistent history & modular visualization
 
@@ -604,7 +632,8 @@ for parallelism can be made from a measurement.
 
 Compiled for `x86_64-pc-windows-msvc` and pure-tested on Fedora — the
 cross-check harness now includes `processes/` and `services/` by path as well —
-but **not executed on a physical Windows machine.**
+but **not executed on a physical Windows machine during Phase 8; the
+process path was later physically exercised in Phase 13B.**
 
 ### Added — Phase 7: Network interfaces, traffic & Wi-Fi quality
 

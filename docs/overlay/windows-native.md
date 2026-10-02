@@ -1,12 +1,10 @@
 # Windows native overlay backend
 
-> **Status: implemented and compiled — NOT physically verified.** Nothing on
-> this page has been run on a Windows machine. The Win32 code is type-checked
-> for `x86_64-pc-windows-msvc` from Fedora (`pnpm rust:windows`,
-> `pnpm rust:windows:lint`) and its style logic is unit-tested on every host;
-> the Tauri glue around it is compiled only by a real Windows build (CI's
-> `windows-latest` job or a Windows machine). The manual checks are at the
-> end, marked **NOT EXECUTED**.
+> **Status: implemented, CI-verified and physically verified for the core
+> Phase 13B Windows behaviours.** Physical testing confirmed a visible topmost
+> locked overlay, click-through input, Ctrl+Shift+F12 Edit/Locked switching and
+> the expected Win32 managed-style logs. DPI matrices, multi-monitor placement
+> and borderless-game behaviour were not separately exercised.
 
 ## What it does
 
@@ -89,17 +87,25 @@ creation and re-map; never on focus changes).
 - Future, not started: an Xbox Game Bar widget as an optional gaming backend
   ([`native-bridge-roadmap.md`](native-bridge-roadmap.md)).
 
-## Manual validation on Windows — NOT EXECUTED
+## Phase 13B physical Windows result
 
-1. `pnpm app:dev` on Windows 10/11. Create _Tiny Stats_ and _Top Bar_.
-2. **Edit:** drag and resize work; _Open PULSE_ works; no taskbar button for
-   the overlay; it is absent from Alt+Tab.
-3. **Lock:** clicks on the overlay land in the window below (e.g. Firefox),
-   which keeps or takes focus; the overlay never takes focus; **it stays
-   visible** (see the `WS_EX_LAYERED` note).
-4. Focus another window, then a borderless-fullscreen game: the overlay stays
-   above.
-5. Ctrl+Shift+F12 toggles Edit/Locked with another application focused.
-6. With `PULSE_OVERLAY_INPUT_DEBUG=1`, the log shows
+Physically verified:
+
+1. a Tiny Stats native overlay rendered correctly;
+2. Locked remained visible and topmost over an ordinary focused application;
+3. Locked was click-through;
+4. Ctrl+Shift+F12 switched Edit/Locked with another application focused;
+5. debug logs showed
    `TOPMOST | LAYERED | TRANSPARENT | NOACTIVATE | TOOLWINDOW` when locked and
    `TOPMOST | TOOLWINDOW` in Edit.
+
+Not separately exercised during the recorded validation:
+
+- the complete taskbar / Alt+Tab matrix;
+- a borderless-fullscreen game;
+- the DPI scaling matrix;
+- multi-monitor persistence;
+- the former exhaustive manual protocol as a whole.
+
+The authoritative closure record is
+[`../release/windows-physical-validation.md`](../release/windows-physical-validation.md).

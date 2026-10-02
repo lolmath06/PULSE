@@ -82,3 +82,27 @@ an unsigned pre-release; no certificate or publisher identity is claimed.
 For physical validation, use the **`-setup.exe`** of the commit whose CI is
 fully green (all four checks), and verify its SHA-256 first. The `.msi` and
 the portable `.exe` are secondary checks.
+
+## Final Phase 13 artifact
+
+The final Phase 13 CI run used for closure was GitHub Actions run `#10`
+(run id `36984860809`) on canonical commit
+`a7014c4c8d60995b4388ed63bc098e80521e19c2`.
+
+All four jobs passed:
+
+- Linux quality;
+- Windows native quality;
+- MSRV 1.77.2 (Linux);
+- Windows package.
+
+The resulting artifact was `PULSE-windows-x64-a7014c4`.
+
+Its portable executable, NSIS installer and MSI were subsequently exercised on
+a physical Windows machine. All three SHA-256 values matched
+`SHA256SUMS.txt`; portable launch, NSIS install/application launch/uninstall,
+and MSI install/uninstall passed.
+
+See
+[`windows-physical-validation.md`](windows-physical-validation.md) for the
+physical validation record.

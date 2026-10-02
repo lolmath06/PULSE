@@ -1,80 +1,118 @@
-# Windows physical validation (Phase 13B) — checklist
+# Windows physical validation — Phase 13B
 
-> **Every item: NOT EXECUTED.** This is the checklist for a real Windows
-> machine, used only after CI is fully green. CI results never tick a box
-> here, and nothing run on Fedora counts as a Windows test.
+## Status
 
-## Before starting
+**PASS — 2026-10-02**
 
-- Artifact: `PULSE-windows-x64-<sha>` from a green CI run — record the short
-  SHA: `______`
-- `Get-FileHash -Algorithm SHA256` of the `-setup.exe` matches
-  `SHA256SUMS.txt` — record it: `______`
-- Windows edition/build: `______` · display scaling: `____ %` · monitors: `__`
-- GPU and driver: `______`
+PULSE has been physically exercised on Windows and the final Windows package
+for the canonical Phase 13 commit has been smoke-tested on real hardware.
 
-## Installation
+This record distinguishes physical evidence from CI evidence and does not claim
+that every optional item from the original exhaustive checklist was exercised.
 
-- [ ] NOT EXECUTED — the setup `.exe` launches (SmartScreen warning expected: unsigned)
-- [ ] NOT EXECUTED — installation succeeds without an administrator prompt
-- [ ] NOT EXECUTED — PULSE starts from the Start menu
-- [ ] NOT EXECUTED — PULSE appears in _Installed apps_ with an uninstaller
-- [ ] NOT EXECUTED — (secondary) the `.msi` installs and uninstalls
-- [ ] NOT EXECUTED — (secondary) the portable `.exe` starts without installing
+## Canonical build
 
-## Main app
+- Canonical commit:
+  `a7014c4c8d60995b4388ed63bc098e80521e19c2`
+- Branch: `phase13-ci-release`
+- Version: `0.1.0-dev`
+- GitHub Actions CI run: `#10`
+- Workflow run id: `36984860809`
+- Artifact: `PULSE-windows-x64-a7014c4`
 
-- [ ] NOT EXECUTED — Overview and dashboards render (WebView2)
-- [ ] NOT EXECUTED — styles render (Clean, Glass, Neon at least)
-- [ ] NOT EXECUTED — modes switch (Gaming, Development, Personal, Mini)
-- [ ] NOT EXECUTED — settings persist across a restart (`%APPDATA%\dev.pulse.app\ui-config.json`)
+CI completed successfully for:
 
-## Metrics
+- Linux quality;
+- Windows native quality;
+- Rust 1.77.2 MSRV on Linux;
+- Windows package.
 
-- [ ] NOT EXECUTED — CPU total and per core
-- [ ] NOT EXECUTED — memory
-- [ ] NOT EXECUTED — advanced CPU (frequency, topology)
-- [ ] NOT EXECUTED — GPU (DXGI adapters; NVML if an NVIDIA driver is installed)
-- [ ] NOT EXECUTED — thermals (what Windows exposes; absent sensors explained, never 0)
-- [ ] NOT EXECUTED — storage (disks, volumes, I/O)
-- [ ] NOT EXECUTED — network (interfaces, traffic, Wi-Fi)
-- [ ] NOT EXECUTED — processes list
-- [ ] NOT EXECUTED — process inspector (path, signature, owner)
+## Final package validation
 
-## Overlays
+The artifact downloaded from CI contained:
 
-- [ ] NOT EXECUTED — create an overlay; move and resize it in Edit
-- [ ] NOT EXECUTED — Edit: interactive (drag, resize, _Lock_, _Open PULSE_)
-- [ ] NOT EXECUTED — Locked: no bar, no grip
-- [ ] NOT EXECUTED — always on top of an ordinary focused application
-- [ ] NOT EXECUTED — never steals focus (typing in the app below continues)
-- [ ] NOT EXECUTED — click-through: 20 consecutive clicks through a locked overlay all reach the app below
-- [ ] NOT EXECUTED — Ctrl+Shift+F12 toggles Edit/Locked with another app focused
-- [ ] NOT EXECUTED — several overlays at once
-- [ ] NOT EXECUTED — Top Bar and Bottom Bar span the screen at their edge
-- [ ] NOT EXECUTED — Left/Right Rail span the height at their edge
-- [ ] NOT EXECUTED — Tiny Stats legible
+- `PULSE-windows-x64-a7014c4-setup.exe`;
+- `PULSE-windows-x64-a7014c4.msi`;
+- `PULSE-windows-x64-a7014c4-portable.exe`;
+- `SHA256SUMS.txt`;
+- `build-info.txt`.
 
-## Windows-specific
+`build-info.txt` identified the exact canonical commit above.
 
-- [ ] NOT EXECUTED — no taskbar entry for an overlay
-- [ ] NOT EXECUTED — no Alt+Tab entry for an overlay
-- [ ] NOT EXECUTED — topmost over ordinary apps after they are focused
-- [ ] NOT EXECUTED — topmost over a borderless/windowed game, if available
-- [ ] NOT EXECUTED — locked overlay stays **visible** (layered window)
-- [ ] NOT EXECUTED — DPI: 100 / 125 / 150 % keep size and position
-- [ ] NOT EXECUTED — moving an overlay to another monitor, if available
-- [ ] NOT EXECUTED — `PULSE_OVERLAY_INPUT_DEBUG=1`: locked shows `TOPMOST | LAYERED | TRANSPARENT | NOACTIVATE | TOOLWINDOW`
+On a physical Windows machine:
 
-## Lifecycle
+- the SHA-256 of all three binaries matched `SHA256SUMS.txt`;
+- the portable executable launched and rendered the PULSE interface normally;
+- the NSIS installer completed successfully;
+- PULSE appeared in Windows Installed Apps;
+- the installed application launched successfully;
+- the NSIS uninstaller completed successfully;
+- after uninstall, PULSE was no longer registered under the current user's
+  Installed Apps registry entries;
+- the MSI installed successfully;
+- the MSI uninstalled successfully.
 
-- [ ] NOT EXECUTED — _Keep running_: closing the main window keeps overlays
-- [ ] NOT EXECUTED — _Open PULSE_ from an overlay brings back the same window
-- [ ] NOT EXECUTED — Quit from the tray stops everything
-- [ ] NOT EXECUTED — restart restores dashboards, overlays, style
-- [ ] NOT EXECUTED — no `pulse.exe` or WebView2 child left after Quit
+SmartScreen and UAC behaviour were not recorded separately during this final
+package smoke test, so this document makes no additional physical claim about
+those prompts.
+
+## Physical runtime validation
+
+A preceding Phase 13B Windows session exercised the actual application runtime.
+
+Verified on physical Windows hardware:
+
+- the Overview displayed plausible live hardware values;
+- application language switching worked, including French and Japanese;
+- language changes propagated to Mini and overlay windows without visible raw
+  translation keys;
+- Tiny Stats rendered as a native overlay;
+- a locked overlay stayed above an ordinary application;
+- locked overlay input was click-through;
+- Ctrl+Shift+F12 switched between Edit and Locked while another application
+  was focused;
+- Windows native debug output showed the expected managed styles:
+  `TOPMOST | LAYERED | TRANSPARENT | NOACTIVATE | TOOLWINDOW` while locked and
+  `TOPMOST | TOOLWINDOW` while interactive;
+- the process inspector was exercised with a disposable Notepad process and the
+  process-control path was used to terminate that disposable process;
+- configuration/history persistence and relaunch behaviour were exercised;
+- the `Keep running` close behaviour kept PULSE alive while overlays were
+  visible;
+- explicit Quit stopped PULSE.
+
+## Not separately exercised
+
+The physical validation above is deliberately narrower than the original
+exhaustive checklist. The following were **not separately proven** during the
+recorded Phase 13B sessions:
+
+- 20 consecutive click-through clicks on Windows;
+- every visual style and every dashboard/mode combination;
+- every metric or hardware sensor on every possible Windows hardware class;
+- 100 / 125 / 150 / 200 percent DPI matrix;
+- multi-monitor persistence and monitor removal;
+- borderless/windowed-game overlay behaviour;
+- exclusive fullscreen, which is outside PULSE's claimed desktop-overlay
+  support;
+- the full process-inspector matrix for signatures, protected processes,
+  affinity, priority, suspend/resume and forced PID reuse;
+- every item from the earlier historical manual-test protocols.
+
+Those remain useful compatibility tests for future hardware or release
+qualification, but they are not prerequisites for closing the current
+development phase.
 
 ## Result
 
-PASS only if every mandatory item passes on the recorded artifact. Note any
-failure with the item, what happened, and a screenshot.
+Phase 13B Windows validation is complete for the project's current closure
+scope:
+
+- real Windows runtime: **PASS**;
+- final portable executable: **PASS**;
+- final NSIS install / launch / uninstall: **PASS**;
+- final MSI install / uninstall: **PASS**;
+- artifact SHA-256 verification: **PASS**;
+- native Windows CI and packaging: **PASS**.
+
+No further Windows testing is required for Phase 13C documentation closure.

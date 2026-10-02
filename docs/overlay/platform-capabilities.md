@@ -14,19 +14,21 @@ session is **XWayland**.
 
 ## Expectations and measurements
 
-| Capability              | Windows              | X11 / XWayland                                         | Wayland (native)                                                                        |
-| ----------------------- | -------------------- | ------------------------------------------------------ | --------------------------------------------------------------------------------------- |
-| Always on top           | supported (expected) | supported — **measured on XWayland**                   | no protocol: goes behind a focused app — **supported with the GNOME bridge (verified)** |
-| Click-through           | supported (expected) | supported — **measured on XWayland**                   | **supported on GNOME (verified, 20/20 clicks)**; _limited_ on other compositors         |
-| Absolute positioning    | supported (expected) | supported                                              | **unsupported** — clients cannot place windows                                          |
-| Transparent window      | supported (expected) | X11: limited (needs a compositor); XWayland: supported | supported                                                                               |
-| Global shortcut         | supported (expected) | X11: supported; XWayland: **limited**                  | GNOME bridge (verified), else the `GlobalShortcuts` portal, else **unsupported**        |
-| Multi-monitor placement | supported (expected) | supported                                              | **unsupported** — the compositor chooses                                                |
-| Tray                    | supported (expected) | limited — GNOME needs the AppIndicator extension       | limited — same                                                                          |
+| Capability              | Windows                              | X11 / XWayland                                         | Wayland (native)                                                                        |
+| ----------------------- | ------------------------------------ | ------------------------------------------------------ | --------------------------------------------------------------------------------------- |
+| Always on top           | **supported (verified)**             | supported — **measured on XWayland**                   | no protocol: goes behind a focused app — **supported with the GNOME bridge (verified)** |
+| Click-through           | **supported (verified)**             | supported — **measured on XWayland**                   | **supported on GNOME (verified, 20/20 clicks)**; _limited_ on other compositors         |
+| Absolute positioning    | supported (not separately exercised) | supported                                              | **unsupported** — clients cannot place windows                                          |
+| Transparent window      | **supported (verified)**             | X11: limited (needs a compositor); XWayland: supported | supported                                                                               |
+| Global shortcut         | **supported (verified)**             | X11: supported; XWayland: **limited**                  | GNOME bridge (verified), else the `GlobalShortcuts` portal, else **unsupported**        |
+| Multi-monitor placement | supported (not separately exercised) | supported                                              | **unsupported** — the compositor chooses                                                |
+| Tray                    | **supported (verified)**             | limited — GNOME needs the AppIndicator extension       | limited — same                                                                          |
 
-"Expected" means: what PULSE's native Win32 backend does
-([`windows-native.md`](windows-native.md)); **implemented and compiled, not
-yet verified on a Windows machine**.
+Windows Phase 13B physical validation confirmed the native Win32 backend's
+core topmost, click-through, shortcut, transparency/visibility and tray
+lifecycle behaviour. Absolute-positioning edge cases and multi-monitor
+placement were not separately exercised; they therefore remain implementation
+capabilities rather than recorded physical-validation claims.
 
 Phase 12 update: on GNOME Wayland the [GNOME bridge](gnome-bridge.md) makes
 always-on-top and the shortcut **supported**, and click-through is

@@ -1,15 +1,15 @@
 # PULSE on Windows
 
-> Status: Phase 8. CPU (aggregate, per logical processor, frequency, topology),
-> physical memory, GPU, thermals, storage, networking and processes are
-> implemented natively and **compile for `x86_64-pc-windows-msvc`**. Everything
-> below the "Planned data sources" heading is still design work.
+> **Current status — Phase 13C:** Windows is a physically validated,
+> first-class PULSE platform. Native Windows CI, MSRV checks and packaging pass
+> on the canonical Phase 13 commit. Physical Windows testing exercised live
+> metrics, overlays, language switching, process inspection/control,
+> persistence, lifecycle behaviour and the final portable/NSIS/MSI package.
 >
-> **None of it has been executed on a physical Windows machine yet.** The pure
-> logic — FILETIME arithmetic, the CPU convention, path classification, the
-> memory convention — is unit-tested on Fedora, and `tools/windows-check`
-> type-checks the real Windows code for the real target. Neither is a
-> substitute for running it.
+> The historical sections below retain the implementation context of the phase
+> in which each feature was introduced. Items such as the full DPI matrix,
+> multi-monitor persistence, borderless-game overlays and the exhaustive
+> process-inspector matrix were not separately exercised during Phase 13B.
 
 Windows is a **first-class PULSE platform**, on equal footing with Fedora Linux.
 
@@ -453,12 +453,12 @@ there is a test asserting the two halves genuinely differ.
 See [`../metrics/processes.md`](../metrics/processes.md) for the CPU
 normalisation, the PID-reuse identity and the application grouping.
 
-### Process inspector and controls — implemented in Phase 9, NOT physically executed
+### Process inspector and controls — implemented in Phase 9, physically exercised in Phase 13B
 
 Compiled for `x86_64-pc-windows-msvc` (`pnpm rust:windows`,
 `pnpm rust:windows:lint`) and its pure logic (trust mapping, version-resource
 parsing, machine types, FILETIME → date, priority classes, affinity masks, SID
-categories) is unit-tested on Fedora. **None of it has run on Windows yet.**
+categories) is unit-tested on Fedora. **Phase 13B later exercised the inspector and process-control path on physical Windows using a disposable Notepad process.** The complete protocol below was not exhaustively rerun.
 
 | Need                  | API                                                                                                                                                           |
 | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -475,7 +475,7 @@ categories) is unit-tested on Fedora. **None of it has run on Windows yet.**
 No PowerShell, no `signtool`, no WMI, no `NtSuspendProcess`, no
 `PROCESS_ALL_ACCESS`, no elevation. See `docs/processes/`.
 
-#### Manual test protocol — Windows · NOT EXECUTED
+#### Historical manual test protocol — partially exercised in Phase 13B
 
 To run on a real Windows 10/11 machine, comparing against Task Manager:
 
@@ -613,7 +613,7 @@ that row alone. PULSE never requests elevation to widen this.
 
 - **Database:** `%LOCALAPPDATA%\dev.pulse.app\history.sqlite3` (Tauri's
   `app_local_data_dir`; local, not roaming).
-- **Compiled, not executed.** `tools/windows-check` includes the real
+- **Compiled and later physically exercised.** `tools/windows-check` includes the real
   `history/` module — SQLite store, migrations, queries, retention, scheduler,
   database-path function — and `services/history.rs`, checked and linted for
   `x86_64-pc-windows-msvc`. There is no Windows stub.
@@ -622,8 +622,8 @@ that row alone. PULSE never requests elevation to widen this.
   | What                                             | Status                                                    |
   | ------------------------------------------------ | --------------------------------------------------------- |
   | Windows Rust / history integration               | **Cross-checked** (`check` + `clippy`, stable and 1.77.2) |
-  | Bundled SQLite C amalgamation compiled with MSVC | **Pending** — a real Windows build or Windows CI          |
-  | Windows physical runtime                         | **Not executed**                                          |
+  | Bundled SQLite C amalgamation compiled with MSVC | **Verified by native Windows CI**                         |
+  | Windows physical runtime                         | **Verified in Phase 13B**                                 |
 
   The application enables `rusqlite`'s `bundled` feature (rusqlite 0.32.1,
   SQLite 3.46.0), which compiles SQLite's C code with MSVC (`cl.exe`,
@@ -632,13 +632,12 @@ that row alone. PULSE never requests elevation to widen this.
   (named as a known limitation in `tools/windows-check/Cargo.toml`). Every line
   of PULSE's Rust that talks to SQLite, plus `rusqlite` and `libsqlite3-sys`, is
   type checked for Windows; the C compilation is not. Production Windows still
-  uses the bundled SQLite. CI's `msrv` and `backend` jobs on `windows-latest`
-  build the real configuration — they have not run yet (the branch is not
-  pushed).
+  uses the bundled SQLite. Native Windows CI now builds and tests the real production configuration,
+  including bundled SQLite, and the final Phase 13 CI is green.
 
-### Manual test protocol — Windows · NOT EXECUTED
+### Historical manual test protocol — partially exercised in Phase 13B
 
-Nothing below has been run on Windows.
+Phase 13B physically exercised history recording/persistence and relaunch behaviour. The broader visual and workload matrix below remains a historical compatibility protocol and was not run exhaustively.
 
 1. `pnpm app:dev`. The History recorder card shows _Recording · Every 5 s_ and a
    path under `%LOCALAPPDATA%\dev.pulse.app\`. The file exists there.
@@ -669,13 +668,13 @@ Nothing below has been run on Windows.
   and with Rust 1.77.2): the config store, the live feed, and the overlay core
   — capabilities, monitor/DPI geometry, overlay specs, settings and shortcut
   conflict logic.
-- **Not cross-checked:** `src-tauri/src/desktop.rs` (the Tauri calls:
-  `set_ignore_cursor_events`, always-on-top, tray, global-shortcut plugin),
-  because the full Tauri crate cannot be built for Windows from Fedora. It
-  contains no Windows-specific code; CI's Windows jobs build it.
-- **Expected** (not verified): always-on-top (WS_EX_TOPMOST), click-through
-  (WS_EX_TRANSPARENT), absolute per-monitor placement with per-monitor DPI,
-  RegisterHotKey, notification-area tray.
+- **Native Windows CI now covers the full Tauri desktop layer**, including
+  `set_ignore_cursor_events`, always-on-top, tray and the global-shortcut
+  plugin. Phase 13B also exercised the corresponding overlay/lifecycle
+  behaviour on physical Windows.
+- **Physically verified in Phase 13B:** always-on-top, click-through,
+  `RegisterHotKey` shortcut behaviour and tray/lifecycle operation.
+  Per-monitor/DPI edge cases were not separately exercised.
 
 ### Native overlay backend (Phase 12)
 
@@ -684,13 +683,13 @@ subclass that enforces `WS_EX_TOOLWINDOW`, `WS_EX_NOACTIVATE`,
 `WS_EX_LAYERED | WS_EX_TRANSPARENT` (locked) and `WS_EX_TOPMOST`, re-asserts
 `HWND_TOPMOST` without activating, and reads the style back. The Win32 part
 (`platform/windows/overlay_window.rs`) is type-checked by the harness;
-**implemented and compiled, not physically verified** — see
+**implemented, CI-verified and physically verified for the core Phase 13B behaviours** — see
 [`../overlay/windows-native.md`](../overlay/windows-native.md) and its manual
 checks.
 
-### Manual test protocol — Phase 11 · Windows · NOT EXECUTED
+### Historical manual test protocol — Phase 11 · partially exercised in Phase 13B
 
-Nothing below has been run on Windows.
+Phase 13B physically exercised the core overlay, shortcut, persistence and lifecycle paths. The full matrix below was not executed item-for-item.
 
 1. **Dashboard persistence:** Dashboard → Edit layout → add CPU Total,
    Memory, CPU temperature, Network; move and resize; close PULSE; check Task
@@ -739,14 +738,17 @@ Binaries are unsigned for now (SmartScreen may warn).
 
 ## Testing note
 
-As of Phase 8 the Windows process collector is **compiled, not executed**.
-`pnpm rust:windows` type-checks it for `x86_64-pc-windows-msvc` from Fedora —
-the harness includes `metrics/`, `platform/`, `processes/` and `services/` by
-path, so it is the real source and not a copy — and its pure logic is
-unit-tested on Fedora. Neither proves it works.
+Phase 13 closes the earlier Windows validation gap.
 
-CI builds and tests on `windows-latest`, which catches compilation and
-unit-test regressions on the real MSVC toolchain. That is genuine automated
-coverage, but it is not a substitute for launching PULSE on a physical Windows
-machine and looking at it. Both are required before a system-facing feature is
-considered complete.
+The final canonical state is covered by native Windows CI and by physical
+Windows runtime testing. The final CI-produced portable executable, NSIS
+installer and MSI were also tested on physical Windows and their SHA-256
+checksums were verified.
+
+This does not mean every supported Windows hardware configuration has been
+physically exercised. DPI matrices, multi-monitor edge cases, games and the
+full process-inspector compatibility matrix remain useful future regression
+tests.
+
+The authoritative closure record is
+[`../release/windows-physical-validation.md`](../release/windows-physical-validation.md).

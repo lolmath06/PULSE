@@ -5,13 +5,13 @@ the same widget engine as the dashboard. What differs per platform is **how
 it is kept above, made click-through and kept from taking focus**. Each
 session uses exactly one backend (`src-tauri/src/overlay/backend.rs`):
 
-| Backend                     | Chosen when                                         | Above other windows         | Click-through (Locked)               | Shortcut                         | Status                                  |
-| --------------------------- | --------------------------------------------------- | --------------------------- | ------------------------------------ | -------------------------------- | --------------------------------------- |
-| **Windows native**          | Windows                                             | `HWND_TOPMOST`, re-asserted | `WS_EX_LAYERED \| WS_EX_TRANSPARENT` | `RegisterHotKey`                 | implemented, compiled, **not verified** |
-| **GNOME native bridge**     | Wayland + the PULSE extension active in GNOME Shell | Mutter `make_above`         | empty GTK input shape                | Mutter binding via the extension | **physically verified** (GNOME 45)      |
-| **Standard Wayland window** | any other Wayland session                           | the compositor decides      | empty GTK input shape                | `GlobalShortcuts` portal, if any | best effort                             |
-| **X11 window**              | X11, XWayland                                       | `_NET_WM_STATE_ABOVE`       | empty X Shape input region           | `XGrabKey` (XWayland: limited)   | best effort (measured on XWayland)      |
-| **Unavailable**             | other platforms                                     | —                           | —                                    | —                                | —                                       |
+| Backend                     | Chosen when                                         | Above other windows         | Click-through (Locked)               | Shortcut                         | Status                              |
+| --------------------------- | --------------------------------------------------- | --------------------------- | ------------------------------------ | -------------------------------- | ----------------------------------- |
+| **Windows native**          | Windows                                             | `HWND_TOPMOST`, re-asserted | `WS_EX_LAYERED \| WS_EX_TRANSPARENT` | `RegisterHotKey`                 | **physically verified** (Phase 13B) |
+| **GNOME native bridge**     | Wayland + the PULSE extension active in GNOME Shell | Mutter `make_above`         | empty GTK input shape                | Mutter binding via the extension | **physically verified** (GNOME 45)  |
+| **Standard Wayland window** | any other Wayland session                           | the compositor decides      | empty GTK input shape                | `GlobalShortcuts` portal, if any | best effort                         |
+| **X11 window**              | X11, XWayland                                       | `_NET_WM_STATE_ABOVE`       | empty X Shape input region           | `XGrabKey` (XWayland: limited)   | best effort (measured on XWayland)  |
+| **Unavailable**             | other platforms                                     | —                           | —                                    | —                                | —                                   |
 
 PULSE → Overlays → _Overlay backend_ names the backend in force, its
 verification level and its headline capabilities; each capability's full
@@ -39,14 +39,14 @@ which is idempotent. No backend polls.
 
 ## Capability matrix
 
-| Capability              | Windows native         | GNOME bridge                  | Standard Wayland           | X11 / XWayland                             |
-| ----------------------- | ---------------------- | ----------------------------- | -------------------------- | ------------------------------------------ |
-| Above other windows     | supported (unverified) | **supported (verified)**      | limited                    | supported                                  |
-| Global shortcut         | supported (unverified) | **supported (verified)**      | portal, if offered         | X11 supported; XWayland limited            |
-| Click-through           | supported (unverified) | **supported (verified)**      | limited (GNOME: supported) | supported                                  |
-| Transparent             | supported (unverified) | supported                     | supported                  | XWayland supported; X11 needs a compositor |
-| Absolute positioning    | supported (unverified) | unsupported (GNOME places it) | unsupported                | supported                                  |
-| Multi-monitor placement | supported (unverified) | unsupported                   | unsupported                | supported                                  |
+| Capability              | Windows native                       | GNOME bridge                  | Standard Wayland           | X11 / XWayland                             |
+| ----------------------- | ------------------------------------ | ----------------------------- | -------------------------- | ------------------------------------------ |
+| Above other windows     | **supported (verified)**             | **supported (verified)**      | limited                    | supported                                  |
+| Global shortcut         | **supported (verified)**             | **supported (verified)**      | portal, if offered         | X11 supported; XWayland limited            |
+| Click-through           | **supported (verified)**             | **supported (verified)**      | limited (GNOME: supported) | supported                                  |
+| Transparent             | **supported (verified)**             | supported                     | supported                  | XWayland supported; X11 needs a compositor |
+| Absolute positioning    | supported (not separately exercised) | unsupported (GNOME places it) | unsupported                | supported                                  |
+| Multi-monitor placement | supported (not separately exercised) | unsupported                   | unsupported                | supported                                  |
 
 Presets that depend on placement (top/bottom bars, rails) carry a hint where
 the session cannot place windows — they are never blocked: drag the overlay
