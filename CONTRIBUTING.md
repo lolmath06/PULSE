@@ -106,3 +106,10 @@ shape. The current phase is stated in [`README.md`](README.md#status).
 ## Code of conduct
 
 Be direct, be kind, assume good faith. Critique code, not people.
+
+## Contributions and licensing
+
+PULSE is proprietary software. Submitting a contribution does not change the
+project's license. By submitting a contribution, you grant the copyright holder
+the right to use, modify and distribute it as part of PULSE under the PULSE
+license. See [LICENSE](LICENSE).

@@ -28,7 +28,7 @@
   <img src="https://img.shields.io/badge/platforms-Windows%20%7C%20Fedora%20Linux-8f9cff" alt="Plattformen: Windows und Fedora Linux">
   <img src="https://img.shields.io/badge/Tauri-2-24C8DB?logo=tauri&logoColor=white" alt="Tauri 2">
   <img src="https://img.shields.io/badge/Rust-1.77.2%2B-dea584?logo=rust&logoColor=white" alt="Rust 1.77.2+">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Proprietary-informational" alt="proprietäre Lizenz"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Proprietary-informational" alt="Proprietäre Lizenz"></a>
 </p>
 
 <p align="center">
@@ -358,6 +358,14 @@ Bitte melde Sicherheitslücken vertraulich — siehe [SECURITY.md](SECURITY.md).
 
 ## Lizenz
 
-PULSE wird unter der [proprietäre Lizenz](LICENSE) veröffentlicht. Crates und Pakete von
-Drittanbietern behalten ihre eigenen Lizenzen, wie in `src-tauri/Cargo.lock` und
-`pnpm-lock.yaml` festgehalten; SQLite, über `rusqlite` einkompiliert, ist gemeinfrei.
+**PULSE ist proprietäre Software.**
+Copyright © 2026 Matheo Dolmen. Alle Rechte vorbehalten.
+
+Der auf GitHub veröffentlichte Quellcode darf gelesen, geprüft und diskutiert
+werden; durch die Veröffentlichung wird keine Lizenz zur Wiederverwendung oder
+Weiterverbreitung erteilt. Wesentliche Kopien, Weiterverbreitung,
+Veröffentlichung geänderter Versionen oder kommerzielle Nutzung erfordern eine
+vorherige schriftliche Genehmigung.
+
+Siehe **[LICENSE](LICENSE)**. Komponenten Dritter bleiben ihren eigenen
+Lizenzen unterstellt.

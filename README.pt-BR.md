@@ -357,6 +357,13 @@ Relate vulnerabilidades de forma privada — veja [SECURITY.md](SECURITY.md).
 
 ## Licença
 
-O PULSE é distribuído sob a [licença proprietária](LICENSE). Crates e pacotes de terceiros
-mantêm suas próprias licenças, conforme registrado em `src-tauri/Cargo.lock` e
-`pnpm-lock.yaml`; o SQLite, compilado por meio do `rusqlite`, está em domínio público.
+**O PULSE é um software proprietário.**
+Copyright © 2026 Matheo Dolmen. Todos os direitos reservados.
+
+O código-fonte publicado no GitHub pode ser lido, auditado e discutido; sua
+publicação não concede licença para reutilização ou redistribuição. Cópia
+substancial, redistribuição, publicação de versões modificadas ou exploração
+comercial exigem autorização prévia por escrito.
+
+Consulte **[LICENSE](LICENSE)**. Componentes de terceiros permanecem sob suas
+próprias licenças.

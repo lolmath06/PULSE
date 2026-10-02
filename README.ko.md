@@ -341,6 +341,12 @@ PULSE/
 
 ## 라이선스
 
-PULSE는 [독점 라이선스](LICENSE)로 배포됩니다. 서드파티 crate와 패키지는 `src-tauri/Cargo.lock`과
-`pnpm-lock.yaml`에 기록된 대로 각자의 라이선스를 따릅니다. `rusqlite`를 통해 컴파일되어 포함되는
-SQLite는 퍼블릭 도메인입니다.
+**PULSE는 독점 소프트웨어입니다.**
+Copyright © 2026 Matheo Dolmen. All rights reserved.
+
+GitHub에 공개된 소스 코드는 읽기, 감사 및 토론을 위해 제공됩니다. 공개되었다는 사실만으로
+재사용 또는 재배포 권한이 부여되지는 않습니다. 상당 부분의 복사, 재배포, 수정 버전 공개
+또는 상업적 이용에는 사전 서면 허가가 필요합니다.
+
+자세한 내용은 **[LICENSE](LICENSE)** 를 참조하십시오. 타사 구성 요소에는 각각의
+라이선스가 계속 적용됩니다.

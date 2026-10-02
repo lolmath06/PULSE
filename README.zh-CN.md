@@ -329,5 +329,10 @@ PULSE/
 
 ## 许可证
 
-PULSE 以 [专有许可证](LICENSE)发布。第三方 crate 和软件包保留各自的许可证，记录在
-`src-tauri/Cargo.lock` 和 `pnpm-lock.yaml` 中；通过 `rusqlite` 编译进来的 SQLite 属于公有领域。
+**PULSE 是专有软件。**
+Copyright © 2026 Matheo Dolmen. 保留所有权利。
+
+GitHub 上公开的源代码可供阅读、审计和讨论；公开代码并不授予重复使用或再分发的许可。
+大量复制、再分发、发布修改版本或商业利用均需事先获得书面授权。
+
+请参阅 **[LICENSE](LICENSE)**。第三方组件仍受其各自许可证的约束。
