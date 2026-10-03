@@ -4,18 +4,20 @@
 # system as one ABI-coherent runtime stack.
 set -eu
 
-if [ "$#" -ne 4 ]; then
-  echo "usage: $0 <tauri.deb> <appimagetool> <runtime> <output.AppImage>" >&2
+if [ "$#" -ne 5 ]; then
+  echo "usage: $0 <tauri.deb> <canonical binary> <appimagetool> <runtime> <output.AppImage>" >&2
   exit 2
 fi
 
 repo_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 deb=$(realpath "$1")
-packer=$(realpath "$2")
-runtime=$(realpath "$3")
-case $4 in
-  /*) output=$4 ;;
-  *) output=$PWD/$4 ;;
+canonical_binary=$(realpath "$2")
+packer=$(realpath "$3")
+runtime=$(realpath "$4")
+marker_patcher=$repo_root/scripts/patch-tauri-bundle-marker.sh
+case $5 in
+  /*) output=$5 ;;
+  *) output=$PWD/$5 ;;
 esac
 
 work=$(mktemp -d "${TMPDIR:-/tmp}/pulse-appimage.XXXXXX")
@@ -25,15 +27,17 @@ appdir=$work/PULSE.AppDir
 dpkg-deb --extract "$deb" "$appdir"
 install -m 755 "$repo_root/scripts/appimage/AppRun" "$appdir/AppRun"
 
-# Tauri stamps the bundle type into the executable while creating each
-# package. This payload came from the .deb, so update its fixed-width marker
-# to the AppImage value before repackaging it.
+# Tauri restores the canonical executable after building each package. Use
+# that known UNK state rather than depending on the marker in an intermediate
+# DEB payload, then patch only the AppImage copy at the token's exact offset.
 pulse=$appdir/usr/bin/pulse
-if [ "$(grep -aoF '__TAURI_BUNDLE_TYPE_VAR_DEB' "$pulse" | wc -l)" -ne 1 ]; then
-  echo "Expected exactly one Tauri DEB bundle marker in $pulse" >&2
+canonical_hash=$(sha256sum "$canonical_binary" | cut -d' ' -f1)
+install -m 755 "$canonical_binary" "$pulse"
+"$marker_patcher" "$pulse" UNK APP
+if [ "$(sha256sum "$canonical_binary" | cut -d' ' -f1)" != "$canonical_hash" ]; then
+  echo "Canonical executable was modified while packaging the AppImage" >&2
   exit 1
 fi
-sed -i 's/__TAURI_BUNDLE_TYPE_VAR_DEB/__TAURI_BUNDLE_TYPE_VAR_APP/' "$pulse"
 
 desktop=usr/share/applications/PULSE.desktop
 icon=usr/share/icons/hicolor/256x256@2/apps/pulse.png

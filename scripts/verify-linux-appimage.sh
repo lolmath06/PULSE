@@ -3,15 +3,31 @@
 # GLIBC ceiling of every ELF file shipped in it.
 set -eu
 
-if [ "$#" -ne 2 ]; then
-  echo "usage: $0 <PULSE.AppImage> <maximum GLIBC version>" >&2
+if [ "$#" -ne 3 ]; then
+  echo "usage: $0 <PULSE.AppImage> <canonical binary> <maximum GLIBC version>" >&2
   exit 2
 fi
 
+repo_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 appimage=$(realpath "$1")
-maximum=$2
+canonical_binary=$(realpath "$2")
+maximum=$3
 work=$(mktemp -d "${TMPDIR:-/tmp}/pulse-appimage-verify.XXXXXX")
 trap 'rm -rf -- "$work"' EXIT HUP INT TERM
+
+if ! file "$appimage" | grep -q 'ELF'; then
+  echo "AppImage runtime is not an ELF executable" >&2
+  exit 1
+fi
+if readelf --program-headers "$appimage" | grep -q ' INTERP '; then
+  echo "AppImage runtime must be statically linked, but it has an interpreter" >&2
+  exit 1
+fi
+if readelf --dynamic "$appimage" 2>/dev/null | grep -q '(NEEDED)'; then
+  echo "AppImage runtime must be statically linked, but it has shared dependencies" >&2
+  exit 1
+fi
+echo "AppImage runtime is static."
 
 (cd "$work" && "$appimage" --appimage-extract >/dev/null)
 appdir=$work/squashfs-root
@@ -22,14 +38,18 @@ if [ ! -x "$appdir/AppRun" ] || [ ! -x "$pulse" ]; then
   exit 1
 fi
 
-if [ "$(grep -aoF '__TAURI_BUNDLE_TYPE_VAR_APP' "$pulse" | wc -l)" -ne 1 ]; then
-  echo "usr/bin/pulse does not contain exactly one Tauri AppImage bundle marker" >&2
+# Recreate Tauri's fixed-width UNK -> APP patch from the canonical executable.
+# Exact equality proves that APP is the active bundle state and that no DEB or
+# RPM state was carried over, without confusing compiler-emitted string
+# literals with the token Tauri actually patches.
+expected_pulse=$work/expected-pulse
+cp "$canonical_binary" "$expected_pulse"
+"$repo_root/scripts/patch-tauri-bundle-marker.sh" "$expected_pulse" UNK APP
+if ! cmp -s "$expected_pulse" "$pulse"; then
+  echo "usr/bin/pulse is not the canonical executable with only the Tauri APP marker patch" >&2
   exit 1
 fi
-if grep -aEq '__TAURI_BUNDLE_TYPE_VAR_(UNK|DEB|RPM)' "$pulse"; then
-  echo "usr/bin/pulse contains a stale Tauri bundle marker" >&2
-  exit 1
-fi
+echo "AppImage executable exactly matches the canonical binary with its APP marker."
 
 bundled_runtime=$(find "$appdir" \( -type f -o -type l \) \
   \( -name '*.so' -o -name '*.so.*' -o -name 'WebKitWebProcess' \

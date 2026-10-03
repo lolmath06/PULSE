@@ -117,14 +117,17 @@ jobs:
 
           version=$(jq -r .version src-tauri/tauri.conf.json)
           deb="src-tauri/target/release/bundle/deb/PULSE_${version}_amd64.deb"
+          binary=src-tauri/target/release/pulse
           appimage="src-tauri/target/release/bundle/appimage/PULSE_${version}_amd64.AppImage"
-          scripts/package-system-appimage.sh "$deb" "$packer" "$runtime" "$appimage"
+          scripts/package-system-appimage.sh \
+            "$deb" "$binary" "$packer" "$runtime" "$appimage"
 
       - name: Verify Linux AppImage payload and glibc baseline
         run: |
           version=$(jq -r .version src-tauri/tauri.conf.json)
           scripts/verify-linux-appimage.sh \
             "src-tauri/target/release/bundle/appimage/PULSE_${version}_amd64.AppImage" \
+            src-tauri/target/release/pulse \
             GLIBC_2.35
 
       - name: Collect and verify artifacts
