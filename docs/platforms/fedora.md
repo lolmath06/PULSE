@@ -467,11 +467,28 @@ and `platform/linux/processes/control/runtime_tests.rs`). Details:
 Release targets are `rpm` (primary for Fedora), plus `deb` and AppImage for
 reach. They are configured in `tauri.conf.json` and built by the Release job.
 
+The AppImage is intentionally thin: it contains PULSE and its desktop assets,
+but uses the target system's WebKitGTK 4.1, GTK and GLib libraries. Tauri's
+default AppImage bundler copies those libraries and WebKit helper processes
+from the build host. That made the package's runtime depend on the Ubuntu
+runner: the Ubuntu 22.04/WebKitGTK 2.50.4 bundled stack showed sustained web
+process CPU use and a startup-preset crash on the Fedora 39/nouveau validation
+machine, while the earlier Ubuntu 24.04 package carried WebKitGTK 2.52.6.
+
+Building the package on Ubuntu 24.04 is not a compatibility fix: that WebKitGTK
+library itself requires GLIBC 2.38, and the PULSE executable linked there also
+acquired GLIBC 2.39 symbol versions. The release therefore stays on Ubuntu
+22.04 and packages no copy of the GUI runtime. Install `webkit2gtk4.1` and
+`libappindicator-gtk3` on Fedora before using the AppImage, just as the RPM
+declares. The release check extracts the finished AppImage, rejects bundled
+shared libraries or WebKit helper processes, and checks every shipped ELF
+against the GLIBC 2.35 ceiling.
+
 ### nouveau/WebKit runtime workaround
 
-Physically reproduced on Fedora 39 with nouveau: the 1.0.0 AppImage built on
-Ubuntu started PULSE, then `WebKitWebProcess` crashed in `nouveau_pushbuf_data`
-with the `kref` assertion. The same AppImage worked with only
+Physically reproduced on Fedora 39 with nouveau: the earlier Ubuntu 24.04-built
+1.0.0 release candidate started PULSE, then `WebKitWebProcess` crashed in
+`nouveau_pushbuf_data` with the `kref` assertion. That AppImage worked with only
 `WEBKIT_DISABLE_DMABUF_RENDERER=1`; `LIBGL_ALWAYS_SOFTWARE`, llvmpipe and other
 driver overrides were unnecessary.
 
@@ -483,9 +500,9 @@ other drivers and existing user choices are unchanged.
 
 ## Testing note
 
-Normal CI runs on `ubuntu-latest`; Release packaging is pinned to Ubuntu 22.04
-for its GLIBC 2.35 baseline. That catches Linux regressions — wrong `cfg`
-gating, missing Linux paths, build breakage — but **it is not a Fedora test**.
-Different kernel, different WebKitGTK, different GNOME, different sensor
-modules. Real Fedora validation is manual and is required before any
+Normal CI runs on `ubuntu-latest`; Release compilation and packaging are pinned
+to Ubuntu 22.04 for their GLIBC 2.35 baseline. That catches Linux regressions —
+wrong `cfg` gating, missing Linux paths, build breakage — but **it is not a
+Fedora test**. Different kernel, different WebKitGTK, different GNOME, different
+sensor modules. Real Fedora validation is manual and is required before any
 system-facing feature is considered complete.

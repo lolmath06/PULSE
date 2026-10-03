@@ -1,0 +1,17 @@
+#!/bin/sh
+set -eu
+
+APPDIR=${APPDIR:-$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)}
+export APPDIR
+
+# Tauri's GTK AppImage integration defaults to X11 because its Wayland path is
+# not reliable. Keep that default, but preserve an explicit user choice.
+if [ -z "${GDK_BACKEND+x}" ]; then
+  GDK_BACKEND=x11
+  export GDK_BACKEND
+fi
+
+# This AppImage deliberately uses one coherent GTK/WebKit stack from the host.
+# Do not add an LD_LIBRARY_PATH or GStreamer override here: either would mix
+# libraries from different distributions again.
+exec "$APPDIR/usr/bin/pulse" "$@"

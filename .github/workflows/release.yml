@@ -61,6 +61,8 @@ jobs:
     needs: [version]
     runs-on: ubuntu-22.04
     timeout-minutes: 60
+    env:
+      CARGO_BUILD_JOBS: 2
     steps:
       - name: Check out
         uses: actions/checkout@v5
@@ -94,25 +96,36 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Tauri Linux build
-        run: pnpm tauri build --bundles deb rpm appimage -- --locked
+        run: pnpm tauri build --bundles deb rpm -- --locked
 
-      - name: Verify Linux glibc baseline
+      - name: Build system-runtime AppImage
+        env:
+          APPIMAGE_PACKER_SHA256: 46fdd785094c7f6e545b61afcfb0f3d98d8eab243f644b4b17698c01d06083d1
+          APPIMAGE_PACKER_URL: https://github.com/AppImage/appimagetool/releases/download/1.9.0/appimagetool-x86_64.AppImage
+          APPIMAGE_RUNTIME_SHA256: 2fca8b443c92510f1483a883f60061ad09b46b978b2631c807cd873a47ec260d
+          APPIMAGE_RUNTIME_URL: https://github.com/AppImage/type2-runtime/releases/download/20251108/runtime-x86_64
         run: |
-          binary=src-tauri/target/release/pulse
-          maximum=GLIBC_2.35
-          highest=$(readelf --version-info "$binary" \
-            | grep -oE 'GLIBC_[0-9]+(\.[0-9]+)+' \
-            | sort -Vu \
-            | tail -n 1)
-          if [ -z "$highest" ]; then
-            echo "::error::No required GLIBC version found in $binary"
-            exit 1
-          fi
-          echo "Highest required GLIBC version: $highest"
-          if [ "$(printf '%s\n' "$maximum" "$highest" | sort -V | tail -n 1)" != "$maximum" ]; then
-            echo "::error::$binary requires $highest, above the $maximum release baseline"
-            exit 1
-          fi
+          tools=src-tauri/target/release/appimage-tools
+          packer=$tools/appimagetool-x86_64.AppImage
+          runtime=$tools/runtime-x86_64
+          mkdir -p "$tools"
+          curl --fail --location --silent --show-error "$APPIMAGE_PACKER_URL" --output "$packer"
+          curl --fail --location --silent --show-error "$APPIMAGE_RUNTIME_URL" --output "$runtime"
+          echo "$APPIMAGE_PACKER_SHA256  $packer" | sha256sum --check --strict
+          echo "$APPIMAGE_RUNTIME_SHA256  $runtime" | sha256sum --check --strict
+          chmod +x "$packer"
+
+          version=$(jq -r .version src-tauri/tauri.conf.json)
+          deb="src-tauri/target/release/bundle/deb/PULSE_${version}_amd64.deb"
+          appimage="src-tauri/target/release/bundle/appimage/PULSE_${version}_amd64.AppImage"
+          scripts/package-system-appimage.sh "$deb" "$packer" "$runtime" "$appimage"
+
+      - name: Verify Linux AppImage payload and glibc baseline
+        run: |
+          version=$(jq -r .version src-tauri/tauri.conf.json)
+          scripts/verify-linux-appimage.sh \
+            "src-tauri/target/release/bundle/appimage/PULSE_${version}_amd64.AppImage" \
+            GLIBC_2.35
 
       - name: Collect and verify artifacts
         run: |

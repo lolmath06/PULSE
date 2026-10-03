@@ -7,9 +7,11 @@ Phase 13 development and cross-platform validation are complete.
 The first stable publication target is **PULSE 1.0.0**.
 
 Linux Release packages are built on Ubuntu 22.04, with GLIBC 2.35 as their
-maximum runtime baseline. After the Tauri build, the Release workflow inspects
-`src-tauri/target/release/pulse` and fails if it requires a newer `GLIBC_*`
-symbol version.
+maximum runtime baseline. The AppImage deliberately uses the target system's
+WebKitGTK/GTK/GLib stack instead of mixing host libraries into it. After
+packaging, the Release workflow extracts the AppImage, rejects bundled shared
+libraries and WebKit helper processes, and fails if any shipped ELF requires a
+newer `GLIBC_*` symbol version.
 
 A branch push never publishes PULSE. A version becomes a GitHub Release only
 through an explicit `v<version>` tag, followed by human review of the generated
