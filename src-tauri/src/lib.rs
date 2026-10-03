@@ -185,7 +185,10 @@ pub fn run() {
                 api.prevent_exit();
                 eprintln!("PULSE: implicit exit refused — keep running with visible overlays");
             } else {
-                eprintln!("PULSE: exit requested (code {code:?})");
+                eprintln!(
+                    "PULSE: exit requested (code {code:?}) at {:?}",
+                    std::time::SystemTime::now()
+                );
             }
         }
         if let tauri::RunEvent::WindowEvent {
@@ -198,20 +201,35 @@ pub fn run() {
         }
         if let tauri::RunEvent::Exit = event {
             use tauri::Manager;
+            let started = std::time::Instant::now();
+            eprintln!(
+                "PULSE: RunEvent::Exit at {:?}",
+                std::time::SystemTime::now()
+            );
             // Release the portal shortcut session (bounded wait).
             desktop::shutdown(handle);
+            eprintln!(
+                "PULSE: desktop shutdown complete (+{:?})",
+                started.elapsed()
+            );
             // Finish the batch in flight and let the store close cleanly, so
             // the WAL is checkpointed and no scheduler thread outlives PULSE.
             if let Some(history) = handle.try_state::<std::sync::Arc<history::HistoryService>>() {
                 history.shutdown();
             }
+            eprintln!(
+                "PULSE: history shutdown complete (+{:?})",
+                started.elapsed()
+            );
             if let Some(live) = handle.try_state::<std::sync::Arc<live::LiveService>>() {
                 live.shutdown();
             }
+            eprintln!("PULSE: live shutdown complete (+{:?})", started.elapsed());
             // Write any configuration change still inside its quiet period.
             if let Some(config) = handle.try_state::<commands::ui_config::UiConfigState>() {
                 config.writer.shutdown();
             }
+            eprintln!("PULSE: config shutdown complete (+{:?})", started.elapsed());
         }
     });
 }

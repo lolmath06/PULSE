@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Icon } from '@/components/Icon';
+import { useDialogWindow } from '@/hooks/useDialogWindow';
 
 /**
  * A wide modal for choosing among rich options (templates, the welcome).
@@ -22,6 +23,7 @@ export function Sheet({
   readonly footer?: ReactNode;
   readonly label?: string;
 }) {
+  useDialogWindow();
   const { t } = useTranslation();
   const closeRef = useRef<HTMLButtonElement>(null);
   useEffect(() => closeRef.current?.focus(), []);

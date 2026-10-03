@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { ChangeEvent, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useDialogWindow } from '@/hooks/useDialogWindow';
 import { t as translate } from '@/i18n/i18n';
 import { formatFixed } from '@/i18n/format';
 import type { HistoryRange } from '@/types/history';
@@ -233,6 +234,7 @@ export function ColorField({
 const pct = (value: number) => `${formatFixed(value * 100, 0)} %`;
 
 export function CustomizePanel({ title, chart, data, meta, onClose, extra }: CustomizePanelProps) {
+  useDialogWindow();
   const { t } = useTranslation();
   const { config, update } = chart;
   const [presetName, setPresetName] = useState('');

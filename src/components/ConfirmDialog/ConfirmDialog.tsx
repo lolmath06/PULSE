@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useDialogWindow } from '@/hooks/useDialogWindow';
 
 /**
  * A modal confirmation.
@@ -28,6 +29,7 @@ export function ConfirmDialog({
   readonly children?: ReactNode;
   readonly confirmDisabled?: boolean;
 }) {
+  useDialogWindow();
   const { t } = useTranslation();
   const cancelRef = useRef<HTMLButtonElement>(null);
 

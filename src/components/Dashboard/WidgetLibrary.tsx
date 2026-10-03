@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { matchesMetricQuery, metricDescription, metricName, sourceLabel } from '@/i18n/metrics';
 import type { MetricDefinition } from '@/types/metrics';
 import { useMetricCatalog } from '@/hooks/useMetricCatalog';
+import { useDialogWindow } from '@/hooks/useDialogWindow';
 import type { Category } from '@/dashboard/library';
 import {
   BLUEPRINTS,
@@ -32,6 +33,7 @@ export function WidgetLibrary({
   readonly onAdd: (widget: WidgetInstance) => void;
   readonly onClose: () => void;
 }) {
+  useDialogWindow();
   const { t, i18n } = useTranslation();
   const { catalog, status } = useMetricCatalog();
   const templates = useTemplates();

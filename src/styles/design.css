@@ -325,13 +325,6 @@
 
 .status-bar__dot {
   box-shadow: 0 0 0 3px var(--pulse-accent-soft);
-  animation: breathe 3.2s ease-in-out infinite;
-}
-
-@keyframes breathe {
-  50% {
-    box-shadow: 0 0 0 5px transparent;
-  }
 }
 
 /* ---------- widgets ---------- */
@@ -457,13 +450,6 @@
 .overlay--editing {
   outline: 1px dashed var(--pulse-accent);
   outline-offset: -1px;
-  animation: edit-pulse 2.4s ease-in-out infinite;
-}
-
-@keyframes edit-pulse {
-  50% {
-    outline-color: var(--pulse-accent-dim);
-  }
 }
 
 .overlay-editor__preview {

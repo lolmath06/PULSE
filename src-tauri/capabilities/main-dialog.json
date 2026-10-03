@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "main-dialog",
+  "description": "The main window temporarily joins the native above layer while a DOM dialog is open, then restores its prior state.",
+  "windows": ["main"],
+  "permissions": ["core:window:allow-set-always-on-top", "core:window:allow-set-focus"]
+}

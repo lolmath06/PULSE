@@ -3,6 +3,7 @@ import type { WidgetInstance } from '@/dashboard/model';
 import { widgetTitle } from '@/dashboard/geometry';
 import { MAX_OVERLAYS, addOverlayWidget, createOverlay, overlayName } from '@/overlay/model';
 import { updateOverlays, useOverlays } from '@/overlay/store';
+import { useDialogWindow } from '@/hooks/useDialogWindow';
 
 /**
  * Copies a dashboard widget into an overlay — a new one, or an existing one.
@@ -18,6 +19,7 @@ export function SendToOverlayDialog({
   readonly onClose: () => void;
   readonly onSent?: (overlayName: string) => void;
 }) {
+  useDialogWindow();
   const { t } = useTranslation();
   const overlays = useOverlays();
   const title = widgetTitle(widget);

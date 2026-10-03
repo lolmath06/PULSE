@@ -876,7 +876,13 @@ pub fn build_tray<R: Runtime>(app: &AppHandle<R>) {
                 "edit" => overlay_action(app, OverlayAction::EditAll),
                 "lock" => overlay_action(app, OverlayAction::LockAll),
                 "toggle" => overlay_action(app, OverlayAction::ToggleVisibleAll),
-                "quit" => app.exit(0),
+                "quit" => {
+                    eprintln!(
+                        "PULSE: tray Quit requested at {:?}",
+                        std::time::SystemTime::now()
+                    );
+                    app.exit(0);
+                }
                 _ => {}
             });
         if let Some(icon) = app.default_window_icon() {
