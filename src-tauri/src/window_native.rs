@@ -10,20 +10,22 @@ use tauri::{Runtime, WebviewWindow};
 
 /// Called at startup and when reopening/recreating the main window. The
 /// exact GTK structure is checked so this becomes a no-op with a fixed Tao.
+#[cfg(target_os = "linux")]
 pub fn prepare_main_window<R: Runtime>(window: &WebviewWindow<R>) {
     if window.label() != crate::desktop::MAIN_LABEL {
         return;
     }
-    #[cfg(target_os = "linux")]
-    {
-        let target = window.clone();
-        let _ = window.run_on_main_thread(move || {
-            if let Ok(window) = target.gtk_window() {
-                repair_titlebar(&window);
-            }
-        });
-    }
+    let target = window.clone();
+    let _ = window.run_on_main_thread(move || {
+        if let Ok(window) = target.gtk_window() {
+            repair_titlebar(&window);
+        }
+    });
 }
+
+/// Only Tao's GTK header needs this repair; other platforms have nothing to do.
+#[cfg(not(target_os = "linux"))]
+pub fn prepare_main_window<R: Runtime>(_window: &WebviewWindow<R>) {}
 
 #[cfg(target_os = "linux")]
 fn repair_titlebar(window: &gtk::ApplicationWindow) -> bool {
