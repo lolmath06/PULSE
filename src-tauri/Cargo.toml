@@ -1,6 +1,6 @@
 [package]
 name = "pulse"
-version = "1.0.0"
+version = "1.0.1"
 description = "A modular, cross-platform system monitoring dashboard for Windows and Fedora Linux."
 authors = ["PULSE contributors"]
 license-file = "../LICENSE"
