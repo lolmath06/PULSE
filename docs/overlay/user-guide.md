@@ -11,10 +11,13 @@
 
 ## Edit and lock
 
-- An overlay starts in **Edit** mode: a thin bar laid over the top — drag it
+- An overlay starts in **Edit** mode: a separate thin bar at the top — drag it
   to move the window — with _Lock_ and _Open PULSE_, and a grip in the
-  bottom-right corner to resize. The bar never changes the overlay's size.
-- **Lock** hides every control. Where the system allows, clicks then go
+  bottom-right corner to resize. Controls reserve their own space. Rows wrap
+  and grids use fewer columns in narrower windows; the window cannot shrink
+  below the space needed for its widgets and controls. Widgets keep their
+  configured pixel sizes, so reducing a single widget means editing its size.
+- **Lock** removes every edit control. Where the system allows, clicks then go
   through the overlay to the application behind it, and the overlay can never
   take the keyboard focus.
 

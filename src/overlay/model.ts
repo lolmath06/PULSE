@@ -219,21 +219,27 @@ export const EMPTY_OVERLAY_SIZE = { width: 160, height: 48 } as const;
  *
  * Each child gets exactly its configured pixel size, placed by the layout:
  *
- * - **row**: x advances by `width + gap`; height = tallest child;
+ * - **row**: x advances by `width + gap`, wrapping at `availableWidth`;
  * - **column**: y advances by `height + gap`; width = widest child;
  * - **grid**: `columns` columns; each column as wide as its widest child,
  *   each row as tall as its tallest child.
  *
  * The overlay's padding surrounds everything. Boxes never intersect, by
- * construction, and the overlay size always contains them all.
+ * construction, and the overlay size always contains them all. A grid drops
+ * columns to fit `availableWidth`; no widget is squeezed below its own size.
+ * Omit the width for the natural composition used by *Fit to widgets*.
  */
 export function overlayLayout(
   overlay: Pick<Overlay, 'layout' | 'columns' | 'gap' | 'chrome' | 'widgets'> &
     Partial<Pick<Overlay, 'span' | 'geometry'>>,
+  availableWidth = Number.POSITIVE_INFINITY,
 ): OverlayLayoutResult {
-  const natural = naturalLayout(overlay);
+  const natural = naturalLayout(overlay, availableWidth);
   if (overlay.span !== 'fill' || !overlay.geometry || overlay.widgets.length === 0) return natural;
-  return filledLayout(overlay, natural, overlay.geometry);
+  return filledLayout(overlay, natural, {
+    ...overlay.geometry,
+    width: Math.min(overlay.geometry.width, availableWidth),
+  });
 }
 
 /**
@@ -249,12 +255,18 @@ function filledLayout(
   const n = overlay.widgets.length;
   if (overlay.layout === 'horizontal') {
     const width = Math.max(natural.width, Math.round(geometry.width));
-    const extra = (width - natural.width) / n;
-    const boxes = natural.boxes.map((box, i) => ({
-      ...box,
-      x: box.x + extra * i,
-      width: box.width + extra,
-    }));
+    const rows = new Map<number, OverlayBox[]>();
+    for (const box of natural.boxes) {
+      const row = rows.get(box.y) ?? [];
+      row.push(box);
+      rows.set(box.y, row);
+    }
+    const boxes = [...rows.values()].flatMap((row) => {
+      const last = row[row.length - 1]!;
+      const rowWidth = last.x + last.width + row[0]!.x;
+      const extra = (width - rowWidth) / row.length;
+      return row.map((box, i) => ({ ...box, x: box.x + extra * i, width: box.width + extra }));
+    });
     return { width, height: natural.height, boxes };
   }
   if (overlay.layout === 'vertical') {
@@ -272,6 +284,7 @@ function filledLayout(
 
 function naturalLayout(
   overlay: Pick<Overlay, 'layout' | 'columns' | 'gap' | 'chrome' | 'widgets'>,
+  availableWidth: number,
 ): OverlayLayoutResult {
   const pad = overlay.chrome.padding;
   const gap = overlay.gap;
@@ -280,20 +293,30 @@ function naturalLayout(
 
   if (overlay.layout === 'horizontal') {
     let x = pad;
+    let y = pad;
+    let rowHeight = 0;
+    let width = 0;
     const boxes = widgets.map((widget) => {
+      if (x > pad && x + widget.size.width + pad > availableWidth) {
+        x = pad;
+        y += rowHeight + gap;
+        rowHeight = 0;
+      }
       const box = {
         id: widget.id,
         x,
-        y: pad,
+        y,
         width: widget.size.width,
         height: widget.size.height,
       };
       x += widget.size.width + gap;
+      width = Math.max(width, x - gap + pad);
+      rowHeight = Math.max(rowHeight, widget.size.height);
       return box;
     });
     return {
-      width: x - gap + pad,
-      height: pad * 2 + Math.max(...widgets.map((widget) => widget.size.height)),
+      width,
+      height: y + rowHeight + pad,
       boxes,
     };
   }
@@ -318,13 +341,18 @@ function naturalLayout(
     };
   }
 
-  const columns = Math.max(1, Math.min(overlay.columns, widgets.length));
+  let columns = Math.max(1, Math.min(overlay.columns, widgets.length));
+  const widthsFor = (count: number) =>
+    Array.from({ length: count }, (_, column) =>
+      Math.max(
+        ...widgets.filter((_, i) => i % count === column).map((widget) => widget.size.width),
+      ),
+    );
+  const total = (sizes: readonly number[]) =>
+    pad * 2 + sizes.reduce((sum, size) => sum + size, 0) + gap * (sizes.length - 1);
+  while (columns > 1 && total(widthsFor(columns)) > availableWidth) columns -= 1;
   const rows = Math.ceil(widgets.length / columns);
-  const columnWidths = Array.from({ length: columns }, (_, column) =>
-    Math.max(
-      ...widgets.filter((_, i) => i % columns === column).map((widget) => widget.size.width),
-    ),
-  );
+  const columnWidths = widthsFor(columns);
   const rowHeights = Array.from({ length: rows }, (_, row) =>
     Math.max(
       ...widgets
@@ -341,8 +369,6 @@ function naturalLayout(
     width: widget.size.width,
     height: widget.size.height,
   }));
-  const total = (sizes: readonly number[]) =>
-    pad * 2 + sizes.reduce((sum, size) => sum + size, 0) + gap * (sizes.length - 1);
   return { width: total(columnWidths), height: total(rowHeights), boxes };
 }
 

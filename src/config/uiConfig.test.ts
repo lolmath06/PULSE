@@ -10,13 +10,92 @@ import {
   useUiSection,
   writeSection,
 } from '@/config/uiConfig';
-import type { UiConfigBackend, UiConfigSnapshot } from '@/config/uiConfig';
+import type { UiConfigBackend, UiConfigChange, UiConfigSnapshot } from '@/config/uiConfig';
 
 beforeEach(() => resetUiConfigForTesting());
 
 const identity = (raw: unknown) => raw;
 
 describe('shared UI configuration', () => {
+  it('waits for the event listener before requesting the initial snapshot', async () => {
+    const backend = memoryBackend();
+    const order: string[] = [];
+    let installed!: () => void;
+    const ready = initUiConfig({
+      ...backend,
+      subscribe: () =>
+        new Promise((resolve) => {
+          installed = () => {
+            order.push('subscribed');
+            resolve(() => undefined);
+          };
+        }),
+      load: () => {
+        order.push('loaded');
+        return backend.load();
+      },
+    });
+    expect(order).toEqual([]);
+    installed();
+    await ready;
+    expect(order).toEqual(['subscribed', 'loaded']);
+  });
+
+  it('keeps a lock received while an older initial snapshot is in flight', async () => {
+    const backend = memoryBackend({ overlays: { locked: false } });
+    const old = await backend.load();
+    let finish!: (snapshot: UiConfigSnapshot) => void;
+    const ready = initUiConfig({
+      ...backend,
+      load: () => new Promise((resolve) => (finish = resolve)),
+    });
+    await Promise.resolve();
+    backend.peer('overlays', { locked: true });
+    finish(old);
+    await ready;
+    expect(readSection('overlays')).toEqual({ locked: true });
+  });
+
+  it('rejects stale events per section, including events older than our own echo', async () => {
+    const backend = memoryBackend({ overlays: { locked: false } });
+    let deliver!: (change: UiConfigChange) => void;
+    await initUiConfig({
+      ...backend,
+      subscribe: (listener) => {
+        deliver = listener;
+        return () => undefined;
+      },
+    });
+    const event = (revision: number, locked: boolean, origin = 'backend'): UiConfigChange => ({
+      revision,
+      section: 'overlays',
+      value: { locked },
+      origin,
+    });
+    deliver({ ...event(5, true), section: 'settings', value: { language: 'fr' } });
+    deliver(event(3, true));
+    deliver(event(2, false));
+    expect(readSection('overlays')).toEqual({ locked: true });
+    writeSection('overlays', { locked: false });
+    deliver(event(6, false, 'self'));
+    deliver(event(4, true));
+    expect(readSection('overlays')).toEqual({ locked: false });
+    expect(readSection('settings')).toEqual({ language: 'fr' });
+  });
+
+  it('does not replay a buffered event already covered by the snapshot', async () => {
+    const backend = memoryBackend({ overlays: { locked: false } });
+    await initUiConfig({
+      ...backend,
+      load: () => {
+        backend.peer('overlays', { locked: true });
+        backend.peer('overlays', { locked: false });
+        return backend.load();
+      },
+    });
+    expect(readSection('overlays')).toEqual({ locked: false });
+  });
+
   it('writes a section to the backend once per burst', async () => {
     const backend = memoryBackend();
     await initUiConfig(backend);

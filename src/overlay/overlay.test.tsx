@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import * as tauriWindow from '@tauri-apps/api/window';
 import * as metricsService from '@/services/metrics';
 import * as tauri from '@/services/tauri';
 import { resetMetricCatalogForTesting } from '@/hooks/useMetricCatalog';
@@ -38,6 +39,12 @@ import { SendToOverlayDialog } from '@/components/Overlay/SendToOverlayDialog';
 import { MiniApp } from '@/components/Mini/MiniApp';
 import { App } from '@/app/App';
 import { CATALOG, SOURCE_REFS, widgetFrom } from '@/test/dashboard';
+import { updateOverlays } from '@/overlay/store';
+
+vi.mock('@tauri-apps/api/window', async (original) => ({
+  ...(await original<typeof tauriWindow>()),
+  getCurrentWindow: vi.fn(),
+}));
 
 /** Adds a built-in pack from the Overlays page, as a user would. */
 async function addPack(name: string) {
@@ -91,6 +98,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  vi.unstubAllGlobals();
   vi.restoreAllMocks();
   setLiveBackendForTesting(null);
   setSourceRefsForTesting(null);
@@ -208,8 +216,8 @@ describe('overlay layout', () => {
   const intersects = (a: OverlayBox, b: OverlayBox) =>
     a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
 
-  function expectSound(overlay: Overlay) {
-    const layout = overlayLayout(overlay);
+  function expectSound(overlay: Overlay, availableWidth?: number) {
+    const layout = overlayLayout(overlay, availableWidth);
     const pad = overlay.chrome.padding;
     expect(layout.boxes).toHaveLength(overlay.widgets.length);
     layout.boxes.forEach((box, i) => {
@@ -259,6 +267,34 @@ describe('overlay layout', () => {
     );
   });
 
+  it('narrow windows reflow rows and grids without shrinking or overlapping cards', () => {
+    for (const mode of ['horizontal', 'vertical', 'grid'] as const) {
+      for (const width of [192, 240, 320, 480, 900]) {
+        const layout = expectSound(overlayOf(mode, 3), width);
+        expect(layout.width).toBeLessThanOrEqual(width);
+      }
+    }
+    const row = expectSound(overlayOf('horizontal'), 240);
+    expect(row.boxes[1]!.y).toBeGreaterThan(row.boxes[0]!.y);
+    expectSound(overlayOf('horizontal'), 900);
+  });
+
+  it('a stretched row reflows and fills each row inside the available width', () => {
+    const overlay = overlayOf('horizontal');
+    for (const width of [192, 240, 320, 480]) {
+      const layout = overlayLayout(
+        { ...overlay, span: 'fill', geometry: { ...overlay.geometry, width: 1920 } },
+        width,
+      );
+      expect(layout.width).toBe(width);
+      layout.boxes.forEach((box, i) => {
+        expect(box.width).toBeGreaterThanOrEqual(overlay.widgets[i]!.size.width);
+        expect(box.x + box.width).toBeLessThanOrEqual(width - overlay.chrome.padding);
+        layout.boxes.slice(i + 1).forEach((other) => expect(intersects(box, other)).toBe(false));
+      });
+    }
+  });
+
   it('Fit to widgets sets the window to the layout size, exactly', () => {
     for (const layout of ['horizontal', 'vertical', 'grid'] as const) {
       const overlay = {
@@ -302,13 +338,69 @@ describe('overlay layout', () => {
     });
   });
 
-  it('edit mode lays its bar over the content: the size does not change', () => {
+  it('edit controls surround a separate metric viewport and keep the widgets at their size', () => {
     const overlay = { ...overlayOf('horizontal'), locked: false };
     resetUiConfigForTesting({ overlays: { version: 1, items: [overlay] } });
     const { container } = render(<OverlaySurface overlay={overlay} />);
     const content = container.querySelector('.overlay__content') as HTMLElement;
     expect(content.style.height).toBe(`${overlayLayout(overlay).height}px`);
-    expect(container.querySelector('.overlay__bar')).not.toBeNull();
+    const viewport = container.querySelector('.overlay__viewport')!;
+    expect(viewport.previousElementSibling).toHaveClass('overlay__header');
+    expect(viewport.nextElementSibling).toHaveClass('overlay__footer');
+    expect(viewport.querySelector('button, .overlay__resize')).toBeNull();
+  });
+
+  it('the preview uses the stored window width and never renders edit controls', () => {
+    const base = overlayOf('horizontal');
+    const overlay = { ...base, geometry: { ...base.geometry, width: 240 } };
+    const { container } = render(<OverlaySurface overlay={overlay} preview />);
+    const layout = overlayLayout(overlay, 240);
+    expect(container.querySelector('.overlay__content')).toHaveStyle({
+      width: `${layout.width}px`,
+      height: `${layout.height}px`,
+    });
+    expect(container.querySelector('.overlay__bar, .overlay__resize')).toBeNull();
+  });
+
+  it('updates native size constraints on resize without feeding stretched heights back', () => {
+    const observers = new Map<Element, ResizeObserverCallback>();
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        constructor(private callback: ResizeObserverCallback) {}
+        observe(element: Element) {
+          observers.set(element, this.callback);
+        }
+        disconnect() {}
+      },
+    );
+    const setMinSize = vi.fn().mockResolvedValue(undefined);
+    vi.spyOn(tauri, 'isTauriRuntime').mockReturnValue(true);
+    vi.mocked(tauriWindow.getCurrentWindow).mockReturnValue({ setMinSize } as never);
+    const overlay = { ...overlayOf('vertical'), span: 'fill' as const };
+    const { container, rerender } = render(<OverlaySurface overlay={overlay} />);
+    const resize = (selector: string, width: number, height: number) => {
+      const element = container.querySelector(selector)!;
+      act(() =>
+        observers.get(element)!(
+          [{ contentRect: { width, height } }] as ResizeObserverEntry[],
+          {} as ResizeObserver,
+        ),
+      );
+    };
+    resize('.overlay__header', 240, 26);
+    resize('.overlay__footer', 240, 14);
+    resize('.overlay', 240, 600);
+    const naturalHeight = overlayLayout({ ...overlay, span: 'content' }).height;
+    expect(setMinSize).toHaveBeenLastCalledWith(
+      new tauriWindow.LogicalSize(192, naturalHeight + 40),
+    );
+    const calls = setMinSize.mock.calls.length;
+    resize('.overlay', 240, 800);
+    expect(setMinSize).toHaveBeenCalledTimes(calls);
+    rerender(<OverlaySurface overlay={{ ...overlay, locked: true }} />);
+    expect(setMinSize).toHaveBeenLastCalledWith(new tauriWindow.LogicalSize(192, naturalHeight));
+    expect(container.querySelector('.overlay')).toHaveAttribute('inert');
   });
 });
 
@@ -342,6 +434,38 @@ describe('overlay window', () => {
     expect(container.querySelector('.overlay__resize')).toBeNull();
     expect(screen.queryAllByRole('button')).toHaveLength(0);
     expect(container.querySelectorAll('.widget')).toHaveLength(2);
+  });
+
+  it('Edit → Locked → Edit follows peer updates and removes all interactive edit DOM', async () => {
+    const id = seed(false);
+    const backend = memoryBackend({ overlays: overlays() });
+    await initUiConfig(backend);
+    const { container } = render(<OverlayApp id={id} />);
+    const widgets = [...container.querySelectorAll('.widget')];
+    for (let cycle = 0; cycle < 3; cycle += 1) {
+      fireEvent.click(screen.getByRole('button', { name: 'Open PULSE' }));
+      expect(invoke).toHaveBeenCalledWith('open_main_window');
+      act(() =>
+        backend.peer(
+          'overlays',
+          updateOverlay(overlays(), id, (o) => ({ ...o, locked: true })),
+        ),
+      );
+      expect(container.querySelector('.overlay')).toHaveAttribute('inert');
+      expect(
+        container.querySelector(
+          'button, [tabindex], [data-tauri-drag-region], .overlay__resize, .overlay__header, .overlay__footer',
+        ),
+      ).toBeNull();
+      expect([...container.querySelectorAll('.widget')]).toEqual(widgets);
+      act(() =>
+        updateOverlays((section) => updateOverlay(section, id, (o) => ({ ...o, locked: false }))),
+      );
+      await act(() => flushUiConfig());
+      expect(container.querySelector('.overlay')).not.toHaveAttribute('inert');
+      expect(screen.getByRole('button', { name: 'Lock' })).toBeEnabled();
+      expect(container.querySelector('.overlay__resize')).not.toBeNull();
+    }
   });
 
   it('a change made elsewhere (the main window) appears in the overlay', () => {

@@ -22,23 +22,48 @@ use std::sync::Arc;
 use super::{HostPlatform, PlatformKind};
 use crate::metrics::providers::MetricProvider;
 
-#[cfg(target_os = "linux")]
-const WEBKIT_DISABLE_DMABUF_RENDERER: &str = "WEBKIT_DISABLE_DMABUF_RENDERER";
-
-/// Disables WebKit's DMA-BUF renderer on nouveau, where it crashes the web
-/// process. This runs before Tauri creates WebKit and preserves user choices.
+/// Selects a working transparent renderer before GTK/WebKit initialize.
+/// Nouveau's hardware DMA-BUF path crashes; disabling the renderer entirely
+/// instead hits WebKitGTK's Skia backing-store bug (319864): transparent
+/// updates use SrcOver instead of Copy and accumulate previous frames.
+/// Software GL + shared-memory transport avoids both paths, retaining alpha.
+/// These variables affect this process and its children only, never the session.
 #[cfg(target_os = "linux")]
 pub fn prepare_runtime_environment() {
-    if std::env::var_os(WEBKIT_DISABLE_DMABUF_RENDERER).is_some() {
-        return;
+    let changes = renderer_defaults(has_nouveau_drm_card(Path::new("/sys/class/drm")), |key| {
+        std::env::var_os(key).is_some()
+    });
+    for (key, value) in &changes {
+        std::env::set_var(key, value);
     }
-
-    if has_nouveau_drm_card(Path::new("/sys/class/drm")) {
-        std::env::set_var(WEBKIT_DISABLE_DMABUF_RENDERER, "1");
+    if !changes.is_empty() {
         eprintln!(
-            "PULSE: nouveau DRM driver detected; set {WEBKIT_DISABLE_DMABUF_RENDERER}=1 to prevent WebKit DMA-BUF renderer crashes"
+            "PULSE: nouveau DRM driver detected; using software GL with shared-memory WebKit transport to preserve transparent repaint"
         );
     }
+}
+
+/// An explicit renderer choice is kept as a whole: mixing half of an override
+/// with our fallback can select another broken path. Test without mutating the
+/// process environment (Rust tests run concurrently).
+#[cfg(any(target_os = "linux", test))]
+fn renderer_defaults(
+    nouveau: bool,
+    is_set: impl Fn(&str) -> bool,
+) -> Vec<(&'static str, &'static str)> {
+    const CHOICES: [&str; 4] = [
+        "WEBKIT_DISABLE_DMABUF_RENDERER",
+        "WEBKIT_DMABUF_RENDERER_FORCE_SHM",
+        "LIBGL_ALWAYS_SOFTWARE",
+        "WEBKIT_DISABLE_COMPOSITING_MODE",
+    ];
+    if !nouveau || CHOICES.iter().any(|key| is_set(key)) {
+        return Vec::new();
+    }
+    vec![
+        ("LIBGL_ALWAYS_SOFTWARE", "1"),
+        ("WEBKIT_DMABUF_RENDERER_FORCE_SHM", "1"),
+    ]
 }
 
 #[cfg(target_os = "linux")]
@@ -172,6 +197,30 @@ fn detect_display_server(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn nouveau_keeps_compositing_with_software_gl_and_shared_memory() {
+        assert_eq!(
+            renderer_defaults(true, |_| false),
+            vec![
+                ("LIBGL_ALWAYS_SOFTWARE", "1"),
+                ("WEBKIT_DMABUF_RENDERER_FORCE_SHM", "1"),
+            ]
+        );
+        assert!(renderer_defaults(false, |_| false).is_empty());
+    }
+
+    #[test]
+    fn explicit_renderer_choices_are_not_partially_overwritten() {
+        for explicit in [
+            "WEBKIT_DISABLE_DMABUF_RENDERER",
+            "WEBKIT_DMABUF_RENDERER_FORCE_SHM",
+            "LIBGL_ALWAYS_SOFTWARE",
+            "WEBKIT_DISABLE_COMPOSITING_MODE",
+        ] {
+            assert!(renderer_defaults(true, |key| key == explicit).is_empty());
+        }
+    }
 
     #[test]
     fn recognises_drm_card_names() {

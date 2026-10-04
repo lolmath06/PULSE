@@ -35,6 +35,7 @@ pub mod processes;
 pub mod services;
 pub mod state;
 pub mod ui_config;
+pub mod window_native;
 
 /// The event the history scheduler emits after each batch.
 ///
@@ -74,6 +75,10 @@ pub fn run() {
         .setup(|app| {
             use std::sync::Arc;
             use tauri::Manager;
+
+            if let Some(main) = app.get_webview_window(desktop::MAIN_LABEL) {
+                window_native::prepare_main_window(&main);
+            }
 
             // History needs the engine and the platform's data directory, so
             // it starts here rather than in `AppState::new`. It is not a

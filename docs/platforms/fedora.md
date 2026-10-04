@@ -492,11 +492,28 @@ Physically reproduced on Fedora 39 with nouveau: the earlier Ubuntu 24.04-built
 `WEBKIT_DISABLE_DMABUF_RENDERER=1`; `LIBGL_ALWAYS_SOFTWARE`, llvmpipe and other
 driver overrides were unnecessary.
 
-Before WebKit starts, PULSE therefore checks exact DRM `card<N>` entries in
-`/sys/class/drm`. It sets `WEBKIT_DISABLE_DMABUF_RENDERER=1` only when a card's
-`device/driver` symlink ends in `nouveau`, and only when the user has not
-already defined that variable. Connector, render and control nodes are ignored;
-other drivers and existing user choices are unchanged.
+That first workaround exposed a second problem with transparent overlays:
+WebKitGTK 2.46.3's software Skia backing store blends new pixels over old
+pixels instead of replacing them ([WebKit bug 319864](https://bugs.webkit.org/show_bug.cgi?id=319864)).
+The DOM can be empty while the native surface still contains previous metrics
+and controls. A GTK clear, software-only WebKit setting or CSS repaint cannot
+repair that persistent buffer.
+
+Before GTK/WebKit start, PULSE checks exact DRM `card<N>` entries in
+`/sys/class/drm`. On nouveau it now selects `LIBGL_ALWAYS_SOFTWARE=1` together
+with `WEBKIT_DMABUF_RENDERER_FORCE_SHM=1`: software GL composition with
+shared-memory transport, avoiding hardware DMA-BUF and the broken fallback
+backing store while retaining per-pixel alpha. Both settings are necessary on
+the tested Fedora 39 machine. The cost is software composition for PULSE;
+no polling or animation is added. These process-local variables do not change
+other applications or the desktop session.
+
+Explicit renderer choices are preserved as a whole: defining any of
+`WEBKIT_DISABLE_DMABUF_RENDERER`, `WEBKIT_DMABUF_RENDERER_FORCE_SHM`,
+`LIBGL_ALWAYS_SOFTWARE` or `WEBKIT_DISABLE_COMPOSITING_MODE` skips the automatic
+selection. Remove an old manually exported `WEBKIT_DISABLE_DMABUF_RENDERER=1`
+when testing the new automatic selection. Other drivers remain unchanged.
+See the [overlay diagnosis and pixel regression](../overlay/hotfix-v1.0.1.md#transparent-repaint-follow-up).
 
 ## Testing note
 

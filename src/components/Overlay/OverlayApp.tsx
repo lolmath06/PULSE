@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getCurrentWindow } from '@tauri-apps/api/window';
+import { getCurrentWindow, LogicalSize } from '@tauri-apps/api/window';
 import { isTauriRuntime } from '@/services/tauri';
 import type { Overlay } from '@/overlay/model';
 import { overlayChromeStyle } from '@/overlay/style';
@@ -57,13 +57,49 @@ export function OverlaySurface({
   const { t } = useTranslation();
   const name = overlayName(overlay);
   const editing = !overlay.locked && !preview;
-  const layout = overlayLayout(overlay);
+  const [surfaceRef, size] = useElementSize<HTMLDivElement>();
+  const [barRef, barSize] = useElementSize<HTMLDivElement>();
+  const [footerRef, footerSize] = useElementSize<HTMLDivElement>();
+  const editHeight = editing ? barSize.height + footerSize.height : 0;
+  const availableWidth = preview ? overlay.geometry.width : size.width || undefined;
+  const layout = overlayLayout(
+    preview
+      ? overlay
+      : {
+          ...overlay,
+          geometry: {
+            ...overlay.geometry,
+            width: size.width || overlay.geometry.width,
+            height: Math.max(0, (size.height || overlay.geometry.height) - editHeight),
+          },
+        },
+    availableWidth,
+  );
+  const minimumWidth = Math.max(
+    editing || overlay.widgets.length === 0 ? 160 : 24,
+    ...overlay.widgets.map((widget) => widget.size.width + overlay.chrome.padding * 2),
+  );
+  // Minimum height uses the natural boxes, never the stretched fill geometry:
+  // recording a native resize must not make the next minimum grow again.
+  const minimumHeight =
+    overlayLayout({ ...overlay, span: 'content' }, availableWidth).height + editHeight;
+  useEffect(() => {
+    if (preview || !size.width || !isTauriRuntime()) return;
+    void getCurrentWindow()
+      .setMinSize(new LogicalSize(minimumWidth, minimumHeight))
+      .catch(() => undefined);
+  }, [preview, size.width, minimumWidth, minimumHeight]);
   const byId = new Map(overlay.widgets.map((widget) => [widget.id, widget]));
 
   return (
     <div
+      ref={surfaceRef}
       className={`overlay${editing ? ' overlay--editing' : ''}${preview ? ' overlay--preview' : ''}`}
-      style={overlayChromeStyle(overlay)}
+      style={{
+        ...overlayChromeStyle(overlay),
+        ...(preview ? { width: layout.width, height: layout.height } : {}),
+      }}
+      inert={overlay.locked && !preview}
       aria-label={t('overlays.surface.aria', { name })}
     >
       {overlay.chrome.background && (
@@ -77,71 +113,77 @@ export function OverlaySurface({
           }}
         />
       )}
-      <div
-        className="overlay__content"
-        style={{ width: layout.width, height: layout.height }}
-        data-layout={overlay.layout}
-      >
-        {layout.boxes.map((box) => {
-          const widget = byId.get(box.id)!;
-          return (
-            <div
-              key={box.id}
-              className="overlay__slot"
-              style={{ left: box.x, top: box.y, width: box.width, height: box.height }}
-              data-slot={box.id}
-            >
-              <WidgetCard
-                widget={widget}
-                width={box.width}
-                height={box.height}
-                editing={false}
-                className="widget--overlay"
-              />
-            </div>
-          );
-        })}
-        {overlay.widgets.length === 0 && (
-          <p className="overlay__empty">{t('overlays.surface.empty')}</p>
-        )}
-      </div>
       {editing && (
-        <div className="overlay__bar" data-tauri-drag-region>
-          <span className="overlay__name" data-tauri-drag-region>
-            {t('overlays.surface.dragToMove', { name })}
-          </span>
-          <button
-            type="button"
-            className="overlay__button"
-            onClick={() =>
-              updateOverlays((section) =>
-                updateOverlay(section, overlay.id, (o) => ({ ...o, locked: true })),
-              )
-            }
-          >
-            {t('overlays.surface.lock')}
-          </button>
-          <button
-            type="button"
-            className="overlay__button"
-            onClick={() => void openMainWindow().catch(() => undefined)}
-          >
-            {t('overlays.surface.openPulse')}
-          </button>
+        <div ref={barRef} className="overlay__header">
+          <div className="overlay__bar" data-tauri-drag-region>
+            <span className="overlay__name" data-tauri-drag-region>
+              {t('overlays.surface.dragToMove', { name })}
+            </span>
+            <button
+              type="button"
+              className="overlay__button"
+              onClick={() =>
+                updateOverlays((section) =>
+                  updateOverlay(section, overlay.id, (o) => ({ ...o, locked: true })),
+                )
+              }
+            >
+              {t('overlays.surface.lock')}
+            </button>
+            <button
+              type="button"
+              className="overlay__button"
+              onClick={() => void openMainWindow().catch(() => undefined)}
+            >
+              {t('overlays.surface.openPulse')}
+            </button>
+          </div>
         </div>
       )}
+      <div className="overlay__viewport">
+        <div
+          className="overlay__content"
+          style={{ width: layout.width, height: layout.height }}
+          data-layout={overlay.layout}
+        >
+          {layout.boxes.map((box) => {
+            const widget = byId.get(box.id)!;
+            return (
+              <div
+                key={box.id}
+                className="overlay__slot"
+                style={{ left: box.x, top: box.y, width: box.width, height: box.height }}
+                data-slot={box.id}
+              >
+                <WidgetCard
+                  widget={widget}
+                  width={box.width}
+                  height={box.height}
+                  editing={false}
+                  className="widget--overlay"
+                />
+              </div>
+            );
+          })}
+          {overlay.widgets.length === 0 && (
+            <p className="overlay__empty">{t('overlays.surface.empty')}</p>
+          )}
+        </div>
+      </div>
       {editing && (
-        <span
-          className="overlay__resize"
-          title={t('overlays.surface.dragToResize')}
-          onPointerDown={(event) => {
-            event.preventDefault();
-            if (isTauriRuntime())
-              void getCurrentWindow()
-                .startResizeDragging('SouthEast')
-                .catch(() => undefined);
-          }}
-        />
+        <div ref={footerRef} className="overlay__footer">
+          <span
+            className="overlay__resize"
+            title={t('overlays.surface.dragToResize')}
+            onPointerDown={(event) => {
+              event.preventDefault();
+              if (isTauriRuntime())
+                void getCurrentWindow()
+                  .startResizeDragging('SouthEast')
+                  .catch(() => undefined);
+            }}
+          />
+        </div>
       )}
     </div>
   );
@@ -154,7 +196,7 @@ export function OverlaySurface({
 export function OverlayPreview({ overlay }: { readonly overlay: Overlay }) {
   const look = useScopedLook(overlay.styleId);
   const [ref, size] = useElementSize<HTMLDivElement>();
-  const layout = overlayLayout(overlay);
+  const layout = overlayLayout(overlay, overlay.geometry.width);
   const available = size.width || layout.width;
   const scale = Math.min(1, available / Math.max(1, layout.width));
   return (

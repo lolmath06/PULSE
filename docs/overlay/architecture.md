@@ -58,6 +58,16 @@ Switching: each overlay's _Lock_; _Edit all_ / _Lock all_ in PULSE → Overlays;
 the tray; the global shortcut (toggle: if any overlay is editable, lock all,
 otherwise unlock all).
 
+The frontend subscribes before loading its configuration snapshot, buffers
+events during the load and rejects stale revisions per section. Locked
+surfaces are inert and have no edit-control DOM. Edit controls occupy separate
+rows above and below the metrics, never an absolute layer over them.
+`overlayLayout(overlay, availableWidth)` wraps horizontal rows and reduces grid
+columns without shrinking widgets. Passive `ResizeObserver`s measure the
+window and edit rows; the overlay sets a native minimum size sufficient for
+the resulting content. Fill layouts use natural widget sizes for that minimum
+to avoid a resize feedback loop. The preview uses the stored window width.
+
 On Linux, `tao` implements click-through as an input region of **1×1 pixel**
 at the window's top-left corner, measured on Fedora/XWayland: clicks pass
 through everywhere except that single pixel.
@@ -115,7 +125,8 @@ shortcut is registered again at startup, off the main thread.
 
 `src-tauri/capabilities/overlay.json`, windows `overlay-*` only:
 `core:default`, `core:window:allow-start-dragging`,
-`core:window:allow-start-resize-dragging`. The main and Mini windows keep
+`core:window:allow-start-resize-dragging`, `core:window:allow-set-min-size`.
+The main and Mini windows keep
 `core:default`. No shell, filesystem or HTTP permission was added; every other
 overlay action goes through PULSE's own commands.
 

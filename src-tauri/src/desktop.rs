@@ -543,6 +543,7 @@ pub fn show_main<R: Runtime>(app: &AppHandle<R>) {
             }
         }
     };
+    crate::window_native::prepare_main_window(&window);
     let _ = window.show();
     let _ = window.unminimize();
     let _ = window.set_focus();

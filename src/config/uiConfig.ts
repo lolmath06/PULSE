@@ -58,7 +58,8 @@ export interface UiConfigChange {
 export interface UiConfigBackend {
   load(): Promise<UiConfigSnapshot>;
   save(section: UiSection, value: unknown): Promise<number>;
-  subscribe(listener: (change: UiConfigChange) => void): () => void;
+  /** Resolves only when the listener is installed, before loading a snapshot. */
+  subscribe(listener: (change: UiConfigChange) => void): (() => void) | Promise<() => void>;
   /** This window's label, to ignore our own echoes. */
   origin(): string;
 }
@@ -68,8 +69,7 @@ export function tauriBackend(): UiConfigBackend {
     load: () => invokeCommand<UiConfigSnapshot>('get_ui_config'),
     save: (section, value) => invokeCommand<number>('set_ui_config_section', { section, value }),
     subscribe(listener) {
-      const pending = listen<UiConfigChange>(UI_CONFIG_EVENT, (event) => listener(event.payload));
-      return () => void pending.then((unlisten) => unlisten()).catch(() => undefined);
+      return listen<UiConfigChange>(UI_CONFIG_EVENT, (event) => listener(event.payload));
     },
     origin: () => getCurrentWebviewWindow().label,
   };
@@ -175,15 +175,38 @@ export function registerUiConfigMigration(migration: Migration) {
  */
 export async function initUiConfig(source?: UiConfigBackend): Promise<void> {
   unsubscribe?.();
+  unsubscribe = null;
   for (const timer of timers.values()) clearTimeout(timer);
   timers.clear();
   backend = source ?? (isTauriRuntime() ? tauriBackend() : memoryBackend());
+  let own = backend.origin();
+  let loading = true;
+  const pending: UiConfigChange[] = [];
+  // Revisions are per section: a newer settings event must not discard an
+  // unseen overlay event. Backends can broadcast concurrent writes out of order.
+  const revisions = new Map<string, number>();
+  const receive = (change: UiConfigChange) => {
+    if (loading) {
+      pending.push(change);
+      return;
+    }
+    if (!(UI_SECTIONS as readonly string[]).includes(change.section)) return;
+    if (change.revision <= (revisions.get(change.section) ?? 0)) return;
+    revisions.set(change.section, change.revision);
+    if (change.origin === own) return;
+    setState({ document: { ...state.document, [change.section]: change.value } });
+  };
 
   let snapshot: UiConfigSnapshot;
   try {
+    unsubscribe = await backend.subscribe(receive);
     snapshot = await backend.load();
   } catch (error) {
+    unsubscribe?.();
+    pending.length = 0;
     backend = memoryBackend();
+    own = backend.origin();
+    unsubscribe = await backend.subscribe(receive);
     snapshot = await backend.load();
     state = { ...state, saveError: error instanceof Error ? error.message : String(error) };
   }
@@ -196,12 +219,10 @@ export async function initUiConfig(source?: UiConfigBackend): Promise<void> {
     readOnly: snapshot.readOnly,
     path: snapshot.path,
   };
-  const own = backend.origin();
-  unsubscribe = backend.subscribe((change) => {
-    if (change.origin === own) return;
-    if (!(UI_SECTIONS as readonly string[]).includes(change.section)) return;
-    setState({ document: { ...state.document, [change.section]: change.value } });
-  });
+  for (const section of UI_SECTIONS) revisions.set(section, snapshot.revision);
+  loading = false;
+  for (const change of pending) receive(change);
+  pending.length = 0;
 
   for (const migration of migrations) migration(readSection, writeSection);
   emit();

@@ -2679,10 +2679,13 @@ html.pulse-overlay #root {
 
 .overlay {
   position: relative;
-  display: inline-flex;
+  display: flex;
   flex-direction: column;
-  min-width: 100%;
-  min-height: 100%;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
   isolation: isolate;
 }
 
@@ -2693,14 +2696,15 @@ html.pulse-overlay #root {
   pointer-events: none;
 }
 
+.overlay__header {
+  flex: none;
+}
+
 .overlay__bar {
-  /* Laid over the content: entering Edit mode never changes the overlay's size. */
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  right: 16px;
-  z-index: 5;
+  /* A separate row: neither controls nor metrics can cover one another. */
+  flex: none;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 6px;
   padding: 2px 4px;
@@ -2710,7 +2714,8 @@ html.pulse-overlay #root {
 }
 
 .overlay__name {
-  flex: 1;
+  flex: 1 1 80px;
+  min-width: 0;
   overflow: hidden;
   font-size: 11px;
   color: var(--pulse-text-muted);
@@ -2719,6 +2724,8 @@ html.pulse-overlay #root {
 }
 
 .overlay__button {
+  flex: none;
+  white-space: nowrap;
   padding: 1px 6px;
   border: 1px solid var(--pulse-border-strong);
   border-radius: 4px;
@@ -2727,6 +2734,14 @@ html.pulse-overlay #root {
   font: inherit;
   font-size: 11px;
   cursor: pointer;
+}
+
+.overlay__viewport {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  /* Also keeps controls reachable while native minimum-size changes settle. */
+  overflow: auto;
 }
 
 .overlay__content {
@@ -2760,10 +2775,15 @@ html.pulse-overlay #root {
   color: var(--pulse-text-muted);
 }
 
+.overlay__footer {
+  flex: none;
+  display: flex;
+  justify-content: flex-end;
+}
+
 .overlay__resize {
-  position: absolute;
-  right: 1px;
-  bottom: 1px;
+  flex: none;
+  margin: 1px;
   width: 12px;
   height: 12px;
   cursor: nwse-resize;
